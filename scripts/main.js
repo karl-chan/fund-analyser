@@ -59,49 +59,29 @@ function downloadCsv(callback) {
         type: 'aggregate',
         pipeline: [
             {
-                $group: {
-                    _id: '$id',
-                    isin: {$first: '$isin'},
-                    name: {$first: '$name'},
-                    type: {$first: '$type'},
-                    shareClass: {$first: '$shareClass'},
-                    frequency: {$first: '$frequency'},
-                    ocf: {$first: '$ocf'},
-                    amc: {$first: '$amc'},
-                    entryCharge: {$first: '$entryCharge'},
-                    exitCharge: {$first: '$exitCharge'},
-                    '5Y': {$first: '$returns.5Y'},
-                    '3Y': {$first: '$returns.3Y'},
-                    '1Y': {$first: '$returns.1Y'},
-                    '6M': {$first: '$returns.6M'},
-                    '3M': {$first: '$returns.3M'},
-                    '1M': {$first: '$returns.1M'},
-                    '2W': {$first: '$returns.2W'},
-                    '1W': {$first: '$returns.1W'},
-                    '3D': {$first: '$returns.3D'},
-                    '1D': {$first: '$returns.1D'},
-                    'holdings': {$first: '$holdings'},
-                    'latest': {$max: '$historicPrices.date'}
-                }
-            },
-            {
-                $sort: {
-                    '1D': -1
-                }
-            },
-            {
                 $project: {
-                    "_id": 0,
-                    "returns.5Y": "$5Y",
-                    "returns.3Y": "$3Y",
-                    "returns.1Y": "$1Y",
-                    "returns.6M": "$6M",
-                    "returns.3M": "$3M",
-                    "returns.1M": "$1M",
-                    "returns.2W": "$2W",
-                    "returns.1W": "$1W",
-                    "returns.3D": "$3D",
-                    "returns.1D": "$1D"
+                    '_id': 0,
+                    'isin': 1,
+                    'name': 1,
+                    'type': 1,
+                    'shareClass': 1,
+                    'frequency': 1,
+                    'ocf': 1,
+                    'amc': 1,
+                    'entryCharge': 1,
+                    'exitCharge': 1,
+                    'returns.5Y': 1,
+                    'returns.3Y': 1,
+                    'returns.1Y': 1,
+                    'returns.6M': 1,
+                    'returns.3M': 1,
+                    'returns.1M': 1,
+                    'returns.2W': 1,
+                    'returns.1W': 1,
+                    'returns.3D': 1,
+                    'returns.1D': 1,
+                    'holdings': 1,
+                    'latest': {$max: '$historicPrices.date'}
                 }
             }
         ]
