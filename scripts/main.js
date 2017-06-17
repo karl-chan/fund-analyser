@@ -41,7 +41,7 @@ function updateFunds(callback) {
 function createIndex(callback) {
     async.each(['1D', '3D', '1W', '2W', '1M', '3M', '6M', '1Y', '3Y', '5Y'], (period, cb) => {
         const index = {};
-        index[`returns.${period}`] = 1
+        index[`returns.${period}`] = 1;
         db.get().collection('funds').createIndex(index, cb);
     }, callback);
 }
@@ -56,13 +56,60 @@ function repairDatabase(callback) {
 function downloadCsv(callback) {
     const savePath = properties.get('csv.save.path');
     const options = {
-        project: {historicPrices: 0},
-        sort: {'returns.1D': -1}
+        type: 'aggregate',
+        pipeline: [
+            {
+                $group: {
+                    _id: '$id',
+                    isin: {$first: '$isin'},
+                    name: {$first: '$name'},
+                    type: {$first: '$type'},
+                    shareClass: {$first: '$shareClass'},
+                    frequency: {$first: '$frequency'},
+                    ocf: {$first: '$ocf'},
+                    amc: {$first: '$amc'},
+                    entryCharge: {$first: '$entryCharge'},
+                    exitCharge: {$first: '$exitCharge'},
+                    '5Y': {$first: '$returns.5Y'},
+                    '3Y': {$first: '$returns.3Y'},
+                    '1Y': {$first: '$returns.1Y'},
+                    '6M': {$first: '$returns.6M'},
+                    '3M': {$first: '$returns.3M'},
+                    '1M': {$first: '$returns.1M'},
+                    '2W': {$first: '$returns.2W'},
+                    '1W': {$first: '$returns.1W'},
+                    '3D': {$first: '$returns.3D'},
+                    '1D': {$first: '$returns.1D'},
+                    'holdings': {$first: '$holdings'},
+                    'latest': {$max: '$historicPrices.date'}
+                }
+            },
+            {
+                $sort: {
+                    '1D': -1
+                }
+            },
+            {
+                $project: {
+                    "_id": 0,
+                    "returns.5Y": "$5Y",
+                    "returns.3Y": "$3Y",
+                    "returns.1Y": "$1Y",
+                    "returns.6M": "$6M",
+                    "returns.3M": "$3M",
+                    "returns.1M": "$1M",
+                    "returns.2W": "$2W",
+                    "returns.1W": "$1W",
+                    "returns.3D": "$3D",
+                    "returns.1D": "$1D"
+                }
+            }
+        ]
     };
     const headerFields = ['isin', 'name', 'type', 'shareClass', 'frequency',
         'ocf', 'amc', 'entryCharge', 'exitCharge', 'returns.5Y', 'returns.3Y',
         'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'returns.2W',
-        'returns.1W', 'returns.3D', 'returns.1D', 'holdings'];
+        'returns.1W', 'returns.3D', 'returns.1D', 'holdings', 'latest'];
     FundDAO.exportCsv(savePath, options, headerFields, (err) => {
         if (err) {
             return callback(err);
