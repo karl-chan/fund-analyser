@@ -18,11 +18,13 @@ app.get('/api/funds', (req, res) => {
     const fields = req.query.fields || ''; // comma delimited string of fields to return
     const format = req.query.format || 'json'; // should be csv or json (default)
     const fileName = req.query.fileName || 'Fund List.csv'; // for csv case only
+    const skip = req.query.skip;
     const limit = req.query.limit;
 
     const project = fields ? _.zipObject(fields.split(','), Array(fields.split(',').length).fill(1)) : undefined;
     const options = {
         project: project,
+        skip: skip? _.parseInt(skip): undefined,
         limit: limit ? _.parseInt(limit) : undefined
     };
 
