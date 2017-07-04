@@ -11,6 +11,7 @@ const FundFactory = require('../lib/fund/FundFactory.js');
 const FundDAO = require('../lib/db/FundDAO.js');
 
 const updateFunds = require('./tasks/updateFunds.js');
+const removeOldFunds = require('./tasks/removeOldFunds.js');
 const createIndex = require('./tasks/createIndex.js');
 const repairDatabase = require('./tasks/repairDatabase.js');
 const downloadCsv = require('./tasks/downloadCsv.js');
@@ -20,6 +21,7 @@ function Main() {
 
 Main.tasks = {
     'updateFunds': updateFunds,
+    'removeOldFunds': removeOldFunds,
     'createIndex': createIndex,
     'repairDatabase': repairDatabase,
     'downloadCsv': downloadCsv
