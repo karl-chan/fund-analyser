@@ -14,7 +14,7 @@ function removeOldFunds(callback) {
         const allIsinsArr = _.map(allIsinsObj, o => o.isin);
         new CharlesStanleyDirect().getIsins((err, isins) => {
             const oldIsins = _.difference(allIsins, isins);
-            db.get().collection('funds').deleteMany({isin: {$in: oldIsins}})
+            db.getFunds().deleteMany({isin: {$in: oldIsins}})
         });
     })
 

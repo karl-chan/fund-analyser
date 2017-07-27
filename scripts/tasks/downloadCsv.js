@@ -23,6 +23,7 @@ function downloadCsv(callback) {
                     'amc': 1,
                     'entryCharge': 1,
                     'exitCharge': 1,
+                    'bidAskSpread': 1,
                     'returns.5Y': 1,
                     'returns.3Y': 1,
                     'returns.1Y': 1,
@@ -43,6 +44,12 @@ function downloadCsv(callback) {
                     'percentiles.1W': 1,
                     'percentiles.3D': 1,
                     'percentiles.1D': 1,
+                    'cv': {
+                        $divide: [
+                            {$stdDevSamp: '$historicPrices.price'},
+                            {$avg: '$historicPrices.price'}
+                        ]
+                    },
                     'holdings': 1,
                     'latest': {$max: '$historicPrices.date'}
                 }
@@ -54,11 +61,11 @@ function downloadCsv(callback) {
         ]
     };
     const headerFields = ['isin', 'name', 'type', 'shareClass', 'frequency',
-        'ocf', 'amc', 'entryCharge', 'exitCharge', 'returns.5Y', 'returns.3Y',
+        'ocf', 'amc', 'entryCharge', 'exitCharge', 'bidAskSpread', 'returns.5Y', 'returns.3Y',
         'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'returns.2W',
         'returns.1W', 'returns.3D', 'returns.1D', 'percentiles.5Y', 'percentiles.3Y',
         'percentiles.1Y', 'percentiles.6M', 'percentiles.3M', 'percentiles.1M', 'percentiles.2W',
-        'percentiles.1W', 'percentiles.3D', 'percentiles.1D', 'holdings', 'latest'];
+        'percentiles.1W', 'percentiles.3D', 'percentiles.1D', 'cv', 'holdings', 'latest'];
     FundDAO.exportCsv(savePath, options, headerFields, (err) => {
         if (err) {
             return callback(err);
