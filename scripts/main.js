@@ -49,6 +49,10 @@ if (require.main == module) {
         await db.init();
         log.info(`Connected to MongoDB.`);
 
+        setInterval(() => {
+            db.lastActive(new Date()); // update every minute
+        }, properties.get('cron.refresh.interval'));
+
         for(let task of commander.run) {
             log.info(`Started running: ${task}`);
             const taskDuration = timer.split();

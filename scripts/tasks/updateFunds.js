@@ -5,6 +5,7 @@ const FundDAO = require('../../lib/db/FundDAO.js');
 const streamWrapper = require('../../lib/util/streamWrapper.js');
 const db = require('../../lib/util/db.js');
 const log = require('../../lib/util/log.js');
+const properties = require('../../lib/util/properties.js');
 const updateCatalog = require('./updateCatalog.js');
 
 const moment = require('moment');
@@ -16,25 +17,16 @@ const _ = require('lodash');
  * @returns {Promise.<void>}
  */
 async function updateFunds(force) {
-
-    // Register shutdown handler in case of kill by heroku
-    process.on('SIGTERM', async () => {
-        await db.isRunning(true);
-        log.info('Shutting down gracefully as per heroku sigterm');
-        process.exit(-1);
-    });
-
     if (!force) {
-        const isRunning = await db.isRunning();
-        if (isRunning) {
+        const lastActive = await db.lastActive();
+        const refreshInterval = 2 * properties.get('cron.refresh.interval');
+        if (moment().diff(lastActive, 'ms') < refreshInterval) {
             log.info('Exiting because another thread is already running');
             process.exit(0);
         }
     }
 
-    await db.isRunning(true);
     const yesterday = moment().utc().startOf('day').subtract(1, 'days').toDate();
-
 
     const fundsToUpdate = await new Promise((resolve, reject) => {
         FundDAO.listFunds({
@@ -54,5 +46,4 @@ async function updateFunds(force) {
         const stream = fundStream.pipe(upsertFundStream);
         stream.on('finish', resolve);
     });
-    await db.isRunning(false);
 };
