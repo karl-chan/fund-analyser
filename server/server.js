@@ -67,9 +67,12 @@ const serverError = (res, err) => {
     res.sendStatus(500);
 };
 
-app.listen(app.get('port'), function () {
-    db.init((err) => {
-        err ? log.error(err) : log.info('Connected to MongoDB');
-        log.info('Fund analyser data server is running on port', app.get('port'));
-    });
+app.listen(app.get('port'), async () => {
+    try {
+        await db.init();
+    } catch (err) {
+        log.error(err);
+    }
+    log.info('Connected to MongoDB');
+    log.info('Fund analyser data server is running on port', app.get('port'));
 });
