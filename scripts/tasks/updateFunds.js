@@ -46,4 +46,8 @@ async function updateFunds(force) {
         const stream = fundStream.pipe(upsertFundStream);
         stream.on('finish', resolve);
     });
+
+    // delete funds with no data
+    await db.getFunds().deleteMany({name: {$eq: null}});
+    log.info('Deleted funds without names');
 };
