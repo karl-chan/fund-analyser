@@ -34,7 +34,6 @@ if (require.main == module) {
         .description('Specify tasks to run')
         .option('-r, --run <tasks>', `specify one or more of the following tasks (comma-separated): ${operations}`,
             args => args.split(','))
-        .option('-f, --force', 'force run even if another thread is already running')
         .parse(process.argv);
 
     const validInput = commander.run && _.every(commander.run, (task) => task in Main.tasks);
@@ -49,15 +48,11 @@ if (require.main == module) {
         await db.init();
         log.info(`Connected to MongoDB.`);
 
-        setInterval(() => {
-            db.lastActive(new Date()); // update every minute
-        }, properties.get('cron.refresh.interval'));
-
         for(let task of commander.run) {
             log.info(`Started running: ${task}`);
             const taskDuration = timer.split();
             try {
-                await Main.tasks[task](commander.force);
+                await Main.tasks[task]();
             } catch (err) {
                 log.error(`Error during ${task}: ${err.stack} after ${taskDuration}.`);
 

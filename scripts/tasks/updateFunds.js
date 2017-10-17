@@ -13,19 +13,9 @@ const _ = require('lodash');
 
 /**
  * Update funds that need to be updated based on asof time
- * @param force
  * @returns {Promise.<void>}
  */
-async function updateFunds(force) {
-    if (!force) {
-        const lastActive = await db.lastActive();
-        const refreshInterval = 2 * properties.get('cron.refresh.interval');
-        if (moment().diff(lastActive, 'ms') < refreshInterval) {
-            log.info('Exiting because another thread is already running');
-            process.exit(0);
-        }
-    }
-
+async function updateFunds() {
     const yesterday = moment().utc().startOf('day').subtract(1, 'days').toDate();
 
     const fundsToUpdate = await new Promise((resolve, reject) => {
