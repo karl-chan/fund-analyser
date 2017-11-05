@@ -12,6 +12,11 @@ async function downloadCsv() {
         type: 'aggregate',
         pipeline: [
             {
+                $match: {
+                    name: {$ne: null}
+                }
+            },
+            {
                 $project: {
                     '_id': 0,
                     'isin': 1,
