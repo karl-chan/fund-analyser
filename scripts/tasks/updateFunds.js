@@ -16,7 +16,7 @@ const _ = require('lodash');
  * @returns {Promise.<void>}
  */
 async function updateFunds() {
-    const yesterday = moment().utc().startOf('day').subtract(1, 'days').toISOString();
+    const yesterday = moment().utc().startOf('day').subtract(1, 'days').toDate();
 
     const fundsToUpdate = await new Promise((resolve, reject) => {
         FundDAO.listFunds({
