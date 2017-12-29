@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "download": "node scripts/main.js -r downloadCsv",
+    "updateFunds": "node scripts/main.js -r updateFunds",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Karl Chan",
