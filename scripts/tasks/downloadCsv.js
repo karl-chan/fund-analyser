@@ -13,7 +13,7 @@ async function downloadCsv() {
         pipeline: [
             {
                 $match: {
-                    name: {$ne: null}
+                    name: { $ne: null }
                 }
             },
             {
@@ -49,10 +49,11 @@ async function downloadCsv() {
                     'percentiles.1W': 1,
                     'percentiles.3D': 1,
                     'percentiles.1D': 1,
+                    'stability': 1,
                     'cv': {
                         $divide: [
-                            {$stdDevSamp: '$historicPrices.price'},
-                            {$avg: '$historicPrices.price'}
+                            { $stdDevSamp: '$historicPrices.price' },
+                            { $avg: '$historicPrices.price' }
                         ]
                     },
                     'holdings': 1,
@@ -70,7 +71,7 @@ async function downloadCsv() {
         'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'returns.2W',
         'returns.1W', 'returns.3D', 'returns.1D', 'percentiles.5Y', 'percentiles.3Y',
         'percentiles.1Y', 'percentiles.6M', 'percentiles.3M', 'percentiles.1M', 'percentiles.2W',
-        'percentiles.1W', 'percentiles.3D', 'percentiles.1D', 'cv', 'holdings', 'asof'];
+        'percentiles.1W', 'percentiles.3D', 'percentiles.1D', 'stability', 'cv', 'holdings', 'asof'];
     return new Promise((resolve, reject) => {
         FundDAO.exportCsv(savePath, options, headerFields, (err) => {
             if (err) {
