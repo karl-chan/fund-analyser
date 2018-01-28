@@ -28,7 +28,7 @@
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "moment-duration-format": "^2.2.1",
-    "mongodb": "^3.0.1",
+    "mongodb": "^2.2.26",
     "parallel-transform": "^1.1.0",
     "properties-reader": "0.0.16",
     "pug": "^2.0.0-rc.4",
