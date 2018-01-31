@@ -6,7 +6,7 @@
   "scripts": {
     "download": "node scripts/main.js -r downloadCsv",
     "updateFunds": "node scripts/main.js -r updateFunds",
-    "test": "mocha lib/**/*.test.js --reporter mochawesome"
+    "test": "mocha"
   },
   "author": "Karl Chan",
   "private": true,
