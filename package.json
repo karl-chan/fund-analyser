@@ -6,6 +6,7 @@
   "scripts": {
     "download": "node scripts/main.js -r downloadCsv",
     "updateFunds": "node scripts/main.js -r updateFunds",
+    "server": "node server/server-koa.js",
     "test": "mocha"
   },
   "author": "Karl Chan",
@@ -25,6 +26,9 @@
     "express": "^4.15.2",
     "json2csv": "^3.7.3",
     "json2csv-stream": "^0.1.4",
+    "koa": "^2.5.0",
+    "koa-logger": "^3.1.0",
+    "koa-router": "^7.4.0",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "moment-duration-format": "^2.2.1",
