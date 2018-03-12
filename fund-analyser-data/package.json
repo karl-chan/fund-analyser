@@ -28,11 +28,12 @@
     "express": "^4.15.2",
     "json2csv": "^3.7.3",
     "json2csv-stream": "^0.1.4",
-    "jstat": "^1.7.1",
+    "jStat": "^1.7.1",
     "koa": "^2.5.0",
     "koa-bodyparser": "^4.2.0",
     "koa-logger": "^3.1.0",
     "koa-router": "^7.4.0",
+    "koa-static": "^4.0.2",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "moment-duration-format": "^2.2.1",
@@ -47,6 +48,7 @@
     "winston": "^2.3.1"
   },
   "engines": {
-    "node": "8.7.0"
+    "node": ">= 8.9.0",
+    "npm": ">= 5.6.0"
   }
 }

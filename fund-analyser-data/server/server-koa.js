@@ -1,6 +1,7 @@
 const Koa = require('koa')
 const logger = require('koa-logger')
-var bodyParser = require('koa-bodyparser');
+const bodyParser = require('koa-bodyparser')
+const serve = require('koa-static')
 
 const properties = require('../lib/util/properties')
 const db = require('../lib/util/db')
@@ -13,6 +14,7 @@ const app = new Koa();
 
 app.use(logger())
 app.use(bodyParser());
+app.use(serve(__dirname + '/../../fund-analyser-app/dist/spa-mat'))
 app.use(fundsRoutes.routes())
 
 const main = async () => {
