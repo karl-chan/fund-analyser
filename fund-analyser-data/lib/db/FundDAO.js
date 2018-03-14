@@ -8,7 +8,7 @@ const _ = require('lodash');
 const json2csv = require('json2csv');
 const stream = require('stream');
 
-function FundDAO(fund) {
+function FundDAO (fund) {
     _.assign(this, fund);
 }
 
@@ -59,7 +59,7 @@ FundDAO.upsertFund = function (fund, callback) {
         return callback();
     }
 
-    fundsCollection.updateOne(query, doc, { upsert: true }, (err, response) => {
+    fundsCollection.replaceOne(query, doc, { upsert: true }, (err, response) => {
         if (err) {
             return callback(err);
         }
@@ -115,7 +115,7 @@ FundDAO.streamFunds = function (options) {
     const dbStream = buildQuery(options).stream();
     const fundTransform = new stream.Transform({
         objectMode: true,
-        transform(doc, encoding, callback) {
+        transform (doc, encoding, callback) {
             const fund = FundDAO.toFund(doc);
             return callback(null, fund);
         }
@@ -166,7 +166,7 @@ FundDAO.prototype.equals = function (o) {
     return _.isEqual(selfCopy, otherCopy);
 };
 
-function omitDeep(arr, omitField) {
+function omitDeep (arr, omitField) {
     const copy = _.clone(arr);
     for (let i = 0; i < arr.length; i++) {
         copy[i] = _.omit(arr[i], omitField);
