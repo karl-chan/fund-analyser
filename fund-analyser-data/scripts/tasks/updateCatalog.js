@@ -17,6 +17,9 @@ const moment = require('moment');
 async function updateCatalog() {
     const newSedols = await new Promise((resolve, reject) => {
         new CharlesStanleyDirect().getSedols((err, sedols) => {
+            if (sedols && !sedols.length) {
+                err = new Error('No sedols found');
+            }
             err? reject(err): resolve(sedols);
         });
     });

@@ -57,7 +57,7 @@ CharlesStanleyDirect.prototype.getSedolsFromPage = function (page, callback) {
             return callback(err);
         }
         const $ = cheerio.load(body);
-        const sedols = $('#fund-table').find('tbody td:nth-child(3)').map((i, td) => $(td).text().trim()).get();
+        const sedols = $('#funds-table').find('tbody td:nth-child(3)').map((i, td) => $(td).text().trim()).get();
         log.debug('Sedols in page %d: %j', page, sedols);
         return callback(null, sedols);
     });

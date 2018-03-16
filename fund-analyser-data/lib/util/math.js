@@ -131,7 +131,7 @@ function enrichRealTimeDetails(realTimeDetails) {
     const changesX = holdingsX.map(h => h.todaysChange)
     const estChange = _.sumBy(holdingsX, h => h.todaysChange * h.weight) 
         / _.sumBy(holdingsX, h => h.weight)
-    const stdev = jStat.stdev(changesX, true)
+    const stdev = jStat.stdev(changesX, true) || null
     const ci = jStat.tci(estChange, 0.05, changesX)
     
     const enrichment = { estChange, stdev, ci }

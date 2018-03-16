@@ -1,9 +1,12 @@
+import { LocalStorage } from 'quasar'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { LocalStorage } from 'quasar'
+import { sync } from 'vuex-router-sync'
 import createPersistedState from 'vuex-persistedstate'
+
 import * as actions from './actions'
 import funds from './funds'
+import router from './../router'
 
 Vue.use(Vuex)
 
@@ -21,6 +24,7 @@ const store = new Vuex.Store({
     }
   })]
 })
+sync(store, router)
 store.dispatch('init')
 
 export default store

@@ -12,8 +12,8 @@
         </q-btn>
 
         <q-toolbar-title>
-          Fund Analyser App
-          <div slot="subtitle">Running on Quasar v{{ $q.version }}</div>
+          Fund Analyser
+          <div slot="subtitle">Your mutual funds toolkit</div>
         </q-toolbar-title>
 
         <fund-search class="absolute-center"/>

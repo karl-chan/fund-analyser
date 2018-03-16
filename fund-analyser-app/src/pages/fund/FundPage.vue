@@ -1,30 +1,35 @@
 <template>
   <q-page padding>
-    <div v-if="fund" class="q-headline">{{fund.name}}</div>
-    <div class="row justify-between items-center">
-      <!-- real time details bar -->
-      <template v-if="realTimeDetails">
-        <div>Today's change (estimate):
-          <span :class="{'text-green': realTimeDetails.estChange > 0,
-                        'text-red': realTimeDetails.estChange < 0,
-                        'text-weight-bold': true,
-                        'q-headline': true}">
-            {{ $utils.formatUtils.formatPercentage(realTimeDetails.estChange, true) }}
-          </span>
-        </div>
-        <div>Std dev: {{ $utils.formatUtils.formatPercentage(realTimeDetails.stdev, true) }}</div>
-        <div>Confidence interval:
-          ({{ $utils.formatUtils.formatPercentage(realTimeDetails.ci[0], true) }},
-           {{ $utils.formatUtils.formatPercentage(realTimeDetails.ci[1], true) }} )
+    <template v-if="fund">
+      <div class="q-headline">{{fund.name}}</div>
+      <div class="row justify-between items-center">
+        <!-- real time details bar -->
+        <template v-if="realTimeDetails">
+          <div>Today's change (estimate):
+            <span :class="{'text-green': realTimeDetails.estChange > 0,
+                          'text-red': realTimeDetails.estChange < 0,
+                          'text-weight-bold': true,
+                          'q-headline': true}">
+              {{ $utils.formatUtils.formatPercentage(realTimeDetails.estChange, true) }}
+            </span>
           </div>
-      </template>
+          <div>Std dev: {{ $utils.formatUtils.formatPercentage(realTimeDetails.stdev, true) }}</div>
+          <div>Confidence interval:
+            ({{ $utils.formatUtils.formatPercentage(realTimeDetails.ci[0], true) }},
+            {{ $utils.formatUtils.formatPercentage(realTimeDetails.ci[1], true) }} )
+            </div>
+        </template>
 
-      <q-btn color="amber" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)" />
-    </div>
-    <div style="width: 70vw">
-      <fund-chart :fund="fund"/>
-    </div>
-    <fund-real-time-details :fund="fund" @broadcast="onRealTimeDetails" />
+        <q-btn color="amber" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)" />
+      </div>
+      <div style="width: 70vw">
+        <fund-chart :fund="fund"/>
+      </div>
+      <fund-holdings v-if="realTimeDetails" :realTimeDetails="realTimeDetails" />
+    </template>
+    <template v-else>
+      <span class="absolute-center text-grey-14">No Fund Selected</span>
+    </template>
   </q-page>
 </template>
 
@@ -36,36 +41,48 @@ export default {
   name: 'fund-page',
   props: ['isin'],
   beforeRouteEnter (to, from, next) {
-    next(vm => vm.loadData(to.params.isin))
+    next(vm => {
+      vm.lazyGet(to.params.isin)
+      vm.startRealTimeUpdates(to.params.isin)
+    })
   },
   beforeRouteUpdate (to, from, next) {
-    this.loadData(to.params.isin)
+    this.stopRealTimeUpdates(from.params.isin)
+    this.lazyGet(to.params.isin)
+    this.startRealTimeUpdates(to.params.isin)
     next()
   },
-  data: function () {
-    return {
-      realTimeDetails: undefined
-    }
+  beforeRouteLeave (to, from, next) {
+    this.stopRealTimeUpdates(from.params.isin)
+    next()
   },
   computed: {
     fund: function () {
       return this.lookupFund()(this.isin)
+    },
+    realTimeDetails: function () {
+      return this.lookupRealTimeDetails()(this.isin)
     }
   },
   methods: {
     ...mapActions(
-      'funds', {
-        loadData: 'get'
-      }
+      'funds', [
+        'get',
+        'startRealTimeUpdates',
+        'stopRealTimeUpdates'
+      ]
     ),
     ...mapGetters(
       'funds', [
-        'lookupFund'
+        'lookupFund',
+        'lookupRealTimeDetails'
       ]
     ),
     openURL,
-    onRealTimeDetails (realTimeDetails) {
-      this.realTimeDetails = realTimeDetails
+    lazyGet (isin) {
+      if (!this.fund) {
+        this.get(isin)
+      }
     }
   }
 }

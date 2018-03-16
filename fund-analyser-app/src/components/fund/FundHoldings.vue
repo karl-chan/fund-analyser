@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-table title="Real time information" :data="realTimeDetails.holdings" :columns="holdingsColumns"
+    <q-table title="Real time information" :data="realTimeDetails.holdings" :columns="columns"
             :pagination.sync="pagination" row-key="name">
       <q-tr slot="body" slot-scope="props" :props="props">
         <q-td key="name" :props="props">{{ props.row.name }}</q-td>
@@ -16,49 +16,18 @@
 
 <script>
 export default {
-  name: 'fund-real-time-details',
-  props: ['fund'],
+  name: 'fund-holdings',
+  props: ['realTimeDetails'],
   data () {
     return {
-      realTimeDetails: this.reset(),
       pagination: {
         rowsPerPage: 10
       },
-      holdingsColumns: [
+      columns: [
         {name: 'name', label: 'Name', field: 'name', sortable: true, align: 'left'},
         {name: 'todaysChange', label: 'Todays \'Change (%)', field: 'todaysChange', sortable: true, format: val => 100 * val},
         {name: 'weight', label: 'Weight (%)', field: 'weight', sortable: true}
       ]
-    }
-  },
-  watch: {
-    fund: function (newFund, oldFund) {
-      this.realTimeDetails = this.reset()
-      this.broadcast()
-      if (newFund) {
-        this.getRealTimeDetails(newFund)
-      }
-    }
-  },
-  methods: {
-    getRealTimeDetails (fund) {
-      const vm = this
-      this.$services.fundService.getRealTimeDetails(fund)
-        .then(details => {
-          vm.realTimeDetails = details
-          this.broadcast()
-        })
-    },
-    reset () {
-      return {
-        estChange: undefined,
-        stdev: undefined,
-        ci: undefined,
-        holdings: []
-      }
-    },
-    broadcast () {
-      this.$emit('broadcast', this.realTimeDetails)
     }
   }
 }
