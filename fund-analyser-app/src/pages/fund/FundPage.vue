@@ -1,42 +1,17 @@
-<template>
-  <q-page padding>
-    <template v-if="fund">
-      <div class="q-headline">{{fund.name}}</div>
-      <div class="row justify-between items-center">
-        <!-- real time details bar -->
-        <template v-if="realTimeDetails">
-          <div>Today's change (estimate):
-            <span :class="{'text-green': realTimeDetails.estChange > 0,
-                          'text-red': realTimeDetails.estChange < 0,
-                          'text-weight-bold': true,
-                          'q-headline': true}">
-              {{ $utils.formatUtils.formatPercentage(realTimeDetails.estChange, true) }}
-            </span>
-          </div>
-          <div>Std dev: {{ $utils.formatUtils.formatPercentage(realTimeDetails.stdev, true) }}</div>
-          <div>Confidence interval:
-            ({{ $utils.formatUtils.formatPercentage(realTimeDetails.ci[0], true) }},
-            {{ $utils.formatUtils.formatPercentage(realTimeDetails.ci[1], true) }} )
-            </div>
-        </template>
-
-        <q-btn color="amber" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)" />
-      </div>
-      <div style="width: 70vw">
-        <fund-chart :fund="fund"/>
-      </div>
-      <fund-holdings v-if="realTimeDetails" :realTimeDetails="realTimeDetails" />
-    </template>
-    <template v-else>
-      <span class="absolute-center text-grey-14">No Fund Selected</span>
-    </template>
-  </q-page>
+<template lang="pug">
+  q-page(padding)
+    template(v-if="fund")
+      .q-headline {{fund.name}}
+      fund-info-bar(:fund="fund" :realTimeDetails="realTimeDetails")
+      div(style="width: 70vw")
+        fund-chart(:fund="fund")
+      fund-holdings(v-if="realTimeDetails" :realTimeDetails="realTimeDetails")
+    template(v-else)
+      span.absolute-center.text-grey-14 No Fund Selected
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import { openURL } from 'quasar'
-
 export default {
   name: 'fund-page',
   props: ['isin'],
@@ -78,11 +53,11 @@ export default {
         'lookupRealTimeDetails'
       ]
     ),
-    openURL,
     lazyGet (isin) {
-      if (!this.fund) {
-        this.get(isin)
+      if (this.fund && this.fund.isin === isin) {
+        return
       }
+      this.get(isin)
     }
   }
 }

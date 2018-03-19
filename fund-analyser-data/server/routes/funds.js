@@ -30,7 +30,7 @@ router.get(`${BASE_URL}/search/:searchText`, async ctx => {
     const options = {
         projection: {_id: 0, isin: 1, sedol: 1, name: 1, score: {$meta: 'textScore'}},
         sort: {score: {$meta: 'textScore'}},
-        limit: 10
+        limit: 25
     }
     const searchResults = await db.getFunds().find(query, options).toArray()
     ctx.body = searchResults;

@@ -1,17 +1,12 @@
-<template>
-  <div>
-    <q-table title="Real time information" :data="realTimeDetails.holdings" :columns="columns"
-            :pagination.sync="pagination" row-key="name">
-      <q-tr slot="body" slot-scope="props" :props="props">
-        <q-td key="name" :props="props">{{ props.row.name }}</q-td>
-        <q-td key="todaysChange" :props="props"
-              :class="{'text-green': props.row.todaysChange > 0, 'text-red': props.row.todaysChange < 0}">
-          {{ $utils.formatUtils.formatPercentage(props.row.todaysChange) }}
-        </q-td>
-        <q-td key="weight" :props="props">{{ $utils.formatUtils.formatPercentage(props.row.weight) }}</q-td>
-      </q-tr>
-    </q-table>
-  </div>
+<template lang="pug">
+  q-table(title="Real time information" :data="realTimeDetails.holdings" :columns="columns" :pagination.sync="pagination" row-key="name")
+    q-tr(slot="body" slot-scope="props" :props="props")
+      q-td(key="name" :props="props")
+        |  {{ props.row.name }}
+      q-td(key="todaysChange" :props="props" :class="{'text-green': props.row.todaysChange > 0, 'text-red': props.row.todaysChange < 0}")
+        | {{ $utils.formatUtils.formatPercentage(props.row.todaysChange) }}
+      q-td(key="weight" :props="props")
+        | {{ $utils.formatUtils.formatPercentage(props.row.weight) }}
 </template>
 
 <script>

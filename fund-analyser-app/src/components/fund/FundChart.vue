@@ -1,6 +1,6 @@
-<template>
-  <highcharts v-if="fund" :Highcharts="Highstock" :options="chartOptions"/>
-  <div v-else>No chart available</div>
+<template lang="pug">
+  highcharts(v-if="fund" :Highcharts="Highstock" :options="chartOptions")
+  div(v-else) No chart available
 </template>
 
 <script>

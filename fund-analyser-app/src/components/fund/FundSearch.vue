@@ -1,7 +1,6 @@
-<template>
-  <q-search v-model="selectedItem" placeholder="Start typing a fund name" color="grey-2" class="shadow-2" inverted-light clearable>
-    <q-autocomplete @search="search" @selected="selected" :maxResults="5000"/>
-  </q-search>
+<template lang="pug">
+  q-search.shadow-2(v-model="selectedItem" placeholder="Start typing a fund name" color="grey-2" inverted-light="" clearable="")
+    q-autocomplete(@search="search" @selected="selected" :max-results="5000")
 </template>
 
 <script>

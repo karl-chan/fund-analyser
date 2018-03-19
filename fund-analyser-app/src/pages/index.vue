@@ -1,6 +1,7 @@
-<template>
-  <q-page padding>
-  </q-page>
+<template lang="pug">
+  q-page(padding)
+    .q-headline Summary
+    funds-table
 </template>
 
 <style>

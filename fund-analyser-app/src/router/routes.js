@@ -4,12 +4,8 @@ export default [
     path: '/',
     component: () => import('layouts/default'),
     children: [
-      { path: 'fund/:isin',
-        name: 'fund',
-        component: () => import('pages/fund/FundPage'),
-        props: true
-      },
-      { path: '', component: () => import('pages/index') }
+      { path: 'fund/:isin', name: 'fund', component: () => import('pages/fund/FundPage'), props: true },
+      { path: '', name: 'home', component: () => import('pages/index') }
     ]
   },
 

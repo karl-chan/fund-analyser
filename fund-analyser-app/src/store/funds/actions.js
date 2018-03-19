@@ -1,8 +1,12 @@
+import { Platform } from 'quasar'
 import fundService from './../../services/fund-service'
 import router from './../../router'
 
 export function init ({dispatch}) {
-  dispatch('summary')
+  if (!Platform.is.mobile) {
+    dispatch('summary')
+  }
+  // otherwise lazily load summary to save mobile data bandwidth
 }
 
 export function get ({commit}, isin) {
@@ -37,7 +41,7 @@ export function remove ({commit, rootState}, isin) {
   commit('removeRealTimeDetails', isin)
   this.dispatch('stopRealTimeUpdates')
   if (rootState.route.path.includes(isin)) {
-    router.push('/')
+    router.push({name: 'home'})
   }
 }
 
