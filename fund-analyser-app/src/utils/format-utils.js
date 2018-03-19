@@ -1,3 +1,7 @@
+import { date } from 'quasar'
+
+const { formatDate } = date
+
 export default {
   colorNumber (float) {
     return {
@@ -11,5 +15,9 @@ export default {
       return '-'
     }
     return (100 * float).toFixed(2) + (displaySymbol ? '%' : '')
+  },
+
+  formatDate (date) {
+    return formatDate(date, 'dddd, DD MMM YYYY')
   }
 }

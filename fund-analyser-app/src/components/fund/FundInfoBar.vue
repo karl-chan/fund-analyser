@@ -8,8 +8,10 @@
             | {{ formatPercentage(realTimeDetails.estChange) }}
         div Std dev: {{ formatPercentage(realTimeDetails.stdev) }}
         div Confidence interval:
+          |
           | ({{ formatPercentage(realTimeDetails.ci[0]) }},
-          | {{ formatPercentage(realTimeDetails.ci[1]) }} )
+          | {{ formatPercentage(realTimeDetails.ci[1]) }})
+        div Last price: {{ lastHistoricPrice.price }}
 
       // historic returns summary
       .row.gutter-xs
@@ -17,6 +19,8 @@
           | {{period}}:
           |
           span(:class="color(periodReturn)") {{ formatPercentage(periodReturn) }}
+      .row.gutter-xs
+        div Historic prices as of: <span class="q-title">{{ $utils.formatUtils.formatDate(lastHistoricPrice.date) }}</span>
     q-btn(color="amber" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)")
   div(v-else="")
     q-icon(name="info") No information available
@@ -27,6 +31,11 @@ import { openURL } from 'quasar'
 export default {
   name: 'FundInfoBar',
   props: ['fund', 'realTimeDetails'],
+  computed: {
+    lastHistoricPrice: function () {
+      return this.fund.historicPrices[this.fund.historicPrices.length - 1]
+    }
+  },
   methods: {
     openURL,
     color (num) {
