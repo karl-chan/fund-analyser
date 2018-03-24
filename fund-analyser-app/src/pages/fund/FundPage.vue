@@ -1,13 +1,14 @@
 <template lang="pug">
-  q-page(padding)
-    template(v-if="fund")
-      .q-headline {{fund.name}}
-      fund-info-bar(:fund="fund" :realTimeDetails="realTimeDetails")
-      div(style="width: 70vw")
-        fund-chart(:fund="fund")
-      fund-holdings(v-if="realTimeDetails" :realTimeDetails="realTimeDetails")
-    template(v-else)
-      span.absolute-center.text-grey-14 No Fund Selected
+  q-pull-to-refresh(:handler="refreshFund")
+    q-page(padding)
+      template(v-if="fund")
+        .q-headline {{fund.name}}
+        fund-info-bar(:fund="fund" :realTimeDetails="realTimeDetails")
+        div(style="width: 70vw")
+          fund-chart(:fund="fund")
+        fund-holdings(v-if="realTimeDetails" :realTimeDetails="realTimeDetails")
+      template(v-else)
+        span.absolute-center.text-grey-14 No Fund Selected
 </template>
 
 <script>
@@ -43,6 +44,7 @@ export default {
     ...mapActions(
       'funds', [
         'get',
+        'lazyGet',
         'startRealTimeUpdates',
         'stopRealTimeUpdates'
       ]
@@ -53,11 +55,9 @@ export default {
         'lookupRealTimeDetails'
       ]
     ),
-    lazyGet (isin) {
-      if (this.fund && this.fund.isin === isin) {
-        return
-      }
-      this.get(isin)
+    async refreshFund (done) {
+      await this.get(this.isin)
+      done()
     }
   }
 }

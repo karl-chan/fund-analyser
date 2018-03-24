@@ -12,6 +12,9 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "ag-grid": "17.0.0",
+    "ag-grid-enterprise": "^17.0.0",
+    "ag-grid-vue": "17.0.0",
     "axios": "0.18.0",
     "vue2-highcharts": "1.1.8",
     "vuex-persistedstate": "2.4.2",

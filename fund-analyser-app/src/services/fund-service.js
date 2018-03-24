@@ -12,11 +12,11 @@ export default {
   getRealTimeDetails (isin) {
     return get(`${REAL_TIME_DETAILS_ENDPOINT}/${isin}`)
   },
+  getSummary () {
+    return get(SUMMARY_ENDPOINT)
+  },
   search (searchText) {
     return get(`${SEARCH_ENDPOINT}/${searchText}`)
-  },
-  summary () {
-    return get(SUMMARY_ENDPOINT)
   }
 }
 

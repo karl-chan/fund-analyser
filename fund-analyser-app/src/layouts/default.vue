@@ -2,21 +2,21 @@
   q-layout(view="hHh Lpr lFf")
     q-layout-header
       q-toolbar(color="green")
-        q-btn(flat="" dense="" round="" @click="leftDrawerOpen = !leftDrawerOpen")
+        q-btn(flat dense round @click="toggleDrawer")
           q-icon(name="menu")
         q-toolbar-title
           | Fund Analyser
           div(slot="subtitle") Your mutual funds toolkit
         fund-search.absolute-center
-        q-btn(flat="" dense="" size="lg" icon="home" @click="$router.push({name: 'home'})")
-    q-layout-drawer(v-model="leftDrawerOpen" content-class="bg-grey-2")
-      q-list(no-border="" link="" inset-delimiter="")
+        q-btn(flat dense size="lg" icon="home" @click="$router.push({name: 'home'})")
+    q-layout-drawer(v-model="drawerOpen" content-class="bg-grey-2")
+      q-list(no-border link inset-delimiter)
         template(v-if="loadedFunds.length")
           q-list-header Recently Viewed
-          q-item(v-for="fund in loadedFunds" :to="{name: 'fund', params: {isin: fund.isin}}" :key="fund.isin" v-close-overlay="")
+          q-item(v-for="fund in loadedFunds" :to="{name: 'fund', params: {isin: fund.isin}}" :key="fund.isin")
             q-item-main(:label="fund.name" :sublabel="fund.isin")
-            q-item-side(right="")
-              q-btn(flat="" round="" dense="" icon="close" @click.stop="removeFund(fund.isin)")
+            q-item-side(right)
+              q-btn(flat round dense icon="close" @click.stop="removeFund(fund.isin)")
           q-item-separator
         q-list-header Links
         q-item(@click.native="openURL('https://www.charles-stanley-direct.co.uk/')")
@@ -30,26 +30,30 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import { openURL } from 'quasar'
 
 export default {
   name: 'LayoutDefault',
-  data () {
-    return {
-      leftDrawerOpen: this.$q.platform.is.desktop
-    }
-  },
   computed: {
     ...mapState('funds', {
       loadedFunds: 'loaded'
-    })
+    }),
+    drawerOpen: {
+      get () {
+        return this.$store.state.layout.drawerOpen
+      },
+      set (open) {
+        this.$store.commit('layout/setDrawerOpen', open)
+      }
+    }
   },
   methods: {
     openURL,
     removeFund (isin) {
       this.$store.dispatch('funds/remove', isin)
-    }
+    },
+    ...mapActions('layout', ['toggleDrawer'])
   }
 }
 </script>

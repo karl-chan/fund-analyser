@@ -1,22 +1,21 @@
-import { Platform } from 'quasar'
 import fundService from './../../services/fund-service'
 import router from './../../router'
 
-export function init ({dispatch}) {
-  if (!Platform.is.mobile) {
-    dispatch('summary')
+export async function get ({commit}, isin) {
+  await fundService.get(isin)
+    .then(fundService.setExpiry)
+    .then(fund => commit('addFund', fund))
+}
+
+export async function lazyGet ({dispatch, getters}, isin) {
+  const cachedFund = getters['lookupFund'](isin)
+  if (!cachedFund) {
+    await dispatch('get', isin)
   }
-  // otherwise lazily load summary to save mobile data bandwidth
 }
 
-export function get ({commit}, isin) {
-  fundService.get(isin).then(fund => {
-    commit('addFund', fund)
-  })
-}
-
-export function getRealTimeDetails ({commit}, isin) {
-  fundService.getRealTimeDetails(isin).then(fundRealTimeDetails => {
+export async function getRealTimeDetails ({commit}, isin) {
+  await fundService.getRealTimeDetails(isin).then(fundRealTimeDetails => {
     commit('addRealTimeDetails', { isin, fundRealTimeDetails })
   })
 }
@@ -45,6 +44,7 @@ export function remove ({commit, rootState}, isin) {
   }
 }
 
-export const summary = ({commit}) => {
-  fundService.summary().then(fundsSummary => commit('setSummary', fundsSummary))
+export async function getSummary ({commit}) {
+  await fundService.getSummary()
+    .then(fundsSummary => commit('setSummary', fundsSummary))
 }

@@ -3,21 +3,40 @@ import { date } from 'quasar'
 const { formatDate } = date
 
 export default {
-  colorNumber (float) {
-    return {
-      'text-green': float > 0,
-      'text-red': float < 0
-    }
+  colourNumber (float) {
+    return float > 0 ? 'text-green' : (float < 0 ? 'text-red' : undefined)
   },
 
-  formatPercentage (float, displaySymbol) {
-    if (float === undefined || float === null) {
-      return '-'
-    }
-    return (100 * float).toFixed(2) + (displaySymbol ? '%' : '')
+  fallbackDisplay (fallbackValue) {
+    return fallbackValue == null ? '-' : fallbackValue
   },
 
-  formatDate (date) {
+  formatNumber (float, fallbackValue) {
+    if (float == null) {
+      return this.fallbackDisplay(fallbackValue)
+    }
+    return (float).toFixed(2)
+  },
+
+  formatPercentage (float, displaySymbol, fallbackValue) {
+    if (float == null) {
+      return this.fallbackDisplay(fallbackValue)
+    }
+    return this.formatNumber(100 * float) + (displaySymbol ? '%' : '')
+  },
+
+  formatDateShort (date, withDashes, fallbackValue) {
+    if (date == null) {
+      return this.fallbackDisplay(fallbackValue)
+    }
+    const format = withDashes ? 'YYYY-MM-DD' : 'YYYYMMDD'
+    return formatDate(date, format)
+  },
+
+  formatDateLong (date, fallbackValue) {
+    if (date == null) {
+      return this.fallbackDisplay(fallbackValue)
+    }
     return formatDate(date, 'dddd, DD MMM YYYY')
   }
 }

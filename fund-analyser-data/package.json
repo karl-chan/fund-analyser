@@ -8,7 +8,7 @@
     "createIndex": "node scripts/main.js -r createIndex",
     "updateFunds": "node scripts/main.js -r updateFunds",
     "updateCatalog": "node scripts/main.js -r updateCatalog",
-    "server": "nodemon server/server-koa.js",
+    "server": "nodemon server/server.js",
     "test": "mocha"
   },
   "author": "Karl Chan",

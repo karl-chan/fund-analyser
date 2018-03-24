@@ -4,19 +4,19 @@ import Vuex from 'vuex'
 import { sync } from 'vuex-router-sync'
 import createPersistedState from 'vuex-persistedstate'
 
-import * as actions from './actions'
 import funds from './funds'
+import layout from './layout'
 import router from './../router'
 
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
   modules: {
-    funds
+    funds,
+    layout
   },
-  actions: actions,
   plugins: [createPersistedState({
-    paths: ['funds.loaded'],
+    paths: ['funds.loaded', 'funds.summary'],
     storage: {
       getItem: LocalStorage.get.item,
       setItem: LocalStorage.set,
@@ -25,6 +25,5 @@ const store = new Vuex.Store({
   })]
 })
 sync(store, router)
-store.dispatch('init')
 
 export default store

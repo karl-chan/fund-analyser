@@ -29,7 +29,7 @@ export default {
           zoomType: 'x'
         },
         rangeSelector: {
-          selected: 5
+          selected: 2 // recent 6 months
         },
         title: {
           text: `${fund.name}`

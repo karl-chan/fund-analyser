@@ -1,85 +1,32 @@
-const properties = require('../lib/util/properties.js');
-const db = require('../lib/util/db.js');
-const log = require('../lib/util/log.js');
+const Koa = require('koa')
+const logger = require('koa-logger')
+const bodyParser = require('koa-bodyparser')
+const serve = require('koa-static')
 
-const FundDAO = require('../lib/db/FundDAO.js');
+const properties = require('../lib/util/properties')
+const db = require('../lib/util/db')
+const fundsRoutes = require('./routes/funds')
 
-const _ = require('lodash');
-const stringify = require('streaming-json-stringify');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const express = require('express');
-const app = express();
 
-app.set('port', (process.env.PORT || properties.get('server.default.port')));
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-app.use(express.static(path.join(__dirname, 'views')));
+const PORT = process.env.PORT || properties.get('server.default.port');
 
-app.get('/', (req, res) => {
-    res.render('index');
-})
+const app = new Koa();
 
-app.get('/api/funds', (req, res) => {
-    const fields = req.query.fields || ''; // comma delimited string of fields to return
-    const format = req.query.format || 'json'; // should be csv or json (default)
-    const fileName = req.query.fileName || 'Fund List.csv'; // for csv case only
-    const skip = req.query.skip;
-    const limit = req.query.limit;
+app.use(logger())
+app.use(bodyParser());
+app.use(serve(__dirname + '/../../fund-analyser-app/dist/spa-mat'))
+app.use(fundsRoutes.routes())
 
-    const project = fields ? _.zipObject(fields.split(','), Array(fields.split(',').length).fill(1)) : undefined;
-    const options = {
-        project: project,
-        skip: skip? _.parseInt(skip): undefined,
-        limit: limit ? _.parseInt(limit) : undefined
-    };
-
-    res.status(200);
-    res.set('Access-Control-Allow-Origin', '*');
-    switch (format) {
-        case 'csv':
-            res.set('Content-Disposition', `attachment; filename=${fileName}`);
-            res.set('Content-type', 'text/csv');
-            const csvStream = FundDAO.streamCsv(options, fields);
-            const stream = csvStream.pipe(stringify()).pipe(res);
-            stream.on('error', (err) => {
-                return serverError(res, err);
-            });
-            stream.on('end', () => {
-                res.end();
-            });
-            break;
-        default: // including json
-            res.set('Content-type', 'application/json');
-            FundDAO.listFunds(options, (err, funds) => {
-                if (err) {
-                    return serverError(res, err);
-                }
-                res.json(funds);
-            })
-            //const fundStream = FundDAO.streamFunds(options);
-            //fundStream.pipe(stringify()).pipe(res);
-            //fundStream.on('error', (err) => {
-            //    return serverError(res, err);
-            //});
-            //fundStream.on('end', () => {
-            //    res.end();
-            //});
-    }
-});
-
-const serverError = (res, err) => {
-    log.error(err);
-    res.sendStatus(500);
-};
-
-app.listen(app.get('port'), async () => {
+const main = async () => {
     try {
-        await db.init();
+        await db.init()
+        console.log(`Connected to MongoDB`)
     } catch (err) {
-        log.error(err);
-    }
-    log.info('Connected to MongoDB');
-    log.info('Fund analyser data server is running on port', app.get('port'));
-});
+        console.error('Failed to connect to MongoDB')
+    }    
+    
+    app.listen(PORT, async () => {
+        console.log(`Server listening on port: ${PORT}`)
+    })
+}
+main()

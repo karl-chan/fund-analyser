@@ -16,7 +16,7 @@
             "type": "node",
             "request": "launch",
             "name": "Node.js Server",
-            "program": "${workspaceFolder}/fund-analyser-data/server/server-koa.js"
+            "program": "${workspaceFolder}/fund-analyser-data/server/server.js"
         },
         {
             "type": "node",

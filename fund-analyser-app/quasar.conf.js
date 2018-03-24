@@ -10,14 +10,16 @@ module.exports = function (ctx) {
       'utils'
     ],
     css: [
-      'app.styl'
+      'app.styl',
+      '../../node_modules/ag-grid/dist/styles/ag-grid.css',
+      '../../node_modules/ag-grid/dist/styles/ag-theme-balham.css'
     ],
     extras: [
       ctx.theme.mat ? 'roboto-font' : null,
-      'material-icons'
+      'material-icons',
       // 'ionicons',
       // 'mdi',
-      // 'fontawesome'
+      'fontawesome'
     ],
     supportIE: true,
     vendor: {
@@ -27,6 +29,7 @@ module.exports = function (ctx) {
     build: {
       scopeHoisting: true,
       vueRouterMode: 'hash',
+      vueCompiler: true,
       // gzip: true,
       // analyze: true,
       // extractCSS: false,
@@ -65,6 +68,7 @@ module.exports = function (ctx) {
         'QToolbar',
         'QToolbarTitle',
         'QBtn',
+        'QBtnGroup',
         'QIcon',
         'QList',
         'QListHeader',
@@ -86,11 +90,11 @@ module.exports = function (ctx) {
         'QTh',
         'QTr',
         'QTd',
-        'QTableColumns'
+        'QTableColumns',
+        'QPullToRefresh'
       ],
       directives: [
-        'Ripple',
-        'CloseOverlay'
+        'Ripple'
       ],
       // Quasar plugins
       plugins: [

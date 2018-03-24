@@ -4,9 +4,9 @@
       q-td(key="name" :props="props")
         |  {{ props.row.name }}
       q-td(key="todaysChange" :props="props" :class="{'text-green': props.row.todaysChange > 0, 'text-red': props.row.todaysChange < 0}")
-        | {{ $utils.formatUtils.formatPercentage(props.row.todaysChange) }}
+        | {{ $utils.format.formatPercentage(props.row.todaysChange) }}
       q-td(key="weight" :props="props")
-        | {{ $utils.formatUtils.formatPercentage(props.row.weight) }}
+        | {{ $utils.format.formatPercentage(props.row.weight) }}
 </template>
 
 <script>

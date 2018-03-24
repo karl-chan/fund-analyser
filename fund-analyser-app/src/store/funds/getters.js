@@ -1,11 +1,7 @@
-/*
-export const someGetter = (state) => {}
- */
-
-export const lookupFund = state => isin => {
-  return state.loaded.find(f => f.isin === isin)
+export function lookupFund (state) {
+  return isin => state.loaded.find(f => f.isin === isin)
 }
 
-export const lookupRealTimeDetails = state => isin => {
-  return state.realTimeDetails[isin]
+export function lookupRealTimeDetails (state) {
+  return isin => state.realTimeDetails[isin]
 }
