@@ -1,11 +1,13 @@
 <template lang="pug">
-  q-search.shadow-2(v-model="selectedItem" placeholder="Start typing a fund name" color="grey-2" inverted-light="" clearable="")
+  q-input.shadow-2(v-model="selectedItem" :placeholder="placeholder" :before="[{icon: 'search', handler () {}}]"
+                   @input="input" color="grey-2" inverted-light clearable)
     q-autocomplete(@search="search" @selected="selected" :max-results="5000")
 </template>
 
 <script>
 export default {
   name: 'fund-search',
+  props: ['placeholder'],
   data: function () {
     return {
       selectedItem: undefined
@@ -14,11 +16,14 @@ export default {
   methods: {
     search (term, done) {
       this.$services.fundService.search(term).then(results =>
-        results.map(r => ({ label: r.name, sublabel: r.isin, value: r.isin }))
+        results.map(r => ({ label: r.name, sublabel: r.isin, value: r.name, fund: r }))
       ).then(done)
     },
     selected (item) {
-      this.$router.push({ name: 'fund', params: { isin: item.value } })
+      this.$emit('select', item.fund)
+    },
+    input (text) {
+      this.$emit('input', text)
     }
   }
 }

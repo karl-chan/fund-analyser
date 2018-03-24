@@ -1,12 +1,15 @@
 <template lang="pug">
   .column.gutter-y-sm
     // toolbar
-    .row.justify-end.items-center.gutter-x-md(:class="{invisible: !dataReady}")
-      div As of: {{ $utils.format.formatDateLong(asof) }}
+    .row.justify-between.items-center.gutter-x-md(:class="{invisible: !dataReady}")
       div
-        q-btn-group
-          q-btn(color="tertiary" icon="refresh" @click="startDownload")
-          q-btn(color="tertiary" icon="fas fa-file-excel" @click="exportCsv")
+        fund-search(placeholder="Filter table" @input="filterText" @select="filterFund")
+      .row.items-center.gutter-x-md
+        div As of: {{ $utils.format.formatDateLong(asof) }}
+        div
+          q-btn-group
+            q-btn(color="tertiary" icon="refresh" @click="startDownload")
+            q-btn(color="tertiary" icon="fas fa-file-excel" @click="exportCsv")
 
     // actual table
     .relative-position
@@ -54,6 +57,7 @@ export default {
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter }
       ],
       gridOptions: {
+        cacheQuickFilter: true,
         enableColResize: true,
         enableFilter: true,
         enableRangeSelection: true,
@@ -98,6 +102,12 @@ export default {
       await this.getSummary()
       this.downloading = false
       this.closeDrawer()
+    },
+    filterText (text) {
+      this.gridOptions.api.setQuickFilter(text)
+    },
+    filterFund (fund) {
+      this.filterText(fund.isin)
     },
     onGridReady (params) {
       this.updateColDefs(params)

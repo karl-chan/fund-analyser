@@ -7,14 +7,13 @@
         q-toolbar-title
           | Fund Analyser
           div(slot="subtitle") Your mutual funds toolkit
-        fund-search.absolute-center
+        fund-search.absolute-center(placeholder="Start typing a fund name" @select="onFundSelect")
         q-btn(flat dense size="lg" icon="home" @click="$router.push({name: 'home'})")
     q-layout-drawer(v-model="drawerOpen" content-class="bg-grey-2")
       q-list(no-border link inset-delimiter)
         template(v-if="numLoadedFunds")
-          q-list-header.row.justify-between
-            | Recently Viewed
-            q-btn(label="Clear all" color="red" @click="removeAll")
+          q-list-header Recently Viewed
+            q-btn.float-right(label="Clear all" color="red" @click="removeAll")
           q-item(v-for="fund in loadedFunds" :to="{name: 'fund', params: {isin: fund.isin}}" :key="fund.isin")
             q-item-main(:label="fund.name" :sublabel="fund.isin")
             q-item-side(right)
@@ -53,6 +52,9 @@ export default {
   },
   methods: {
     openURL,
+    onFundSelect (fund) {
+      this.$router.push({ name: 'fund', params: { isin: fund.isin } })
+    },
     removeFund (isin) {
       this.$store.dispatch('funds/remove', isin)
     },
