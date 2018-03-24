@@ -60,7 +60,6 @@ export default {
         enableSorting: true,
         suppressLoadingOverlay: true,
         suppressNoRowsOverlay: true,
-        suppressColumnVirtualisation: true,
         toolPanelSuppressSideButtons: true,
         defaultColDef: {
           suppressMenu: true
