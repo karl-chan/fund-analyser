@@ -11,7 +11,7 @@
         q-btn(flat dense size="lg" icon="home" @click="$router.push({name: 'home'})")
     q-layout-drawer(v-model="drawerOpen" content-class="bg-grey-2")
       q-list(no-border link inset-delimiter)
-        template(v-if="loadedFunds.length")
+        template(v-if="numLoadedFunds")
           q-list-header.row.justify-between
             | Recently Viewed
             q-btn(label="Clear all" color="red" @click="removeAll")
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions } from 'vuex'
 import { openURL } from 'quasar'
 
 export default {
@@ -41,6 +41,7 @@ export default {
     ...mapState('funds', {
       loadedFunds: 'loaded'
     }),
+    ...mapGetters('funds', ['numLoadedFunds']),
     drawerOpen: {
       get () {
         return this.$store.state.layout.drawerOpen

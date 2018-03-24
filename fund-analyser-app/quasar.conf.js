@@ -30,7 +30,7 @@ module.exports = function (ctx) {
       scopeHoisting: true,
       vueRouterMode: 'hash',
       vueCompiler: true,
-      // gzip: true,
+      gzip: true,
       // analyze: true,
       // extractCSS: false,
       // useNotifier: false,
