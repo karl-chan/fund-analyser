@@ -91,7 +91,9 @@ module.exports = function (ctx) {
         'QTr',
         'QTd',
         'QTableColumns',
-        'QPullToRefresh'
+        'QPullToRefresh',
+        'QSpinner',
+        'QSpinnerDots'
       ],
       directives: [
         'Ripple'

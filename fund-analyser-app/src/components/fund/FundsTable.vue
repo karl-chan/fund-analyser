@@ -10,7 +10,8 @@
 
     // actual table
     .relative-position
-      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="summary || []" :gridReady="onGridReady"
+      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="summary || []"
+                  :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked"
                   style="height: 500px" :gridOptions="gridOptions")
       div.absolute-top-left.light-dimmed.fit(v-if="!dataReady || downloading")
         q-btn.absolute-center.z-max(:loading="downloading" :percentage="downloadPercentage" @click="startDownload"
@@ -63,6 +64,9 @@ export default {
         toolPanelSuppressSideButtons: true,
         defaultColDef: {
           suppressMenu: true
+        },
+        rowStyle: {
+          cursor: 'pointer'
         }
       }
     }
@@ -98,6 +102,10 @@ export default {
     },
     onGridReady (params) {
       this.updateColDefs(params)
+    },
+    onRowDoubleClicked (params) {
+      const isin = params.data.isin
+      this.$router.push({ name: 'fund', params: { isin } })
     },
     updateColDefs (params) {
       const returnsFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',

@@ -8,7 +8,9 @@
           fund-chart(:fund="fund")
         fund-holdings(v-if="realTimeDetails" :realTimeDetails="realTimeDetails")
       template(v-else)
-        span.absolute-center.text-grey-14 No Fund Selected
+        .absolute-center.row.items-center.gutter-x-sm.text-purple
+          q-spinner-dots(size="36px" color="purple")
+          .q-title Loading
 </template>
 
 <script>
