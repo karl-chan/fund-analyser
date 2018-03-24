@@ -8,7 +8,7 @@
 export default {
   name: 'fund-search',
   props: ['placeholder'],
-  data: function () {
+  data () {
     return {
       selectedItem: undefined
     }

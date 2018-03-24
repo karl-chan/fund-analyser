@@ -78,6 +78,7 @@ module.exports = function (ctx) {
         'QItemSeparator',
         'QAutocomplete',
         'QInput',
+        'QAlert',
         'QTable',
         'QTh',
         'QTr',
@@ -98,6 +99,7 @@ module.exports = function (ctx) {
     },
     // animations: 'all' --- includes all animations
     animations: [
+      'fadeOutUp'
     ],
     cordova: {
       // id: 'org.cordova.quasar.app'

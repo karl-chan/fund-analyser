@@ -6,6 +6,7 @@ import createPersistedState from 'vuex-persistedstate'
 
 import funds from './funds'
 import layout from './layout'
+import misc from './misc'
 import router from './../router'
 
 Vue.use(Vuex)
@@ -13,7 +14,8 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   modules: {
     funds,
-    layout
+    layout,
+    misc
   },
   plugins: [createPersistedState({
     paths: ['funds.loaded', 'funds.summary'],

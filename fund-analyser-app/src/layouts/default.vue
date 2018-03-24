@@ -27,6 +27,7 @@
           q-item-side(avatar="statics/financial-times.jpg")
           q-item-main(label="Financial Times")
     q-page-container
+      tip-of-the-day.relative-position(style="z-index: 1")
       router-view
 </template>
 

@@ -12,7 +12,7 @@ Highmaps(Highstock)
 export default {
   name: 'fund-chart',
   props: ['fund'],
-  data: function () {
+  data () {
     return {
       Highstock: Highstock
     }

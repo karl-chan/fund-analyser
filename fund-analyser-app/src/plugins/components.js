@@ -8,6 +8,8 @@ import FundChart from 'components/fund/FundChart'
 import FundHoldings from 'components/fund/FundHoldings'
 import FundsTable from 'components/fund/FundsTable'
 
+import TipOfTheDay from 'components/misc/TipOfTheDay'
+
 export default ({ Vue }) => {
   Vue.component('ag-grid-vue', AgGridVue)
   Vue.component('highcharts', Highcharts)
@@ -16,4 +18,5 @@ export default ({ Vue }) => {
   Vue.component('fund-chart', FundChart)
   Vue.component('fund-holdings', FundHoldings)
   Vue.component('funds-table', FundsTable)
+  Vue.component('tip-of-the-day', TipOfTheDay)
 }

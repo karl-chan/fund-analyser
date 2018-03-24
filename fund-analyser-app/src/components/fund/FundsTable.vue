@@ -4,7 +4,7 @@
     .row.justify-between.items-center.gutter-x-md(:class="{invisible: !dataReady}")
       div
         fund-search(placeholder="Filter table" @input="filterText" @select="filterFund")
-      .row.items-center.gutter-x-md
+      .row.justify-end.items-center.gutter-x-md
         div As of: {{ $utils.format.formatDateLong(asof) }}
         div
           q-btn-group
