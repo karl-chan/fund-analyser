@@ -10,7 +10,7 @@
 
     // actual table
     .relative-position
-      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="summary || []"
+      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="summary || []" :gridReady="onGridReady"
                   style="height: 500px" :gridOptions="gridOptions")
       div.absolute-top-left.light-dimmed.fit(v-if="!dataReady || downloading")
         q-btn.absolute-center.z-max(:loading="downloading" :percentage="downloadPercentage" @click="startDownload"
@@ -30,26 +30,25 @@ export default {
       columnDefs: [
         { headerName: 'ISIN', field: 'isin', width: 120 },
         { headerName: 'Name', field: 'name', width: 180 },
-        { headerName: '5Y', field: 'returns.5Y', width: 65, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler, comparator: this.numberComparator },
-        { headerName: '3Y', field: 'returns.3Y', width: 65, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler, comparator: this.numberComparator },
-        { headerName: '1Y', field: 'returns.1Y', width: 65, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler, comparator: this.numberComparator },
-        { headerName: '6M', field: 'returns.6M', width: 65, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler, comparator: this.numberComparator },
-        { headerName: '3M', field: 'returns.3M', width: 65, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler, comparator: this.numberComparator },
-        { headerName: '1M', field: 'returns.1M', width: 65, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler, comparator: this.numberComparator },
-        { headerName: '2W', field: 'returns.2W', width: 65, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler, comparator: this.numberComparator },
-        { headerName: '1W', field: 'returns.1W', width: 65, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler, comparator: this.numberComparator },
-        { headerName: '3D', field: 'returns.3D', width: 65, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler, comparator: this.numberComparator },
-        { headerName: '1D', field: 'returns.1D', sort: 'desc', width: 65, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler, comparator: this.numberComparator },
+        { headerName: '5Y', field: 'returns.5Y', width: 65 },
+        { headerName: '3Y', field: 'returns.3Y', width: 65 },
+        { headerName: '1Y', field: 'returns.1Y', width: 65 },
+        { headerName: '6M', field: 'returns.6M', width: 65 },
+        { headerName: '3M', field: 'returns.3M', width: 65 },
+        { headerName: '1M', field: 'returns.1M', width: 65 },
+        { headerName: '2W', field: 'returns.2W', width: 65 },
+        { headerName: '1W', field: 'returns.1W', width: 65 },
+        { headerName: '3D', field: 'returns.3D', width: 65 },
+        { headerName: '1D', field: 'returns.1D', sort: 'desc', width: 65 },
         { headerName: 'Type', field: 'type', width: 50, headerTooltip: 'Type' },
         { headerName: 'Share Class', field: 'shareClass', width: 50, headerTooltip: 'Share Class' },
-        { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 65, valueFormatter: this.percentFormatter, comparator: this.numberComparator, headerTooltip: 'Bid Ask Spread' },
+        { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 65, headerTooltip: 'Bid Ask Spread' },
         { headerName: 'Frequency', field: 'frequency', width: 60, headerTooltip: 'Frequency' },
-        { headerName: 'OCF', field: 'ocf', width: 65, valueFormatter: this.percentFormatter, comparator: this.numberComparator, headerTooltip: 'OCF' },
-        { headerName: 'AMC', field: 'amc', width: 65, valueFormatter: this.percentFormatter, comparator: this.numberComparator, headerTooltip: 'AMC' },
-        { headerName: 'Entry Charge', field: 'entryCharge', width: 65, valueFormatter: this.percentFormatter, comparator: this.numberComparator, headerTooltip: 'Entry Charge' },
-        { headerName: 'Exit Charge', field: 'exitCharge', width: 65, valueFormatter: this.percentFormatter, comparator: this.numberComparator, headerTooltip: 'Exit Charge' },
-        { headerName: 'Stability', field: 'stability', width: 50, valueFormatter: this.numberFormatter, comparator: this.numberComparator, headerTooltip: 'Stability' },
-        { headerName: 'CV', field: 'cv', width: 50, valueFormatter: this.numberFormatter, comparator: this.numberComparator, headerTooltip: 'Coefficient of Variation' },
+        { headerName: 'OCF', field: 'ocf', width: 65, headerTooltip: 'OCF' },
+        { headerName: 'AMC', field: 'amc', width: 65, headerTooltip: 'AMC' },
+        { headerName: 'Entry Charge', field: 'entryCharge', width: 65, headerTooltip: 'Entry Charge' },
+        { headerName: 'Exit Charge', field: 'exitCharge', width: 65, headerTooltip: 'Exit Charge' },
+        { headerName: 'Stability', field: 'stability', width: 50, headerTooltip: 'Stability' },
         { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter }
       ],
@@ -96,6 +95,33 @@ export default {
       await this.getSummary()
       this.downloading = false
       this.closeDrawer()
+    },
+    onGridReady (params) {
+      this.updateColDefs(params)
+    },
+    updateColDefs (params) {
+      const returnsFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
+        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D'])
+      const percentFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
+        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D',
+        'bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge'])
+      const numberFields = new Set(['stability'])
+      const newColDefs = params.columnApi.getAllColumns().map(col => {
+        const colDef = col.getColDef()
+        if (returnsFields.has(colDef.field)) {
+          colDef.cellClass = this.colourNumberStyler
+        }
+        if (percentFields.has(colDef.field)) {
+          colDef.valueFormatter = this.percentFormatter
+          colDef.comparator = this.numberComparator
+        }
+        if (numberFields.has(colDef.field)) {
+          colDef.valueFormatter = this.numberFormatter
+          colDef.comparator = this.numberComparator
+        }
+        return colDef
+      })
+      params.api.setColumnDefs(newColDefs)
     },
     numberFormatter (params) {
       return this.$utils.format.formatNumber(params.value)
