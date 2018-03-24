@@ -44,6 +44,14 @@ export function remove ({commit, rootState}, isin) {
   }
 }
 
+export function removeAll ({commit, dispatch, state}) {
+  commit('removeAllFunds')
+  for (let isin of Object.keys(state.activeJobs)) {
+    dispatch('stopRealTimeUpdates', isin)
+  }
+  router.push({name: 'home'})
+}
+
 export async function getSummary ({commit}) {
   await fundService.getSummary()
     .then(fundsSummary => commit('setSummary', fundsSummary))

@@ -9,6 +9,10 @@ export function removeFund (state, isin) {
   state.loaded = state.loaded.filter(f => f.isin !== isin)
 }
 
+export function removeAllFunds (state) {
+  state.loaded = []
+}
+
 export function addRealTimeDetails (state, {isin, fundRealTimeDetails}) {
   Vue.set(state.realTimeDetails, isin, fundRealTimeDetails)
 }

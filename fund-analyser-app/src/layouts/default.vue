@@ -12,7 +12,9 @@
     q-layout-drawer(v-model="drawerOpen" content-class="bg-grey-2")
       q-list(no-border link inset-delimiter)
         template(v-if="loadedFunds.length")
-          q-list-header Recently Viewed
+          q-list-header.row.justify-between
+            | Recently Viewed
+            q-btn(label="Clear all" color="red" @click="removeAll")
           q-item(v-for="fund in loadedFunds" :to="{name: 'fund', params: {isin: fund.isin}}" :key="fund.isin")
             q-item-main(:label="fund.name" :sublabel="fund.isin")
             q-item-side(right)
@@ -53,6 +55,7 @@ export default {
     removeFund (isin) {
       this.$store.dispatch('funds/remove', isin)
     },
+    ...mapActions('funds', ['removeAll']),
     ...mapActions('layout', ['toggleDrawer'])
   }
 }
