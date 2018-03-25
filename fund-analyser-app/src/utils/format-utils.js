@@ -1,10 +1,23 @@
-import { date } from 'quasar'
+import { date, colors } from 'quasar'
 
 const { formatDate } = date
+const { lighten } = colors
+const [red, green] = ['#f44336', '#4caf50']
 
 export default {
   colourNumber (float) {
     return float > 0 ? 'text-green' : (float < 0 ? 'text-red' : undefined)
+  },
+
+  colourNumberCell (float) {
+    return {
+      'background-color': float > 0
+        ? lighten(green, 100 * (1 - float))
+        : (float < 0
+          ? lighten(red, 100 * (1 + float))
+          : null),
+      'color': 'black'
+    }
   },
 
   fallbackDisplay (fallbackValue) {

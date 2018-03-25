@@ -5,7 +5,8 @@ module.exports = {
     calcPercentiles,
     calcStability,
     closestRecord,
-    enrichRealTimeDetails
+    enrichRealTimeDetails,
+    enrichSummary
 };
 
 const _ = require('lodash');
@@ -136,4 +137,20 @@ function enrichRealTimeDetails(realTimeDetails) {
     
     const enrichment = { estChange, stdev, ci }
     return {...enrichment, ...realTimeDetails}
+}
+
+function enrichSummary(summary) {
+    const periods = Object.keys(summary[0].returns)
+    const periodReturns = _.fromPairs(periods.map(period => [period, summary.map(row => row.returns[period])]))
+    const maxReturns = _.fromPairs(periods.map(period => [period, _.max(periodReturns[period])]))
+    const minReturns = _.fromPairs(periods.map(period => [period, _.min(periodReturns[period])]))
+
+    const enrichedSummary = summary.map(row => {
+        const scores = _.fromPairs(Object.entries(row.returns).map(([period, ret]) => {
+            const score = ret > 0? ret / maxReturns[period]: (ret < 0? -ret / minReturns[period]: ret)
+            return [period, score]
+        }))
+        return {...row, ...{ metadata: {scores}} }
+    })
+    return enrichedSummary
 }

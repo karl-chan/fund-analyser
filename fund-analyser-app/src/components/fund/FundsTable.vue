@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'FundsTable',
@@ -65,9 +65,6 @@ export default {
         suppressLoadingOverlay: true,
         suppressNoRowsOverlay: true,
         toolPanelSuppressSideButtons: true,
-        defaultColDef: {
-          suppressMenu: true
-        },
         rowStyle: {
           cursor: 'pointer'
         }
@@ -75,9 +72,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('funds', [
-      'summary'
-    ]),
+    summary: function () {
+      const rawSummary = this.$store.state.funds.summary
+      return this.$utils.fund.enrichSummary(rawSummary)
+    },
     dataReady: function () {
       return this.summary && this.summary.length
     },
@@ -126,7 +124,7 @@ export default {
       const newColDefs = params.columnApi.getAllColumns().map(col => {
         const colDef = col.getColDef()
         if (returnsFields.has(colDef.field)) {
-          colDef.cellClass = this.colourNumberStyler
+          colDef.cellStyle = this.colourReturnsCell
         }
         if (percentFields.has(colDef.field)) {
           colDef.valueFormatter = this.percentFormatter
@@ -154,6 +152,11 @@ export default {
     },
     colourNumberStyler (params) {
       return this.$utils.format.colourNumber(params.value)
+    },
+    colourReturnsCell (params) {
+      const period = params.colDef.headerName
+      const score = params.data.metadata.scores[period]
+      return this.$utils.format.colourNumberCell(score)
     },
     numberComparator (a, b) {
       return this.$utils.number.numberComparator(a, b)
@@ -188,6 +191,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>

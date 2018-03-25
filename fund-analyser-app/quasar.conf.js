@@ -102,7 +102,7 @@ module.exports = function (ctx) {
       'fadeOutUp'
     ],
     cordova: {
-      // id: 'org.cordova.quasar.app'
+      id: 'com.github.karlchan'
     },
     electron: {
       extendWebpack (cfg) {

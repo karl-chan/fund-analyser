@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Fund Analyser App",
   "productName": "Fund Analyser App",
-  "cordovaId": "com.github.karl-chan",
   "author": "karl-chan <karlwayne_chan@yahoo.com>",
   "private": true,
   "scripts": {
@@ -16,6 +15,7 @@
     "ag-grid-enterprise": "^17.0.0",
     "ag-grid-vue": "17.0.0",
     "axios": "0.18.0",
+    "lodash": "^4.17.5",
     "vue2-highcharts": "1.1.8",
     "vuex-persistedstate": "2.4.2",
     "vuex-router-sync": "^5.0.0"
