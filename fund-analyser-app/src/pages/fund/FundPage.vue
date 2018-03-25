@@ -1,19 +1,24 @@
 <template lang="pug">
-  q-pull-to-refresh(:handler="refreshFund")
-    q-page(padding)
-      template(v-if="fund")
+  q-page(padding)
+    template(v-if="fund && !refreshing")
+      .row.items-center.gutter-sm.q-mb-md
         .q-headline {{fund.name}}
-        fund-info-bar(:fund="fund" :realTimeDetails="realTimeDetails")
-        div(style="width: 70vw")
-          fund-chart(:fund="fund")
-        fund-holdings(v-if="realTimeDetails" :realTimeDetails="realTimeDetails")
-      template(v-else)
-        .absolute-center.row.items-center.gutter-x-sm.text-purple
-          q-spinner-dots(size="36px" color="purple")
-          .q-title Loading
+        div
+          q-btn(icon="autorenew" label="Renew" @click="refreshFund" color="secondary" rounded glossy)
+        div
+          q-btn(color="amber" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)")
+      fund-info-bar(:fund="fund" :realTimeDetails="realTimeDetails")
+      div(style="width: 70vw")
+        fund-chart(:fund="fund")
+      fund-holdings(v-if="realTimeDetails" :realTimeDetails="realTimeDetails")
+    template(v-else)
+      .absolute-center.row.items-center.gutter-x-sm.text-purple
+        q-spinner-dots(size="36px" color="purple")
+        .q-title Loading
 </template>
 
 <script>
+import { openURL } from 'quasar'
 import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'fund-page',
@@ -34,6 +39,11 @@ export default {
     this.stopRealTimeUpdates(from.params.isin)
     next()
   },
+  data () {
+    return {
+      refreshing: false
+    }
+  },
   computed: {
     fund: function () {
       return this.lookupFund()(this.isin)
@@ -43,6 +53,7 @@ export default {
     }
   },
   methods: {
+    openURL,
     ...mapActions(
       'funds', [
         'get',
@@ -57,9 +68,10 @@ export default {
         'lookupRealTimeDetails'
       ]
     ),
-    async refreshFund (done) {
+    async refreshFund () {
+      this.refreshing = true
       await this.get(this.isin)
-      done()
+      this.refreshing = false
     }
   }
 }

@@ -84,7 +84,6 @@ module.exports = function (ctx) {
         'QTr',
         'QTd',
         'QTableColumns',
-        'QPullToRefresh',
         'QSpinner',
         'QSpinnerDots'
       ],

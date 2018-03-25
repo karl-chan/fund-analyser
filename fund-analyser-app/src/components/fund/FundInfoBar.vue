@@ -1,7 +1,7 @@
 <template lang="pug">
-  .row.justify-between(v-if="fund")
-    // real time details
-    .column.gutter-y-xs
+  div
+    .column.gutter-y-xs(v-if="fund")
+      // real time details
       .row.items-center.gutter-lg(v-if="realTimeDetails")
         div.row.items-center Today's change (estimate):
           |
@@ -23,14 +23,11 @@
           .q-title {{ lastHistoricPrice.price }}
         div Historic prices as of:
           .q-title {{ $utils.format.formatDateLong(lastHistoricPrice.date) }}
-    .column.justify-center
-      q-btn(color="amber" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)")
-  div(v-else="")
-    q-icon(name="info") No information available
+    div(v-else)
+      q-icon(name="info") No information available
 </template>
 
 <script>
-import { openURL } from 'quasar'
 export default {
   name: 'FundInfoBar',
   props: ['fund', 'realTimeDetails'],
@@ -40,7 +37,6 @@ export default {
     }
   },
   methods: {
-    openURL,
     colour (num) {
       return this.$utils.format.colourNumber(num)
     },
