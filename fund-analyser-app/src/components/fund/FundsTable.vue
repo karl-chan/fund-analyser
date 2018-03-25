@@ -9,7 +9,11 @@
         div
           q-btn-group
             q-btn(color="tertiary" icon="refresh" @click="startDownload")
+              q-tooltip Refresh dataset
             q-btn(color="tertiary" icon="fas fa-file-excel" @click="exportCsv")
+              q-tooltip Export to CSV
+            q-btn(color="tertiary" :icon="pinnedRowsVisible? 'expand_less': 'expand_more'" @click="togglePinnedRows")
+              q-tooltip {{ pinnedRowsVisible ? 'Hide' : 'Show' }} statistics
 
     // actual table
     .relative-position
@@ -31,6 +35,7 @@ export default {
     return {
       downloading: false,
       downloadPercentage: 0,
+      pinnedRowsVisible: false,
       columnDefs: [
         { headerName: 'ISIN', field: 'isin', width: 120 },
         { headerName: 'Name', field: 'name', width: 180 },
@@ -67,6 +72,11 @@ export default {
         toolPanelSuppressSideButtons: true,
         rowStyle: {
           cursor: 'pointer'
+        },
+        getRowClass: function (params) {
+          if (params.node.rowPinned) {
+            return ['text-bold', 'bg-dark', 'text-white']
+          }
         }
       }
     }
@@ -86,6 +96,17 @@ export default {
       const asofs = this.summary.map(f => Date.parse(f.asof))
       const globalAsof = Math.max.apply(null, asofs.filter(isFinite))
       return new Date(globalAsof)
+    },
+    pinnedRowsData: function () {
+      if (!this.dataReady) {
+        return []
+      }
+      const { meanReturns, medianReturns, stddevReturns } = this.$utils.fund.calcSummaryStats(this.summary)
+      return [
+        {isin: 'Mean returns', returns: meanReturns},
+        {isin: 'Median returns', returns: medianReturns},
+        {isin: 'Stddev returns', returns: stddevReturns}
+      ]
     }
   },
   methods: {
@@ -99,7 +120,6 @@ export default {
       this.downloading = true
       await this.getSummary()
       this.downloading = false
-      this.closeDrawer()
     },
     filterText (text) {
       this.gridOptions.api.setQuickFilter(text)
@@ -138,6 +158,17 @@ export default {
       })
       params.api.setColumnDefs(newColDefs)
     },
+    showPinnedRows () {
+      this.gridOptions.api.setPinnedTopRowData(this.pinnedRowsData)
+      this.pinnedRowsVisible = true
+    },
+    hidePinnedRows () {
+      this.gridOptions.api.setPinnedTopRowData([])
+      this.pinnedRowsVisible = false
+    },
+    togglePinnedRows () {
+      this.pinnedRowsVisible ? this.hidePinnedRows() : this.showPinnedRows()
+    },
     numberFormatter (params) {
       return this.$utils.format.formatNumber(params.value)
     },
@@ -155,8 +186,11 @@ export default {
     },
     colourReturnsCell (params) {
       const period = params.colDef.headerName
-      const score = params.data.metadata.scores[period]
-      return this.$utils.format.colourNumberCell(score)
+      if (params.data.metadata) {
+        const score = params.data.metadata.scores[period]
+        return this.$utils.format.colourNumberCell(score)
+      }
+      return undefined
     },
     numberComparator (a, b) {
       return this.$utils.number.numberComparator(a, b)
@@ -184,6 +218,9 @@ export default {
             case 'exitCharge': return this.percentFormatter(params, '')
             default: return params.value
           }
+        },
+        shouldRowBeSkipped (params) {
+          return params.node.rowPinned
         }
       }
       this.gridOptions.api.exportDataAsCsv(params)

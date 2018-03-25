@@ -6,7 +6,7 @@
         div
           q-btn(icon="autorenew" label="Renew" @click="refreshFund" color="secondary" rounded glossy)
         div
-          q-btn(color="amber" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)")
+          q-btn(color="orange" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)")
       fund-info-bar(:fund="fund" :realTimeDetails="realTimeDetails")
       div(style="width: 70vw")
         fund-chart(:fund="fund")

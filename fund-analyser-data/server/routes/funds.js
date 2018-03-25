@@ -42,7 +42,6 @@ router.get(`${BASE_URL}/summary`, async ctx => {
         projection: {_id: 0, historicPrices: 0, percentiles: 0}
     }
     const funds = await db.getFunds().find(query, options).toArray()
-    ctx.set('Cache-Control', 'max-age=3600')
     ctx.body = funds
 })
 
