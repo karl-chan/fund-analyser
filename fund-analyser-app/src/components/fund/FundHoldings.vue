@@ -1,5 +1,6 @@
 <template lang="pug">
-  q-table(title="Real time information" :data="realTimeDetails.holdings" :columns="columns" :pagination.sync="pagination" row-key="name")
+  q-table(title="Real time information" :data="rowData" :columns="columns" :pagination.sync="pagination" row-key="name"
+          no-results-label="No information available" dense :hide-bottom="rowData.length")
     q-tr(slot="body" slot-scope="props" :props="props")
       q-td(key="name" :props="props")
         |  {{ props.row.name }}
@@ -18,13 +19,18 @@ export default {
   data () {
     return {
       pagination: {
-        rowsPerPage: 10
+        rowsPerPage: 20
       },
       columns: [
         {name: 'name', label: 'Name', field: 'name', sortable: true, align: 'left'},
         {name: 'todaysChange', label: 'Todays \'Change (%)', field: 'todaysChange', sortable: true, format: val => 100 * val},
         {name: 'weight', label: 'Weight (%)', field: 'weight', sortable: true}
       ]
+    }
+  },
+  computed: {
+    rowData: function () {
+      return (this.realTimeDetails && this.realTimeDetails.holdings) || []
     }
   },
   methods: {

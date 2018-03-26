@@ -20,9 +20,9 @@ app.use(fundsRoutes.routes())
 const main = async () => {
     try {
         await db.init()
-        console.log(`Connected to MongoDB`)
+        console.log(`Connected to MongoDB.`)
     } catch (err) {
-        console.error('Failed to connect to MongoDB')
+        console.error('Failed to connect to MongoDB.\n', err)
     }    
     
     app.listen(PORT, async () => {

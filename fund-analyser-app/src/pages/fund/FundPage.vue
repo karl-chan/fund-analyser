@@ -8,9 +8,11 @@
         div
           q-btn(color="orange" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)")
       fund-info-bar(:fund="fund" :realTimeDetails="realTimeDetails")
-      div(style="width: 70vw")
-        fund-chart(:fund="fund")
-      fund-holdings(v-if="realTimeDetails" :realTimeDetails="realTimeDetails")
+      .row.gutter-x-sm
+        .col-md-8
+          fund-chart(:fund="fund")
+        .col-md-4.q-mt-lg
+          fund-holdings(:realTimeDetails="realTimeDetails")
     template(v-else)
       .absolute-center.row.items-center.gutter-x-sm.text-purple
         q-spinner-dots(size="36px" color="purple")
