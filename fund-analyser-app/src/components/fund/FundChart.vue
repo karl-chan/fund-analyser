@@ -1,28 +1,34 @@
 <template lang="pug">
-  highcharts(v-if="fund" :Highcharts="Highstock" :options="chartOptions")
+  div(v-if="fund" :id="chartId" style="width: 400px; height: 300px;")
   div(v-else) No chart available
 </template>
 
 <script>
-import Highstock from 'highcharts/highstock'
+import { uid } from 'quasar'
+import Highcharts from 'highcharts'
+import Highstock from 'highcharts/modules/stock'
 import Highmaps from 'highcharts/modules/map'
 
-Highmaps(Highstock)
+Highstock(Highcharts)
+Highmaps(Highcharts)
 
 export default {
   name: 'fund-chart',
   props: ['fund'],
-  data () {
-    return {
-      Highstock: Highstock
+  mounted () {
+    if (this.fund) {
+      this.initialiseChart(this.fund)
     }
   },
   computed: {
-    chartOptions: function () {
-      return this.buildChartOptions(this.fund)
+    chartId: function () {
+      return `fund-chart-${uid()}`
     }
   },
   methods: {
+    initialiseChart (fund) {
+      Highcharts.stockChart(this.chartId, this.buildChartOptions(fund))
+    },
     buildChartOptions (fund) {
       return {
         chart: {
@@ -45,6 +51,11 @@ export default {
           enabled: false
         }
       }
+    }
+  },
+  watch: {
+    fund: function (newVal, oldVal) {
+      this.initialiseChart(newVal)
     }
   }
 }
