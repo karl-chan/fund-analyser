@@ -1,4 +1,6 @@
-import { fromPairs, max, min } from 'lodash'
+import fromPairs from 'lodash/fromPairs'
+import max from 'lodash/max'
+import min from 'lodash/min'
 import { median, stdev } from 'jStat'
 
 const periods = ['5Y', '3Y', '1Y', '6M', '3M', '1M', '2W', '1W', '3D', '1D']

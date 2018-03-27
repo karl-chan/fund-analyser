@@ -1,9 +1,10 @@
 <template lang="pug">
   q-table(title="Real time information" :data="rowData" :columns="columns" :pagination.sync="pagination" row-key="name"
-          no-results-label="No information available" dense :hide-bottom="rowData.length")
+          no-results-label="No information available" dense :hide-bottom="!!rowData.length")
     q-tr(slot="body" slot-scope="props" :props="props")
-      q-td(key="name" :props="props")
+      q-td(key="name" :props="props" style="max-width: 75px; overflow: hidden; text-overflow: ellipsis")
         |  {{ props.row.name }}
+        <q-tooltip>{{ props.row.name }}</q-tooltip>
       q-td(key="todaysChange" :props="props" :class="{'text-green': props.row.todaysChange > 0, 'text-red': props.row.todaysChange < 0}")
         | {{ $utils.format.formatPercentage(props.row.todaysChange) }}
         q-btn(v-if="props.row.ticker" icon="info" @click="openURL('https://markets.ft.com/data/equities/tearsheet/summary?s=' + props.row.ticker)" color="primary" flat rounded dense)

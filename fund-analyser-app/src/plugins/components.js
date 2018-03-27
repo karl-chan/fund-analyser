@@ -1,6 +1,5 @@
 import { AgGridVue } from 'ag-grid-vue'
 import 'ag-grid-enterprise/main'
-import Highcharts from 'vue2-highcharts'
 
 import FundSearch from 'components/fund/FundSearch'
 import FundInfoBar from 'components/fund/FundInfoBar'
@@ -12,7 +11,6 @@ import TipOfTheDay from 'components/misc/TipOfTheDay'
 
 export default ({ Vue }) => {
   Vue.component('ag-grid-vue', AgGridVue)
-  Vue.component('highcharts', Highcharts)
   Vue.component('fund-search', FundSearch)
   Vue.component('fund-info-bar', FundInfoBar)
   Vue.component('fund-chart', FundChart)

@@ -12,28 +12,28 @@
   },
   "dependencies": {
     "ag-grid": "17.0.0",
-    "ag-grid-enterprise": "^17.0.0",
+    "ag-grid-enterprise": "17.0.0",
     "ag-grid-vue": "17.0.0",
     "axios": "0.18.0",
-    "jStat": "^1.7.1",
-    "lodash": "^4.17.5",
+    "jStat": "1.7.1",
+    "lodash": "4.17.5",
     "vue2-highcharts": "1.1.8",
-    "vuex-persistedstate": "2.4.2",
-    "vuex-router-sync": "^5.0.0"
+    "vuex-persistedstate": "2.5.1",
+    "vuex-router-sync": "5.0.0"
   },
   "devDependencies": {
     "babel-eslint": "8.2.2",
-    "eslint": "4.18.2",
+    "eslint": "4.19.1",
     "eslint-config-standard": "11.0.0",
-    "eslint-friendly-formatter": "3.0.0",
+    "eslint-friendly-formatter": "4.0.0",
     "eslint-loader": "2.0.0",
     "eslint-plugin-import": "2.9.0",
     "eslint-plugin-node": "6.0.1",
     "eslint-plugin-promise": "3.7.0",
     "eslint-plugin-standard": "3.0.1",
-    "eslint-plugin-vue": "4.3.0",
-    "pug": "^2.0.1",
-    "quasar-cli": "0.15.12"
+    "eslint-plugin-vue": "4.4.0",
+    "pug": "2.0.3",
+    "quasar-cli": "0.15.14"
   },
   "engines": {
     "node": ">= 8.9.0",

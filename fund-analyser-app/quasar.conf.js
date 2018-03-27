@@ -31,7 +31,7 @@ module.exports = function (ctx) {
       vueRouterMode: 'hash',
       vueCompiler: true,
       gzip: true,
-      // analyze: true,
+      analyze: true,
       // extractCSS: false,
       // useNotifier: false,
       extendWebpack (cfg) {
@@ -86,14 +86,13 @@ module.exports = function (ctx) {
         'QTd',
         'QTableColumns',
         'QSpinner',
-        'QSpinnerDots'
+        'QSpinnerFacebook'
       ],
       directives: [
         'Ripple'
       ],
       // Quasar plugins
       plugins: [
-        'Notify',
         'LocalStorage'
       ]
     },

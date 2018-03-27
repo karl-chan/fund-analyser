@@ -15,7 +15,7 @@
           fund-holdings(:realTimeDetails="realTimeDetails")
     template(v-else)
       .absolute-center.row.items-center.gutter-x-sm.text-purple
-        q-spinner-dots(size="36px" color="purple")
+        q-spinner-facebook(size="36px" color="purple")
         .q-title Loading
 </template>
 
