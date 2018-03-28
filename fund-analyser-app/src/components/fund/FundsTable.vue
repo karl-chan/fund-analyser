@@ -8,7 +8,7 @@
         div As of: {{ $utils.format.formatDateLong(asof) }}
         div
           q-btn-group
-            q-btn(color="tertiary" icon="refresh" @click="startDownload" :outline="true")
+            q-btn(color="tertiary" icon="refresh" @click="startDownload" :glossy="outdated")
               q-tooltip Refresh dataset
             q-btn(color="tertiary" icon="fas fa-file-excel" @click="exportCsv")
               q-tooltip Export to CSV
@@ -96,6 +96,9 @@ export default {
       const asofs = this.summary.map(f => Date.parse(f.asof))
       const globalAsof = Math.max.apply(null, asofs.filter(isFinite))
       return new Date(globalAsof)
+    },
+    outdated: function () {
+      return this.asof < this.$utils.date.startOfDay(new Date())
     },
     pinnedRowsData: function () {
       if (!this.dataReady) {
