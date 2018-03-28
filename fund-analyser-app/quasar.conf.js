@@ -31,7 +31,7 @@ module.exports = function (ctx) {
       vueRouterMode: 'hash',
       vueCompiler: true,
       gzip: true,
-      analyze: true,
+      // analyze: true,
       // extractCSS: false,
       // useNotifier: false,
       extendWebpack (cfg) {
