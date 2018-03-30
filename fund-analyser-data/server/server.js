@@ -1,4 +1,5 @@
 const Koa = require('koa')
+const compress = require('koa-compress')
 const logger = require('koa-logger')
 const bodyParser = require('koa-bodyparser')
 const serve = require('koa-static')
@@ -12,8 +13,9 @@ const PORT = process.env.PORT || properties.get('server.default.port');
 
 const app = new Koa();
 
+app.use(compress())
 app.use(logger())
-app.use(bodyParser());
+app.use(bodyParser())
 app.use(serve(__dirname + '/../../fund-analyser-app/dist/spa-mat'))
 app.use(fundsRoutes.routes())
 
