@@ -1,6 +1,8 @@
 const Koa = require('koa')
+const enforceHttps = require('koa-sslify');
 const compress = require('koa-compress')
 const logger = require('koa-logger')
+const cors = require('@koa/cors');
 const bodyParser = require('koa-bodyparser')
 const serve = require('koa-static')
 
@@ -13,8 +15,15 @@ const PORT = process.env.PORT || properties.get('server.default.port');
 
 const app = new Koa();
 
+if (process.env.NODE_ENV === 'production') {
+    app.use(enforceHttps({
+        trustProtoHeader: true
+    }))
+}
+
 app.use(compress())
 app.use(logger())
+app.use(cors())
 app.use(bodyParser())
 app.use(serve(__dirname + '/../../fund-analyser-app/dist/spa-mat'))
 app.use(fundsRoutes.routes())
