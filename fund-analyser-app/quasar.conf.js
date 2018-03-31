@@ -1,4 +1,5 @@
 // Configuration for your app
+const webpack = require('webpack')
 
 module.exports = function (ctx) {
   return {

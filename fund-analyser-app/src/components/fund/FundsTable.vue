@@ -8,7 +8,7 @@
         div As of: {{ $utils.format.formatDateLong(asof) }}
         div
           q-btn-group
-            q-btn(color="tertiary" icon="refresh" @click="startDownload" :glossy="outdated")
+            q-btn(:color="outdated? 'primary': 'tertiary'" icon="refresh" @click="startDownload" :glossy="outdated")
               q-tooltip Refresh dataset
             q-btn(color="tertiary" icon="fas fa-file-excel" @click="exportCsv")
               q-tooltip Export to CSV
