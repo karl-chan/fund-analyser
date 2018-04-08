@@ -1,20 +1,18 @@
-const FundCalculator = require('./FundCalculator.js');
-const Fund = require('./Fund.js');
-const stream = require('stream');
+const FundCalculator = require('./FundCalculator.js')
+const Fund = require('./Fund.js')
 
-const _ = require('lodash');
+const _ = require('lodash')
 
-const chai = require('chai');
-const sinon = require('sinon');
-const assert = chai.assert;
-const expect = chai.expect;
-const StreamTest = require('streamtest');
+const chai = require('chai')
+const sinon = require('sinon')
+const assert = chai.assert
+const StreamTest = require('streamtest')
 
 describe('FundCalculator', function () {
-    let fundCalculator, fund;
+    let fundCalculator, fund
     const returns = {
         '1M': 0.02
-    };
+    }
     const historicPrices = [
         new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
         new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
@@ -25,7 +23,7 @@ describe('FundCalculator', function () {
         new Fund.HistoricPrice(new Date(2017, 3, 20), 468.0),
         new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
         new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
-    ];
+    ]
     const percentiles = {
         '5Y': 0.2,
         '3Y': 0.3,
@@ -37,80 +35,79 @@ describe('FundCalculator', function () {
         '1W': 0.2,
         '3D': 0.6,
         '1D': 0.6
-    };
-
+    }
 
     beforeEach(function () {
-        fundCalculator = new FundCalculator();
+        fundCalculator = new FundCalculator()
         fund = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(returns)
-            .build();
-    });
+            .build()
+    })
 
     it('evaluate should evaluate fund', function (done) {
         const newReturns = _.assign(returns, {
             '2W': 0.01,
             '1W': 0.005
-        });
+        })
         const fundWithNewReturns = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(newReturns)
-            .build();
+            .build()
         const fundWithPercentiles = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(newReturns)
             .percentiles(percentiles)
-            .build();
+            .build()
         const fundWithStability = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(newReturns)
             .stability(-3)
-            .build();
+            .build()
         const fundResult = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(newReturns)
             .percentiles(percentiles)
             .stability(-3)
-            .build();
+            .build()
 
         sinon.stub(fundCalculator, 'enrichReturns')
             .withArgs(fund)
-            .yields(null, fundWithNewReturns);
+            .yields(null, fundWithNewReturns)
         sinon.stub(fundCalculator, 'calcPercentiles')
             .withArgs(fund)
-            .yields(null, fundWithPercentiles);
-        sinon.stub(funcCalculator, 'calcStability')
+            .yields(null, fundWithPercentiles)
+        sinon.stub(fundCalculator, 'calcStability')
             .withArgs(fund)
-            .yields(null, fundWithStability);
+            .yields(null, fundWithStability)
         fundCalculator.evaluate(fund, (err, actual) => {
-            assert.deepEqual(actual, fundResult);
-            done(err);
-        });
-    });
+            assert.deepEqual(actual, fundResult)
+            done(err)
+        })
+    })
 
     it('stream should return a Transform stream that evaluates fund', function (done) {
         const newReturns = _.assign(returns, {
             '2W': 0.01,
             '1W': 0.005
-        });
+        })
         const expected = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(newReturns)
             .percentiles(percentiles)
-            .build();
+            .build()
 
-        const version = 'v2';
+        const version = 'v2'
         sinon.stub(fundCalculator, 'evaluate')
             .withArgs(fund)
-            .yields(null, expected);
+            .yields(null, expected)
 
-        const fundStream = StreamTest[version].fromObjects([fund]);
+        const fundStream = StreamTest[version].fromObjects([fund])
         fundStream
             .pipe(fundCalculator.stream())
             .pipe(StreamTest[version].toObjects((err, funds) => {
-                assert.deepEqual(funds, [expected]);
-                done(err);
-            }));
-    });
-});
+                assert.deepEqual(funds, [expected])
+                done(err)
+            }))
+    })
+})

@@ -7,7 +7,7 @@
 <script>
 
 export default {
-  name: 'fund-chart',
+  name: 'FundChart',
   props: ['fund'],
   computed: {
     chartOptions: function () {

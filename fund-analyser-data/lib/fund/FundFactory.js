@@ -1,17 +1,16 @@
-module.exports = FundFactory;
+module.exports = FundFactory
 
-const CharlesStanleyDirect = require('./CharlesStanleyDirect.js');
-const FinancialTimes = require('./FinancialTimes.js');
-const FundCalculator = require('./FundCalculator.js');
-const properties = require('../util/properties.js');
+const CharlesStanleyDirect = require('./CharlesStanleyDirect.js')
+const FinancialTimes = require('./FinancialTimes.js')
+const FundCalculator = require('./FundCalculator.js')
 
-const async = require('async');
-const StreamTest = require('streamtest');
+const async = require('async')
+const StreamTest = require('streamtest')
 
-function FundFactory() {
-    this.isinProvider = new CharlesStanleyDirect();
-    this.fundProvider = new FinancialTimes();
-    this.fundCalculator = new FundCalculator();
+function FundFactory () {
+    this.isinProvider = new CharlesStanleyDirect()
+    this.fundProvider = new FinancialTimes()
+    this.fundCalculator = new FundCalculator()
 }
 
 FundFactory.prototype.getFunds = function (callback) {
@@ -19,30 +18,29 @@ FundFactory.prototype.getFunds = function (callback) {
         this.isinProvider.getFunds.bind(this.isinProvider),
         this.fundProvider.getFundsFromIsins.bind(this.fundProvider),
         this.fundCalculator.evaluate.bind(this.fundCalculator)
-    ], callback);
-};
+    ], callback)
+}
 
 FundFactory.prototype.streamFunds = function () {
-    const isinStream = this.isinProvider.streamFunds();
-    const isinToFundStream = this.fundProvider.streamFundsFromIsins();
-    const fundCalculationStream = this.fundCalculator.stream();
+    const isinStream = this.isinProvider.streamFunds()
+    const isinToFundStream = this.fundProvider.streamFundsFromIsins()
+    const fundCalculationStream = this.fundCalculator.stream()
 
     const fundStream = isinStream
         .pipe(isinToFundStream)
-        .pipe(fundCalculationStream);
-    return fundStream;
-};
-
+        .pipe(fundCalculationStream)
+    return fundStream
+}
 
 FundFactory.prototype.streamFundsFromSedols = function (sedols) {
     const sedolStream = StreamTest['v2'].fromObjects(sedols)
-    const isinStream = this.isinProvider.streamFundsFromSedols();
-    const isinToFundStream = this.fundProvider.streamFundsFromIsins();
-    const fundCalculationStream = this.fundCalculator.stream();
+    const isinStream = this.isinProvider.streamFundsFromSedols()
+    const isinToFundStream = this.fundProvider.streamFundsFromIsins()
+    const fundCalculationStream = this.fundCalculator.stream()
 
     const fundStream = sedolStream
         .pipe(isinStream)
         .pipe(isinToFundStream)
-        .pipe(fundCalculationStream);
-    return fundStream;
-};
+        .pipe(fundCalculationStream)
+    return fundStream
+}

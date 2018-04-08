@@ -4,6 +4,8 @@ import Vuex from 'vuex'
 import { sync } from 'vuex-router-sync'
 import createPersistedState from 'vuex-persistedstate'
 
+import account from './account'
+import auth from './auth'
 import funds from './funds'
 import layout from './layout'
 import misc from './misc'
@@ -13,12 +15,14 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   modules: {
+    account,
+    auth,
     funds,
     layout,
     misc
   },
   plugins: [createPersistedState({
-    paths: ['funds.loaded', 'funds.summary'],
+    paths: ['auth.charlesStanleyDirect.token', 'funds.loaded', 'funds.summary'],
     storage: {
       getItem: LocalStorage.get.item,
       setItem: LocalStorage.set,
@@ -27,5 +31,6 @@ const store = new Vuex.Store({
   })]
 })
 sync(store, router)
+store.dispatch('auth/init')
 
 export default store

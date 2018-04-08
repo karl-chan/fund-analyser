@@ -14,9 +14,10 @@
         },
         {
             "type": "node",
-            "request": "launch",
-            "name": "Node.js Server",
-            "program": "${workspaceFolder}/fund-analyser-data/server/server.js"
+            "request": "attach",
+            "name": "Nodemon server",
+            "restart": true,
+            "protocol": "inspector"
         },
         {
             "type": "node",

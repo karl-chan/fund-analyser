@@ -15,7 +15,7 @@
 <script>
 import { openURL } from 'quasar'
 export default {
-  name: 'fund-holdings',
+  name: 'FundHoldings',
   props: ['realTimeDetails'],
   data () {
     return {

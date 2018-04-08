@@ -1,5 +1,5 @@
-const properties = require('./properties.js');
-const winston = require('winston');
+const properties = require('./properties.js')
+const winston = require('winston')
 
 const log = new (winston.Logger)({
     transports: [
@@ -8,8 +8,6 @@ const log = new (winston.Logger)({
             'level': properties.get('log.level')
         })
     ]
-});
+})
 
-module.exports = log;
-
-
+module.exports = log

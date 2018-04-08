@@ -8,10 +8,10 @@
         div
           q-btn(color="orange" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)")
       fund-info-bar(:fund="fund" :realTimeDetails="realTimeDetails")
-      .row.gutter-x-sm.items-center
+      .row.gutter-x-sm.q-mt-xl
         .col-md-8
           fund-chart(:fund="fund")
-        .col-md-4.q-mt-lg
+        .col-md-4
           fund-holdings(:realTimeDetails="realTimeDetails")
     template(v-else)
       .absolute-center.row.items-center.gutter-x-sm.text-purple
@@ -23,7 +23,7 @@
 import { openURL } from 'quasar'
 import { mapActions, mapGetters } from 'vuex'
 export default {
-  name: 'fund-page',
+  name: 'FundPage',
   props: ['isin'],
   beforeRouteEnter (to, from, next) {
     next(vm => {

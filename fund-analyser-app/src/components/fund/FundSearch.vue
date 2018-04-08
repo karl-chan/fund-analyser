@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name: 'fund-search',
+  name: 'FundSearch',
   props: ['placeholder'],
   data () {
     return {

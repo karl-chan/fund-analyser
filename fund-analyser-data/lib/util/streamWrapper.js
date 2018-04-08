@@ -3,99 +3,98 @@ module.exports = {
     asWritable,
     asTransform,
     asParallelTransform
-};
+}
 
-const properties = require('./properties.js');
-const maxParallelTransforms = properties.get('stream.max.parallel.transforms');
+const properties = require('./properties.js')
+const maxParallelTransforms = properties.get('stream.max.parallel.transforms')
 
-const log = require('./log.js');
-const stream = require('stream');
-const transform = require('parallel-transform');
-const _ = require('lodash');
-const mutex = require('semaphore')(1);
+const log = require('./log.js')
+const stream = require('stream')
+const ParallelTransform = require('parallel-transform')
+const _ = require('lodash')
+const mutex = require('semaphore')(1)
 
-function asReadable(fn) {
+function asReadable (fn) {
     const readableStream = new stream.Readable({
         objectMode: true,
-        read(size) {
+        read (size) {
             mutex.take(() => {
                 if (this.done) {
-                    return;
+                    return
                 }
                 fn((err, data) => {
                     if (err) {
-                        this.emit('error', err);
-                        mutex.leave();
-                        return;
+                        this.emit('error', err)
+                        mutex.leave()
+                        return
                     }
                     if (_.isArray(data)) {
                         _.forEach(data, (chunk) => {
-                            this.push(chunk);
-                        });
+                            this.push(chunk)
+                        })
                     } else {
-                        this.push(data);
+                        this.push(data)
                     }
-                    this.push(null);
-                    this.done = true;
-                    mutex.leave();
-                });
-            });
+                    this.push(null)
+                    this.done = true
+                    mutex.leave()
+                })
+            })
         }
-    });
+    })
     readableStream.on('error', function (err) {
-        log.error(err);
-        process.exit(-1);
-    });
-    return readableStream;
-
+        log.error(err)
+        process.exit(-1)
+    })
+    return readableStream
 }
 
-function asWritable(fn) {
+function asWritable (fn) {
     const writableStream = new stream.Writable({
         objectMode: true,
-        write(chunk, encoding, callback) {
+        write (chunk, encoding, callback) {
             fn(chunk, (err, data) => {
                 if (err) {
-                    this.emit('error', err);
-                    return callback(err);
+                    this.emit('error', err)
+                    return callback(err)
                 }
-                return callback();
-            });
+                return callback()
+            })
         }
-    });
+    })
     writableStream.on('error', function (err) {
-        log.error(err);
-        process.exit(-1);
-    });
-    return writableStream;
+        log.error(err)
+        process.exit(-1)
+    })
+    return writableStream
 }
 
-function asTransform(fn) {
+function asTransform (fn) {
     const transformStream = new stream.Transform({
         allowHalfOpen: false,
         objectMode: true,
-        transform(chunk, encoding, callback) {
+        transform (chunk, encoding, callback) {
             fn(chunk, (err, data) => {
                 if (err) {
-                    this.emit('error', err);
-                    return callback(err);
+                    this.emit('error', err)
+                    return callback(err)
                 }
                 if (_.isArray(data)) {
                     _.forEach(data, (chunk) => {
-                        this.push(chunk);
-                    });
+                        this.push(chunk)
+                    })
                 } else {
-                    this.push(data);
+                    this.push(data)
                 }
-                return callback();
-            });
+                return callback()
+            })
         }
-    });
+    })
     transformStream.on('error', function (err) {
-        log.error(err);
-        process.exit(-1);
-    });
-    return transformStream;
+        log.error(err)
+        process.exit(-1)
+    })
+    return transformStream
 }
 
 /**
@@ -103,11 +102,11 @@ function asTransform(fn) {
  * @param fn
  * @returns {ParallelTransform}
  */
-function asParallelTransform(fn) {
-    const parallelTransformStream = new transform(maxParallelTransforms, fn);
+function asParallelTransform (fn) {
+    const parallelTransformStream = new ParallelTransform(maxParallelTransforms, fn)
     parallelTransformStream.on('error', function (err) {
-        log.error(err);
-        process.exit(-1);
-    });
-    return parallelTransformStream;
+        log.error(err)
+        process.exit(-1)
+    })
+    return parallelTransformStream
 }

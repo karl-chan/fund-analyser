@@ -2,10 +2,12 @@ const Router = require('koa-router')
 const db = require('../../lib/util/db')
 const FinancialTimes = require('../../lib/fund/FinancialTimes')
 
-const router = new Router()
-const BASE_URL = '/api/funds'
+const FUNDS_URL_PREFIX = '/api/funds'
+const router = new Router({
+    prefix: FUNDS_URL_PREFIX
+})
 
-router.get(`${BASE_URL}/get/:isin`, async ctx => {
+router.get('/get/:isin', async ctx => {
     const query = {isin: ctx.params.isin}
     const options = {
         projection: {_id: 0}
@@ -14,17 +16,17 @@ router.get(`${BASE_URL}/get/:isin`, async ctx => {
     ctx.body = fund
 })
 
-router.get(`${BASE_URL}/get/real-time-details/:isin`, async ctx => {
+router.get('/get/real-time-details/:isin', async ctx => {
     const query = {isin: ctx.params.isin}
     const options = {
         projection: {_id: 0}
     }
-    const fund = await db.getFunds().findOne(query, options)    
-    details = await new FinancialTimes().getRealTimeDetails(fund)
+    const fund = await db.getFunds().findOne(query, options)
+    const details = await new FinancialTimes().getRealTimeDetails(fund)
     ctx.body = details
 })
 
-router.get(`${BASE_URL}/search/:searchText`, async ctx => {
+router.get('/search/:searchText', async ctx => {
     const searchText = ctx.params.searchText
     const query = {$text: {$search: searchText}}
     const options = {
@@ -33,10 +35,10 @@ router.get(`${BASE_URL}/search/:searchText`, async ctx => {
         limit: 25
     }
     const searchResults = await db.getFunds().find(query, options).toArray()
-    ctx.body = searchResults;
+    ctx.body = searchResults
 })
 
-router.get(`${BASE_URL}/summary`, async ctx => {
+router.get('/summary', async ctx => {
     const query = {}
     const options = {
         projection: {_id: 0, historicPrices: 0, percentiles: 0}

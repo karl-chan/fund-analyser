@@ -1,5 +1,4 @@
 // Configuration for your app
-const webpack = require('webpack')
 
 module.exports = function (ctx) {
   return {
@@ -8,7 +7,8 @@ module.exports = function (ctx) {
       'axios',
       'components',
       'services',
-      'utils'
+      'utils',
+      'third-party-libraries'
     ],
     css: [
       'app.styl',
@@ -70,6 +70,7 @@ module.exports = function (ctx) {
         'QToolbarTitle',
         'QBtn',
         'QBtnGroup',
+        'QDialog',
         'QTooltip',
         'QIcon',
         'QList',
@@ -80,6 +81,7 @@ module.exports = function (ctx) {
         'QItemSeparator',
         'QAutocomplete',
         'QInput',
+        'QCheckbox',
         'QAlert',
         'QTable',
         'QTh',
@@ -87,7 +89,8 @@ module.exports = function (ctx) {
         'QTd',
         'QTableColumns',
         'QSpinner',
-        'QSpinnerFacebook'
+        'QSpinnerFacebook',
+        'QAjaxBar'
       ],
       directives: [
         'Ripple'

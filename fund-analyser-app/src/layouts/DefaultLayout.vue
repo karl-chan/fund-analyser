@@ -8,7 +8,8 @@
           | Fund Analyser
           div(slot="subtitle") Your mutual funds toolkit
         fund-search.absolute-center(placeholder="Start typing a fund name" @select="onFundSelect")
-        q-btn(flat dense size="lg" icon="home" @click="$router.push({name: 'home'})")
+        q-btn(flat dense size="lg" :icon="authIcon" @click="authClick")
+        q-btn(flat dense size="lg" icon="home" @click="$utils.router.redirectToHome")
     q-layout-drawer(v-model="drawerOpen" content-class="bg-grey-2")
       q-list(no-border link inset-delimiter)
         template(v-if="numLoadedFunds")
@@ -29,6 +30,7 @@
     q-page-container
       tip-of-the-day
       router-view
+      q-ajax-bar(color="lime")
 </template>
 
 <script>
@@ -36,12 +38,19 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import { openURL } from 'quasar'
 
 export default {
-  name: 'LayoutDefault',
+  name: 'DefaultLayout',
+  data () {
+    return {
+      loginIcon: 'account circle',
+      logoutIcon: 'fas fa-sign-out-alt'
+    }
+  },
   computed: {
     ...mapState('funds', {
       loadedFunds: 'loaded'
     }),
     ...mapGetters('funds', ['numLoadedFunds']),
+    ...mapGetters('auth', ['isLoggedIn']),
     drawerOpen: {
       get () {
         return this.$store.state.layout.drawerOpen
@@ -49,18 +58,29 @@ export default {
       set (open) {
         this.$store.commit('layout/setDrawerOpen', open)
       }
+    },
+    authIcon: function () {
+      return this.isLoggedIn ? this.logoutIcon : this.loginIcon
     }
   },
   methods: {
     openURL,
     onFundSelect (fund) {
-      this.$router.push({ name: 'fund', params: { isin: fund.isin } })
+      this.$utils.router.redirectToFund(fund.isin)
     },
     removeFund (isin) {
       this.$store.dispatch('funds/remove', isin)
     },
+    ...mapActions('auth', ['login']),
     ...mapActions('funds', ['removeAll']),
-    ...mapActions('layout', ['toggleDrawer'])
+    ...mapActions('layout', ['toggleDrawer']),
+    authClick () {
+      if (this.isLoggedIn) {
+        this.$utils.router.redirectToLogout()
+      } else {
+        this.$utils.router.redirectToLogin()
+      }
+    }
   }
 }
 </script>

@@ -1,7 +1,6 @@
-module.exports = createIndex;
+module.exports = createIndex
 
-const async = require('async');
-const db = require('../../lib/util/db.js');
+const db = require('../../lib/util/db.js')
 
 /**
  * Create index on popular fields for sorting

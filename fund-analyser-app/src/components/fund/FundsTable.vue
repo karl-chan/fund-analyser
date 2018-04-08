@@ -49,15 +49,15 @@ export default {
         { headerName: '1W', field: 'returns.1W', width: 65 },
         { headerName: '3D', field: 'returns.3D', width: 65 },
         { headerName: '1D', field: 'returns.1D', sort: 'desc', width: 65 },
-        { headerName: 'Type', field: 'type', width: 50, headerTooltip: 'Type' },
-        { headerName: 'Share Class', field: 'shareClass', width: 50, headerTooltip: 'Share Class' },
-        { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 65, headerTooltip: 'Bid Ask Spread' },
-        { headerName: 'Frequency', field: 'frequency', width: 60, headerTooltip: 'Frequency' },
-        { headerName: 'OCF', field: 'ocf', width: 65, headerTooltip: 'OCF' },
-        { headerName: 'AMC', field: 'amc', width: 65, headerTooltip: 'AMC' },
-        { headerName: 'Entry Charge', field: 'entryCharge', width: 65, headerTooltip: 'Entry Charge' },
-        { headerName: 'Exit Charge', field: 'exitCharge', width: 65, headerTooltip: 'Exit Charge' },
-        { headerName: 'Stability', field: 'stability', width: 50, headerTooltip: 'Stability' },
+        { headerName: 'Type', field: 'type', width: 50 },
+        { headerName: 'Share Class', field: 'shareClass', width: 50 },
+        { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 65 },
+        { headerName: 'Frequency', field: 'frequency', width: 60 },
+        { headerName: 'OCF', field: 'ocf', width: 65 },
+        { headerName: 'AMC', field: 'amc', width: 65 },
+        { headerName: 'Entry Charge', field: 'entryCharge', width: 65 },
+        { headerName: 'Exit Charge', field: 'exitCharge', width: 65 },
+        { headerName: 'Stability', field: 'stability', width: 50 },
         { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter }
       ],
@@ -134,8 +134,7 @@ export default {
       this.updateColDefs(params)
     },
     onRowDoubleClicked (params) {
-      const isin = params.data.isin
-      this.$router.push({ name: 'fund', params: { isin } })
+      this.$utils.router.redirectToFund(params.data.isin)
     },
     updateColDefs (params) {
       const returnsFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
@@ -157,6 +156,7 @@ export default {
           colDef.valueFormatter = this.numberFormatter
           colDef.comparator = this.numberComparator
         }
+        colDef.headerTooltip = colDef.headerName
         return colDef
       })
       params.api.setColumnDefs(newColDefs)
