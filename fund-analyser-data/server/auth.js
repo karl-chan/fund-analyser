@@ -1,5 +1,7 @@
 const moment = require('moment')
+const security = require('../lib/util/security')
 const CharlesStanleyDirectAuth = require('../lib/auth/CharlesStanleyDirectAuth')
+const SessionDAO = require('../lib/db/SessionDAO')
 
 const SHORT_EXPIRY = moment.duration(15, 'minutes')
 const LONG_EXPIRY = moment.duration(1, 'month')
@@ -7,27 +9,50 @@ const LONG_EXPIRY = moment.duration(1, 'month')
 const SESSION_CONFIG = {
     maxAge: LONG_EXPIRY.asMilliseconds,
     store: {
-        get (key, maxAge, { rolling }) {
-            return sessionStorage[key]
+        async get (key, maxAge, { rolling }) {
+            const jar = jarCache[key]
+            const data = await SessionDAO.findSession(key)
+            return {...data, jar}
         },
-        set (key, sess, maxAge, { rolling, changed }) {
-            sessionStorage[key] = sess
+        async set (key, sess, maxAge, { rolling, changed }) {
+            const {jar, ...data} = sess
+            await SessionDAO.upsertSession(data, key)
+            jarCache[key] = jar
         },
-        destroy (key) {
-            delete sessionStorage[key]
+        async destroy (key) {
+            await SessionDAO.deleteSession(key)
+            delete jarCache[key]
         }
     }
 }
-const sessionStorage = {} // {[sessionId: string]: sessionContents: Object}
+const jarCache = {} // {[sessionId: string]: jar: object}
 
 const csdAuth = new CharlesStanleyDirectAuth()
 
-const createToken = function (user, pass, memorableWord) {
-    return {user, pass, memorableWord}
+const createToken = function (user, pass, memorableWord, persist) {
+    return {
+        user: user,
+        pass: pass,
+        memorableWord: memorableWord,
+        expiry: newExpiry(persist)
+    }
+}
+const encryptToken = function (token) {
+    return {
+        user: security.encryptString(token.user),
+        pass: security.encryptString(token.pass),
+        memorableWord: security.encryptString(token.memorableWord),
+        expiry: token.expiry.unix()
+    }
 }
 
 const deserialiseToken = function (token) {
-    return {user: token.user, pass: token.pass, memorableWord: token.memorableWord}
+    return {
+        user: security.decryptString(token.user),
+        pass: security.decryptString(token.pass),
+        memorableWord: security.decryptString(token.memorableWord),
+        expiry: moment.unix(token.expiry)
+    }
 }
 
 const newExpiry = function (persist) {
@@ -35,18 +60,14 @@ const newExpiry = function (persist) {
     return moment().add(duration)
 }
 
-const saveSession = function (ctx, {token, jar, persist}) {
-    ctx.session.token = token
+const saveSession = function (ctx, {token, jar}) {
+    ctx.session.token = token ? encryptToken(token) : null
     ctx.session.jar = jar
-    // Assign new expiry only if it's a new session
-    if (!ctx.session.expiry) {
-        ctx.session.expiry = newExpiry(persist)
-    }
 }
 
 const getSession = function (ctx) {
     return {
-        token: ctx.session.token,
+        token: ctx.session.token ? deserialiseToken(ctx.session.token) : null,
         jar: ctx.session.jar,
         expiry: ctx.session.expiry
     }
@@ -63,7 +84,7 @@ const destroySession = async function (ctx) {
 const getUser = function (ctx) {
     const {token, expiry} = getSession(ctx)
     if (token) {
-        const {user} = deserialiseToken(token)
+        const {user} = token
         return {user, expiry}
     }
     return {user: null, expiry: null}
@@ -72,8 +93,8 @@ const getUser = function (ctx) {
 const login = async function (ctx, user, pass, memorableWord, persist) {
     await destroySession(ctx)
     const {jar, name} = await csdAuth.login(user, pass, memorableWord)
-    const token = createToken(user, pass, memorableWord)
-    saveSession(ctx, {token, jar, persist})
+    const token = createToken(user, pass, memorableWord, persist)
+    saveSession(ctx, {token, jar})
     return {token, jar, name}
 }
 
@@ -82,21 +103,28 @@ const logout = async function (ctx) {
 }
 
 const isLoggedIn = async function (ctx) {
-    const {token, jar, expiry} = getSession(ctx)
-    const expired = !expiry || moment().isAfter(expiry)
-    if (!jar || expired) {
+    const {token, jar} = getSession(ctx)
+    if (!token && !jar) {
         return false
     }
-    const stillLoggedIn = await csdAuth.isLoggedIn(jar)
-    if (stillLoggedIn) {
-        return true
+    if (token) {
+        const expired = !token.expiry || moment().isAfter(token.expiry)
+        if (expired) {
+            return false
+        }
+    }
+    if (jar) {
+        const stillLoggedIn = await csdAuth.isLoggedIn(jar)
+        if (stillLoggedIn) {
+            return true
+        }
     }
     return refreshToken(ctx, token)
 }
 
 const refreshToken = async function (ctx, token) {
     try {
-        const {user, pass, memorableWord} = deserialiseToken(token)
+        const {user, pass, memorableWord} = token
         const {jar} = await login(user, pass, memorableWord)
         saveSession(ctx, {token, jar})
         return true

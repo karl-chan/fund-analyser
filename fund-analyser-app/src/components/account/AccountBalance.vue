@@ -1,7 +1,7 @@
 <template lang="pug">
   .column.gutter-y-md
     .q-display-1.text-grey Hello {{user}}
-    div
+    div(v-if="balance")
       .row.gutter-lg
         div Portfolio: £{{balance.portfolio}}
         div Cash: £{{balance.cash}}

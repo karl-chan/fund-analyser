@@ -13,9 +13,8 @@ const should = chai.should
 
 describe('FundDAO', function () {
     let fund, dao, dao2
-    before(async (done) => {
+    before(async () => {
         await db.init()
-        done()
     })
     beforeEach(function () {
         fund = Fund.Builder('test')

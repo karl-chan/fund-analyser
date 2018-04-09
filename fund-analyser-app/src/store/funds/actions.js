@@ -1,4 +1,5 @@
 import fundService from './../../services/fund-service'
+import dateUtils from './../../utils/date-utils'
 import router from './../../router'
 
 export async function get ({commit}, isin) {
@@ -9,9 +10,13 @@ export async function get ({commit}, isin) {
 
 export async function lazyGet ({dispatch, getters}, isin) {
   const cachedFund = getters['lookupFund'](isin)
-  if (!cachedFund) {
-    await dispatch('get', isin)
+  if (cachedFund) {
+    const upToDate = Date.parse(cachedFund.asof) >= dateUtils.startOfDay()
+    if (upToDate) {
+      return
+    }
   }
+  await dispatch('get', isin)
 }
 
 export async function getRealTimeDetails ({commit}, isin) {

@@ -17,7 +17,7 @@ router.post('/login', async ctx => {
     } catch (err) {
         ctx.status = 401
         ctx.body = { error: err.message }
-        log.info('Login failed')
+        log.info('Login failed', err)
     }
 })
 

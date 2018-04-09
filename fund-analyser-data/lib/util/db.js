@@ -1,7 +1,8 @@
 module.exports = {
     init,
     get,
-    getFunds
+    getFunds,
+    getSessions
 }
 
 const properties = require('./properties.js')
@@ -22,4 +23,8 @@ function get () {
 
 function getFunds () {
     return _db.collection('funds')
+}
+
+function getSessions () {
+    return _db.collection('sessions')
 }
