@@ -25,11 +25,15 @@ export async function getRealTimeDetails ({commit}, isin) {
   })
 }
 
-export function startRealTimeUpdates ({commit, dispatch}, isin) {
+export function startRealTimeUpdates ({commit, dispatch, getters}, isin) {
+  if (getters.lookupRealTimeDetails(isin)) {
+    return false// real time details already started
+  }
   const minute = 60 * 1000
   dispatch('getRealTimeDetails', isin)
   const jobId = setInterval(() => dispatch('getRealTimeDetails', isin), minute)
   commit('addJob', {isin, jobId})
+  return true
 }
 
 export function stopRealTimeUpdates ({state, commit}, isin) {
@@ -37,7 +41,9 @@ export function stopRealTimeUpdates ({state, commit}, isin) {
   if (jobId) {
     clearInterval(jobId)
     commit('removeJob', isin)
+    return true
   }
+  return false
 }
 
 export function remove ({commit, rootState}, isin) {

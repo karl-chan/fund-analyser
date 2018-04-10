@@ -23,16 +23,8 @@ export default {
     ...mapState('auth', ['user'])
   },
   methods: {
-    ...mapActions(
-      'account', [
-        'getBalance'
-      ]
-    ),
-    ...mapGetters(
-      'account', [
-        'lookupBalance'
-      ]
-    )
+    ...mapActions('account', [ 'getBalance' ]),
+    ...mapGetters('account', [ 'lookupBalance' ])
   }
 }
 </script>
