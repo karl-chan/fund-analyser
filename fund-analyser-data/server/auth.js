@@ -7,7 +7,7 @@ const SHORT_EXPIRY = moment.duration(15, 'minutes')
 const LONG_EXPIRY = moment.duration(1, 'month')
 
 const SESSION_CONFIG = {
-    maxAge: LONG_EXPIRY.asMilliseconds,
+    maxAge: LONG_EXPIRY.asMilliseconds(),
     store: {
         async get (key, maxAge, { rolling }) {
             const jar = jarCache[key]
@@ -29,11 +29,12 @@ const jarCache = {} // {[sessionId: string]: jar: object}
 
 const csdAuth = new CharlesStanleyDirectAuth()
 
-const createToken = function (user, pass, memorableWord, persist) {
+const createToken = function (user, pass, memorableWord, name, persist) {
     return {
         user: user,
         pass: pass,
         memorableWord: memorableWord,
+        name: name,
         expiry: newExpiry(persist)
     }
 }
@@ -42,6 +43,7 @@ const encryptToken = function (token) {
         user: security.encryptString(token.user),
         pass: security.encryptString(token.pass),
         memorableWord: security.encryptString(token.memorableWord),
+        name: security.encryptString(token.name),
         expiry: token.expiry.unix()
     }
 }
@@ -51,6 +53,7 @@ const deserialiseToken = function (token) {
         user: security.decryptString(token.user),
         pass: security.decryptString(token.pass),
         memorableWord: security.decryptString(token.memorableWord),
+        name: security.decryptString(token.name),
         expiry: moment.unix(token.expiry)
     }
 }
@@ -84,8 +87,8 @@ const destroySession = async function (ctx) {
 const getUser = function (ctx) {
     const {token, expiry} = getSession(ctx)
     if (token) {
-        const {user} = token
-        return {user, expiry}
+        const {name} = token
+        return {user: name, expiry}
     }
     return {user: null, expiry: null}
 }
@@ -93,7 +96,7 @@ const getUser = function (ctx) {
 const login = async function (ctx, user, pass, memorableWord, persist) {
     await destroySession(ctx)
     const {jar, name} = await csdAuth.login(user, pass, memorableWord)
-    const token = createToken(user, pass, memorableWord, persist)
+    const token = createToken(user, pass, memorableWord, name, persist)
     saveSession(ctx, {token, jar})
     return {token, jar, name}
 }

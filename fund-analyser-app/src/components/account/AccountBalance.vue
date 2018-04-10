@@ -55,7 +55,7 @@ export default {
       this.updateColDefs(params)
     },
     onRowDoubleClicked (params) {
-      this.$utils.router.redirectToFund(params.data.isin)
+      this.$utils.router.redirectToFund(params.data.ISIN, {newTab: true})
     },
     percentFormatter (params, fallbackValue) {
       return this.$utils.format.formatPercentage(params.value / 100, true, fallbackValue)
