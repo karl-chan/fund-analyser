@@ -22,7 +22,7 @@ const store = new Vuex.Store({
     misc
   },
   plugins: [createPersistedState({
-    paths: ['auth.charlesStanleyDirect.token', 'funds.loaded', 'funds.summary'],
+    paths: ['funds.loaded', 'funds.summary'],
     storage: {
       getItem: LocalStorage.get.item,
       setItem: LocalStorage.set,

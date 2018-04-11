@@ -64,8 +64,12 @@ const newExpiry = function (persist) {
 }
 
 const saveSession = function (ctx, {token, jar}) {
-    ctx.session.token = token ? encryptToken(token) : null
-    ctx.session.jar = jar
+    if (token) {
+        ctx.session.token = encryptToken(token)
+    }
+    if (jar) {
+        ctx.session.jar = jar
+    }
 }
 
 const getSession = function (ctx) {
@@ -128,8 +132,8 @@ const isLoggedIn = async function (ctx) {
 const refreshToken = async function (ctx, token) {
     try {
         const {user, pass, memorableWord} = token
-        const {jar} = await login(user, pass, memorableWord)
-        saveSession(ctx, {token, jar})
+        const {jar} = await csdAuth.login(user, pass, memorableWord)
+        saveSession(ctx, {jar})
         return true
     } catch (err) {
         // fail to relogin

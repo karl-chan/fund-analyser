@@ -21,11 +21,21 @@ export function removeRealTimeDetails (state, isin) {
 }
 
 export function addJob (state, {isin, jobId}) {
-  Vue.set(state.activeJobs, isin, jobId)
+  Vue.set(state.activeJobs, isin, {jobId, count: 1})
 }
 
 export function removeJob (state, isin) {
   Vue.delete(state.activeJobs, isin)
+}
+
+export function incrementJobCounter (state, isin) {
+  const existingJob = state.activeJobs[isin]
+  Vue.set(existingJob, 'count', existingJob.count + 1)
+}
+
+export function decrementJobCounter (state, isin) {
+  const existingJob = state.activeJobs[isin]
+  Vue.set(existingJob, 'count', existingJob.count - 1)
 }
 
 export function setSummary (state, fundsSummary) {

@@ -9,3 +9,7 @@ export function lookupFund (state) {
 export function lookupRealTimeDetails (state) {
   return isin => state.realTimeDetails[isin]
 }
+
+export function lookupActiveJob (state) {
+  return isin => state.activeJobs[isin]
+}
