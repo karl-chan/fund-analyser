@@ -1,7 +1,7 @@
 <template lang="pug">
   q-page.column.gutter-y-md(padding)
     div(v-if="user")
-      account-balance(:user="user" :balance="balance")
+      account-balance(:user="user" :balance="balance" :realTimeDetails="realTimeDetails")
     div
       .q-headline Summary
       funds-table
@@ -20,11 +20,22 @@ export default {
     balance: function () {
       return this.lookupBalance()
     },
-    ...mapState('auth', ['user'])
+    ...mapState('auth', ['user']),
+    ...mapState('funds', ['realTimeDetails'])
   },
   methods: {
     ...mapActions('account', [ 'getBalance' ]),
-    ...mapGetters('account', [ 'lookupBalance' ])
+    ...mapGetters('account', [ 'lookupBalance' ]),
+    ...mapActions('funds', ['startRealTimeUpdates', 'stopRealTimeUpdates'])
+  },
+  watch: {
+    balance: function (newBalance, oldBalance) {
+      const oldIsins = this.$utils.account.getIsins(oldBalance)
+      oldIsins.forEach(this.stopRealTimeUpdates)
+
+      const newIsins = this.$utils.account.getIsins(newBalance)
+      newIsins.forEach(this.startRealTimeUpdates)
+    }
   }
 }
 </script>

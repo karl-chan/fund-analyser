@@ -7,7 +7,7 @@
         div Cash: £{{balance.cash}}
         div Total Value: £{{balance.totalValue}}
       div You have {{balance.holdings.length}} holdings:
-      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="balance.holdings || []"
+      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="holdings || []"
                   :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked" :gridOptions="gridOptions")
 
 </template>
@@ -15,7 +15,7 @@
 <script>
 export default {
   name: 'AccountBalance',
-  props: ['user', 'balance'],
+  props: ['user', 'balance', 'realTimeDetails'],
   data () {
     return {
       columnDefs: [
@@ -23,12 +23,13 @@ export default {
         { headerName: 'Name', field: 'Description', width: 250 },
         { headerName: 'Market Value', field: 'MktValue', width: 70, valueFormatter: this.numberFormatter },
         { headerName: 'Quantity', field: 'Quantity', width: 70, valueFormatter: this.numberFormatter },
+        { headerName: 'Real Time Est', field: 'realTimeEst', width: 60, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler },
         { headerName: 'Day Change', field: 'PriceChange', width: 60, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
-        { headerName: '% Day Change', field: 'PricePercentChange', width: 60, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler },
+        { headerName: '% Day Change', field: 'PricePercentChange', width: 60, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberStyler },
         { headerName: 'Total Change', field: 'ChangeInValue', width: 60, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
-        { headerName: '% Change', field: 'PercentChangeInValue', width: 60, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler },
-        { headerName: 'Mid', field: 'Mid', width: 65, valueFormatter: this.numberFormatter },
+        { headerName: '% Total Change', field: 'PercentChangeInValue', width: 60, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberStyler },
         { headerName: 'Book Cost', field: 'BookCost', width: 100, valueFormatter: this.numberFormatter },
+        { headerName: 'Mid', field: 'Mid', width: 65, valueFormatter: this.numberFormatter },
         { headerName: 'Bid', field: 'Bid', width: 65, valueFormatter: this.numberFormatter },
         { headerName: 'Ask', field: 'Ask', width: 65, valueFormatter: this.numberFormatter },
         { headerName: 'Currency', field: 'Currency', width: 65 },
@@ -52,6 +53,18 @@ export default {
       }
     }
   },
+  computed: {
+    holdings: function () {
+      if (!this.balance || !this.balance.holdings) {
+        return []
+      }
+      return this.balance.holdings.map(h => {
+        const isin = h.ISIN
+        const realTimeEst = isin in this.realTimeDetails ? this.realTimeDetails[isin]['estChange'] : undefined
+        return {...h, realTimeEst}
+      })
+    }
+  },
   methods: {
     onGridReady (params) {
       this.updateColDefs(params)
@@ -60,6 +73,9 @@ export default {
       this.$utils.router.redirectToFund(params.data.ISIN, {newTab: true})
     },
     percentFormatter (params, fallbackValue) {
+      return this.$utils.format.formatPercentage(params.value, true, fallbackValue)
+    },
+    percentFormatterDiv100 (params, fallbackValue) {
       return this.$utils.format.formatPercentage(params.value / 100, true, fallbackValue)
     },
     colourNumberStyler (params) {
