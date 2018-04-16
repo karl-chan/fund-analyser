@@ -1,6 +1,14 @@
+import { Platform } from 'quasar'
 import fundService from './../../services/fund-service'
 import dateUtils from './../../utils/date-utils'
 import router from './../../router'
+
+export async function init ({dispatch}) {
+  // save bandwidth
+  if (!Platform.is.mobile) {
+    dispatch('getSummary')
+  }
+}
 
 export async function get ({commit}, isin) {
   await fundService.get(isin)

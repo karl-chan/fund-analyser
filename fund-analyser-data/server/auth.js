@@ -1,7 +1,10 @@
-const moment = require('moment')
-const security = require('../lib/util/security')
+
 const CharlesStanleyDirectAuth = require('../lib/auth/CharlesStanleyDirectAuth')
 const SessionDAO = require('../lib/db/SessionDAO')
+const geolocation = require('../lib/util/geolocation')
+const security = require('../lib/util/security')
+
+const moment = require('moment')
 
 const SHORT_EXPIRY = moment.duration(15, 'minutes')
 const LONG_EXPIRY = moment.duration(1, 'month')
@@ -20,8 +23,7 @@ const SESSION_CONFIG = {
             jarCache[key] = jar
         },
         async destroy (key) {
-            await SessionDAO.deleteSession(key)
-            delete jarCache[key]
+            await destroySessionById(key)
         }
     }
 }
@@ -29,32 +31,35 @@ const jarCache = {} // {[sessionId: string]: jar: object}
 
 const csdAuth = new CharlesStanleyDirectAuth()
 
-const createToken = function (user, pass, memorableWord, name, persist) {
+const createToken = function ({user, pass, memorableWord, name, persist, location}) {
     return {
         user: user,
         pass: pass,
         memorableWord: memorableWord,
         name: name,
-        expiry: newExpiry(persist)
+        expiry: newExpiry(persist),
+        location: location
     }
 }
 const encryptToken = function (token) {
     return {
-        user: security.encryptString(token.user),
+        user: token.user,
         pass: security.encryptString(token.pass),
         memorableWord: security.encryptString(token.memorableWord),
-        name: security.encryptString(token.name),
-        expiry: token.expiry.unix()
+        name: token.name,
+        expiry: token.expiry.format(),
+        location: token.location
     }
 }
 
 const deserialiseToken = function (token) {
     return {
-        user: security.decryptString(token.user),
+        user: token.user,
         pass: security.decryptString(token.pass),
         memorableWord: security.decryptString(token.memorableWord),
-        name: security.decryptString(token.name),
-        expiry: moment.unix(token.expiry)
+        name: token.name,
+        expiry: moment(token.expiry),
+        location: token.location
     }
 }
 
@@ -75,9 +80,14 @@ const saveSession = function (ctx, {token, jar}) {
 const getSession = function (ctx) {
     return {
         token: ctx.session.token ? deserialiseToken(ctx.session.token) : null,
-        jar: ctx.session.jar,
-        expiry: ctx.session.expiry
+        jar: ctx.session.jar
     }
+}
+
+const getSessionId = function (ctx) {
+    const contextSessionSymbol = Object.getOwnPropertySymbols(ctx)[0]
+    const contextSession = ctx[contextSessionSymbol]
+    return contextSession.externalKey
 }
 
 const destroySession = async function (ctx) {
@@ -88,19 +98,34 @@ const destroySession = async function (ctx) {
     await contextSession.initFromExternal()
 }
 
+const destroySessionById = async function (sessionId) {
+    await SessionDAO.deleteSession(sessionId)
+    delete jarCache[sessionId]
+}
+
 const getUser = function (ctx) {
-    const {token, expiry} = getSession(ctx)
+    const {token} = getSession(ctx)
     if (token) {
-        const {name} = token
-        return {user: name, expiry}
+        const {user, name, expiry, location} = token
+        return {user, name, expiry, location}
     }
-    return {user: null, expiry: null}
+    return {user: null, name: null, expiry: null, location: {}}
+}
+
+const findSessionsForUser = async function (user) {
+    return SessionDAO.findSessionsForUser(user)
 }
 
 const login = async function (ctx, user, pass, memorableWord, persist) {
     await destroySession(ctx)
-    const {jar, name} = await csdAuth.login(user, pass, memorableWord)
-    const token = createToken(user, pass, memorableWord, name, persist)
+    const ip = ctx.request.ip
+    const [{jar, name}, location] = await Promise.all([
+        csdAuth.login(user, pass, memorableWord),
+        geolocation.getLocationByIp(ip)
+    ])
+    location.ip = ip
+
+    const token = createToken({user, pass, memorableWord, name, persist, location})
     saveSession(ctx, {token, jar})
     return {token, jar, name}
 }
@@ -158,5 +183,8 @@ module.exports = {
     login,
     logout,
     isLoggedIn,
-    getUser
+    getUser,
+    getSessionId,
+    findSessionsForUser,
+    destroySessionById
 }

@@ -15,7 +15,7 @@ export default {
   },
   methods: {
     search (term, done) {
-      this.$services.fundService.search(term).then(results =>
+      this.$services.fund.search(term).then(results =>
         results.map(r => ({ label: r.name, sublabel: r.isin, value: r.name, fund: r }))
       ).then(done)
     },

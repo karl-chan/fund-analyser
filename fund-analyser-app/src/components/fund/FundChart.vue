@@ -43,7 +43,6 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-@import '~variables'
 .container {
   padding: 10px;
   border-radius: 10px;

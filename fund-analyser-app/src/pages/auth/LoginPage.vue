@@ -7,7 +7,7 @@
           .text-weight-bold Failed to login. Attempt: {{failureCount}}.
           div(v-if="exceedsFailureQuota") Account is locked by Charles Stanley Direct for 15 mins.
       div(slot="body")
-        q-input(v-model.trim="form.email" @keyup.enter="submit" @blur="$v.form.email.$touch" :error="$v.form.email.$error"
+        q-input(:value="form.email" @input="form.email = $event.toLowerCase().trim()" @keyup.enter="submit" @blur="$v.form.email.$touch" :error="$v.form.email.$error"
                 float-label="Email Address" color="secondary" :before="[{icon: 'mail', handler () {}}]")
         q-input(v-model.trim="form.pass" type="password" @keyup.enter="submit" @blur="$v.form.pass.$touch" :error="$v.form.pass.$error"
                 float-label="Password" color="secondary" :before="[{icon: 'security', handler () {}}]")

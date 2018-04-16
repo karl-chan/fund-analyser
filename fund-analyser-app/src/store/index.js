@@ -32,5 +32,6 @@ const store = new Vuex.Store({
 })
 sync(store, router)
 store.dispatch('auth/init')
+store.dispatch('funds/init')
 
 export default store

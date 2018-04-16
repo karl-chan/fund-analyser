@@ -45,6 +45,17 @@ SessionDAO.findSession = async function (sessionId) {
     return null
 }
 
+SessionDAO.findSessionsForUser = async function (user) {
+    if (!user) {
+        return []
+    }
+    const query = { 'token.user': user }
+
+    const sessions = await db.getSessions().find(query).toArray()
+    log.debug('Retrieved sessions from database')
+    return sessions
+}
+
 SessionDAO.deleteSession = async function (sessionId) {
     const query = { sessionId }
 

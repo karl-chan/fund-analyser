@@ -3,5 +3,9 @@ import authService from '../services/auth-service'
 import fundService from '../services/fund-service'
 
 export default ({ Vue }) => {
-  Vue.prototype.$services = { accountService, authService, fundService }
+  Vue.prototype.$services = {
+    account: accountService,
+    auth: authService,
+    fund: fundService
+  }
 }

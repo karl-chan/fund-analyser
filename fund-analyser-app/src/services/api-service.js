@@ -29,5 +29,11 @@ export default {
       .post(url, data, {...defaults, ...config})
       .then(res => res.data)
       .catch(handleUnauthorised)
+  },
+  delete (url, config) {
+    return axios
+      .delete(url, {...defaults, ...config})
+      .then(res => res.data)
+      .catch(handleUnauthorised)
   }
 }

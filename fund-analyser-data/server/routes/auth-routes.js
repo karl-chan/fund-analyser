@@ -1,5 +1,6 @@
 const Router = require('koa-router')
 const log = require('../../lib/util/log.js')
+const security = require('../../lib/util/security.js')
 const auth = require('../auth')
 
 const AUTH_URL_PREFIX = '/api/auth'
@@ -29,9 +30,31 @@ router.post('/logout', async ctx => {
 })
 
 router.get('/get', async ctx => {
-    const {user, expiry} = auth.getUser(ctx)
+    const {name, expiry, location} = auth.getUser(ctx)
     const isLoggedIn = await auth.isLoggedIn(ctx)
-    ctx.body = {user, isLoggedIn, expiry}
+    ctx.body = {user: name, isLoggedIn, expiry, location}
+})
+
+router.get('/get/sessions', async ctx => {
+    const {user} = auth.getUser(ctx)
+    const sessionId = auth.getSessionId(ctx)
+    const sessions = await auth.findSessionsForUser(user)
+    ctx.body = sessions.map(s => ({
+        encryptedId: security.encryptString(s.sessionId),
+        location: s.token.location,
+        expiry: s.token.expiry,
+        current: s.sessionId === sessionId
+    }))
+})
+
+router.delete('/delete/session', async ctx => {
+    if (!ctx.query.encryptedId) {
+        ctx.status = 400
+        return
+    }
+    const sessionId = security.decryptString(ctx.query.encryptedId)
+    auth.destroySessionById(sessionId)
+    ctx.status = 200
 })
 
 module.exports = router

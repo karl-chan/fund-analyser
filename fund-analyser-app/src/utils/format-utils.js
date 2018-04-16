@@ -1,4 +1,5 @@
 import { date, colors } from 'quasar'
+import moment from 'moment'
 
 const { formatDate } = date
 const { lighten } = colors
@@ -51,5 +52,12 @@ export default {
       return this.fallbackDisplay(fallbackValue)
     }
     return formatDate(date, 'dddd, DD MMM YYYY')
+  },
+
+  formatFromNow (date, fallbackValue) {
+    if (date == null) {
+      return this.fallbackDisplay(fallbackValue)
+    }
+    return moment(date).fromNow()
   }
 }
