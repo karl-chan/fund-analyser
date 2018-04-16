@@ -63,4 +63,10 @@ SessionDAO.deleteSession = async function (sessionId) {
     log.debug('Deleted session from database')
 }
 
+SessionDAO.deleteExpiredSessions = async function () {
+    const query = { 'token.expiry': { $lte: new Date() } }
+
+    await db.getSessions().deleteMany(query)
+    log.debug('Deleted all expired sessions')
+}
 module.exports = SessionDAO

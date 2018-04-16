@@ -47,7 +47,7 @@ const encryptToken = function (token) {
         pass: security.encryptString(token.pass),
         memorableWord: security.encryptString(token.memorableWord),
         name: token.name,
-        expiry: token.expiry.format(),
+        expiry: token.expiry.toDate(),
         location: token.location
     }
 }
