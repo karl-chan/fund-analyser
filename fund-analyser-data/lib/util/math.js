@@ -11,7 +11,7 @@ module.exports = {
 
 const _ = require('lodash')
 const moment = require('moment')
-const jStat = require('jStat').jStat
+const stat = require('./stat')
 
 function pcToFloat (pc) {
     return parseFloat(pc) / 100.0
@@ -128,12 +128,12 @@ function calcStability (historicPrices) {
 
 function enrichRealTimeDetails (realTimeDetails) {
     // excluding nulls
-    const holdingsX = realTimeDetails.holdings.filter(h => h.todaysChange != null)
-    const changesX = holdingsX.map(h => h.todaysChange)
-    const estChange = _.sumBy(holdingsX, h => h.todaysChange * h.weight) /
-        _.sumBy(holdingsX, h => h.weight)
-    const stdev = jStat.stdev(changesX, true) || null
-    const ci = jStat.tci(estChange, 0.05, changesX)
+    const holdingsX = realTimeDetails.holdings
+        .filter(h => h.todaysChange != null)
+        .map(h => [h.weight, h.todaysChange])
+    const estChange = stat.weightedMean(holdingsX)
+    const stdev = stat.weightedStd(holdingsX)
+    const ci = stat.ci95(estChange, stdev, holdingsX.length)
 
     const enrichment = { estChange, stdev, ci }
     return {...enrichment, ...realTimeDetails}

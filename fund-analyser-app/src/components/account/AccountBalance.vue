@@ -21,17 +21,18 @@ export default {
       columnDefs: [
         { headerName: 'ISIN', field: 'ISIN', width: 100, hide: true },
         { headerName: 'Name', field: 'Description', width: 250 },
-        { headerName: 'Market Value', field: 'MktValue', width: 70, valueFormatter: this.numberFormatter },
-        { headerName: 'Quantity', field: 'Quantity', width: 70, valueFormatter: this.numberFormatter },
-        { headerName: 'Real Time Est', field: 'realTimeEst', width: 60, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler },
-        { headerName: 'Day Change', field: 'PriceChange', width: 60, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
-        { headerName: '% Day Change', field: 'PricePercentChange', width: 60, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberStyler },
-        { headerName: 'Total Change', field: 'ChangeInValue', width: 60, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
-        { headerName: '% Total Change', field: 'PercentChangeInValue', width: 60, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberStyler },
-        { headerName: 'Book Cost', field: 'BookCost', width: 100, valueFormatter: this.numberFormatter },
+        { headerName: 'Market Value', field: 'MktValue', width: 80, valueFormatter: this.numberFormatter },
+        { headerName: '% Real Time Est', field: 'realTimeEstPercent', width: 80, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler },
+        { headerName: 'Real Time Est', field: 'realTimeEst', width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
+        { headerName: 'Total Change', field: 'ChangeInValue', width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
+        { headerName: '% Total Change', field: 'PercentChangeInValue', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberStyler },
+        { headerName: 'Day Change', field: 'PriceChange', width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
+        { headerName: '% Day Change', field: 'PricePercentChange', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberStyler },
         { headerName: 'Mid', field: 'Mid', width: 65, valueFormatter: this.numberFormatter },
         { headerName: 'Bid', field: 'Bid', width: 65, valueFormatter: this.numberFormatter },
         { headerName: 'Ask', field: 'Ask', width: 65, valueFormatter: this.numberFormatter },
+        { headerName: 'Book Cost', field: 'BookCost', width: 100, valueFormatter: this.numberFormatter },
+        { headerName: 'Quantity', field: 'Quantity', width: 80, valueFormatter: this.numberFormatter },
         { headerName: 'Currency', field: 'Currency', width: 65 },
         { headerName: 'Tax Cost', field: 'TaxCost', width: 100, valueFormatter: this.numberFormatter },
         { headerName: 'Type', field: 'FundType', width: 80 },
@@ -60,8 +61,9 @@ export default {
       }
       return this.balance.holdings.map(h => {
         const isin = h.ISIN
-        const realTimeEst = isin in this.realTimeDetails ? this.realTimeDetails[isin]['estChange'] : undefined
-        return {...h, realTimeEst}
+        const realTimeEstPercent = isin in this.realTimeDetails ? this.realTimeDetails[isin]['estChange'] : undefined
+        const realTimeEst = h.MktValue * realTimeEstPercent
+        return {...h, realTimeEst, realTimeEstPercent}
       })
     }
   },
