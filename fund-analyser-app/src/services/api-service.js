@@ -1,7 +1,7 @@
 import axios from 'axios'
 import store from './../store'
 
-const REMOTE_API_HOST = 'https://fund-analyser.herokuapp.com'
+const REMOTE_API_HOST = 'https://fundanalyser.herokuapp.com'
 
 const apiHost = process.env.NODE_ENV === 'production' ? REMOTE_API_HOST : ''
 
