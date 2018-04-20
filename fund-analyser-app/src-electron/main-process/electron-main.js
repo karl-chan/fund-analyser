@@ -17,7 +17,10 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 600,
-    useContentSize: true
+    useContentSize: true,
+    webPreferences: {
+      zoomFactor: 0.5
+    }
   })
 
   mainWindow.loadURL(process.env.APP_URL)
