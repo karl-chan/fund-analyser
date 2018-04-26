@@ -19,9 +19,8 @@ export default {
   data () {
     return {
       columnDefs: [
-        { headerName: 'ISIN', field: 'ISIN', width: 100, hide: true },
+        { headerName: 'ISIN', hide: true, field: 'ISIN', width: 100 },
         { headerName: 'Name', field: 'Description', width: 250 },
-        { headerName: 'Market Value', field: 'MktValue', width: 80, valueFormatter: this.numberFormatter },
         { headerName: '% Real Time Est', field: 'realTimeEstPercent', width: 80, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler },
         { headerName: 'Real Time Est', field: 'realTimeEst', width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
         { headerName: 'Total Change', field: 'ChangeInValue', width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
@@ -32,6 +31,7 @@ export default {
         { headerName: 'Bid', field: 'Bid', width: 65, valueFormatter: this.numberFormatter },
         { headerName: 'Ask', field: 'Ask', width: 65, valueFormatter: this.numberFormatter },
         { headerName: 'Book Cost', field: 'BookCost', width: 100, valueFormatter: this.numberFormatter },
+        { headerName: 'Market Value', field: 'MktValue', width: 80, valueFormatter: this.numberFormatter },
         { headerName: 'Quantity', field: 'Quantity', width: 80, valueFormatter: this.numberFormatter },
         { headerName: 'Currency', field: 'Currency', width: 65 },
         { headerName: 'Tax Cost', field: 'TaxCost', width: 100, valueFormatter: this.numberFormatter },

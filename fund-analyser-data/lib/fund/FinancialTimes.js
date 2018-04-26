@@ -218,6 +218,7 @@ FinancialTimes.prototype.getHoldings = function (isin, callback) {
 }
 
 // Real time details
+// precondition: fund with holdings
 FinancialTimes.prototype.getRealTimeDetails = async fund => {
     const getTodaysChange = async holdingTicker => {
         const url = `https://markets.ft.com/data/equities/tearsheet/summary?s=${holdingTicker}`
