@@ -1,6 +1,6 @@
 const Koa = require('koa')
 const path = require('path')
-const enforceHttps = require('koa-sslify')
+const helmet = require('koa-helmet')
 const compress = require('koa-compress')
 const logger = require('koa-logger')
 const cors = require('@koa/cors')
@@ -24,9 +24,7 @@ const app = new Koa()
 app.keys = [properties.get('secret.key')]
 
 if (process.env.NODE_ENV === 'production') {
-    app.use(enforceHttps({
-        trustProtoHeader: true
-    }))
+    app.use(helmet())
 }
 
 app.use(compress())
