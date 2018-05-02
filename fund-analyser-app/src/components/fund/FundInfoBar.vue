@@ -2,10 +2,11 @@
   div
     .column.gutter-y-xs(v-if="fund")
       // real time details
-      .row.items-center.gutter-lg(v-if="realTimeDetails")
+      .row.items-center.gutter-md(v-if="realTimeDetails")
         div.row.items-center Today's change (estimate):
           |
           span.text-weight-bold.q-headline(:class="colour(realTimeDetails.estChange)") {{ formatPercentage(realTimeDetails.estChange) }}
+        div New price (est): {{ formatNumber(realTimeDetails.estPrice) }}
         div Std dev: {{ formatPercentage(realTimeDetails.stdev) }}
         div 95% Confidence interval:
           |
@@ -39,6 +40,9 @@ export default {
   methods: {
     colour (num) {
       return this.$utils.format.colourNumber(num)
+    },
+    formatNumber (num) {
+      return this.$utils.format.formatNumber(num)
     },
     formatPercentage (num) {
       return this.$utils.format.formatPercentage(num, true)

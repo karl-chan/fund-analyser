@@ -18,9 +18,7 @@ router.get('/get/:isin', async ctx => {
 
 router.get('/get/real-time-details/:isin', async ctx => {
     const query = {isin: ctx.params.isin}
-    const options = {
-        projection: {holdings: 1}
-    }
+    const options = {}
     const fund = await db.getFunds().findOne(query, options)
     const details = await new FinancialTimes().getRealTimeDetails(fund)
     ctx.body = details

@@ -218,7 +218,7 @@ FinancialTimes.prototype.getHoldings = function (isin, callback) {
 }
 
 // Real time details
-// precondition: fund with holdings
+// precondition: fund with holdings and historic prices
 FinancialTimes.prototype.getRealTimeDetails = async fund => {
     const getTodaysChange = async holdingTicker => {
         const url = `https://markets.ft.com/data/equities/tearsheet/summary?s=${holdingTicker}`
@@ -242,7 +242,7 @@ FinancialTimes.prototype.getRealTimeDetails = async fund => {
     }))
 
     const realTimeDetails = { holdings: todaysChanges }
-    return math.enrichRealTimeDetails(realTimeDetails)
+    return math.enrichRealTimeDetails(realTimeDetails, fund)
 }
 
 /**

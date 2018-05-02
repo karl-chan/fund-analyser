@@ -126,7 +126,7 @@ function calcStability (historicPrices) {
     return stability
 }
 
-function enrichRealTimeDetails (realTimeDetails) {
+function enrichRealTimeDetails (realTimeDetails, fund) {
     // excluding nulls
     const holdingsX = realTimeDetails.holdings
         .filter(h => h.todaysChange != null)
@@ -135,7 +135,10 @@ function enrichRealTimeDetails (realTimeDetails) {
     const stdev = stat.weightedStd(holdingsX)
     const ci = stat.ci95(estChange, stdev, holdingsX.length)
 
-    const enrichment = { estChange, stdev, ci }
+    const latestPrice = _.last(fund.historicPrices).price
+    const estPrice = latestPrice * (1 + estChange)
+
+    const enrichment = { estChange, estPrice, stdev, ci }
     return {...enrichment, ...realTimeDetails}
 }
 
