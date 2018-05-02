@@ -48,7 +48,7 @@ http.gets = function (url, options, callback) {
                     callback(err, res, body)
                 } catch (err) {
                     log.error('Error caught in http callback for %s. Cause: %s', options.url || options, err.stack)
-                    process.exit(-1)
+                    return cb(err)
                 }
                 cb()
             })
@@ -73,7 +73,7 @@ http.posts = function (url, options, callback) {
                 } catch (err) {
                     log.error('Error caught in http callback for %s, body: %s. Cause: %s',
                         options.url, util.inspect(options.form), err.stack)
-                    process.exit(-1)
+                    return cb(err)
                 }
                 cb()
             })

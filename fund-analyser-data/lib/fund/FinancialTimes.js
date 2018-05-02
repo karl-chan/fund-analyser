@@ -227,11 +227,16 @@ FinancialTimes.prototype.getRealTimeDetails = async fund => {
                 if (err) {
                     return reject(err)
                 }
-                const $ = cheerio.load(body)
-                const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(2) > .mod-ui-data-list__value').text().trim()
-                const groups = cell.match('(.*)/(.*)%')
-                const todaysChange = groups[2] / 100
-                return resolve(todaysChange)
+                try {
+                    const $ = cheerio.load(body)
+                    const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(2) > .mod-ui-data-list__value').text().trim()
+                    const groups = cell.match('(.*)/(.*)%')
+                    const todaysChange = groups[2] / 100
+                    return resolve(todaysChange)
+                } catch (err) {
+                    log.warn('Todays change failed for: %s. Cause: %s', holdingTicker, err.stack)
+                    return resolve(null)
+                }
             })
         })
     }
