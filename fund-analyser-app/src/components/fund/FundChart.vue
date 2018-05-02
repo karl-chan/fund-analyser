@@ -1,6 +1,6 @@
 <template lang="pug">
   div.container.shadow-5
-    highstock(v-if="fund" :options="chartOptions")
+    highstock(v-if="fund" :options="chartOptions" ref="highcharts")
     template(v-else) No chart available
 </template>
 
@@ -8,15 +8,15 @@
 
 export default {
   name: 'FundChart',
-  props: ['fund'],
+  props: ['fund', 'realTimeDetails'],
   computed: {
     chartOptions: function () {
-      return this.buildChartOptions(this.fund)
+      return this.buildChartOptions(this.fund, this.realTimeDetails)
     }
   },
   methods: {
-    buildChartOptions (fund) {
-      return {
+    buildChartOptions (fund, realTimeDetails) {
+      const opts = {
         chart: {
           zoomType: 'x'
         },
@@ -37,6 +37,23 @@ export default {
           enabled: false
         }
       }
+      if (realTimeDetails) {
+        opts.yAxis = {
+          plotLines: [{
+            value: realTimeDetails.estPrice,
+            color: 'green',
+            dashStyle: 'shortdash',
+            width: 2,
+            label: {
+              text: `Est. price ${this.formatNumber(realTimeDetails.estPrice)}`
+            }
+          }]
+        }
+      }
+      return opts
+    },
+    formatNumber (num) {
+      return this.$utils.format.formatNumber(num)
     }
   }
 }

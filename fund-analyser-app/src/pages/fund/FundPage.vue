@@ -10,7 +10,7 @@
       fund-info-bar(:fund="fund" :realTimeDetails="realTimeDetails")
       .row.gutter-x-sm.q-mt-xl
         .col-md-8
-          fund-chart(:fund="fund")
+          fund-chart(:fund="fund" :realTimeDetails="realTimeDetails")
         .col-md-4
           fund-holdings(:realTimeDetails="realTimeDetails")
     template(v-else)
