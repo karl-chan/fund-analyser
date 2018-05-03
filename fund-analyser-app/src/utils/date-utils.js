@@ -12,5 +12,11 @@ export default {
       return false
     }
     return moment(date).isAfter()
+  },
+  isBeforeToday (date) {
+    if (!date) {
+      return false
+    }
+    return moment(date).isBefore(this.startOfDay())
   }
 }

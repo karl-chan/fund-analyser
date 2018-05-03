@@ -37,6 +37,7 @@ export default {
       downloadPercentage: 0,
       pinnedRowsVisible: false,
       columnDefs: [
+        { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.rowOutdated },
         { headerName: 'ISIN', field: 'isin', width: 120 },
         { headerName: 'Name', field: 'name', width: 180 },
         { headerName: '5Y', field: 'returns.5Y', width: 65 },
@@ -81,6 +82,11 @@ export default {
       }
     }
   },
+  components: {
+    WarningComponent: {
+      template: '<q-icon v-if="params.value" class="text-red" name="warning" title="This fund may not be up-to-date"/>'
+    }
+  },
   computed: {
     summary: function () {
       const rawSummary = this.$store.state.funds.summary
@@ -98,7 +104,7 @@ export default {
       return new Date(globalAsof)
     },
     outdated: function () {
-      return this.asof < this.$utils.date.startOfDay(new Date())
+      return this.$utils.date.isBeforeToday(this.asof)
     },
     pinnedRowsData: function () {
       if (!this.dataReady) {
@@ -146,7 +152,7 @@ export default {
       const newColDefs = params.columnApi.getAllColumns().map(col => {
         const colDef = col.getColDef()
         if (returnsFields.has(colDef.field)) {
-          colDef.cellStyle = this.colourReturnsCell
+          colDef.cellStyle = this.colourReturnsCellStyler
         }
         if (percentFields.has(colDef.field)) {
           colDef.valueFormatter = this.percentFormatter
@@ -187,7 +193,7 @@ export default {
     colourNumberStyler (params) {
       return this.$utils.format.colourNumber(params.value)
     },
-    colourReturnsCell (params) {
+    colourReturnsCellStyler (params) {
       const period = params.colDef.headerName
       if (params.data.metadata) {
         const score = params.data.metadata.scores[period]
@@ -197,6 +203,9 @@ export default {
     },
     numberComparator (a, b) {
       return this.$utils.number.numberComparator(a, b)
+    },
+    rowOutdated (params) {
+      return this.$utils.date.isBeforeToday(params.data.asof)
     },
     exportCsv () {
       const params = {

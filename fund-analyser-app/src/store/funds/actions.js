@@ -19,7 +19,7 @@ export async function get ({commit}, isin) {
 export async function lazyGet ({dispatch, getters}, isin) {
   const cachedFund = getters['lookupFund'](isin)
   if (cachedFund) {
-    const upToDate = Date.parse(cachedFund.asof) >= dateUtils.startOfDay()
+    const upToDate = !dateUtils.isBeforeToday(cachedFund.asof)
     if (upToDate) {
       return
     }
