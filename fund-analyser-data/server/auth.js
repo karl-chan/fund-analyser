@@ -2,6 +2,7 @@
 const CharlesStanleyDirectAuth = require('../lib/auth/CharlesStanleyDirectAuth')
 const SessionDAO = require('../lib/db/SessionDAO')
 const geolocation = require('../lib/util/geolocation')
+const log = require('../lib/util/log')
 const security = require('../lib/util/security')
 
 const moment = require('moment')
@@ -116,9 +117,21 @@ const findSessionsForUser = async function (user) {
     return SessionDAO.findSessionsForUser(user)
 }
 
+const extractIpAddress = function (req) {
+    let ip = req.headers['x-forwarded-for']
+    log.debug('X-forwarded-for: %s', ip)
+    if (ip) {
+        var list = ip.split(',')
+        return list[list.length - 1]
+    } else {
+        return req.connection.remoteAddress
+    }
+}
+
 const login = async function (ctx, user, pass, memorableWord, persist) {
     await destroySession(ctx)
-    const ip = ctx.request.ip
+    const ip = extractIpAddress(ctx.req)
+    log.debug('Extracted ip address: %s', ip)
     const [{jar, name}, location] = await Promise.all([
         csdAuth.login(user, pass, memorableWord),
         geolocation.getLocationByIp(ip)
