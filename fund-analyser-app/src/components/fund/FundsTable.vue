@@ -140,7 +140,7 @@ export default {
       this.updateColDefs(params)
     },
     onRowDoubleClicked (params) {
-      this.$utils.router.redirectToFund(params.data.isin)
+      this.$utils.router.redirectToFund(params.data.isin, {newTab: true})
     },
     updateColDefs (params) {
       const returnsFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
