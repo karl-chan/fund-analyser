@@ -49,7 +49,10 @@ export function startRealTimeUpdates ({commit, dispatch, getters}, isin) {
 
 export function stopRealTimeUpdates ({state, commit, getters}, isin) {
   const existingJob = getters.lookupActiveJob(isin)
-  if (existingJob && existingJob.count <= 1) {
+  if (!existingJob) {
+    return false
+  }
+  if (existingJob.count <= 1) {
     clearInterval(existingJob.jobId)
     commit('removeJob', isin)
     return true
@@ -69,10 +72,10 @@ export function remove ({commit, rootState}, isin) {
 }
 
 export function removeAll ({commit, dispatch, state}) {
-  commit('removeAllFunds')
   for (let isin of Object.keys(state.activeJobs)) {
     dispatch('stopRealTimeUpdates', isin)
   }
+  commit('removeAllFunds')
   router.push({name: 'home'})
 }
 

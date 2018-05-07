@@ -7,7 +7,7 @@
         q-item(v-for="fund in loadedFunds" :to="{name: 'fund', params: {isin: fund.isin}}" :key="fund.isin")
           q-item-main(:label="fund.name" :sublabel="fund.isin")
           q-item-side(right)
-            q-btn(flat round dense icon="close" @click.stop="removeFund(fund.isin)")
+            q-btn(flat round dense icon="close" @click.stop="remove(fund.isin)")
         q-item-separator
       q-list-header Links
       q-item(@click.native="openURL('https://www.charles-stanley-direct.co.uk/')")
@@ -38,11 +38,8 @@ export default {
   },
   methods: {
     openURL,
-    ...mapActions('funds', ['removeAll']),
-    ...mapGetters('funds', ['numLoadedFunds']),
-    removeFund (isin) {
-      this.$store.dispatch('funds/remove', isin)
-    }
+    ...mapActions('funds', ['remove', 'removeAll']),
+    ...mapGetters('funds', ['numLoadedFunds'])
   }
 }
 </script>
