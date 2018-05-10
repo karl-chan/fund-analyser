@@ -7,6 +7,9 @@
           q-btn(icon="autorenew" label="Renew" @click="refreshFund" color="secondary" rounded glossy)
         div
           q-btn(color="orange" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)")
+        div
+          q-btn(color="indigo-7" icon="open_in_new" label="Open in CSD" @click="openURL('https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=' + fund.sedol)")
+
       fund-info-bar(:fund="fund" :realTimeDetails="realTimeDetails")
       .row.gutter-x-sm.q-mt-xl
         .col-md-8
