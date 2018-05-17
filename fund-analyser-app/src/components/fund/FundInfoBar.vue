@@ -3,7 +3,7 @@
     .column.gutter-y-xs(v-if="fund")
       // real time details
       .row.items-center.gutter-md(v-if="realTimeDetails")
-        div.row.items-center Today's change (estimate):
+        .row.items-center Today's change (estimate):
           |
           span.text-weight-bold.q-headline(:class="colour(realTimeDetails.estChange)") {{ formatPercentage(realTimeDetails.estChange) }}
         div New price (est): {{ formatNumber(realTimeDetails.estPrice) }}

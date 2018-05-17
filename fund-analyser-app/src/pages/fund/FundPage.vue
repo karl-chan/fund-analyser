@@ -16,6 +16,8 @@
           fund-chart(:fund="fund" :realTimeDetails="realTimeDetails")
         .col-md-4
           fund-holdings(:realTimeDetails="realTimeDetails")
+      .row.q-mt-sm
+        fund-charges(:fund="fund")
     template(v-else)
       .absolute-center.row.items-center.gutter-x-sm.text-purple
         q-spinner-facebook(size="36px" color="purple")
