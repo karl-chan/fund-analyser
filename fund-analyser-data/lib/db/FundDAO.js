@@ -154,7 +154,7 @@ FundDAO.prototype.equals = function (o) {
     }
     const omitField = '_id'
     const selfCopy = _.cloneDeep(this)
-    const otherCopy = _.cloneDeep(o)
+    const otherCopy = _.omit(_.cloneDeep(o), omitField)
 
     selfCopy.holdings = omitDeep(selfCopy.holdings, omitField)
     otherCopy.holdings = omitDeep(otherCopy.holdings, omitField)

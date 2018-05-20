@@ -3,9 +3,6 @@ const Fund = require('./Fund.js')
 
 const _ = require('lodash')
 
-const chai = require('chai')
-const sinon = require('sinon')
-const assert = chai.assert
 const StreamTest = require('streamtest')
 
 describe('FundCalculator', function () {
@@ -62,6 +59,7 @@ describe('FundCalculator', function () {
         const fundWithStability = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(newReturns)
+            .percentiles(percentiles)
             .stability(-3)
             .build()
         const fundResult = Fund.Builder('GB00000ISIN0')
@@ -71,17 +69,24 @@ describe('FundCalculator', function () {
             .stability(-3)
             .build()
 
-        sinon.stub(fundCalculator, 'enrichReturns')
-            .withArgs(fund)
-            .yields(null, fundWithNewReturns)
-        sinon.stub(fundCalculator, 'calcPercentiles')
-            .withArgs(fund)
-            .yields(null, fundWithPercentiles)
-        sinon.stub(fundCalculator, 'calcStability')
-            .withArgs(fund)
-            .yields(null, fundWithStability)
+        jest.spyOn(fundCalculator, 'enrichReturns')
+            .mockImplementation((f, callback) => {
+                callback(null, fundWithNewReturns)
+            })
+
+        jest.spyOn(fundCalculator, 'calcPercentiles')
+            .mockImplementation((f, callback) => {
+                expect(f).toEqual(fund)
+                callback(null, fundWithPercentiles)
+            })
+        jest.spyOn(fundCalculator, 'calcStability')
+            .mockImplementation((f, callback) => {
+                expect(f).toEqual(fundWithPercentiles)
+                callback(null, fundWithStability)
+            })
+
         fundCalculator.evaluate(fund, (err, actual) => {
-            assert.deepEqual(actual, fundResult)
+            expect(actual).toEqual(fundResult)
             done(err)
         })
     })
@@ -98,15 +103,18 @@ describe('FundCalculator', function () {
             .build()
 
         const version = 'v2'
-        sinon.stub(fundCalculator, 'evaluate')
-            .withArgs(fund)
-            .yields(null, expected)
+
+        jest.spyOn(fundCalculator, 'evaluate')
+            .mockImplementation((f, callback) => {
+                expect(f).toEqual(fund)
+                callback(null, expected)
+            })
 
         const fundStream = StreamTest[version].fromObjects([fund])
         fundStream
             .pipe(fundCalculator.stream())
             .pipe(StreamTest[version].toObjects((err, funds) => {
-                assert.deepEqual(funds, [expected])
+                expect(funds).toEqual([expected])
                 done(err)
             }))
     })

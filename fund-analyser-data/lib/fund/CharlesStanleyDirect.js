@@ -114,6 +114,18 @@ CharlesStanleyDirect.prototype.getFundsFromSedols = function (sedols, callback) 
     async.map(sedols, this.getFundFromSedol.bind(this), callback)
 }
 
+CharlesStanleyDirect.prototype.healthCheck = function (callback) {
+    const url = `https://www.charles-stanley-direct.co.uk`
+    http.gets(url, (err, res, body) => {
+        if (err) {
+            return callback(err)
+        }
+        const isDown = body.toLowerCase().includes('Unavailable')
+        console.log(body)
+        return callback(null, !isDown)
+    })
+}
+
 /**
  * Analogous stream methods below
  */

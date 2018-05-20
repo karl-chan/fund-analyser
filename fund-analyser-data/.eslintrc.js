@@ -7,7 +7,7 @@ module.exports = {
     ],
     "env": {
         "node": true,
-        "mocha": true
+        "jest": true
     },
     "rules": {
         "indent":  ["error", 4]

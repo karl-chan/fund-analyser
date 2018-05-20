@@ -1,12 +1,9 @@
 const security = require('./security.js')
 
-const chai = require('chai')
-const assert = chai.assert
-
-describe('encrypt', function () {
-    it('encryptString decryptString should be inverses', function () {
+describe('encrypt', () => {
+    it('encryptString decryptString should be inverses', () => {
         const s = 'The quick brown fox jumped over the lazy dog'
-        assert.notEqual(s, security.encryptString(s))
-        assert.equal(s, security.decryptString(security.encryptString(s)))
+        expect(security.encryptString(s)).not.toEqual(s)
+        expect(security.decryptString(security.encryptString(s))).toEqual(s)
     })
 })

@@ -3,42 +3,39 @@ const math = require('./math.js')
 const Fund = require('../fund/Fund.js')
 
 const _ = require('lodash')
-const chai = require('chai')
-const assert = chai.assert
-const expect = chai.expect
 
-describe('math', function () {
-    describe('pcToFloat', function () {
-        it('should return float for valid input', function () {
+describe('math', () => {
+    describe('pcToFloat', () => {
+        it('should return float for valid input', () => {
             const valid = ['0%', '2.3%']
             const expected = [0, 0.023]
             const actual = _.map(valid, math.pcToFloat)
-            assert.deepEqual(actual, expected)
+            expect(actual).toEqual(expected)
         })
-        it('should return NaN for invalid input', function () {
+        it('should return NaN for invalid input', () => {
             const invalid = [undefined, null, '--']
             const expected = [NaN, NaN, NaN]
             const actual = _.map(invalid, math.pcToFloat)
-            assert.deepEqual(actual, expected)
+            expect(actual).toEqual(expected)
         })
     })
 
-    describe('floatToPc', function () {
-        it('should return percentage string for valid input', function () {
+    describe('floatToPc', () => {
+        it('should return percentage string for valid input', () => {
             const valid = [0, 0.023]
             const expected = ['0%', '2.3%']
             const actual = _.map(valid, math.floatToPc)
-            assert.deepEqual(actual, expected)
+            expect(actual).toEqual(expected)
         })
-        it('should return unchanged invalid input', function () {
+        it('should return unchanged invalid input', () => {
             const invalid = [NaN, undefined, null, '--']
             const expected = [NaN, undefined, null, '--']
             const actual = _.map(invalid, math.floatToPc)
-            assert.deepEqual(actual, expected)
+            expect(actual).toEqual(expected)
         })
     })
 
-    describe('closestRecord', function () {
+    describe('closestRecord', () => {
         const historicPrices = [
             new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
             new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
@@ -50,35 +47,25 @@ describe('math', function () {
             new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
             new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
         ]
-        it('should find closest records', function () {
+        it('should find closest records', () => {
             const boundary = new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0)
-            assert.isTrue(
-                _.isEqual(math.closestRecord('5Y', historicPrices), boundary))
-            assert.isTrue(
-                _.isEqual(math.closestRecord('3Y', historicPrices), boundary))
-            assert.isTrue(
-                _.isEqual(math.closestRecord('1Y', historicPrices), boundary))
-            assert.isTrue(
-                _.isEqual(math.closestRecord('6M', historicPrices), boundary))
-            assert.isTrue(
-                _.isEqual(math.closestRecord('3M', historicPrices), boundary))
-            assert.isTrue(
-                _.isEqual(math.closestRecord('1M', historicPrices), boundary))
-            assert.isTrue(
-                _.isEqual(math.closestRecord('2W', historicPrices), boundary))
-            assert.isTrue(
-                _.isEqual(math.closestRecord('1W', historicPrices),
-                    new Fund.HistoricPrice(new Date(2017, 3, 18), 475.0)))
-            assert.isTrue(
-                _.isEqual(math.closestRecord('3D', historicPrices),
-                    new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0)))
-            assert.isTrue(
-                _.isEqual(math.closestRecord('1D', historicPrices),
-                    new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0)))
+            expect(math.closestRecord('5Y', historicPrices)).toEqual(boundary)
+            expect(math.closestRecord('3Y', historicPrices)).toEqual(boundary)
+            expect(math.closestRecord('1Y', historicPrices)).toEqual(boundary)
+            expect(math.closestRecord('6M', historicPrices)).toEqual(boundary)
+            expect(math.closestRecord('3M', historicPrices)).toEqual(boundary)
+            expect(math.closestRecord('1M', historicPrices)).toEqual(boundary)
+            expect(math.closestRecord('2W', historicPrices)).toEqual(boundary)
+            expect(math.closestRecord('1W', historicPrices)).toEqual(
+                new Fund.HistoricPrice(new Date(2017, 3, 18), 475.0))
+            expect(math.closestRecord('3D', historicPrices)).toEqual(
+                new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0))
+            expect(math.closestRecord('1D', historicPrices)).toEqual(
+                new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0))
         })
     })
 
-    describe('enrichReturns', function () {
+    describe('enrichReturns', () => {
         const additionalLookbacks = ['2W', '1W', '3D', '1D']
         const returns = { '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2 }
         const historicPrices = [
@@ -92,23 +79,23 @@ describe('math', function () {
             new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
             new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
         ]
-        it('should append correct returns', function () {
+        it('should append correct returns', () => {
             const newReturns = math.enrichReturns(returns, historicPrices, additionalLookbacks)
-            expect(newReturns).to.contain.all.keys(returns)
-            expect(newReturns).to.have.property('5Y', 0.5)
-            expect(newReturns).to.have.property('3Y', -0.2)
-            expect(newReturns).to.have.property('1Y', 0.3)
-            expect(newReturns).to.have.property('6M', 0.4)
-            expect(newReturns).to.have.property('3M', 0)
-            expect(newReturns).to.have.property('1M', -0.2)
-            expect(newReturns).to.have.property('2W', (469 - 486) / 486)
-            expect(newReturns).to.have.property('1W', (469 - 475) / 475)
-            expect(newReturns).to.have.property('3D', (469 - 472) / 472)
-            expect(newReturns).to.have.property('1D', (469 - 472) / 472)
+            expect(newReturns).toContainKeys(Object.keys(returns))
+            expect(newReturns).toHaveProperty('5Y', 0.5)
+            expect(newReturns).toHaveProperty('3Y', -0.2)
+            expect(newReturns).toHaveProperty('1Y', 0.3)
+            expect(newReturns).toHaveProperty('6M', 0.4)
+            expect(newReturns).toHaveProperty('3M', 0)
+            expect(newReturns).toHaveProperty('1M', -0.2)
+            expect(newReturns).toHaveProperty('2W', (469 - 486) / 486)
+            expect(newReturns).toHaveProperty('1W', (469 - 475) / 475)
+            expect(newReturns).toHaveProperty('3D', (469 - 472) / 472)
+            expect(newReturns).toHaveProperty('1D', (469 - 472) / 472)
         })
     })
 
-    describe('calcPercentiles', function () {
+    describe('calcPercentiles', () => {
         const additionalLookbacks = ['2W', '1W', '3D', '1D']
         const returns = { '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2 }
         const historicPrices = [
@@ -122,21 +109,21 @@ describe('math', function () {
             new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
             new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
         ]
-        it('should calc correct percentiles', function () {
+        it('should calc correct percentiles', () => {
             const newReturns = math.calcPercentiles(returns, historicPrices, additionalLookbacks)
             const boundary = (469 - 467) / (486 - 467)
-            expect(newReturns).to.have.property('5Y', boundary)
-            expect(newReturns).to.have.property('3Y', boundary)
-            expect(newReturns).to.have.property('1Y', boundary)
-            expect(newReturns).to.have.property('6M', boundary)
-            expect(newReturns).to.have.property('3M', boundary)
-            expect(newReturns).to.have.property('1M', boundary)
-            expect(newReturns).to.have.property('2W', boundary)
-            expect(newReturns).to.have.property('1W', (469 - 467) / (475 - 467))
-            expect(newReturns).to.have.property('3D', (469 - 469) / (472 - 469))
-            expect(newReturns).to.have.property('1D', (469 - 469) / (472 - 469))
+            expect(newReturns).toHaveProperty('5Y', boundary)
+            expect(newReturns).toHaveProperty('3Y', boundary)
+            expect(newReturns).toHaveProperty('1Y', boundary)
+            expect(newReturns).toHaveProperty('6M', boundary)
+            expect(newReturns).toHaveProperty('3M', boundary)
+            expect(newReturns).toHaveProperty('1M', boundary)
+            expect(newReturns).toHaveProperty('2W', boundary)
+            expect(newReturns).toHaveProperty('1W', (469 - 467) / (475 - 467))
+            expect(newReturns).toHaveProperty('3D', (469 - 469) / (472 - 469))
+            expect(newReturns).toHaveProperty('1D', (469 - 469) / (472 - 469))
         })
-        it('should calculate correct stability', function () {
+        it('should calculate correct stability', () => {
             const historicPrices = [
                 new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
                 new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
@@ -149,7 +136,7 @@ describe('math', function () {
                 new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
             ]
             const stability = math.calcStability(historicPrices)
-            assert.equal(stability, 0.625)
+            expect(stability).toBe(0.625)
         })
     })
 })

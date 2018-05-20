@@ -2,9 +2,6 @@ const FundFactory = require('./FundFactory.js')
 const Fund = require('./Fund.js')
 const stream = require('stream')
 
-const chai = require('chai')
-const sinon = require('sinon')
-const assert = chai.assert
 const StreamTest = require('streamtest')
 
 describe('FundFactory', function () {
@@ -19,14 +16,24 @@ describe('FundFactory', function () {
             Fund.Builder('GB00000ISIN0').build(),
             Fund.Builder('GB00000ISIN1').build()
         ]
-        sinon.stub(fundFactory.isinProvider, 'getFunds')
-            .yields(null, ['GB00000ISIN0', 'GB00000ISIN1'])
-        sinon.stub(fundFactory.fundProvider, 'getFundsFromIsins')
-            .withArgs(['GB00000ISIN0', 'GB00000ISIN1']).yields(null, expected)
-        sinon.stub(fundFactory.fundCalculator, 'evaluate')
-            .withArgs(expected).yields(null, expected)
+
+        jest.spyOn(fundFactory.isinProvider, 'getFunds')
+            .mockImplementation(callback => {
+                callback(null, ['GB00000ISIN0', 'GB00000ISIN1'])
+            })
+        jest.spyOn(fundFactory.fundProvider, 'getFundsFromIsins')
+            .mockImplementation((isins, callback) => {
+                expect(isins).toEqual(['GB00000ISIN0', 'GB00000ISIN1'])
+                callback(null, expected)
+            })
+        jest.spyOn(fundFactory.fundCalculator, 'evaluate')
+            .mockImplementation((fund, callback) => {
+                expect(fund).toEqual(expected)
+                callback(null, expected)
+            })
+
         fundFactory.getFunds((err, actual) => {
-            assert.deepEqual(actual, expected)
+            expect(actual).toEqual(expected)
             done(err)
         })
     })
@@ -58,16 +65,17 @@ describe('FundFactory', function () {
                 callback(null, chunk)
             }
         })
-        sinon.stub(fundFactory.isinProvider, 'streamFunds')
-            .returns(isinStream)
-        sinon.stub(fundFactory.fundProvider, 'streamFundsFromIsins')
-            .returns(isinToFundStream)
-        sinon.stub(fundFactory.fundCalculator, 'stream')
-            .returns(fundCalculationStream)
+
+        jest.spyOn(fundFactory.isinProvider, 'streamFunds')
+            .mockReturnValue(isinStream)
+        jest.spyOn(fundFactory.fundProvider, 'streamFundsFromIsins')
+            .mockReturnValue(isinToFundStream)
+        jest.spyOn(fundFactory.fundCalculator, 'stream')
+            .mockReturnValue(fundCalculationStream)
 
         fundFactory.streamFunds()
             .pipe(StreamTest[version].toObjects((err, funds) => {
-                assert.deepEqual(funds, [fund1, fund2])
+                expect(funds).toEqual([fund1, fund2])
                 done(err)
             }))
     })

@@ -4,16 +4,10 @@ const StreamTest = require('streamtest')
 
 const _ = require('lodash')
 const db = require('../util/db.js')
-const chai = require('chai')
-const chaiThings = require('chai-things')
-chai.should()
-chai.use(chaiThings)
-const assert = chai.assert
-const should = chai.should
 
 describe('FundDAO', function () {
     let fund, dao, dao2
-    before(async () => {
+    beforeAll(async () => {
         await db.init()
     })
     beforeEach(function () {
@@ -45,6 +39,7 @@ describe('FundDAO', function () {
         dao = new FundDAO({
             _id: 'test',
             isin: 'test',
+            sedol: undefined,
             name: 'Test fund',
             type: Fund.types.UNIT,
             shareClass: Fund.shareClasses.ACC,
@@ -53,6 +48,7 @@ describe('FundDAO', function () {
             amc: 0.0004,
             entryCharge: 0,
             exitCharge: 0,
+            bidAskSpread: undefined,
             holdings: [{
                 name: 'Test Holding',
                 symbol: 'TEST',
@@ -74,17 +70,19 @@ describe('FundDAO', function () {
                 '1W': 0.2,
                 '3D': 0.6,
                 '1D': 0.6
-            }
+            },
+            asof: undefined,
+            stability: undefined
         })
         dao2 = _.clone(dao)
     })
     it('fromFund should return FundDAO object', function () {
         const actual = FundDAO.fromFund(fund)
-        assert.isTrue(actual.equals(dao))
+        expect(actual.equals(dao)).toBeTruthy()
     })
     it('toFund should return Fund object', function () {
         const actual = FundDAO.toFund(dao)
-        assert.isTrue(actual.equals(fund))
+        expect(actual.equals(fund)).toBeTruthy()
     })
     it('upsertFund should upsert Fund object', function (done) {
         FundDAO.upsertFund(fund, (err) => {
@@ -94,7 +92,7 @@ describe('FundDAO', function () {
             db.getFunds().findOneAndDelete({isin: dao.isin}, (err, res) => {
                 const found = res.value
                 const foundFund = FundDAO.toFund(found)
-                assert.isTrue(foundFund.equals(fund))
+                expect(foundFund.equals(fund))
                 done(err)
             })
         })
@@ -107,7 +105,7 @@ describe('FundDAO', function () {
                 return done(err)
             }
             db.getFunds().findOneAndDelete({isin: dao.isin}, (err, res) => {
-                assert.isNull(res.value)
+                expect(res.value).toBeNull()
                 done(err)
             })
         })
@@ -115,7 +113,9 @@ describe('FundDAO', function () {
     it('listFunds should return array of Fund objects', function (done) {
         const options = {limit: 10}
         FundDAO.listFunds(options, (err, funds) => {
-            funds.should.all.be.an.instanceOf(Fund)
+            for (let fund of funds) {
+                expect(fund).toBeInstanceOf(Fund)
+            }
             done(err)
         })
     })
@@ -125,46 +125,48 @@ describe('FundDAO', function () {
 
         const version = 'v2'
         fundStream.pipe(StreamTest[version].toObjects((err, funds) => {
-            funds.should.all.be.an.instanceOf(Fund)
+            for (let fund of funds) {
+                expect(fund).toBeInstanceOf(Fund)
+            }
             done(err)
         }))
     })
 
     it('equals should return true for equal FundDAO objects', function () {
-        assert.isTrue(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeTruthy()
     })
 
     it('equals should return false for different fund name', function () {
         dao2.name = 'Different'
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
     it('equals should return false for different fund type', function () {
         dao2.type = Fund.types.OEIC
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
     it('equals should return false for different share classes', function () {
         dao2.shareClass = Fund.shareClasses.OEIC
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
     it('equals should return false for different pricing frequencies', function () {
         dao2.frequency = 'Weekly'
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
     it('equals should return false for different ongoing fund charge', function () {
         dao2.ocf = 0
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
     it('equals should return false for different annual management charge', function () {
         dao2.amc = 0
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
     it('equals should return false for different entry charge', function () {
         dao2.entryCharge = 100
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
     it('equals should return false for different exit charge', function () {
         dao2.exitCharge = 100
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
     it('equals should return false for different holdings', function () {
         dao2.holdings = [{
@@ -172,21 +174,21 @@ describe('FundDAO', function () {
             symbol: 'TEST',
             weight: 0
         }]
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
     it('equals should return false for different historic prices', function () {
         dao2.historicPrices = [{
             date: new Date(2001, 1, 1),
             price: 457.0
         }]
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
     it('equals should return false for different returns', function () {
         dao2.returns = {'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': 0}
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
     it('equals should return false for different percentiles', function () {
         dao2.percentiles = {'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': 0}
-        assert.isFalse(dao.equals(dao2))
+        expect(dao.equals(dao2)).toBeFalsy()
     })
 })
