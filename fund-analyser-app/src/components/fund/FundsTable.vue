@@ -149,18 +149,25 @@ export default {
         'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D',
         'bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge'])
       const numberFields = new Set(['stability'])
+      const dateFields = new Set(['asof'])
       const newColDefs = params.columnApi.getAllColumns().map(col => {
         const colDef = col.getColDef()
         if (returnsFields.has(colDef.field)) {
           colDef.cellStyle = this.colourReturnsCellStyler
+          colDef.filter = 'agNumberColumnFilter'
         }
         if (percentFields.has(colDef.field)) {
           colDef.valueFormatter = this.percentFormatter
           colDef.comparator = this.numberComparator
+          colDef.filter = 'agNumberColumnFilter'
         }
         if (numberFields.has(colDef.field)) {
           colDef.valueFormatter = this.numberFormatter
           colDef.comparator = this.numberComparator
+          colDef.filter = 'agNumberColumnFilter'
+        }
+        if (dateFields.has(colDef.field)) {
+          colDef.filter = 'agDateColumnFilter'
         }
         colDef.headerTooltip = colDef.headerName
         return colDef
