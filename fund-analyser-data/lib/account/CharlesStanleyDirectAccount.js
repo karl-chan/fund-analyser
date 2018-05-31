@@ -20,6 +20,7 @@ CharlesStanleyDirectAccount.prototype.getBalance = async function (jar) {
     const cash = parseFloat(row.find('td.balance').text().replace(/[£,]/g, ''))
     const totalValue = parseFloat(row.find('td.total').text().replace(/[£,]/g, ''))
 
-    const holdings = JSON.parse(r2.body.match(/CS\.portStreamingData = (.*);/)[1])
+    const matches = r2.body.match(/CS\.portStreamingData = (.*);/)
+    const holdings = matches ? JSON.parse(matches[1]) : []
     return {portfolio, cash, totalValue, holdings}
 }
