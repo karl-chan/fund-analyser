@@ -7,8 +7,12 @@
         div Cash: £{{balance.cash}}
         div Total Value: £{{balance.totalValue}}
       div You have {{balance.holdings.length}} holdings:
-      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="holdings || []"
+
+      .relative-position
+        ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="holdings || []"
                   :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked" :gridOptions="gridOptions")
+        .absolute-top-left.light-dimmed.fit(v-if="!holdings || !holdings.length")
+          q-chip.absolute-center.z-max(square detail icon="info" color="secondary") Nothing to show
 
 </template>
 

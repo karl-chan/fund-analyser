@@ -20,7 +20,7 @@
       ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="summary || []"
                   :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked"
                   style="height: 500px" :gridOptions="gridOptions")
-      div.absolute-top-left.light-dimmed.fit(v-if="!dataReady || downloading")
+      .absolute-top-left.light-dimmed.fit(v-if="!dataReady || downloading")
         q-btn.absolute-center.z-max(:loading="downloading" :percentage="downloadPercentage" @click="startDownload"
                   color="secondary" size="xl" icon="file_download")
 
