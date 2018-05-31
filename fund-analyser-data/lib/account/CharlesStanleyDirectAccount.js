@@ -16,9 +16,9 @@ CharlesStanleyDirectAccount.prototype.getBalance = async function (jar) {
 
     const $1 = cheerio.load(r1.body)
     const row = $1('#myac-table > tbody > tr:last-child')
-    const portfolio = parseFloat(row.find('td.portfolio').text().replace(/[£,]/g, ''))
-    const cash = parseFloat(row.find('td.balance').text().replace(/[£,]/g, ''))
-    const totalValue = parseFloat(row.find('td.total').text().replace(/[£,]/g, ''))
+    const portfolio = parseFloat(row.find('td.portfolio').text().replace(/[£,]/g, '')) || 0
+    const cash = parseFloat(row.find('td.balance').text().replace(/[£,]/g, '')) || 0
+    const totalValue = parseFloat(row.find('td.total').text().replace(/[£,]/g, '')) || 0
 
     const matches = r2.body.match(/CS\.portStreamingData = (.*);/)
     const holdings = matches ? JSON.parse(matches[1]) : []
