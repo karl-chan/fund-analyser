@@ -21,10 +21,10 @@ describe('FinancialTimes', function () {
 
     describe('Core methods', function () {
         it('getFundsFromIsins should return array of funds', function (done) {
-            isin1 = 'GB00B80QG615'
-            isin2 = 'GB00B80QFX11'
-            fund1 = Fund.Builder(isin1).build()
-            fund2 = Fund.Builder(isin2).build()
+            const isin1 = 'GB00B80QG615'
+            const isin2 = 'GB00B80QFX11'
+            const fund1 = Fund.Builder(isin1).build()
+            const fund2 = Fund.Builder(isin2).build()
 
             jest.spyOn(financialTimes, 'getFundFromIsin')
                 .mockImplementation((isin, callback) => {
@@ -102,7 +102,7 @@ describe('FinancialTimes', function () {
                 .build()
 
             financialTimes.getFundFromIsin(isin, (err, actual) => {
-                expect(actual).toEqual(expected)
+                expect(actual).toMatchObject(expected)
                 done(err)
             })
         })
@@ -171,6 +171,34 @@ describe('FinancialTimes', function () {
                 }
                 done(err)
             })
+        })
+
+        it('getRealTimeDetails should return real time details object', async () => {
+            const isin = 'GB00B80QG615'
+            const historicPrices = [
+                new Fund.HistoricPrice(new Date(2017, 0, 1), 457.0)
+            ]
+            const holdings = [
+                new Fund.Holding('Apple', 'AAPL', 0.5),
+                new Fund.Holding('Alphabet', 'GOOG', 0.5)
+            ]
+            const fund = Fund.Builder(isin)
+                .historicPrices(historicPrices)
+                .holdings(holdings)
+                .build()
+
+            const realTimeDetails = await financialTimes.getRealTimeDetails(fund)
+            expect(realTimeDetails).toHaveProperty('estChange')
+            expect(realTimeDetails).toHaveProperty('estPrice')
+            expect(realTimeDetails).toHaveProperty('stdev')
+            expect(realTimeDetails).toHaveProperty('ci')
+            expect(realTimeDetails).toHaveProperty('holdings')
+            expect(realTimeDetails.estChange).not.toBe(0)
+            expect(realTimeDetails.estPrice).toBeGreaterThan(0)
+            expect(realTimeDetails.stdev).toBeGreaterThan(0)
+            expect(realTimeDetails.ci).toBeArrayOfSize(2)
+            expect(realTimeDetails.holdings).toBeArrayOfSize(2)
+            expect(realTimeDetails.holdings).toSatisfyAll(h => h.todaysChange && typeof h.todaysChange === 'number')
         })
     })
 

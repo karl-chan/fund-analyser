@@ -28,6 +28,16 @@
                 "-r",
                 "updateCatalog"
             ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Update Funds",
+            "program": "${workspaceFolder}/fund-analyser-data/scripts/main.js",
+            "args": [
+                "-r",
+                "updateFunds"
+            ]
         }
     ]
 }

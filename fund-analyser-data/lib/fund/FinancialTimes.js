@@ -73,7 +73,17 @@ FinancialTimes.prototype.getFundFromIsin = function (isin, callback) {
         } else {
             log.debug('Got fund from isin %s: %j', isin, fund)
         }
-        return callback(null, fund)
+
+        // try enrich with real time details
+        this.getRealTimeDetails(fund)
+            .then(realTimeDetails => {
+                fund.realTimeDetails = realTimeDetails
+                callback(null, fund)
+            })
+            .catch(err => {
+                log.error('Failed to get real time details for isin: %s. Cause: %s', isin, err.stack)
+                callback(null, fund)
+            })
     })
 }
 

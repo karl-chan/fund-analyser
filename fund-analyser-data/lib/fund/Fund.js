@@ -12,7 +12,7 @@ Fund.shareClasses = Object.freeze({
     ACC: 'Acc'
 })
 
-function Fund (isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge, bidAskSpread, holdings, historicPrices, returns, percentiles, asof, stability) {
+function Fund (isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge, bidAskSpread, holdings, historicPrices, returns, percentiles, asof, stability, realTimeDetails) {
     this.isin = isin
     this.sedol = sedol
     this.name = name
@@ -30,6 +30,7 @@ function Fund (isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCh
     this.percentiles = percentiles
     this.asof = asof
     this.stability = stability
+    this.realTimeDetails = realTimeDetails
 }
 
 Fund.prototype.isValid = function () {
@@ -141,10 +142,15 @@ FundBuilder.prototype.stability = function (stability) {
     return this
 }
 
+FundBuilder.prototype.realTimeDetails = function (realTimeDetails) {
+    this._realTimeDetails = realTimeDetails
+    return this
+}
+
 FundBuilder.prototype.build = function () {
     return new Fund(this._isin, this._sedol, this._name, this._type, this._shareClass, this._frequency,
         this._ocf, this._amc, this._entryCharge, this._exitCharge, this._bidAskSpread,
-        this._holdings, this._historicPrices, this._returns, this._percentiles, this._asof, this._stability)
+        this._holdings, this._historicPrices, this._returns, this._percentiles, this._asof, this._stability, this._realTimeDetails)
 }
 
 function Holding (name, symbol, weight) {
