@@ -24,10 +24,6 @@ module.exports = function (ctx) {
       'fontawesome'
     ],
     supportIE: true,
-    vendor: {
-      add: [],
-      remove: []
-    },
     build: {
       scopeHoisting: true,
       vueRouterMode: 'hash',
@@ -108,27 +104,6 @@ module.exports = function (ctx) {
     // animations: 'all' --- includes all animations
     animations: [
       'fadeOutUp'
-    ],
-    cordova: {
-      id: 'com.github.karlchan'
-    },
-    electron: {
-      extendWebpack (cfg) {
-        // do something with cfg
-      },
-      packager: {
-        // OS X / Mac App Store
-        // appBundleId: '',
-        // appCategoryType: '',
-        // osxSign: '',
-        // protocol: 'myapp://path',
-
-        // Window only
-        // win32metadata: { ... }
-      }
-    },
-
-    // leave this here for Quasar CLI
-    starterKit: '1.0.0'
+    ]
   }
 }
