@@ -99,10 +99,6 @@ module.exports = function (ctx) {
       ],
       directives: [
         'Ripple'
-      ],
-      // Quasar plugins
-      plugins: [
-        'LocalStorage'
       ]
     },
     // animations: 'all' --- includes all animations
