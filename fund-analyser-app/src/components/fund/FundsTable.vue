@@ -50,6 +50,7 @@ export default {
         { headerName: '1W', field: 'returns.1W', width: 65 },
         { headerName: '3D', field: 'returns.3D', width: 65 },
         { headerName: '1D', field: 'returns.1D', sort: 'desc', width: 65 },
+        { headerName: '+1D', field: 'realTimeDetails.estChange', width: 65 },
         { headerName: 'Type', field: 'type', width: 70 },
         { headerName: 'Share Class', field: 'shareClass', width: 60 },
         { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 70 },
@@ -144,9 +145,9 @@ export default {
     },
     updateColDefs (params) {
       const returnsFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
-        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D'])
+        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'realTimeDetails.estChange'])
       const percentFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
-        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D',
+        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'realTimeDetails.estChange',
         'bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge'])
       const numberFields = new Set(['stability'])
       const dateFields = new Set(['asof'])

@@ -39,15 +39,7 @@ router.get('/search/:searchText', async ctx => {
 router.get('/summary', async ctx => {
     const query = {}
     const options = {
-        projection: {
-            _id: 0,
-            historicPrices: 0,
-            percentiles: 0,
-            'realTimeDetails.estPrice': 0,
-            'realTimeDetails.stdev': 0,
-            'realTimeDetails.ci': 0,
-            'realTimeDetails.holdings': 0
-        }
+        projection: { _id: 0, historicPrices: 0, percentiles: 0 }
     }
     const funds = await db.getFunds().find(query, options).toArray()
     ctx.body = funds

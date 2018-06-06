@@ -3,7 +3,7 @@
     q-list(no-border link inset-delimiter)
       template(v-if="numLoadedFunds")
         q-list-header Recently Viewed
-          q-btn.clear-all(label="Clear all" color="red" @click="removeAll" dense)
+          q-btn.q-ml-xl(label="Clear all" color="red" @click="removeAll" dense)
         q-item(v-for="fund in loadedFunds" :to="{name: 'fund', params: {isin: fund.isin}}" :key="fund.isin")
           q-item-main(:label="fund.name" :sublabel="fund.isin")
           q-item-side(right)
@@ -43,12 +43,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-  .q-btn.clear-all {
-    float: right;
-    margin-top: 10px;
-    margin-right: 30px;
-    line-height: 0;
-  }
-</style>
