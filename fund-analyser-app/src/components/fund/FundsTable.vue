@@ -37,7 +37,7 @@ export default {
       downloadPercentage: 0,
       pinnedRowsVisible: false,
       columnDefs: [
-        { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.rowOutdated },
+        { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated },
         { headerName: 'ISIN', field: 'isin', width: 120 },
         { headerName: 'Name', field: 'name', width: 180 },
         { headerName: '5Y', field: 'returns.5Y', width: 65 },
@@ -85,7 +85,7 @@ export default {
   },
   components: {
     WarningComponent: {
-      template: '<q-icon v-if="params.value" class="text-red" name="warning" title="This fund may not be up-to-date"/>'
+      template: `<q-icon v-if="params.value" :class="params.value > 1? 'text-red': 'text-amber'" name="warning" title="This fund may not be up-to-date"/>`
     }
   },
   computed: {
@@ -212,8 +212,8 @@ export default {
     numberComparator (a, b) {
       return this.$utils.number.numberComparator(a, b)
     },
-    rowOutdated (params) {
-      return this.$utils.date.isBeforeToday(params.data.asof)
+    numDaysOutdated (params) {
+      return this.$utils.date.diffDays(new Date(), params.data.asof)
     },
     exportCsv () {
       const params = {

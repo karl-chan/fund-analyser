@@ -18,5 +18,8 @@ export default {
       return false
     }
     return moment(date).isBefore(this.startOfDay())
+  },
+  diffDays (a, b) {
+    return moment(a).diff(b, 'days')
   }
 }
