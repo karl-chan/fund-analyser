@@ -29,8 +29,9 @@ const store = new Vuex.Store({
   },
   strict: process.env.NODE_ENV !== 'production'
 })
+
+export default store
+
 sync(store, router)
 store.dispatch('auth/init')
 store.dispatch('funds/init')
-
-export default store
