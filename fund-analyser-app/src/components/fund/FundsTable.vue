@@ -85,7 +85,7 @@ export default {
   },
   components: {
     WarningComponent: {
-      template: `<q-icon v-if="params.value" :class="params.value > 1? 'text-red': 'text-amber'" name="warning" title="This fund may not be up-to-date"/>`
+      template: `<q-icon v-if="params.value" :class="params.value > 1? 'text-red': 'text-amber'" name="warning" :title="'This fund may not be up-to-date (lag=' + params.value + ')'"/>`
     }
   },
   computed: {
@@ -213,7 +213,7 @@ export default {
       return this.$utils.number.numberComparator(a, b)
     },
     numDaysOutdated (params) {
-      return this.$utils.date.diffDays(new Date(), params.data.asof)
+      return this.$utils.date.diffBusinessDays(new Date(), params.data.asof)
     },
     exportCsv () {
       const params = {

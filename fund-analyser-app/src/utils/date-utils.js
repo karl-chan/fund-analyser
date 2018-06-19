@@ -1,11 +1,8 @@
-import { date } from 'quasar'
-import moment from 'moment'
-
-const { startOfDate } = date
+import moment from 'moment-business-days'
 
 export default {
   startOfDay (date = new Date()) {
-    return startOfDate(date, 'day')
+    return moment(date).startOf('day')
   },
   isAfterNow (date) {
     if (!date) {
@@ -19,7 +16,7 @@ export default {
     }
     return moment(date).isBefore(this.startOfDay())
   },
-  diffDays (a, b) {
-    return moment(a).diff(b, 'days')
+  diffBusinessDays (a, b) {
+    return this.startOfDay(a).businessDiff(this.startOfDay(b))
   }
 }

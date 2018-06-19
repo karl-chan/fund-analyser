@@ -20,6 +20,7 @@
     "localforage": "1.7.1",
     "lodash": "4.17.10",
     "moment": "2.22.2",
+    "moment-business-days": "1.0.6",
     "vue-highcharts": "0.0.10",
     "vuelidate": "0.7.4",
     "vuex-persist": "1.4.0",
