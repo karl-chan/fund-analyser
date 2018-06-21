@@ -25,12 +25,12 @@ export default {
       columnDefs: [
         { headerName: 'ISIN', hide: true, field: 'ISIN', width: 100 },
         { headerName: 'Name', field: 'Description', width: 250 },
-        { headerName: '% Real Time Est', field: 'realTimeEstPercent', width: 80, valueFormatter: this.percentFormatter, cellClass: this.colourNumberStyler },
+        { headerName: '% Real Time Est', field: 'realTimeEstPercent', width: 80, valueFormatter: this.percentFormatter, cellClass: this.colourNumberBoldStyler },
         { headerName: 'Real Time Est', field: 'realTimeEst', width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
+        { headerName: '% Day Change', field: 'PricePercentChange', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberBoldStyler },
+        { headerName: 'Day Change', width: 80, valueGetter: this.dayChangeGetter, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
+        { headerName: '% Total Change', field: 'PercentChangeInValue', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberBoldStyler },
         { headerName: 'Total Change', field: 'ChangeInValue', width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
-        { headerName: '% Total Change', field: 'PercentChangeInValue', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberStyler },
-        { headerName: 'Day Change', field: 'PriceChange', width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
-        { headerName: '% Day Change', field: 'PricePercentChange', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberStyler },
         { headerName: 'Mid', field: 'Mid', width: 65, valueFormatter: this.numberFormatter },
         { headerName: 'Bid', field: 'Bid', width: 65, valueFormatter: this.numberFormatter },
         { headerName: 'Ask', field: 'Ask', width: 65, valueFormatter: this.numberFormatter },
@@ -87,8 +87,14 @@ export default {
     colourNumberStyler (params) {
       return this.$utils.format.colourNumber(params.value)
     },
+    colourNumberBoldStyler (params) {
+      return [this.colourNumberStyler(params), 'text-weight-bold']
+    },
     numberFormatter (params) {
       return this.$utils.format.formatNumber(params.value)
+    },
+    dayChangeGetter (params) {
+      return params.data.MktValue - params.data.MktValue / (1 + params.data.PricePercentChange / 100)
     },
     updateColDefs (params) {
       const newColDefs = params.columnApi.getAllColumns().map(col => {

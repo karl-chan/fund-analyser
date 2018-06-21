@@ -1,41 +1,21 @@
 <template lang="pug">
-  .column.gutter-y-sm
-    // toolbar
-    .row.justify-between.items-center.gutter-x-md(:class="{invisible: !dataReady}")
-      div
-        fund-search(placeholder="Filter table" @input="filterText" @select="filterFund")
-      .row.justify-end.items-center.gutter-x-md
-        div As of: {{ $utils.format.formatDateLong(asof) }}
-        div
-          q-btn-group
-            q-btn(:color="outdated? 'primary': 'tertiary'" icon="refresh" @click="startDownload" :glossy="outdated")
-              q-tooltip Refresh dataset
-            q-btn(color="tertiary" icon="fas fa-file-excel" @click="exportCsv")
-              q-tooltip Export to CSV
-            q-btn(color="tertiary" :icon="pinnedRowsVisible? 'expand_less': 'expand_more'" @click="togglePinnedRows")
-              q-tooltip {{ pinnedRowsVisible ? 'Hide' : 'Show' }} statistics
+  .relative-position
+    ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="enrichedFunds || []"
+                :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked"
+                style="height:100%" :gridOptions="gridOptions")
 
-    // actual table
-    .relative-position
-      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="summary || []"
-                  :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked"
-                  style="height: 500px" :gridOptions="gridOptions")
-      .absolute-top-left.light-dimmed.fit(v-if="!dataReady || downloading")
-        q-btn.absolute-center.z-max(:loading="downloading" :percentage="downloadPercentage" @click="startDownload"
-                  color="secondary" size="xl" icon="file_download")
+    .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
+      // transclude empty view here
+      slot(name="empty-view")
 
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-
 export default {
   name: 'FundsTable',
+  props: ['funds', 'filterText', 'showPinnedRows', 'showEmptyView'],
   data () {
     return {
-      downloading: false,
-      downloadPercentage: 0,
-      pinnedRowsVisible: false,
       columnDefs: [
         { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated },
         { headerName: 'ISIN', field: 'isin', width: 120 },
@@ -72,6 +52,7 @@ export default {
         suppressLoadingOverlay: true,
         suppressNoRowsOverlay: true,
         toolPanelSuppressSideButtons: true,
+        rowSelection: 'multiple',
         rowStyle: {
           cursor: 'pointer'
         },
@@ -89,29 +70,14 @@ export default {
     }
   },
   computed: {
-    summary: function () {
-      const rawSummary = this.$store.state.funds.summary
-      return this.$utils.fund.enrichSummary(rawSummary)
-    },
-    dataReady: function () {
-      return this.summary && this.summary.length
-    },
-    asof: function () {
-      if (!this.dataReady) {
-        return undefined
-      }
-      const asofs = this.summary.map(f => Date.parse(f.asof))
-      const globalAsof = Math.max.apply(null, asofs.filter(isFinite))
-      return new Date(globalAsof)
-    },
-    outdated: function () {
-      return this.$utils.date.isBeforeToday(this.asof)
+    enrichedFunds: function () {
+      return this.$utils.fund.enrichScores(this.funds)
     },
     pinnedRowsData: function () {
-      if (!this.dataReady) {
+      if (!this.funds || !this.funds.length) {
         return []
       }
-      const { meanReturns, medianReturns, stddevReturns } = this.$utils.fund.calcSummaryStats(this.summary)
+      const { meanReturns, medianReturns, stddevReturns } = this.$utils.fund.calcStats(this.funds)
       return [
         {isin: 'Mean returns', returns: meanReturns},
         {isin: 'Median returns', returns: medianReturns},
@@ -120,23 +86,6 @@ export default {
     }
   },
   methods: {
-    ...mapActions(
-      'funds', [ 'getSummary' ]
-    ),
-    ...mapActions(
-      'layout', [ 'closeDrawer' ]
-    ),
-    async startDownload () {
-      this.downloading = true
-      await this.getSummary()
-      this.downloading = false
-    },
-    filterText (text) {
-      this.gridOptions.api.setQuickFilter(text)
-    },
-    filterFund (fund) {
-      this.filterText(fund.isin)
-    },
     onGridReady (params) {
       this.updateColDefs(params)
     },
@@ -175,17 +124,6 @@ export default {
       })
       params.api.setColumnDefs(newColDefs)
     },
-    showPinnedRows () {
-      this.gridOptions.api.setPinnedTopRowData(this.pinnedRowsData)
-      this.pinnedRowsVisible = true
-    },
-    hidePinnedRows () {
-      this.gridOptions.api.setPinnedTopRowData([])
-      this.pinnedRowsVisible = false
-    },
-    togglePinnedRows () {
-      this.pinnedRowsVisible ? this.hidePinnedRows() : this.showPinnedRows()
-    },
     numberFormatter (params) {
       return this.$utils.format.formatNumber(params.value)
     },
@@ -214,6 +152,9 @@ export default {
     },
     numDaysOutdated (params) {
       return this.$utils.date.diffBusinessDays(new Date(), params.data.asof)
+    },
+    togglePinnedRows () {
+      this.gridOptions.api.setPinnedTopRowData(this.showPinnedRows ? this.pinnedRowsData : [])
     },
     exportCsv () {
       const params = {
@@ -244,6 +185,17 @@ export default {
         }
       }
       this.gridOptions.api.exportDataAsCsv(params)
+    }
+  },
+  watch: {
+    showPinnedRows: function () {
+      this.togglePinnedRows()
+    },
+    pinnedRowsData: function () {
+      this.togglePinnedRows()
+    },
+    filterText: function (text) {
+      this.gridOptions.api.setQuickFilter(text)
     }
   }
 }

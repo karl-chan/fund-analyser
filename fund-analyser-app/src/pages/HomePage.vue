@@ -3,8 +3,11 @@
     div(v-if="user")
       account-balance(:user="user" :balance="balance" :realTimeDetails="realTimeDetails")
     div
+      .q-headline Watch List
+      fund-watch-list(:watchlist="watchlist")
+    div
       .q-headline Summary
-      funds-table
+      funds-summary(:summary="summary" @requestSummary="getSummary")
 </template>
 
 <script>
@@ -21,12 +24,12 @@ export default {
       return this.lookupBalance()
     },
     ...mapState('auth', ['user']),
-    ...mapState('funds', ['realTimeDetails'])
+    ...mapState('funds', ['realTimeDetails', 'watchlist', 'summary'])
   },
   methods: {
     ...mapActions('account', [ 'getBalance' ]),
     ...mapGetters('account', [ 'lookupBalance' ]),
-    ...mapActions('funds', ['startRealTimeUpdates', 'stopRealTimeUpdates'])
+    ...mapActions('funds', ['startRealTimeUpdates', 'stopRealTimeUpdates', 'getSummary'])
   },
   watch: {
     balance: function (newBalance, oldBalance) {

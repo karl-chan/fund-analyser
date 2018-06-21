@@ -27,23 +27,31 @@
 <script>
 import { openURL } from 'quasar'
 import { mapActions, mapGetters } from 'vuex'
+import Vue from 'vue'
+
 export default {
   name: 'FundPage',
   props: ['isin'],
   beforeRouteEnter (to, from, next) {
     next(vm => {
-      vm.lazyGet(to.params.isin)
-      vm.startRealTimeUpdates(to.params.isin)
+      Vue.nextTick(function () {
+        vm.lazyGet(to.params.isin)
+        vm.startRealTimeUpdates(to.params.isin)
+      })
     })
   },
   beforeRouteUpdate (to, from, next) {
-    this.stopRealTimeUpdates(from.params.isin)
-    this.lazyGet(to.params.isin)
-    this.startRealTimeUpdates(to.params.isin)
+    Vue.nextTick(function () {
+      this.stopRealTimeUpdates(from.params.isin)
+      this.lazyGet(to.params.isin)
+      this.startRealTimeUpdates(to.params.isin)
+    })
     next()
   },
   beforeRouteLeave (to, from, next) {
-    this.stopRealTimeUpdates(from.params.isin)
+    Vue.nextTick(function () {
+      this.stopRealTimeUpdates(from.params.isin)
+    })
     next()
   },
   data () {
