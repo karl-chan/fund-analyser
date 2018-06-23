@@ -11,13 +11,13 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "ag-grid": "17.1.1",
-    "ag-grid-enterprise": "17.1.1",
-    "ag-grid-vue": "17.1.0",
+    "ag-grid": "18.0.1",
+    "ag-grid-enterprise": "18.0.1",
+    "ag-grid-vue": "18.0.0",
     "axios": "0.18.0",
     "highcharts": "6.1.0",
     "jStat": "1.7.1",
-    "localforage": "1.7.1",
+    "localforage": "1.7.2",
     "lodash": "4.17.10",
     "moment": "2.22.2",
     "moment-business-days": "1.0.6",
@@ -27,8 +27,8 @@
     "vuex-router-sync": "5.0.0"
   },
   "devDependencies": {
-    "babel-eslint": "8.2.3",
-    "eslint": "4.19.1",
+    "babel-eslint": "8.2.4",
+    "eslint": "5.0.0",
     "eslint-config-standard": "11.0.0",
     "eslint-friendly-formatter": "4.0.1",
     "eslint-loader": "2.0.0",

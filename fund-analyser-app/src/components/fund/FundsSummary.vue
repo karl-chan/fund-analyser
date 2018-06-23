@@ -1,5 +1,6 @@
 <template lang="pug">
   .column.gutter-y-sm
+    .q-headline Summary
     // toolbar
     .row.justify-between.items-center.gutter-x-md(:class="{invisible: !dataReady}")
       div
@@ -17,16 +18,24 @@
 
     // actual table
     funds-table(:funds="summary" :showPinnedRows="showPinnedRows" :showEmptyView="showEmptyView" :filterText="filterText"
-                style="height:500px" ref="fundsTable")
+                height="500px" ref="fundsTable")
       template(slot="empty-view")
         q-btn.absolute-center.z-max(:loading="downloading" @click="startDownload"
                                     color="secondary" size="xl" icon="file_download")
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
   name: 'FundsSummary',
   props: ['summary'],
+  created () {
+    // save bandwidth on mobile, or else eagerly load latest data
+    if (!this.$q.platform.is.mobile) {
+      this.getSummary()
+    }
+  },
   data () {
     return {
       downloading: false,
@@ -70,7 +79,8 @@ export default {
     },
     exportCsv () {
       this.$refs.fundsTable.exportCsv()
-    }
+    },
+    ...mapActions('funds', ['getSummary'])
   }
 }
 </script>

@@ -1,6 +1,6 @@
 export default {
   summary: [], // [Fund]
-  watchlist: [], // [Fund]
+  favouriteIsins: [], // [isin: string]
   loaded: {}, // {[isin: string]: Fund]
   realTimeDetails: {}, // {[isin: string]: RealTimeDetails}
   activeJobs: {} // {[isin: string]: {jobId: number, count: number}}

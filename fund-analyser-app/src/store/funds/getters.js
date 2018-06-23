@@ -13,3 +13,8 @@ export function lookupRealTimeDetails (state) {
 export function lookupActiveJob (state) {
   return isin => state.activeJobs[isin]
 }
+
+export function watchlist (state) {
+  const favouriteIsinSet = new Set(state.favouriteIsins)
+  return state.summary.filter(fund => favouriteIsinSet.has(fund.isin))
+}

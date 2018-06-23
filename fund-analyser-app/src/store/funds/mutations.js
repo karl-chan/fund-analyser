@@ -41,3 +41,7 @@ export function decrementJobCounter (state, isin) {
 export function setSummary (state, fundsSummary) {
   state.summary = fundsSummary
 }
+
+export function setFavouriteIsins (state, favouriteIsins) {
+  state.favouriteIsins = favouriteIsins
+}

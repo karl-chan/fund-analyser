@@ -3,15 +3,14 @@
     div(v-if="user")
       account-balance(:user="user" :balance="balance" :realTimeDetails="realTimeDetails")
     div
-      .q-headline Watch List
-      fund-watch-list(:watchlist="watchlist")
+      fund-watch-list(:watchlist="watchlist" @update:watchlist="setWatchlist($event)")
     div
-      .q-headline Summary
-      funds-summary(:summary="summary" @requestSummary="getSummary")
+      funds-summary(:summary="summary" @requestSummary="getSummary"
+                    :favouriteIsins="favouriteIsins" @update:favouriteIsins="setFavouriteIsins($event)")
 </template>
 
 <script>
-import { mapState, mapActions, mapGetters } from 'vuex'
+import { mapState, mapActions, mapGetters, mapMutations } from 'vuex'
 export default {
   name: 'HomePage',
   beforeRouteEnter (to, from, next) {
@@ -20,16 +19,18 @@ export default {
     })
   },
   computed: {
+    ...mapState('auth', ['user']),
+    ...mapState('funds', ['realTimeDetails', 'favouriteIsins', 'summary']),
+    ...mapGetters('funds', ['watchlist']),
     balance: function () {
       return this.lookupBalance()
-    },
-    ...mapState('auth', ['user']),
-    ...mapState('funds', ['realTimeDetails', 'watchlist', 'summary'])
+    }
   },
   methods: {
-    ...mapActions('account', [ 'getBalance' ]),
-    ...mapGetters('account', [ 'lookupBalance' ]),
-    ...mapActions('funds', ['startRealTimeUpdates', 'stopRealTimeUpdates', 'getSummary'])
+    ...mapActions('account', ['getBalance']),
+    ...mapGetters('account', ['lookupBalance']),
+    ...mapActions('funds', ['startRealTimeUpdates', 'stopRealTimeUpdates', 'getSummary']),
+    ...mapMutations('funds', ['setFavouriteIsins'])
   },
   watch: {
     balance: function (newBalance, oldBalance) {

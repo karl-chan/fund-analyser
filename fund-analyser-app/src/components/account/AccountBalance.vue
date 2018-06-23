@@ -44,11 +44,12 @@ export default {
         { headerName: 'Asset Class', field: 'AssetClass', width: 150 }
       ],
       gridOptions: {
-        domLayout: 'autoHeight',
         enableColResize: true,
         enableFilter: true,
         enableRangeSelection: true,
         enableSorting: true,
+        gridAutoHeight: true,
+        popupParent: document.body,
         suppressLoadingOverlay: true,
         suppressNoRowsOverlay: true,
         toolPanelSuppressSideButtons: true,

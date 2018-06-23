@@ -1,14 +1,6 @@
-import { Platform } from 'quasar'
 import fundService from './../../services/fund-service'
 import dateUtils from './../../utils/date-utils'
 import router from './../../router'
-
-export async function init ({dispatch}) {
-  // save bandwidth
-  if (!Platform.is.mobile) {
-    dispatch('getSummary')
-  }
-}
 
 export async function get ({commit}, isin) {
   await fundService.get(isin)
@@ -82,4 +74,16 @@ export function removeAll ({commit, dispatch, state}) {
 export async function getSummary ({commit}) {
   await fundService.getSummary()
     .then(fundsSummary => commit('setSummary', fundsSummary))
+}
+
+export function addFavouriteIsin ({commit, state}, isin) {
+  commit('setFavouriteIsins', [...state.favouriteIsins, isin])
+}
+
+export function removeFavouriteIsin ({commit, state}, isin) {
+  commit('setFavouriteIsins', state.favouriteIsins.filter(i => i !== isin))
+}
+
+export function removeAllFavouriteIsins ({commit}, isin) {
+  commit('setFavouriteIsins', [])
 }

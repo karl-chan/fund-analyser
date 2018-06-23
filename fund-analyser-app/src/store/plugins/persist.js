@@ -6,6 +6,7 @@ export default new VuexPersistence({
   storage: localForage,
   reducer: state => ({
     funds: {
+      favouriteIsins: state.funds.favouriteIsins,
       loaded: state.funds.loaded,
       summary: state.funds.summary
     }})

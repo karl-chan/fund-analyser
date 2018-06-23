@@ -2,7 +2,8 @@
   .relative-position
     ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="enrichedFunds || []"
                 :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked"
-                style="height:100%" :gridOptions="gridOptions")
+                :getContextMenuItems="getContextMenuItems" :gridOptions="gridOptions"
+                :style="{height}" :gridAutoHeight="!height")
 
     .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
       // transclude empty view here
@@ -11,9 +12,11 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
+
 export default {
   name: 'FundsTable',
-  props: ['funds', 'filterText', 'showPinnedRows', 'showEmptyView'],
+  props: ['funds', 'filterText', 'showPinnedRows', 'showEmptyView', 'height'],
   data () {
     return {
       columnDefs: [
@@ -53,6 +56,7 @@ export default {
         suppressNoRowsOverlay: true,
         toolPanelSuppressSideButtons: true,
         rowSelection: 'multiple',
+        popupParent: document.body,
         rowStyle: {
           cursor: 'pointer'
         },
@@ -70,6 +74,7 @@ export default {
     }
   },
   computed: {
+    ...mapState('funds', ['favouriteIsins']),
     enrichedFunds: function () {
       return this.$utils.fund.enrichScores(this.funds)
     },
@@ -86,11 +91,36 @@ export default {
     }
   },
   methods: {
+    ...mapActions('funds', ['addFavouriteIsin', 'removeFavouriteIsin']),
     onGridReady (params) {
       this.updateColDefs(params)
     },
     onRowDoubleClicked (params) {
       this.$utils.router.redirectToFund(params.data.isin, {newTab: true})
+    },
+    getContextMenuItems (params) {
+      const isin = params.node.data.isin
+      const isFavourite = this.favouriteIsins.includes(isin)
+      return [
+        {
+          name: 'Add to favourites',
+          icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
+          action: () => {
+            setTimeout(() => this.addFavouriteIsin(isin), 100)
+          },
+          disabled: isFavourite
+        },
+        {
+          name: 'Remove from favourites',
+          icon: '<i class="q-icon material-icons text-dark" style="font-size:15px" aria-hidden="true">star_border</i>',
+          action: () => {
+            setTimeout(() => this.removeFavouriteIsin(isin), 100)
+          },
+          disabled: !isFavourite
+        },
+        'separator',
+        ...params.defaultItems
+      ]
     },
     updateColDefs (params) {
       const returnsFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
