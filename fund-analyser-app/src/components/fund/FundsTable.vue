@@ -22,7 +22,7 @@ export default {
       columnDefs: [
         { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated },
         { headerName: 'ISIN', field: 'isin', width: 120 },
-        { headerName: 'Name', field: 'name', width: 180 },
+        { headerName: 'Name', field: 'name', width: 180, tooltipField: 'name' },
         { headerName: '5Y', field: 'returns.5Y', width: 65 },
         { headerName: '3Y', field: 'returns.3Y', width: 65 },
         { headerName: '1Y', field: 'returns.1Y', width: 65 },
