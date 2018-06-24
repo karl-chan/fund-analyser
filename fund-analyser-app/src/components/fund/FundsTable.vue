@@ -74,7 +74,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('funds', ['favouriteIsins']),
+    ...mapState('account', ['watchlist']),
     enrichedFunds: function () {
       return this.$utils.fund.enrichScores(this.funds)
     },
@@ -91,7 +91,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('funds', ['addFavouriteIsin', 'removeFavouriteIsin']),
+    ...mapActions('account', ['addToWatchlist', 'removeFromWatchlist']),
     onGridReady (params) {
       this.updateColDefs(params)
     },
@@ -99,14 +99,19 @@ export default {
       this.$utils.router.redirectToFund(params.data.isin, {newTab: true})
     },
     getContextMenuItems (params) {
+      const notApplicable = this.isRowPinned(params)
+      if (notApplicable) {
+        return params.defaultItems
+      }
+
       const isin = params.node.data.isin
-      const isFavourite = this.favouriteIsins.includes(isin)
+      const isFavourite = this.watchlist.includes(isin)
       return [
         {
           name: 'Add to favourites',
           icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
           action: () => {
-            setTimeout(() => this.addFavouriteIsin(isin), 100)
+            this.addToWatchlist(isin)
           },
           disabled: isFavourite
         },
@@ -114,7 +119,7 @@ export default {
           name: 'Remove from favourites',
           icon: '<i class="q-icon material-icons text-dark" style="font-size:15px" aria-hidden="true">star_border</i>',
           action: () => {
-            setTimeout(() => this.removeFavouriteIsin(isin), 100)
+            this.removeFromWatchlist(isin)
           },
           disabled: !isFavourite
         },
@@ -186,6 +191,9 @@ export default {
     togglePinnedRows () {
       this.gridOptions.api.setPinnedTopRowData(this.showPinnedRows ? this.pinnedRowsData : [])
     },
+    isRowPinned (params) {
+      return params.node.rowPinned
+    },
     exportCsv () {
       const params = {
         fileName: this.$utils.format.formatDateShort(new Date()),
@@ -210,9 +218,7 @@ export default {
             default: return params.value
           }
         },
-        shouldRowBeSkipped (params) {
-          return params.node.rowPinned
-        }
+        shouldRowBeSkipped: this.isRowPinned
       }
       this.gridOptions.api.exportDataAsCsv(params)
     }

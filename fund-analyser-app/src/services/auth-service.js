@@ -8,12 +8,12 @@ export default {
     return apiService.post('/auth/logout')
   },
   getAuth () {
-    return apiService.get('/auth/get')
+    return apiService.get('/auth')
   },
   getSessions () {
-    return apiService.get('/auth/get/sessions')
+    return apiService.get('/auth/sessions')
   },
   destroySession (encryptedId) {
-    return apiService.delete('/auth/delete/session', { params: {encryptedId} })
+    return apiService.delete('/auth/session', { params: {encryptedId} })
   }
 }

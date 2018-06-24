@@ -7,7 +7,7 @@ const router = new Router({
     prefix: FUNDS_URL_PREFIX
 })
 
-router.get('/get/:isin', async ctx => {
+router.get('/:isin', async ctx => {
     const query = {isin: ctx.params.isin}
     const options = {
         projection: {_id: 0}
@@ -16,7 +16,7 @@ router.get('/get/:isin', async ctx => {
     ctx.body = fund
 })
 
-router.get('/get/real-time-details/:isin', async ctx => {
+router.get('/real-time-details/:isin', async ctx => {
     const query = {isin: ctx.params.isin}
     const options = {}
     const fund = await db.getFunds().findOne(query, options)

@@ -75,15 +75,3 @@ export async function getSummary ({commit}) {
   await fundService.getSummary()
     .then(fundsSummary => commit('setSummary', fundsSummary))
 }
-
-export function addFavouriteIsin ({commit, state}, isin) {
-  commit('setFavouriteIsins', [...state.favouriteIsins, isin])
-}
-
-export function removeFavouriteIsin ({commit, state}, isin) {
-  commit('setFavouriteIsins', state.favouriteIsins.filter(i => i !== isin))
-}
-
-export function removeAllFavouriteIsins ({commit}, isin) {
-  commit('setFavouriteIsins', [])
-}

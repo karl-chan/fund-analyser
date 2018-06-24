@@ -20,8 +20,8 @@
     funds-table(:funds="summary" :showPinnedRows="showPinnedRows" :showEmptyView="showEmptyView" :filterText="filterText"
                 height="500px" ref="fundsTable")
       template(slot="empty-view")
-        q-btn.absolute-center.z-max(:loading="downloading" @click="startDownload"
-                                    color="secondary" size="xl" icon="file_download")
+        q-btn.absolute-center(:loading="downloading" @click="startDownload"
+                              color="secondary" size="xl" icon="file_download" style="z-index:1")
 </template>
 
 <script>

@@ -10,6 +10,9 @@ describe('FundDAO', function () {
     beforeAll(async () => {
         await db.init()
     })
+    afterAll(async () => {
+        await db.close()
+    })
     beforeEach(function () {
         fund = Fund.Builder('test')
             .name('Test fund')

@@ -2,7 +2,9 @@ module.exports = {
     init,
     get,
     getFunds,
-    getSessions
+    getSessions,
+    getUsers,
+    close
 }
 
 const properties = require('./properties.js')
@@ -10,11 +12,11 @@ const uri = properties.get('db.mongo.uri')
 
 const MongoClient = require('mongodb').MongoClient
 
-let _db
+let _client, _db
 
 async function init () {
-    const client = await MongoClient.connect(uri)
-    _db = client.db()
+    _client = await MongoClient.connect(uri)
+    _db = _client.db()
 }
 
 function get () {
@@ -27,4 +29,12 @@ function getFunds () {
 
 function getSessions () {
     return _db.collection('sessions')
+}
+
+function getUsers () {
+    return _db.collection('users')
+}
+
+async function close () {
+    await _client.close()
 }

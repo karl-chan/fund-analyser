@@ -5,8 +5,20 @@ const _ = require('lodash')
 /**
  * A SessionDAO entry is represented by
  * {
- *  "sessionId": string,
- *   ... other key value (string) pairs
+ *  sessionId: string,
+ *  token?: {
+ *    user: string,
+ *    pass: string,
+ *    memorableWord: string,
+ *    name: string,
+ *    expiry: Date,
+ *    location: {
+ *      city: string,
+ *      region: string,
+ *      country: string,
+ *      ip: string
+ *    }
+ *  }
  * }
  */
 

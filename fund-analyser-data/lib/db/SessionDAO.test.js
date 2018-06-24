@@ -7,6 +7,9 @@ describe('SessionDAO', function () {
     beforeAll(async () => {
         await db.init()
     })
+    afterAll(async () => {
+        await db.close()
+    })
     beforeEach(function () {
         entry = {
             user: 'user',

@@ -13,17 +13,17 @@ export function removeUser ({commit}) {
 }
 
 export async function login ({commit, dispatch}, {user, pass, memorableWord, persist}) {
-  await authService
-    .login(user, pass, memorableWord, persist)
-    .then(({user}) => commit('setUser', user))
-    .then(() => dispatch('getActiveSessions'))
+  const {user: name} = await authService.login(user, pass, memorableWord, persist)
+  commit('setUser', name)
+  dispatch('getActiveSessions')
+  dispatch('account/init', null, {root: true})
 }
 
-export async function logout ({dispatch}) {
-  await authService
-    .logout()
-    .then(() => dispatch('removeUser'))
-    .then(() => dispatch('getActiveSessions'))
+export async function logout ({dispatch, commit}) {
+  await authService.logout()
+  dispatch('removeUser')
+  dispatch('getActiveSessions')
+  commit('account/reset', null, {root: true})
 }
 
 export async function getAuth ({commit}) {

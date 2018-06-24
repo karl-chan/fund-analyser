@@ -1,6 +1,7 @@
 
 const CharlesStanleyDirectAuth = require('../lib/auth/CharlesStanleyDirectAuth')
 const SessionDAO = require('../lib/db/SessionDAO')
+const UserDAO = require('../lib/db/UserDAO')
 const geolocation = require('../lib/util/geolocation')
 const log = require('../lib/util/log')
 const security = require('../lib/util/security')
@@ -31,6 +32,23 @@ const SESSION_CONFIG = {
 const jarCache = {} // {[sessionId: string]: jar: object}
 
 const csdAuth = new CharlesStanleyDirectAuth()
+
+const authorise = async function (ctx, next) {
+    const stillLoggedIn = await isLoggedIn(ctx)
+    if (!stillLoggedIn) {
+        ctx.status = 401
+        ctx.body = {error: 'Not logged in'}
+        return
+    }
+
+    // add information to ctx
+    const {jar} = getSession(ctx)
+    const {user, name} = getUser(ctx)
+    ctx.jar = jar
+    ctx.user = user
+    ctx.name = name
+    await next()
+}
 
 const createToken = function ({user, pass, memorableWord, name, persist, location}) {
     return {
@@ -76,6 +94,10 @@ const saveSession = function (ctx, {token, jar}) {
     if (jar) {
         ctx.session.jar = jar
     }
+}
+
+const saveUser = async function (user) {
+    return UserDAO.createUserIfNotExists(user)
 }
 
 const getSession = function (ctx) {
@@ -132,6 +154,7 @@ const login = async function (ctx, user, pass, memorableWord, persist) {
     await destroySession(ctx)
     const ip = extractIpAddress(ctx.req)
     log.debug('Extracted ip address: %s', ip)
+
     const [{jar, name}, location] = await Promise.all([
         csdAuth.login(user, pass, memorableWord),
         geolocation.getLocationByIp(ip)
@@ -140,6 +163,7 @@ const login = async function (ctx, user, pass, memorableWord, persist) {
 
     const token = createToken({user, pass, memorableWord, name, persist, location})
     saveSession(ctx, {token, jar})
+    saveUser(user)
     return {token, jar, name}
 }
 
@@ -182,17 +206,7 @@ const refreshToken = async function (ctx, token) {
 
 module.exports = {
     SESSION_CONFIG,
-    authorise: async (ctx, next) => {
-        const stillLoggedIn = await isLoggedIn(ctx)
-        if (!stillLoggedIn) {
-            ctx.status = 401
-            ctx.body = {error: 'Not logged in'}
-            return
-        }
-        const {jar} = getSession(ctx)
-        ctx.request.body = {...ctx.request.body, jar}
-        await next()
-    },
+    authorise,
     login,
     logout,
     isLoggedIn,

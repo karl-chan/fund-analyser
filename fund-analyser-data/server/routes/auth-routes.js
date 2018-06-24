@@ -29,13 +29,13 @@ router.post('/logout', async ctx => {
     log.info('Logout successful')
 })
 
-router.get('/get', async ctx => {
+router.get('/', async ctx => {
     const {name, expiry, location} = auth.getUser(ctx)
     const isLoggedIn = await auth.isLoggedIn(ctx)
     ctx.body = {user: name, isLoggedIn, expiry, location}
 })
 
-router.get('/get/sessions', async ctx => {
+router.get('/sessions', async ctx => {
     const {user} = auth.getUser(ctx)
     const sessionId = auth.getSessionId(ctx)
     const sessions = await auth.findSessionsForUser(user)
@@ -47,7 +47,7 @@ router.get('/get/sessions', async ctx => {
     }))
 })
 
-router.delete('/delete/session', async ctx => {
+router.delete('/session', async ctx => {
     if (!ctx.query.encryptedId) {
         ctx.status = 400
         return
