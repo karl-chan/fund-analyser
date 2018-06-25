@@ -25,7 +25,6 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
 
 export default {
   name: 'FundsSummary',
@@ -33,7 +32,7 @@ export default {
   created () {
     // save bandwidth on mobile, or else eagerly load latest data
     if (!this.$q.platform.is.mobile) {
-      this.getSummary()
+      this.$emit('requestSummary')
     }
   },
   data () {
@@ -79,8 +78,7 @@ export default {
     },
     exportCsv () {
       this.$refs.fundsTable.exportCsv()
-    },
-    ...mapActions('funds', ['getSummary'])
+    }
   }
 }
 </script>

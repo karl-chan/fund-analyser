@@ -7,7 +7,7 @@ const router = new Router({
     prefix: FUNDS_URL_PREFIX
 })
 
-router.get('/:isin', async ctx => {
+router.get('/fund/:isin', async ctx => {
     const query = {isin: ctx.params.isin}
     const options = {
         projection: {_id: 0}
