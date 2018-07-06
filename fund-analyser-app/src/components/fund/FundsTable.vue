@@ -33,7 +33,7 @@ export default {
         { headerName: '1W', field: 'returns.1W', width: 65 },
         { headerName: '3D', field: 'returns.3D', width: 65 },
         { headerName: '1D', field: 'returns.1D', sort: 'desc', width: 65 },
-        { headerName: '+1D', field: 'realTimeDetails.estChange', width: 65 },
+        { headerName: '+1D', field: 'returns.+1D', width: 65 },
         { headerName: 'Type', field: 'type', width: 70 },
         { headerName: 'Share Class', field: 'shareClass', width: 60 },
         { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 70 },
@@ -82,7 +82,7 @@ export default {
       if (!this.funds || !this.funds.length) {
         return []
       }
-      const { meanReturns, medianReturns, stddevReturns } = this.$utils.fund.calcStats(this.funds)
+      const { meanReturns, medianReturns, stddevReturns } = this.$utils.fund.calcStats(this.enrichedFunds)
       return [
         {isin: 'Mean returns', returns: meanReturns},
         {isin: 'Median returns', returns: medianReturns},
@@ -96,6 +96,10 @@ export default {
       this.updateColDefs(params)
     },
     onRowDoubleClicked (params) {
+      const notApplicable = this.isRowPinned(params)
+      if (notApplicable) {
+        return
+      }
       this.$utils.router.redirectToFund(params.data.isin, {newTab: true})
     },
     getContextMenuItems (params) {
@@ -129,9 +133,9 @@ export default {
     },
     updateColDefs (params) {
       const returnsFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
-        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'realTimeDetails.estChange'])
+        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D'])
       const percentFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
-        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'realTimeDetails.estChange',
+        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D',
         'bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge'])
       const numberFields = new Set(['stability'])
       const dateFields = new Set(['asof'])
