@@ -9,13 +9,16 @@
           q-btn(color="orange" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/funds/tearsheet/summary?s=' + fund.isin)")
         div
           q-btn(color="indigo-7" icon="open_in_new" label="Open in CSD" @click="openURL('https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=' + fund.sedol)")
+        div
+          q-btn(flat round color="amber" size="xl" :icon="favouriteIcon" :disable="isFavourite"
+                @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false")
 
-      fund-info-bar(:fund="fund" :realTimeDetails="realTimeDetails")
+      fund-info-bar(:fund="fund")
       .row.gutter-x-sm.q-mt-xl
         .col-md-8
-          fund-chart(:fund="fund" :realTimeDetails="realTimeDetails")
+          fund-chart(:fund="fund")
         .col-md-4
-          fund-holdings(:realTimeDetails="realTimeDetails")
+          fund-holdings(:fund="fund")
       .row.q-mt-sm
         fund-charges(:fund="fund")
     template(v-else)
@@ -27,66 +30,48 @@
 <script>
 import { openURL } from 'quasar'
 import { mapActions, mapGetters } from 'vuex'
-import Vue from 'vue'
 
 export default {
   name: 'FundPage',
   props: ['isin'],
   beforeRouteEnter (to, from, next) {
     next(vm => {
-      Vue.nextTick(function () {
-        vm.lazyGet(to.params.isin)
-        vm.startRealTimeUpdates(to.params.isin)
-      })
+      vm.lazyGet(to.params.isin)
     })
   },
   beforeRouteUpdate (to, from, next) {
-    Vue.nextTick(function () {
-      this.stopRealTimeUpdates(from.params.isin)
-      this.lazyGet(to.params.isin)
-      this.startRealTimeUpdates(to.params.isin)
-    })
     next()
-  },
-  beforeRouteLeave (to, from, next) {
-    Vue.nextTick(function () {
-      this.stopRealTimeUpdates(from.params.isin)
-    })
-    next()
+    this.lazyGet(to.params.isin)
   },
   data () {
     return {
-      refreshing: false
+      refreshing: false,
+      hoveringFavouriteIcon: false
     }
   },
   computed: {
     fund: function () {
       return this.lookupFund()(this.isin)
     },
-    realTimeDetails: function () {
-      return this.lookupRealTimeDetails()(this.isin)
+    isFavourite: function () {
+      return this.inWatchlist()(this.isin)
+    },
+    favouriteIcon: function () {
+      return this.isFavourite || this.hoveringFavouriteIcon ? 'star' : 'star_outline'
     }
   },
   methods: {
     openURL,
-    ...mapActions(
-      'funds', [
-        'get',
-        'lazyGet',
-        'startRealTimeUpdates',
-        'stopRealTimeUpdates'
-      ]
-    ),
-    ...mapGetters(
-      'funds', [
-        'lookupFund',
-        'lookupRealTimeDetails'
-      ]
-    ),
+    ...mapActions('funds', [ 'get', 'lazyGet', 'startRealTimeUpdates', 'stopRealTimeUpdates' ]),
+    ...mapGetters('funds', [ 'lookupFund' ]),
+    ...mapGetters('account', ['inWatchlist']),
     async refreshFund () {
       this.refreshing = true
       await this.get(this.isin)
       this.refreshing = false
+    },
+    onFavouriteIconHovering (isMouseEnter) {
+      this.hoveringFavouriteIcon = isMouseEnter
     }
   }
 }

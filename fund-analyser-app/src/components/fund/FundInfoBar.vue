@@ -2,16 +2,15 @@
   div
     .column.gutter-y-xs(v-if="fund")
       // real time details
-      .row.items-center.gutter-md(v-if="realTimeDetails")
+      .row.items-center.gutter-md(v-if="fund.realTimeDetails")
         .row.items-center Today's change (estimate):
-          |
-          span.text-weight-bold.q-headline(:class="colour(realTimeDetails.estChange)") {{ formatPercentage(realTimeDetails.estChange) }}
-        div New price (est): {{ formatNumber(realTimeDetails.estPrice) }}
-        div Std dev: {{ formatPercentage(realTimeDetails.stdev) }}
+          span.text-weight-bold.q-headline.q-ml-sm(:class="colour(fund.realTimeDetails.estChange)") {{ formatPercentage(fund.realTimeDetails.estChange) }}
+        div New price (est): {{ formatNumber(fund.realTimeDetails.estPrice) }}
+        div Std dev: {{ formatPercentage(fund.realTimeDetails.stdev) }}
         div 95% Confidence interval:
           |
-          | ({{ formatPercentage(realTimeDetails.ci[0]) }},
-          | {{ formatPercentage(realTimeDetails.ci[1]) }})
+          | ({{ formatPercentage(fund.realTimeDetails.ci[0]) }},
+          | {{ formatPercentage(fund.realTimeDetails.ci[1]) }})
 
       // historic returns summary
       .row.items-center.gutter-xs
@@ -31,7 +30,7 @@
 <script>
 export default {
   name: 'FundInfoBar',
-  props: ['fund', 'realTimeDetails'],
+  props: ['fund'],
   computed: {
     lastHistoricPrice: function () {
       return this.fund.historicPrices[this.fund.historicPrices.length - 1] || {date: undefined, price: undefined}

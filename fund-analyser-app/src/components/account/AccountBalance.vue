@@ -17,9 +17,12 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex'
+import get from 'lodash/get'
+
 export default {
   name: 'AccountBalance',
-  props: ['user', 'balance', 'realTimeDetails'],
+  props: ['user', 'balance'],
   data () {
     return {
       columnDefs: [
@@ -66,13 +69,16 @@ export default {
       }
       return this.balance.holdings.map(h => {
         const isin = h.ISIN
-        const realTimeEstPercent = isin in this.realTimeDetails ? this.realTimeDetails[isin]['estChange'] : undefined
+        const fund = this.lookupFund()(isin)
+        const realTimeEstPercent = get(fund, 'realTimeDetails.estChange')
         const realTimeEst = h.MktValue * realTimeEstPercent
         return {...h, realTimeEst, realTimeEstPercent}
       })
     }
   },
   methods: {
+    ...mapActions('funds', ['lazyGet']),
+    ...mapGetters('funds', ['lookupFund']),
     onGridReady (params) {
       this.updateColDefs(params)
     },
@@ -104,6 +110,12 @@ export default {
         return colDef
       })
       params.api.setColumnDefs(newColDefs)
+    }
+  },
+  watch: {
+    balance: function (newBalance) {
+      const isins = this.$utils.account.getIsins(newBalance)
+      isins.forEach(this.lazyGet)
     }
   }
 

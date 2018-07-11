@@ -16,7 +16,7 @@
 import { openURL } from 'quasar'
 export default {
   name: 'FundHoldings',
-  props: ['realTimeDetails'],
+  props: ['fund'],
   data () {
     return {
       pagination: {
@@ -31,7 +31,7 @@ export default {
   },
   computed: {
     rowData: function () {
-      return (this.realTimeDetails && this.realTimeDetails.holdings) || []
+      return (this.fund.realTimeDetails && this.fund.realTimeDetails.holdings) || []
     }
   },
   methods: {

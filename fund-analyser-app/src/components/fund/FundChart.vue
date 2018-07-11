@@ -8,14 +8,14 @@
 
 export default {
   name: 'FundChart',
-  props: ['fund', 'realTimeDetails'],
+  props: ['fund'],
   computed: {
     chartOptions: function () {
-      return this.buildChartOptions(this.fund, this.realTimeDetails)
+      return this.buildChartOptions(this.fund)
     }
   },
   methods: {
-    buildChartOptions (fund, realTimeDetails) {
+    buildChartOptions (fund) {
       const opts = {
         chart: {
           zoomType: 'x'
@@ -37,15 +37,15 @@ export default {
           enabled: false
         }
       }
-      if (realTimeDetails) {
+      if (fund.realTimeDetails) {
         opts.yAxis = {
           plotLines: [{
-            value: realTimeDetails.estPrice,
+            value: fund.realTimeDetails.estPrice,
             color: 'green',
             dashStyle: 'shortdash',
             width: 2,
             label: {
-              text: `Est. price ${this.formatNumber(realTimeDetails.estPrice)}`
+              text: `Est. price ${this.formatNumber(fund.realTimeDetails.estPrice)}`
             }
           }]
         }
