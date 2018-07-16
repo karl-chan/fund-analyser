@@ -3,29 +3,43 @@
     div(v-if="user")
       account-balance(:user="user" :balance="balance")
     div
-      fund-watch-list(:watchlist="watchedFunds")
+      fund-watch-list(:watchlist="watchlist")
     div
-      funds-summary(:summary="summary" @requestSummary="getSummary")
+      funds-summary(:summary="summary" :summaryRequestHandler="getSummary")
 </template>
 
 <script>
-import { mapState, mapActions, mapGetters } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 export default {
   name: 'HomePage',
   computed: {
     ...mapState('account', ['watchlist']),
+    ...mapState('account', {
+      balance: state => state.charlesStanleyDirect.balance
+    }),
     ...mapState('auth', ['user']),
     ...mapState('funds', ['favouriteIsins', 'summary']),
-    balance: function () {
-      return this.lookupBalance()
-    },
     watchedFunds: function () {
-      return this.summary.filter(fund => this.watchlist.includes(fund.isin))
+      return this.watchlist.map(isin => this.lookupFund()(isin))
     }
   },
   methods: {
-    ...mapGetters('account', ['lookupBalance']),
-    ...mapActions('funds', ['getSummary'])
+    ...mapActions('funds', ['getSummary', 'lazyGet'])
+  },
+  watch: {
+    balance: {
+      immediate: true,
+      handler (newBalance) {
+        const isins = this.$utils.account.getIsins(newBalance)
+        isins.forEach(this.lazyGet)
+      }
+    },
+    watchlist: {
+      immediate: true,
+      handler (newWatchlist) {
+        newWatchlist.forEach(this.lazyGet)
+      }
+    }
   }
 }
 </script>

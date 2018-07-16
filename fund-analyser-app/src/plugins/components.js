@@ -4,6 +4,7 @@ import ActiveSessions from 'components/auth/ActiveSessions'
 import FundSearch from 'components/fund/FundSearch'
 import FundInfoBar from 'components/fund/FundInfoBar'
 import FundChart from 'components/fund/FundChart'
+import FundChartGrid from 'components/fund/FundChartGrid'
 import FundCharges from 'components/fund/FundCharges'
 import FundHoldings from 'components/fund/FundHoldings'
 import FundsTable from 'components/fund/FundsTable'
@@ -22,6 +23,7 @@ export default ({ Vue }) => {
   Vue.component('fund-search', FundSearch)
   Vue.component('fund-info-bar', FundInfoBar)
   Vue.component('fund-chart', FundChart)
+  Vue.component('fund-chart-grid', FundChartGrid)
   Vue.component('fund-charges', FundCharges)
   Vue.component('fund-holdings', FundHoldings)
   Vue.component('funds-table', FundsTable)

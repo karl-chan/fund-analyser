@@ -17,8 +17,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
-import get from 'lodash/get'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'AccountBalance',
@@ -28,8 +27,8 @@ export default {
       columnDefs: [
         { headerName: 'ISIN', hide: true, field: 'ISIN', width: 100 },
         { headerName: 'Name', field: 'Description', width: 250 },
-        { headerName: '% Real Time Est', field: 'realTimeEstPercent', width: 80, valueFormatter: this.percentFormatter, cellClass: this.colourNumberBoldStyler },
-        { headerName: 'Real Time Est', field: 'realTimeEst', width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
+        { headerName: '% Real Time Est', valueGetter: this.realTimeEstPctGetter, width: 80, valueFormatter: this.percentFormatter, cellClass: this.colourNumberBoldStyler },
+        { headerName: 'Real Time Est', valueGetter: this.realTimeEstGetter, width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
         { headerName: '% Day Change', field: 'PricePercentChange', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberBoldStyler },
         { headerName: 'Day Change', width: 80, valueGetter: this.dayChangeGetter, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
         { headerName: '% Total Change', field: 'PercentChangeInValue', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberBoldStyler },
@@ -64,20 +63,10 @@ export default {
   },
   computed: {
     holdings: function () {
-      if (!this.balance || !this.balance.holdings) {
-        return []
-      }
-      return this.balance.holdings.map(h => {
-        const isin = h.ISIN
-        const fund = this.lookupFund()(isin)
-        const realTimeEstPercent = get(fund, 'realTimeDetails.estChange')
-        const realTimeEst = h.MktValue * realTimeEstPercent
-        return {...h, realTimeEst, realTimeEstPercent}
-      })
+      return (this.balance && this.balance.holdings) || []
     }
   },
   methods: {
-    ...mapActions('funds', ['lazyGet']),
     ...mapGetters('funds', ['lookupFund']),
     onGridReady (params) {
       this.updateColDefs(params)
@@ -103,6 +92,14 @@ export default {
     dayChangeGetter (params) {
       return params.data.MktValue - params.data.MktValue / (1 + params.data.PricePercentChange / 100)
     },
+    realTimeEstPctGetter (params) {
+      const isin = params.data.ISIN
+      const fund = this.lookupFund()(isin)
+      return fund && fund.realTimeDetails && fund.realTimeDetails.estChange
+    },
+    realTimeEstGetter (params) {
+      return params.data.MktValue * this.realTimeEstPctGetter(params)
+    },
     updateColDefs (params) {
       const newColDefs = params.columnApi.getAllColumns().map(col => {
         const colDef = col.getColDef()
@@ -111,14 +108,7 @@ export default {
       })
       params.api.setColumnDefs(newColDefs)
     }
-  },
-  watch: {
-    balance: function (newBalance) {
-      const isins = this.$utils.account.getIsins(newBalance)
-      isins.forEach(this.lazyGet)
-    }
   }
-
 }
 </script>
 

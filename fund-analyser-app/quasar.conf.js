@@ -95,7 +95,8 @@ module.exports = function (ctx) {
         'QTableColumns',
         'QSpinner',
         'QSpinnerFacebook',
-        'QAjaxBar'
+        'QAjaxBar',
+        'QSlideTransition'
       ],
       directives: [
         'Ripple'

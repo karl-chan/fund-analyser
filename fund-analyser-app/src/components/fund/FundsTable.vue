@@ -3,7 +3,7 @@
     ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="enrichedFunds || []"
                 :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked"
                 :getContextMenuItems="getContextMenuItems" :gridOptions="gridOptions"
-                :style="{height}" :gridAutoHeight="!height")
+                :style="{height}" :gridAutoHeight="!height" :rowClicked="onRowSelected")
 
     .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
       // transclude empty view here
@@ -16,7 +16,7 @@ import { mapState, mapActions } from 'vuex'
 
 export default {
   name: 'FundsTable',
-  props: ['funds', 'filterText', 'showPinnedRows', 'showEmptyView', 'height'],
+  props: ['funds', 'filterText', 'showPinnedRows', 'showEmptyView', 'height', 'highlightIsin', 'rowSelectedHandler'],
   data () {
     return {
       columnDefs: [
@@ -47,6 +47,7 @@ export default {
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ],
       gridOptions: {
+        context: this,
         cacheQuickFilter: true,
         enableColResize: true,
         enableFilter: true,
@@ -61,9 +62,16 @@ export default {
           cursor: 'pointer'
         },
         getRowClass: function (params) {
+          let classes = []
           if (params.node.rowPinned) {
-            return ['text-bold', 'bg-dark', 'text-white']
+            const pinnedClasses = ['text-bold', 'bg-dark', 'text-white']
+            classes = [...classes, ...pinnedClasses]
           }
+          if (params.data.isin === params.context.highlightIsin) {
+            const highlightClasses = ['bg-yellow']
+            classes = [...classes, ...highlightClasses]
+          }
+          return classes
         }
       }
     }
@@ -95,6 +103,11 @@ export default {
     onGridReady (params) {
       this.updateColDefs(params)
     },
+    onRowSelected (params) {
+      if (this.rowSelectedHandler) {
+        this.rowSelectedHandler(params)
+      }
+    },
     onRowDoubleClicked (params) {
       const notApplicable = this.isRowPinned(params)
       if (notApplicable) {
@@ -112,7 +125,7 @@ export default {
       const isFavourite = this.watchlist.includes(isin)
       return [
         {
-          name: 'Add to favourites',
+          name: 'Add to watch list',
           icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
           action: () => {
             this.addToWatchlist(isin)
@@ -120,7 +133,7 @@ export default {
           disabled: isFavourite
         },
         {
-          name: 'Remove from favourites',
+          name: 'Remove from watch list',
           icon: '<i class="q-icon material-icons text-dark" style="font-size:15px" aria-hidden="true">star_border</i>',
           action: () => {
             this.removeFromWatchlist(isin)
@@ -236,6 +249,9 @@ export default {
     },
     filterText: function (text) {
       this.gridOptions.api.setQuickFilter(text)
+    },
+    highlightIsin: function (isin) {
+      this.gridOptions.api.redrawRows()
     }
   }
 }

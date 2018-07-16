@@ -28,11 +28,11 @@
 
 export default {
   name: 'FundsSummary',
-  props: ['summary'],
+  props: ['summary', 'summaryRequestHandler'],
   created () {
     // save bandwidth on mobile, or else eagerly load latest data
     if (!this.$q.platform.is.mobile) {
-      this.$emit('requestSummary')
+      this.requestSummary()
     }
   },
   data () {
@@ -64,7 +64,7 @@ export default {
   methods: {
     async startDownload () {
       this.downloading = true
-      await this.$emit('requestSummary')
+      await this.requestSummary()
       this.downloading = false
     },
     filter (text) {
@@ -78,6 +78,9 @@ export default {
     },
     exportCsv () {
       this.$refs.fundsTable.exportCsv()
+    },
+    async requestSummary () {
+      await this.summaryRequestHandler()
     }
   }
 }
