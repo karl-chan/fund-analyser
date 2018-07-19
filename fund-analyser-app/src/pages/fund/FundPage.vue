@@ -10,7 +10,8 @@
         div
           q-btn(color="indigo-7" icon="open_in_new" label="Open in CSD" @click="openURL('https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=' + fund.sedol)")
         div
-          q-btn(flat round color="amber" size="xl" :icon="favouriteIcon" :disable="isFavourite"
+          q-icon.q-ml-md(v-if="isFavourite" color="amber" name="star" size="40px")
+          q-btn(v-else flat round color="amber" size="xl" :icon="favouriteIcon"
                 @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false")
 
       fund-info-bar(:fund="fund")

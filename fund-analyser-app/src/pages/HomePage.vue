@@ -1,6 +1,6 @@
 <template lang="pug">
   q-page.column.gutter-y-md(padding)
-    div(v-if="user")
+    div
       account-balance(:user="user" :balance="balance")
     div
       fund-watch-list(:watchlist="watchlist")

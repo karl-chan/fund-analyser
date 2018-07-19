@@ -7,7 +7,7 @@
         q-btn.q-ml-xl(v-if="dataReady" outline color="red" @click="clearWatchlist") Remove all
 
       .row
-        q-btn(glossy icon="show_chart" color="secondary" @click="toggleCharts")
+        q-btn(v-if="dataReady" glossy icon="show_chart" color="secondary" @click="toggleCharts")
 
     // actual table
     funds-table(:funds="funds" :showEmptyView="!dataReady" :highlightIsin="selectedIsin" :rowSelectedHandler="onRowSelected")

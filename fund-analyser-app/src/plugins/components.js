@@ -15,6 +15,7 @@ import AppDrawer from 'components/layout/AppDrawer'
 import AppHeader from 'components/layout/AppHeader'
 
 import TipOfTheDay from 'components/misc/TipOfTheDay'
+import RecentlyViewedList from 'components/misc/RecentlyViewedList'
 
 export default ({ Vue }) => {
   Vue.component('account-balance', AccountBalance)
@@ -30,6 +31,7 @@ export default ({ Vue }) => {
   Vue.component('funds-summary', FundsSummary)
   Vue.component('fund-watch-list', FundWatchList)
   Vue.component('tip-of-the-day', TipOfTheDay)
+  Vue.component('recently-viewed-list', RecentlyViewedList)
 
   Vue.component('app-drawer', AppDrawer)
   Vue.component('app-header', AppHeader)
