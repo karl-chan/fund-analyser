@@ -23,6 +23,8 @@
           .q-title {{ lastHistoricPrice.price }}
         div Historic prices as of:
           .q-title {{ $utils.format.formatDateLong(lastHistoricPrice.date) }}
+        div(v-if="fund.realTimeDetails") Real time estimate as of:
+          .q-title {{ $utils.format.formatFromNow(fund.realTimeDetails.lastUpdated) }}
     div(v-else)
       q-icon(name="info") No information available
 </template>

@@ -4,7 +4,6 @@ const db = require('../../lib/util/db.js')
 
 /**
  * Create index on popular fields for sorting
- * @param callback
  */
 async function createIndex () {
     await db.getFunds().dropIndexes()

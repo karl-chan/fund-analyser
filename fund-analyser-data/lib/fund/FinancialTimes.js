@@ -256,7 +256,7 @@ FinancialTimes.prototype.getRealTimeDetails = async fund => {
         return {name: h.name, ticker: h.symbol, todaysChange: change, weight: h.weight}
     }))
 
-    const realTimeDetails = { holdings: todaysChanges }
+    const realTimeDetails = { holdings: todaysChanges, lastUpdated: new Date() }
     return math.enrichRealTimeDetails(realTimeDetails, fund)
 }
 

@@ -7,7 +7,8 @@
     "download": "node scripts/main.js -r downloadCsv",
     "createIndex": "node scripts/main.js -r createIndex",
     "updateFunds": "node scripts/main.js -r updateFunds",
-    "updateCatalog": "node scripts/main.js -r updateCatalog",
+    "updateCatalog": "node scripts/main.js -r updateCatalog",    
+    "dynoHealthcheck": "node scripts/main.js -r dynoHealthcheck",
     "server": "node server/server.js",
     "server.dev": "nodemon --inspect server/server.js",
     "test": "jest"
@@ -33,6 +34,7 @@
     "commander": "2.16.0",
     "crypto-js": "3.1.9-1",
     "express": "4.16.3",
+    "heroku-client": "3.0.6",
     "jStat": "1.7.1",
     "json2csv": "4.1.6",
     "json2csv-stream": "0.1.4",

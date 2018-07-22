@@ -1,7 +1,6 @@
-import { date, colors } from 'quasar'
+import { colors } from 'quasar'
 import moment from 'moment'
 
-const { formatDate } = date
 const { lighten } = colors
 const [red, green] = ['#f44336', '#4caf50']
 
@@ -40,24 +39,27 @@ export default {
   },
 
   formatDateShort (date, withDashes, fallbackValue) {
-    if (date == null) {
-      return this.fallbackDisplay(fallbackValue)
-    }
     const format = withDashes ? 'YYYY-MM-DD' : 'YYYYMMDD'
-    return formatDate(date, format)
+    return this.formatDate(date, format, fallbackValue)
   },
 
   formatDateLong (date, fallbackValue) {
-    if (date == null) {
+    return this.formatDate(date, 'dddd, DD MMM YYYY', fallbackValue)
+  },
+
+  formatDate (date, pattern, fallbackValue) {
+    const d = moment(date)
+    if (!d.isValid()) {
       return this.fallbackDisplay(fallbackValue)
     }
-    return formatDate(date, 'dddd, DD MMM YYYY')
+    return d.format(pattern)
   },
 
   formatFromNow (date, fallbackValue) {
-    if (date == null) {
+    const d = moment(date)
+    if (!d.isValid()) {
       return this.fallbackDisplay(fallbackValue)
     }
-    return moment(date).fromNow()
+    return d.fromNow()
   }
 }

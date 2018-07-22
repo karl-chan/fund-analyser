@@ -10,6 +10,7 @@ const updateCatalog = require('./tasks/updateCatalog.js')
 const createIndex = require('./tasks/createIndex.js')
 const repairDatabase = require('./tasks/repairDatabase.js')
 const downloadCsv = require('./tasks/downloadCsv.js')
+const dynoHealthcheck = require('./tasks/dynoHealthcheck.js')
 
 function Main () {
 }
@@ -19,7 +20,8 @@ Main.tasks = {
     'updateFunds': updateFunds,
     'createIndex': createIndex,
     'repairDatabase': repairDatabase,
-    'downloadCsv': downloadCsv
+    'downloadCsv': downloadCsv,
+    'dynoHealthcheck': dynoHealthcheck
 }
 
 if (require.main === module) {
