@@ -3,9 +3,9 @@ import dateUtils from './../../utils/date-utils'
 import router from './../../router'
 
 export async function get ({commit}, isin) {
-  await fundService.get(isin)
-    .then(fundService.setExpiry)
-    .then(fund => commit('addFund', fund))
+  const fund = await fundService.get(isin)
+  commit('addFund', fund)
+  return fund
 }
 
 export async function lazyGet ({dispatch, getters}, isin) {
@@ -13,10 +13,10 @@ export async function lazyGet ({dispatch, getters}, isin) {
   if (cachedFund) {
     const upToDate = !dateUtils.isBeforeToday(cachedFund.asof)
     if (upToDate) {
-      return
+      return cachedFund
     }
   }
-  await dispatch('get', isin)
+  return dispatch('get', isin)
 }
 export function remove ({commit, rootState}, isin) {
   commit('removeFund', isin)
@@ -31,6 +31,7 @@ export function removeAll ({commit, dispatch, state}) {
 }
 
 export async function getSummary ({commit}) {
-  await fundService.getSummary()
-    .then(fundsSummary => commit('setSummary', fundsSummary))
+  const summary = await fundService.getSummary()
+  commit('setSummary', summary)
+  return summary
 }

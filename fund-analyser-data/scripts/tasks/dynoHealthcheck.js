@@ -5,6 +5,7 @@ const moment = require('moment')
 
 const heroku = require('../../lib/util/heroku.js')
 const http = require('../../lib/util/http')
+const log = require('../../lib/util/log.js')
 
 const idleThreshold = moment.duration(5, 'minutes')
 const dyno = 'worker'
@@ -19,7 +20,7 @@ async function dynoHealthcheck () {
 
     const cutoffTime = moment().subtract(idleThreshold)
     if (!lastActivity || lastActivity.isBefore(cutoffTime)) {
-        console.log(`Restarting dyno since last activity was ${lastActivity}`)
+        log.info(`Restarting dyno since last activity was %s`, lastActivity)
         await restartDyno(client)
     }
 }
@@ -27,7 +28,8 @@ async function dynoHealthcheck () {
 async function getLogs (client) {
     const res = await client.post(`/apps/${heroku.appName}/log-sessions`, {
         body: {
-            dyno
+            dyno,
+            lines: 1500
         }
     })
     const url = res.logplex_url
@@ -43,11 +45,11 @@ function getLatestTimestamp (logs) {
         })
         return moment(lastLine.split(' ')[0])
     } catch (err) {
+        log.error('Failed to get latest timestamp from logs. Cause: %s', err.stack)
         return undefined
     }
 }
 
 async function restartDyno (client) {
-    const res = await client.delete(`/apps/${heroku.appName}/dynos/${dyno}`)
-    console.log(res)
+    await client.delete(`/apps/${heroku.appName}/dynos/${dyno}`)
 }

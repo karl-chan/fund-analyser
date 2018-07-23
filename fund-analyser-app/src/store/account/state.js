@@ -2,5 +2,6 @@ export default {
   charlesStanleyDirect: {
     balance: null
   },
-  watchlist: [] // [isin: string]
+  watchlist: [], // [isin: string]
+  recentlyViewed: [] // [isin: string]
 }

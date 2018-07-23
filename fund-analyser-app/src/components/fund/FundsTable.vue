@@ -90,11 +90,11 @@ export default {
       if (!this.funds || !this.funds.length) {
         return []
       }
-      const { meanReturns, medianReturns, stddevReturns } = this.$utils.fund.calcStats(this.enrichedFunds)
+      const { maxReturns, minReturns, medianReturns } = this.$utils.fund.calcStats(this.enrichedFunds)
       return [
-        {isin: 'Mean returns', returns: meanReturns},
+        {isin: 'Max returns', returns: maxReturns},
         {isin: 'Median returns', returns: medianReturns},
-        {isin: 'Stddev returns', returns: stddevReturns}
+        {isin: 'Min returns', returns: minReturns}
       ]
     }
   },

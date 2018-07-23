@@ -7,7 +7,7 @@ export async function init ({dispatch}) {
   ])
 }
 
-export async function getBalance ({commit, dispatch}) {
+export async function getBalance ({commit}) {
   const {balance} = await accountService.getBalance()
   commit('saveCsdBalance', balance)
 }
@@ -43,11 +43,27 @@ export async function removeFromWatchlist ({commit, state}, isin) {
   }
 }
 
-export async function clearWatchlist ({commit, state}, isin) {
+export async function clearWatchlist ({commit}) {
   commit('setWatchlist', [])
   try {
     await accountService.clearWatchlist()
   } catch (ignored) {
     // user not logged in
   }
+}
+
+export async function addToRecentlyViewed ({commit, state, getters}, {isin, name}) {
+  if (!getters.recentlyViewedIsins.includes(isin)) {
+    commit('setRecentlyViewed', state.recentlyViewed.concat([{isin, name}]))
+  }
+}
+
+export async function removeFromRecentlyViewed ({commit, state, getters}, isin) {
+  if (getters.recentlyViewedIsins.includes(isin)) {
+    commit('setRecentlyViewed', state.recentlyViewed.filter(e => e.isin !== isin))
+  }
+}
+
+export async function clearRecentlyViewed ({commit}) {
+  commit('setRecentlyViewed', [])
 }

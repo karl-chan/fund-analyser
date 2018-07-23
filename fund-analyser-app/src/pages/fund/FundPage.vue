@@ -36,13 +36,15 @@ export default {
   name: 'FundPage',
   props: ['isin'],
   beforeRouteEnter (to, from, next) {
-    next(vm => {
-      vm.lazyGet(to.params.isin)
+    next(async vm => {
+      const fund = await vm.lazyGet(to.params.isin)
+      vm.addToRecentlyViewed({isin: fund.isin, name: fund.name})
     })
   },
-  beforeRouteUpdate (to, from, next) {
+  async beforeRouteUpdate (to, from, next) {
     next()
-    this.lazyGet(to.params.isin)
+    const fund = this.lazyGet(to.params.isin)
+    this.addToRecentlyViewed({isin: fund.isin, name: fund.name})
   },
   data () {
     return {
@@ -63,9 +65,10 @@ export default {
   },
   methods: {
     openURL,
-    ...mapActions('funds', [ 'get', 'lazyGet', 'startRealTimeUpdates', 'stopRealTimeUpdates' ]),
-    ...mapGetters('funds', [ 'lookupFund' ]),
+    ...mapActions('account', ['addToRecentlyViewed']),
     ...mapGetters('account', ['inWatchlist']),
+    ...mapActions('funds', [ 'get', 'lazyGet' ]),
+    ...mapGetters('funds', [ 'lookupFund' ]),
     async refreshFund () {
       this.refreshing = true
       await this.get(this.isin)

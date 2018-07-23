@@ -5,8 +5,11 @@ export default new VuexPersistence({
   strictMode: true,
   storage: localForage,
   reducer: state => ({
+    account: {
+      watchlist: state.account.watchlist,
+      recentlyViewed: state.account.recentlyViewed
+    },
     funds: {
-      favouriteIsins: state.funds.favouriteIsins,
       loaded: state.funds.loaded,
       summary: state.funds.summary
     }})
