@@ -12,7 +12,8 @@
         div
           q-icon.q-ml-md(v-if="isFavourite" color="amber" name="star" size="40px")
           q-btn(v-else flat round color="amber" size="xl" :icon="favouriteIcon"
-                @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false")
+                @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false"
+                @click="addToWatchlist(fund.isin)")
 
       fund-info-bar(:fund="fund")
       .row.gutter-x-sm.q-mt-xl
@@ -65,7 +66,7 @@ export default {
   },
   methods: {
     openURL,
-    ...mapActions('account', ['addToRecentlyViewed']),
+    ...mapActions('account', ['addToRecentlyViewed', 'addToWatchlist']),
     ...mapGetters('account', ['inWatchlist']),
     ...mapActions('funds', [ 'get', 'lazyGet' ]),
     ...mapGetters('funds', [ 'lookupFund' ]),
