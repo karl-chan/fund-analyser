@@ -120,8 +120,7 @@ CharlesStanleyDirect.prototype.healthCheck = function (callback) {
         if (err) {
             return callback(err)
         }
-        const isDown = body.toLowerCase().includes('Unavailable')
-        console.log(body)
+        const isDown = body.toLowerCase().includes('unavailable')
         return callback(null, !isDown)
     })
 }

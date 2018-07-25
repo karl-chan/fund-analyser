@@ -3,5 +3,8 @@ export default {
     'Double click on table rows to open details',
     'Press down arrow to show summary statistics',
     'Sign in for Charles Stanley Direct account integration'
-  ]
+  ],
+  health: {
+    charlesStanleyDirect: null
+  }
 }

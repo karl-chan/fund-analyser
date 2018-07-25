@@ -11,7 +11,7 @@
 <script>
 import { mapActions, mapState } from 'vuex'
 export default {
-  name: 'RecentlyViewedList',
+  name: 'FundRecentlyViewedList',
   computed: {
     ...mapState('account', ['recentlyViewed'])
   },

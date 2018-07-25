@@ -17,6 +17,7 @@ const auth = require('./auth')
 const accountRoutes = require('./routes/account-routes')
 const authRoutes = require('./routes/auth-routes')
 const fundsRoutes = require('./routes/funds-routes')
+const miscRoutes = require('./routes/misc-routes')
 
 const PORT = process.env.PORT || properties.get('server.default.port')
 
@@ -37,6 +38,7 @@ app.use(serve(path.resolve(__dirname, '../../fund-analyser-app/dist/spa-mat')))
 app.use(accountRoutes.routes())
 app.use(authRoutes.routes())
 app.use(fundsRoutes.routes())
+app.use(miscRoutes.routes())
 
 const cleanupEvery = (frequency) => {
     const cleanup = () => {

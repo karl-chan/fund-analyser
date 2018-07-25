@@ -2,7 +2,7 @@
   q-layout-drawer(v-model="drawerOpen" content-class="bg-grey-2")
     q-list(no-border link inset-delimiter)
       template(v-if="recentlyViewedIsins.length")
-        recently-viewed-list
+        fund-recently-viewed-list
         q-item-separator
       q-list-header Links
       q-item(@click.native="openURL('https://www.charles-stanley-direct.co.uk/')")

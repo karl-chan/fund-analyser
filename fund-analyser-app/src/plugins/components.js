@@ -9,13 +9,14 @@ import FundCharges from 'components/fund/FundCharges'
 import FundHoldings from 'components/fund/FundHoldings'
 import FundsTable from 'components/fund/FundsTable'
 import FundsSummary from 'components/fund/FundsSummary'
+import FundRecentlyViewedList from 'components/fund/FundRecentlyViewedList'
 import FundWatchList from 'components/fund/FundWatchList'
 
 import AppDrawer from 'components/layout/AppDrawer'
 import AppHeader from 'components/layout/AppHeader'
 
+import Healthcheck from 'components/misc/Healthcheck'
 import TipOfTheDay from 'components/misc/TipOfTheDay'
-import RecentlyViewedList from 'components/misc/RecentlyViewedList'
 
 export default ({ Vue }) => {
   Vue.component('account-balance', AccountBalance)
@@ -29,9 +30,11 @@ export default ({ Vue }) => {
   Vue.component('fund-holdings', FundHoldings)
   Vue.component('funds-table', FundsTable)
   Vue.component('funds-summary', FundsSummary)
+  Vue.component('fund-recently-viewed-list', FundRecentlyViewedList)
   Vue.component('fund-watch-list', FundWatchList)
+
+  Vue.component('healthcheck', Healthcheck)
   Vue.component('tip-of-the-day', TipOfTheDay)
-  Vue.component('recently-viewed-list', RecentlyViewedList)
 
   Vue.component('app-drawer', AppDrawer)
   Vue.component('app-header', AppHeader)

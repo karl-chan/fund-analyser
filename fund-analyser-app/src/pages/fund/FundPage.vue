@@ -44,7 +44,7 @@ export default {
   },
   async beforeRouteUpdate (to, from, next) {
     next()
-    const fund = this.lazyGet(to.params.isin)
+    const fund = await this.lazyGet(to.params.isin)
     this.addToRecentlyViewed({isin: fund.isin, name: fund.name})
   },
   data () {

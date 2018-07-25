@@ -1,11 +1,10 @@
 <template lang="pug">
   q-page.column.gutter-y-md(padding)
-    div
-      account-balance(:user="user" :balance="balance")
-    div
-      fund-watch-list(:watchlist="watchlist")
-    div
-      funds-summary(:summary="summary" :summaryRequestHandler="getSummary")
+    .absolute-right
+      healthcheck
+    account-balance(:user="user" :balance="balance")
+    fund-watch-list(:watchlist="watchlist")
+    funds-summary(:summary="summary" :summaryRequestHandler="getSummary")
 </template>
 
 <script>
