@@ -23,20 +23,20 @@ export default {
     }
   },
   methods: {
-    ...mapActions('funds', ['getSummary', 'lazyGet'])
+    ...mapActions('funds', ['getSummary', 'gets'])
   },
   watch: {
     balance: {
       immediate: true,
       handler (newBalance) {
         const isins = this.$utils.account.getIsins(newBalance)
-        isins.forEach(this.lazyGet)
+        this.gets(isins)
       }
     },
     watchlist: {
       immediate: true,
       handler (newWatchlist) {
-        newWatchlist.forEach(this.lazyGet)
+        this.gets(newWatchlist)
       }
     }
   }

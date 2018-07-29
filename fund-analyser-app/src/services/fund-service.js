@@ -1,8 +1,8 @@
 import apiService from './api-service'
 
 export default {
-  get (isin) {
-    return apiService.get(`/funds/fund/${isin}`)
+  gets (isins) {
+    return apiService.get(`/funds/isins/${isins.join(',')}`)
   },
   getRealTimeDetails (isin) {
     return apiService.get(`/funds/real-time-details/${isin}`)

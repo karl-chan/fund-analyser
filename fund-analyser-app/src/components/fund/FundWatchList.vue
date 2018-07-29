@@ -44,6 +44,7 @@ export default {
         return []
       }
       return this.watchlist.map(isin => this.lookupFund()(isin))
+        .filter(f => f) // remove undefined entries in case fund not ready
     }
   },
   methods: {

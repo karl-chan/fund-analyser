@@ -1,7 +1,9 @@
 import Vue from 'vue'
+import keyBy from 'lodash/keyBy'
 
-export function addFund (state, fund) {
-  Vue.set(state.loaded, fund.isin, fund)
+export function addFunds (state, funds) {
+  const isinsToFunds = keyBy(funds, f => f.isin)
+  state.loaded = {...state.loaded, ...isinsToFunds}
 }
 
 export function removeFund (state, isin) {

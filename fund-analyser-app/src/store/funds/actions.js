@@ -1,23 +1,26 @@
 import fundService from './../../services/fund-service'
-import dateUtils from './../../utils/date-utils'
 import router from './../../router'
 
-export async function get ({commit}, isin) {
-  const fund = await fundService.get(isin)
-  commit('addFund', fund)
-  return fund
+export async function get ({dispatch}, isin) {
+  const funds = await dispatch('gets', [isin])
+  return funds[0]
+}
+
+export async function gets ({commit}, isins) {
+  if (!isins || !isins.length) {
+    return []
+  }
+  const funds = await fundService.gets(isins)
+  commit('addFunds', funds)
+  return funds
 }
 
 export async function lazyGet ({dispatch, getters}, isin) {
+  const fundPromise = dispatch('get', isin)
   const cachedFund = getters['lookupFund'](isin)
-  if (cachedFund) {
-    const upToDate = !dateUtils.isBeforeToday(cachedFund.asof)
-    if (upToDate) {
-      return cachedFund
-    }
-  }
-  return dispatch('get', isin)
+  return cachedFund || fundPromise
 }
+
 export function remove ({commit, rootState}, isin) {
   commit('removeFund', isin)
   if (rootState.route.path.includes(isin)) {

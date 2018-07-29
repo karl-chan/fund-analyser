@@ -1,4 +1,5 @@
 const Router = require('koa-router')
+const _ = require('lodash')
 const db = require('../../lib/util/db')
 const FinancialTimes = require('../../lib/fund/FinancialTimes')
 
@@ -7,13 +8,14 @@ const router = new Router({
     prefix: FUNDS_URL_PREFIX
 })
 
-router.get('/fund/:isin', async ctx => {
-    const query = {isin: ctx.params.isin}
+router.get('/isins/:isins', async ctx => {
+    const isins = ctx.params.isins.split(',')
+    const query = {isin: {$in: isins}}
     const options = {
         projection: {_id: 0}
     }
-    const fund = await db.getFunds().findOne(query, options)
-    ctx.body = fund
+    const funds = await db.getFunds().find(query, options).toArray()
+    ctx.body = funds
 })
 
 router.get('/real-time-details/:isin', async ctx => {
