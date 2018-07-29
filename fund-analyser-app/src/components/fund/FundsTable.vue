@@ -43,7 +43,7 @@ export default {
         { headerName: 'Entry Charge', field: 'entryCharge', width: 80 },
         { headerName: 'Exit Charge', field: 'exitCharge', width: 80 },
         { headerName: 'Stability', field: 'stability', width: 90 },
-        { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter },
+        { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter, getQuickFilterText: this.jsonFormatter },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ],
       gridOptions: {
