@@ -29,8 +29,8 @@ export default {
       columnDefs: [
         { headerName: 'ISIN', hide: true, field: 'ISIN', width: 100 },
         { headerName: 'Name', field: 'Description', width: 250 },
-        { headerName: '% Real Time Est', valueGetter: this.realTimeEstPctGetter, width: 80, valueFormatter: this.percentFormatter, cellClass: this.colourNumberBoldStyler },
-        { headerName: 'Real Time Est', valueGetter: this.realTimeEstGetter, width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
+        { headerName: '% Real Time Est', field: 'realTimeEstPct', width: 80, valueFormatter: this.percentFormatter, cellClass: this.colourNumberBoldStyler },
+        { headerName: 'Real Time Est', field: 'realTimeEst', width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
         { headerName: '% Day Change', field: 'PricePercentChange', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberBoldStyler },
         { headerName: 'Day Change', width: 80, valueGetter: this.dayChangeGetter, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
         { headerName: '% Total Change', field: 'PercentChangeInValue', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberBoldStyler },
@@ -65,7 +65,15 @@ export default {
   },
   computed: {
     holdings: function () {
-      return (this.balance && this.balance.holdings) || []
+      if (!this.balance || !this.balance.holdings) {
+        return []
+      }
+      return this.balance.holdings.map(h => {
+        const fund = this.lookupFund()(h.ISIN)
+        const realTimeEstPct = fund.realTimeDetails.estChange
+        const realTimeEst = h.MktValue * realTimeEstPct
+        return { ...h, realTimeEstPct, realTimeEst }
+      })
     }
   },
   methods: {
@@ -93,14 +101,6 @@ export default {
     },
     dayChangeGetter (params) {
       return params.data.MktValue - params.data.MktValue / (1 + params.data.PricePercentChange / 100)
-    },
-    realTimeEstPctGetter (params) {
-      const isin = params.data.ISIN
-      const fund = this.lookupFund()(isin)
-      return fund && fund.realTimeDetails && fund.realTimeDetails.estChange
-    },
-    realTimeEstGetter (params) {
-      return params.data.MktValue * this.realTimeEstPctGetter(params)
     },
     updateColDefs (params) {
       const newColDefs = params.columnApi.getAllColumns().map(col => {

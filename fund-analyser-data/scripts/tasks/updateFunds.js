@@ -14,8 +14,11 @@ const _ = require('lodash')
  * @returns {Promise.<void>}
  */
 async function updateFunds () {
+    const today = moment().utc().startOf('day').toDate()
+
     const fundsToUpdate = await new Promise((resolve, reject) => {
         FundDAO.listFunds({
+            query: {$or: [{asof: {$eq: null}}, {asof: {$lt: today}}]},
             project: {sedol: 1}
         }, (err, funds) => {
             err ? reject(err) : resolve(funds)
