@@ -35,8 +35,10 @@ export default {
     },
     watchlist: {
       immediate: true,
-      handler (newWatchlist) {
-        this.gets(newWatchlist)
+      handler (newWatchlist, oldWatchlist) {
+        if (newWatchlist && newWatchlist !== oldWatchlist) {
+          this.gets(newWatchlist)
+        }
       }
     }
   }
