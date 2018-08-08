@@ -2,7 +2,7 @@
   .column.gutter-y-md
     .q-display-1.text-grey
       template(v-if="user") Hello {{user}}
-      template(v-else) Hello, you are not logged in!
+      template(v-else) Hello guest, you are not logged in!
     div(v-if="balance")
       .row.gutter-lg
         div Portfolio: £{{balance.portfolio}}

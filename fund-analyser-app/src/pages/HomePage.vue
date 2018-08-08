@@ -4,7 +4,7 @@
       healthcheck
     account-balance(:user="user" :balance="balance")
     fund-watch-list(:watchlist="watchlist")
-    funds-summary(:summary="summary" :summaryRequestHandler="getSummary")
+    //- funds-summary(:summary="summary" :summaryRequestHandler="getSummary")
 </template>
 
 <script>

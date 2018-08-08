@@ -1,15 +1,11 @@
 <template lang="pug">
   .column.gutter-y-sm
-    // toolbar
-    .row.justify-between.items-center
-      .row.items-center
-        .q-headline Watch List
-        q-btn.q-ml-xl(v-if="dataReady" outline color="red" @click="clearWatchlist") Remove all
+    // title
+    .row.items-center
+      .q-headline Watch List
+      q-btn.q-ml-xl(v-if="dataReady" outline color="red" @click="clearWatchlist") Remove all
 
-      .row
-        q-btn(v-if="dataReady" glossy icon="show_chart" color="secondary" @click="toggleCharts")
-
-    // actual table
+    // table
     funds-table(:funds="funds" :showEmptyView="!dataReady" :highlightIsin="selectedIsin" :rowSelectedHandler="onRowSelected")
       template(slot="empty-view")
         q-tooltip
@@ -19,9 +15,9 @@
             | Add to watch list
         q-chip.absolute-center.shadow-5(square detail icon="warning" color="secondary") Watchlist is empty
 
-    // grid of charts
+    // charts
     q-slide-transition
-      fund-chart-grid(v-show="showCharts" :funds="funds" :cols="3" :selectedIsin="selectedIsin" :chartSelectedHandler="onChartSelected")
+      fund-chart-grid(:funds="funds" :cols="3" :selectedIsin="selectedIsin" :chartSelectedHandler="onChartSelected")
 </template>
 
 <script>
@@ -31,7 +27,6 @@ export default {
   props: ['watchlist'],
   data () {
     return {
-      showCharts: false,
       selectedIsin: null
     }
   },
@@ -55,9 +50,6 @@ export default {
     },
     onChartSelected (fund) {
       this.selectedIsin = fund && fund.isin
-    },
-    toggleCharts () {
-      this.showCharts = !this.showCharts
     }
   }
 }
