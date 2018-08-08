@@ -11,7 +11,7 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "ag-grid": "18.1.1",
+    "ag-grid": "18.1.2",
     "ag-grid-enterprise": "18.1.1",
     "ag-grid-vue": "18.1.0",
     "axios": "0.18.0",
@@ -27,18 +27,19 @@
   },
   "devDependencies": {
     "babel-eslint": "8.2.6",
-    "eslint": "5.1.0",
+    "eslint": "5.3.0",
     "eslint-config-standard": "11.0.0",
     "eslint-friendly-formatter": "4.0.1",
-    "eslint-loader": "2.0.0",
+    "eslint-loader": "2.1.0",
     "eslint-plugin-import": "2.13.0",
-    "eslint-plugin-node": "6.0.1",
+    "eslint-plugin-node": "7.0.1",
     "eslint-plugin-promise": "3.8.0",
     "eslint-plugin-standard": "3.1.0",
-    "eslint-plugin-vue": "4.5.0",
+    "eslint-plugin-vue": "4.7.1",
     "pug": "2.0.3",
     "pug-plain-loader": "1.0.0",
-    "quasar-cli": "0.16.4"
+    "quasar-cli": "0.17.8",
+    "strip-ansi": "^3.0.1"
   },
   "engines": {
     "node": ">= 8.9.0",
