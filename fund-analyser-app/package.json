@@ -23,8 +23,7 @@
     "moment-business-days": "1.0.6",
     "vue-highcharts": "0.0.10",
     "vuelidate": "0.7.4",
-    "vuex-persist": "1.4.3",
-    "vuex-router-sync": "5.0.0"
+    "vuex-persist": "1.4.3"
   },
   "devDependencies": {
     "babel-eslint": "8.2.6",

@@ -1,13 +1,11 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { sync } from 'vuex-router-sync'
 
 import account from './account'
 import auth from './auth'
 import funds from './funds'
 import layout from './layout'
 import misc from './misc'
-import router from './../router'
 
 import persist from './plugins/persist'
 
@@ -32,6 +30,5 @@ const store = new Vuex.Store({
 
 export default store
 
-sync(store, router)
 store.dispatch('auth/init')
 store.dispatch('account/init')
