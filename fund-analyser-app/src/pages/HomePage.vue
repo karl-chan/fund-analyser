@@ -1,10 +1,19 @@
 <template lang="pug">
-  q-page.column.gutter-y-md(padding)
+  q-page(padding)
     .absolute-right
       healthcheck
-    account-balance(:user="user" :balance="balance")
-    fund-watch-list(:watchlist="watchlist")
-    //- funds-summary(:summary="summary" :summaryRequestHandler="getSummary")
+    q-tabs
+      q-tab(default label="Account View" slot="title" name="account")
+      q-tab(label="Summary View" slot="title" name="summary")
+
+      // Account View
+      q-tab-pane.gutter-y-md(keep-alive name="account")
+        account-balance(:user="user" :balance="balance")
+        fund-watch-list(:watchlist="watchlist")
+
+      // Summary View
+      q-tab-pane(keep-alive name="summary")
+        funds-summary(:summary="summary" :summaryRequestHandler="getSummary")
 </template>
 
 <script>

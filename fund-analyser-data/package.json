@@ -7,7 +7,7 @@
     "download": "node scripts/main.js -r downloadCsv",
     "createIndex": "node scripts/main.js -r createIndex",
     "updateFunds": "node scripts/main.js -r updateFunds",
-    "updateCatalog": "node scripts/main.js -r updateCatalog",    
+    "updateCatalog": "node scripts/main.js -r updateCatalog",
     "dynoHealthcheck": "node scripts/main.js -r dynoHealthcheck",
     "server": "node server/server.js",
     "server.dev": "nodemon --inspect server/server.js",

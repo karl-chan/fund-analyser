@@ -1,5 +1,5 @@
 <template lang="pug">
-  .column.gutter-y-md
+  .column.gutter-y-sm
     .q-display-1.text-grey
       template(v-if="user") Hello {{user}}
       template(v-else) Hello guest, you are not logged in!
