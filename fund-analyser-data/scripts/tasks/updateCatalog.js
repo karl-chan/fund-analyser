@@ -34,8 +34,8 @@ async function updateCatalog () {
 
     const toRemove = _.difference(oldSedols, newSedols)
     const toAdd = _.difference(newSedols, oldSedols)
-    log.info(`To remove: ${toRemove}`)
-    log.info(`To add: ${toAdd}`)
+    log.info(`To remove: %j`, toRemove)
+    log.info(`To add: %j`, toAdd)
 
     // delete old sedols
     await db.getFunds().deleteMany({sedol: {$in: toRemove}})

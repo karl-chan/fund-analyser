@@ -23,7 +23,13 @@ const store = new Vuex.Store({
     persist.plugin
   ],
   mutations: {
-    RESTORE_MUTATION: persist.RESTORE_MUTATION // this mutation **MUST** be named "RESTORE_MUTATION"
+    // this mutation **MUST** be named "RESTORE_MUTATION"
+    RESTORE_MUTATION (state, args) {
+      persist.RESTORE_MUTATION.call(this, state, args)
+
+      const loadedIsins = Object.keys(args.funds.loaded)
+      store.dispatch('funds/startRealTimeUpdates', loadedIsins)
+    }
   },
   strict: process.env.NODE_ENV !== 'production'
 })
