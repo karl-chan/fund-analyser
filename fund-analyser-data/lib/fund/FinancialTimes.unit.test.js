@@ -100,6 +100,7 @@ describe('FinancialTimes', function () {
                 .returns(performance)
                 .asof(new Date(2017, 0, 1))
                 .build()
+            expected.realTimeDetails = expect.any(Object)
 
             financialTimes.getFundFromIsin(isin, (err, actual) => {
                 expect(actual).toMatchObject(expected)

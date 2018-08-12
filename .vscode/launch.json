@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
             "type": "chrome",
             "request": "attach",
@@ -38,6 +37,30 @@
                 "-r",
                 "updateFunds"
             ]
-        }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest All",
+            "program": "${workspaceFolder}/fund-analyser-data/node_modules/.bin/jest",
+            "args": ["--runInBand"],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "windows": {
+              "program": "${workspaceFolder}/fund-analyser-data/node_modules/jest/bin/jest",
+            }
+          },
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest Current File",
+            "program": "${workspaceFolder}/fund-analyser-data/node_modules/.bin/jest",
+            "args": ["${relativeFile}"],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "windows": {
+              "program": "${workspaceFolder}/fund-analyser-data/node_modules/jest/bin/jest",
+            }
+          }
     ]
 }

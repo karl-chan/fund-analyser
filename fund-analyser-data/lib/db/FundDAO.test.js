@@ -38,6 +38,9 @@ describe('FundDAO', function () {
                 '3D': 0.6,
                 '1D': 0.6
             })
+            .indicators({
+                stability: -3
+            })
             .build()
         dao = new FundDAO({
             _id: 'test',
@@ -75,7 +78,10 @@ describe('FundDAO', function () {
                 '1D': 0.6
             },
             asof: undefined,
-            stability: undefined
+            indicators: {
+                stability: -3
+            },
+            realTimeDetails: undefined
         })
         dao2 = _.clone(dao)
     })
@@ -192,6 +198,10 @@ describe('FundDAO', function () {
     })
     it('equals should return false for different percentiles', function () {
         dao2.percentiles = {'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': 0}
+        expect(dao.equals(dao2)).toBeFalsy()
+    })
+    it('equals should return false for different indicators', function () {
+        dao2.indicators = {stability: 0}
         expect(dao.equals(dao2)).toBeFalsy()
     })
 })

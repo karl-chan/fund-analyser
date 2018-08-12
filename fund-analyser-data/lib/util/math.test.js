@@ -123,20 +123,18 @@ describe('math', () => {
             expect(newReturns).toHaveProperty('3D', (469 - 469) / (472 - 469))
             expect(newReturns).toHaveProperty('1D', (469 - 469) / (472 - 469))
         })
-        it('should calculate correct stability', () => {
-            const historicPrices = [
-                new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
-                new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
-                new Fund.HistoricPrice(new Date(2017, 3, 12), 482.0),
-                new Fund.HistoricPrice(new Date(2017, 3, 13), 479.0),
-                new Fund.HistoricPrice(new Date(2017, 3, 18), 475.0),
-                new Fund.HistoricPrice(new Date(2017, 3, 19), 467.0),
-                new Fund.HistoricPrice(new Date(2017, 3, 20), 468.0),
-                new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
-                new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
-            ]
-            const stability = math.calcStability(historicPrices)
-            expect(stability).toBe(0.625)
+    })
+
+    describe('calcIndicators', () => {
+        const historicPrices = [
+            new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 12), 482.0)
+        ]
+        it('should return a collection of indicators', () => {
+            const indicators = math.calcIndicators(historicPrices)
+            expect(indicators).toHaveProperty('stability')
+            expect(indicators.stability).toBeNumber()
         })
     })
 })

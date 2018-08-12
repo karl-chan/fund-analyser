@@ -33,6 +33,9 @@ describe('FundCalculator', function () {
         '3D': 0.6,
         '1D': 0.6
     }
+    const indicators = {
+        stability: -3
+    }
 
     beforeEach(function () {
         fundCalculator = new FundCalculator()
@@ -56,17 +59,17 @@ describe('FundCalculator', function () {
             .returns(newReturns)
             .percentiles(percentiles)
             .build()
-        const fundWithStability = Fund.Builder('GB00000ISIN0')
+        const fundWithIndicators = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(newReturns)
             .percentiles(percentiles)
-            .stability(-3)
+            .indicators(indicators)
             .build()
         const fundResult = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(newReturns)
             .percentiles(percentiles)
-            .stability(-3)
+            .indicators(indicators)
             .build()
 
         jest.spyOn(fundCalculator, 'enrichReturns')
@@ -79,10 +82,10 @@ describe('FundCalculator', function () {
                 expect(f).toEqual(fund)
                 callback(null, fundWithPercentiles)
             })
-        jest.spyOn(fundCalculator, 'calcStability')
+        jest.spyOn(fundCalculator, 'calcIndicators')
             .mockImplementation((f, callback) => {
                 expect(f).toEqual(fundWithPercentiles)
-                callback(null, fundWithStability)
+                callback(null, fundWithIndicators)
             })
 
         fundCalculator.evaluate(fund, (err, actual) => {

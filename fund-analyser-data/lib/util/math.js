@@ -3,7 +3,7 @@ module.exports = {
     floatToPc,
     enrichReturns,
     calcPercentiles,
-    calcStability,
+    calcIndicators,
     closestRecord,
     enrichRealTimeDetails,
     enrichSummary
@@ -12,6 +12,7 @@ module.exports = {
 const _ = require('lodash')
 const moment = require('moment')
 const stat = require('./stat')
+const indicators = require('./indicators')
 
 function pcToFloat (pc) {
     return parseFloat(pc) / 100.0
@@ -99,31 +100,9 @@ function calcPercentiles (returns, historicPrices, additionalLookbacks) {
     return percentiles
 }
 
-function calcStability (historicPrices) {
-    if (_.isEmpty(historicPrices) || historicPrices.length < 2) {
-        return NaN
-    }
-    let sum = 0
-    let sign = 1
-    for (let i = 0; i < historicPrices.length - 1; i++) {
-        const first = historicPrices[i]
-        const second = historicPrices[i + 1]
-        if (first.price <= second.price) {
-            // increasing
-            if (sign === 1) {
-                sum += 1
-            }
-            sign = 1
-        } else if (first.price > second.price) {
-            // decreasing
-            if (sign === -1) {
-                sum += 1
-            }
-            sign = -1
-        }
-    }
-    const stability = sum / (historicPrices.length - 1)
-    return stability
+function calcIndicators (historicPrices) {
+    const stability = indicators.calcStability(historicPrices)
+    return { stability }
 }
 
 function enrichRealTimeDetails (realTimeDetails, fund) {

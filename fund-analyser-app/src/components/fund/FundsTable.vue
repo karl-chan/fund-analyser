@@ -42,7 +42,7 @@ export default {
         { headerName: 'AMC', field: 'amc', width: 70 },
         { headerName: 'Entry Charge', field: 'entryCharge', width: 80 },
         { headerName: 'Exit Charge', field: 'exitCharge', width: 80 },
-        { headerName: 'Stability', field: 'stability', width: 90 },
+        { headerName: 'Stability', field: 'indicators.stability', width: 90 },
         { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter, getQuickFilterText: this.jsonFormatter },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ],
@@ -150,7 +150,7 @@ export default {
       const percentFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
         'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D',
         'bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge'])
-      const numberFields = new Set(['stability'])
+      const numberFields = new Set(['indicators.stability'])
       const dateFields = new Set(['asof'])
       const newColDefs = params.columnApi.getAllColumns().map(col => {
         const colDef = col.getColDef()

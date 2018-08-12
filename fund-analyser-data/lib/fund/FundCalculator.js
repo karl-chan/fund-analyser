@@ -14,7 +14,7 @@ FundCalculator.prototype.evaluate = function (fund, callback) {
     async.waterfall([
         this.enrichReturns.bind(this, fund),
         this.calcPercentiles.bind(this),
-        this.calcStability.bind(this)
+        this.calcIndicators.bind(this)
     ], callback)
 }
 
@@ -32,7 +32,7 @@ FundCalculator.prototype.calcPercentiles = function (fund, callback) {
     callback(null, fund)
 }
 
-FundCalculator.prototype.calcStability = function (fund, callback) {
-    fund.stability = math.calcStability(fund.historicPrices)
+FundCalculator.prototype.calcIndicators = function (fund, callback) {
+    fund.indicators = math.calcIndicators(fund.historicPrices)
     callback(null, fund)
 }

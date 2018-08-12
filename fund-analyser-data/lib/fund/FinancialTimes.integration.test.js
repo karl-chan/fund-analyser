@@ -10,8 +10,8 @@ describe('FinancialTimes', function () {
         financialTimes = new FinancialTimes()
     })
 
-    it('getFundsFromIsins should be able to return large collection of funds from Financial Times', function (done) {
-        const isins = Array(4000).fill('GB00B80QG615')
+    it('getFundsFromIsins should be able to return funds from Financial Times', function (done) {
+        const isins = Array(10).fill('GB00B80QG615')
         financialTimes.getFundsFromIsins(isins, (err, funds) => {
             expect(funds).toBeArray()
             for (let fund of funds) {

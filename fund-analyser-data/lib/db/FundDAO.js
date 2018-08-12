@@ -33,7 +33,7 @@ FundDAO.toFund = function (entry) {
     builder = _.isNil(entry.returns) ? builder : builder.returns(entry.returns)
     builder = _.isNil(entry.percentiles) ? builder : builder.percentiles(entry.percentiles)
     builder = _.isNil(entry.asof) ? builder : builder.asof(entry.asof)
-    builder = _.isNil(entry.stability) ? builder : builder.asof(entry.stability)
+    builder = _.isNil(entry.indicators) ? builder : builder.indicators(entry.indicators)
 
     if (!_.isNil(entry.holdings)) {
         builder = builder.holdings(entry.holdings.map(
@@ -153,13 +153,15 @@ FundDAO.prototype.equals = function (o) {
         return false
     }
     const omitField = '_id'
-    const selfCopy = _.cloneDeep(this)
+    const selfCopy = _.omit(_.cloneDeep(this), omitField)
     const otherCopy = _.omit(_.cloneDeep(o), omitField)
 
     selfCopy.holdings = omitDeep(selfCopy.holdings, omitField)
     otherCopy.holdings = omitDeep(otherCopy.holdings, omitField)
     selfCopy.historicPrices = omitDeep(selfCopy.historicPrices, omitField)
     otherCopy.historicPrices = omitDeep(otherCopy.historicPrices, omitField)
+    selfCopy.indicators = omitDeep(selfCopy.indicators, omitField)
+    otherCopy.indicators = omitDeep(otherCopy.indicators, omitField)
 
     return _.isEqual(selfCopy, otherCopy)
 }

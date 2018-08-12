@@ -188,9 +188,11 @@ const fieldMapping = {
         label: 'As of date',
         value: 'asof'
     },
-    stability: {
-        label: 'Stability',
-        value: 'stability'
+    indicators: {
+        stability: {
+            label: 'Stability',
+            value: 'indicators.stability'
+        }
     }
 }
 
