@@ -12,6 +12,9 @@
           | ({{ formatPercentage(fund.realTimeDetails.ci[0]) }},
           | {{ formatPercentage(fund.realTimeDetails.ci[1]) }})
 
+      // alert banner (if outdated)
+      q-alert(v-if="numDaysOutdated > 1" color="negative" icon="warning") This fund is {{numDaysOutdated}} days outdated
+
       // historic returns summary
       .row.items-center.gutter-xs
         div(v-for="(periodReturn, period) in fund.returns" :key="period")
@@ -36,6 +39,10 @@ export default {
   computed: {
     lastHistoricPrice: function () {
       return this.fund.historicPrices[this.fund.historicPrices.length - 1] || {date: undefined, price: undefined}
+    },
+    numDaysOutdated: function () {
+      return (this.fund && this.$utils.date.diffBusinessDays(new Date(), this.fund.asof)) ||
+       0
     }
   },
   methods: {

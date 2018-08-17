@@ -3,7 +3,7 @@
     q-list(no-border separator)
       // Recently Viewed List
       q-collapsible(v-if="recentlyViewedIsins.length" label="Recently Viewed" :opened="true" :separator="true")
-        q-list(:no-border="true")
+        q-list(no-border)
           q-item(v-for="entry in recentlyViewed" :to="{name: 'fund', params: {isin: entry.isin}}" :key="entry.isin")
             q-item-main(:label="entry.name" :sublabel="entry.isin")
             q-item-side(right)
@@ -12,12 +12,13 @@
           q-btn(label="Clear all" color="pink-10" :rounded="true" @click="clearRecentlyViewed")
       // Links
       q-collapsible(label="Links" :opened="true")
-        q-item(@click.native="openURL('https://www.charles-stanley-direct.co.uk/')")
-          q-item-side(image="statics/charles-stanley-direct.jpg")
-          q-item-main(label="Charles Stanley Direct")
-        q-item(@click.native="openURL('http://financialtimes.herokuapp.com/')")
-          q-item-side(avatar="statics/financial-times.jpg")
-          q-item-main(label="Financial Times")
+        q-list(no-border link)
+          q-item(@click.native="openURL('https://www.charles-stanley-direct.co.uk/')")
+            q-item-side(image="statics/charles-stanley-direct.jpg")
+            q-item-main(label="Charles Stanley Direct")
+          q-item(@click.native="openURL('http://financialtimes.herokuapp.com/')")
+            q-item-side(avatar="statics/financial-times.jpg")
+            q-item-main(label="Financial Times")
 </template>
 
 <script>

@@ -3,7 +3,9 @@ import dateUtils from './../../utils/date-utils'
 import router from './../../router'
 import fromPairs from 'lodash/fromPairs'
 
-const REAL_TIME_DETAILS_REFRESH_INTERVAL = 60000 // 1 minute
+import moment from 'moment'
+
+const REAL_TIME_DETAILS_REFRESH_INTERVAL = moment.duration(1, 'minute')
 
 export async function get ({dispatch}, isin) {
   const funds = await dispatch('gets', [isin])
@@ -60,7 +62,8 @@ export async function startRealTimeUpdates ({commit, dispatch, state}, isins) {
     .filter(isin => !(isin in state.activeJobs))
     .map(isin => {
       dispatch('updateRealTimeDetails', isin)
-      return [isin, setInterval(() => dispatch('updateRealTimeDetails', isin), REAL_TIME_DETAILS_REFRESH_INTERVAL)]
+      const job = setInterval(() => dispatch('updateRealTimeDetails', isin), REAL_TIME_DETAILS_REFRESH_INTERVAL.asMilliseconds())
+      return [isin, job]
     })
   const newJobs = fromPairs(newJobsArr)
   commit('addActiveJobs', newJobs)

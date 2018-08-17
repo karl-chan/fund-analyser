@@ -27,8 +27,10 @@ const store = new Vuex.Store({
     RESTORE_MUTATION (state, args) {
       persist.RESTORE_MUTATION.call(this, state, args)
 
-      const loadedIsins = Object.keys(args.funds.loaded)
-      store.dispatch('funds/startRealTimeUpdates', loadedIsins)
+      if (args.funds && args.funds.loaded && args.funds.loaded.length) {
+        const loadedIsins = Object.keys(args.funds.loaded)
+        store.dispatch('funds/startRealTimeUpdates', loadedIsins)
+      }
     }
   },
   strict: process.env.NODE_ENV !== 'production'
