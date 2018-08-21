@@ -58,6 +58,7 @@
     "semaphore": "1.1.0",
     "streaming-json-stringify": "3.1.0",
     "streamtest": "1.2.4",
+    "technicalindicators": "1.1.12",
     "winston": "3.0.0"
   },
   "engines": {
@@ -65,7 +66,10 @@
     "npm": ">= 6.1.0"
   },
   "jest": {
-    "coverageReporters": ["json", "html"],
+    "coverageReporters": [
+      "json",
+      "html"
+    ],
     "setupTestFrameworkScriptFile": "jest-extended",
     "testEnvironment": "node"
   }

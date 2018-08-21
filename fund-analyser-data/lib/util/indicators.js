@@ -1,8 +1,26 @@
 module.exports = {
+    calcMacd,
     calcStability
 }
 
 const _ = require('lodash')
+const ta = require('technicalindicators')
+
+function calcMacd (historicPrices) {
+    if (!historicPrices) {
+        return NaN
+    }
+    const options = {
+        values: historicPrices.map(e => e.price),
+        fastPeriod: 12,
+        slowPeriod: 26,
+        signalPeriod: 9,
+        SimpleMAOscillator: false, // EMA
+        SimpleMASignal: false // EMA
+    }
+    const macd = ta.MACD.calculate(options)
+    return _.get(_.last(macd), 'histogram', NaN)
+}
 
 function calcStability (historicPrices) {
     if (_.isEmpty(historicPrices) || historicPrices.length < 2) {
