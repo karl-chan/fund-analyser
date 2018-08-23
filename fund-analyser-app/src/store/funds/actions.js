@@ -58,10 +58,11 @@ export async function getSummary ({commit}) {
 }
 
 export async function startRealTimeUpdates ({commit, dispatch, state}, isins) {
+  isins.forEach(isin => dispatch('updateRealTimeDetails', isin)) // immediate dispatch first call
+
   const newJobsArr = isins
     .filter(isin => !(isin in state.activeJobs))
     .map(isin => {
-      dispatch('updateRealTimeDetails', isin)
       const job = setInterval(() => dispatch('updateRealTimeDetails', isin), REAL_TIME_DETAILS_REFRESH_INTERVAL.asMilliseconds())
       return [isin, job]
     })
