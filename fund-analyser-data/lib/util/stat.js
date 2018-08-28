@@ -2,7 +2,10 @@ module.exports = {
     weightedMean,
     weightedVar,
     weightedStd,
-    ci95
+    ci95,
+    min,
+    max,
+    median
 }
 
 const _ = require('lodash')
@@ -43,4 +46,16 @@ function weightedStd (arr) {
 function ci95 (mean, stdev, n) {
     const z = 1.96
     return [mean - z * stdev, mean + z * stdev]
+}
+
+function min (arr) {
+    return jStat.min(arr)
+}
+
+function max (arr) {
+    return jStat.max(arr)
+}
+
+function median (arr) {
+    return jStat.median(arr)
 }

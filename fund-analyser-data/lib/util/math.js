@@ -4,6 +4,7 @@ module.exports = {
     enrichReturns,
     calcPercentiles,
     calcIndicators,
+    calcStats,
     closestRecord,
     enrichRealTimeDetails,
     enrichSummary
@@ -105,6 +106,28 @@ function calcIndicators (historicPrices) {
     return { stability }
 }
 
+function calcStats (funds) {
+    if (!funds.length) {
+        return undefined
+    }
+    const periods = Object.keys(funds[0].returns)
+    const periodReturns = _.fromPairs(periods.map(period => [period, funds.map(fund => fund.returns && fund.returns[period]).filter(isFinite)]))
+    const maxReturns = _.fromPairs(periods.map(period => [period, stat.max(periodReturns[period])]))
+    const minReturns = _.fromPairs(periods.map(period => [period, stat.min(periodReturns[period])]))
+    // const meanReturns = _.fromPairs(periods.map(period => [period, mean(periodReturns[period])]))
+    const medianReturns = _.fromPairs(periods.map(period => [period, stat.median(periodReturns[period])]))
+    // const stddevReturns = _.fromPairs(periods.map(period => [period, stdev(periodReturns[period])]))
+    // const meddevReturns = _.fromPairs(periods.map(period => [period, meddev(periodReturns[period])]))
+    return {
+        minReturns,
+        maxReturns,
+        // meanReturns,
+        medianReturns
+        // stddevReturns,
+        // meddevReturns
+    }
+}
+
 function enrichRealTimeDetails (realTimeDetails, fund) {
     // excluding nulls
     const holdingsX = realTimeDetails.holdings
@@ -122,18 +145,27 @@ function enrichRealTimeDetails (realTimeDetails, fund) {
 }
 
 function enrichSummary (summary) {
+    // add +1D to returns
+    summary.forEach(row => {
+        row.returns['+1D'] = row.realTimeDetails ? row.realTimeDetails.estChange : NaN
+    })
+
     const periods = Object.keys(summary[0].returns)
     const periodReturns = _.fromPairs(periods.map(period => [period, summary.map(row => row.returns[period])]))
     const maxReturns = _.fromPairs(periods.map(period => [period, _.max(periodReturns[period])]))
     const minReturns = _.fromPairs(periods.map(period => [period, _.min(periodReturns[period])]))
 
-    const enrichedSummary = summary.map(row => {
-        const scores = _.fromPairs(Object.entries(row.returns).map(([period, ret]) => {
-            const score = ret > 0 ? ret / maxReturns[period] : (ret < 0 ? -ret / minReturns[period] : ret)
+    // add scores for colours
+    summary.forEach(row => {
+        row.scores = _.fromPairs(Object.entries(row.returns).map(([period, ret]) => {
+            let score = 0
+            if (ret > 0) {
+                score = ret / maxReturns[period]
+            } else if (ret < 0) {
+                score = -ret / minReturns[period]
+            }
             return [period, score]
         }))
-        const metadata = {scores}
-        return {...row, ...metadata}
     })
-    return enrichedSummary
+    return summary
 }

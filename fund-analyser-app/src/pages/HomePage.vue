@@ -13,7 +13,7 @@
 
       // Summary View
       q-tab-pane(keep-alive name="summary")
-        funds-summary(:summary="summary" :summaryRequestHandler="getSummary")
+        funds-summary
 </template>
 
 <script>
@@ -26,13 +26,13 @@ export default {
       balance: state => state.charlesStanleyDirect.balance
     }),
     ...mapState('auth', ['user']),
-    ...mapState('funds', ['favouriteIsins', 'summary']),
+    ...mapState('funds', ['favouriteIsins']),
     watchedFunds: function () {
       return this.watchlist.map(isin => this.lookupFund()(isin))
     }
   },
   methods: {
-    ...mapActions('funds', ['getSummary', 'gets'])
+    ...mapActions('funds', ['gets'])
   },
   watch: {
     balance: {

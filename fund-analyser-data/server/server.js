@@ -11,13 +11,16 @@ const moment = require('moment')
 
 const properties = require('../lib/util/properties')
 const db = require('../lib/util/db')
+const log = require('../lib/util/log')
 const SessionDAO = require('../lib/db/SessionDAO')
+const Stopwatch = require('../lib/util/stopwatch.js')
 
 const auth = require('./auth')
 const accountRoutes = require('./routes/account-routes')
 const authRoutes = require('./routes/auth-routes')
 const fundsRoutes = require('./routes/funds-routes')
 const miscRoutes = require('./routes/misc-routes')
+const fundCache = require('./cache/fund-cache')
 
 const PORT = process.env.PORT || properties.get('server.default.port')
 
@@ -49,17 +52,21 @@ const cleanupEvery = (frequency) => {
 }
 
 const main = async () => {
+    const timer = new Stopwatch()
     try {
         await db.init()
-        console.log(`Connected to MongoDB.`)
+        log.info(`Connected to MongoDB in [${timer.split()}].`)
+        await fundCache.start()
+        log.info(`Started fund cache in [${timer.split()}].`)
     } catch (err) {
-        console.error('Failed to connect to MongoDB.\n', err)
+        log.error(err)
+        process.exit(1)
     }
 
     cleanupEvery(moment.duration(1, 'hour').asMilliseconds())
 
     app.listen(PORT, async () => {
-        console.log(`Server listening on port: ${PORT}`)
+        log.info(`Server listening on port [${PORT}], startup took [${timer.end()}]`)
     })
 }
 main()

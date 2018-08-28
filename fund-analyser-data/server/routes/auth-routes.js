@@ -43,6 +43,7 @@ router.get('/sessions', async ctx => {
         encryptedId: security.encryptString(s.sessionId),
         location: s.token.location,
         expiry: s.token.expiry,
+        userAgent: security.parseUserAgent(s.token.userAgent),
         current: s.sessionId === sessionId
     }))
 })

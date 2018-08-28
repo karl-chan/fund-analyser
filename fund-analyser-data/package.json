@@ -19,7 +19,7 @@
     "eslint": "5.3.0",
     "eslint-config-standard": "11.0.0",
     "eslint-plugin-import": "2.13.0",
-    "eslint-plugin-mocha": "5.1.0",
+    "eslint-plugin-jest": "21.22.0",
     "eslint-plugin-node": "7.0.1",
     "eslint-plugin-promise": "3.8.0",
     "eslint-plugin-standard": "3.1.0",
@@ -59,6 +59,7 @@
     "streaming-json-stringify": "3.1.0",
     "streamtest": "1.2.4",
     "technicalindicators": "1.1.12",
+    "ua-parser-js": "^0.7.18",
     "winston": "3.0.0"
   },
   "engines": {

@@ -2,8 +2,7 @@ module.exports = {
     "extends": "standard",
     "plugins": [
         "standard",
-        "promise",
-        "mocha"
+        "promise"
     ],
     "env": {
         "node": true,

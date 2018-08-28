@@ -1,7 +1,7 @@
 <template lang="pug">
   q-input.shadow-2(v-model="selectedItem" :placeholder="placeholder" :before="[{icon: 'search', handler () {}}]"
                    @input="input" color="grey-2" inverted-light clearable)
-    q-autocomplete(@search="search" @selected="selected" :max-results="5000")
+    q-autocomplete(@search="search" @selected="selected" :max-results="5000" :debounce="150")
 </template>
 
 <script>

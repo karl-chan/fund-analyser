@@ -50,14 +50,15 @@ const authorise = async function (ctx, next) {
     await next()
 }
 
-const createToken = function ({user, pass, memorableWord, name, persist, location}) {
+const createToken = function ({user, pass, memorableWord, name, persist, location, userAgent}) {
     return {
         user: user,
         pass: pass,
         memorableWord: memorableWord,
         name: name,
         expiry: newExpiry(persist),
-        location: location
+        location: location,
+        userAgent: userAgent
     }
 }
 const encryptToken = function (token) {
@@ -67,7 +68,8 @@ const encryptToken = function (token) {
         memorableWord: security.encryptString(token.memorableWord),
         name: token.name,
         expiry: token.expiry.toDate(),
-        location: token.location
+        location: token.location,
+        userAgent: token.userAgent
     }
 }
 
@@ -78,7 +80,8 @@ const deserialiseToken = function (token) {
         memorableWord: security.decryptString(token.memorableWord),
         name: token.name,
         expiry: moment(token.expiry),
-        location: token.location
+        location: token.location,
+        userAgent: token.userAgent
     }
 }
 
@@ -160,8 +163,9 @@ const login = async function (ctx, user, pass, memorableWord, persist) {
         geolocation.getLocationByIp(ip)
     ])
     location.ip = ip
+    const userAgent = ctx.request.header['user-agent']
 
-    const token = createToken({user, pass, memorableWord, name, persist, location})
+    const token = createToken({user, pass, memorableWord, name, persist, location, userAgent})
     saveSession(ctx, {token, jar})
     saveUser(user)
     return {token, jar, name}

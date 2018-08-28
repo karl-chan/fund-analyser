@@ -1,10 +1,12 @@
 module.exports = {
     encryptString,
-    decryptString
+    decryptString,
+    parseUserAgent
 }
 
 const properties = require('./properties.js')
 const CryptoJS = require('crypto-js')
+const userAgentParser = require('ua-parser-js')
 
 const secretKey = properties.get('secret.key')
 
@@ -14,4 +16,9 @@ function encryptString (s) {
 
 function decryptString (s) {
     return CryptoJS.AES.decrypt(s, secretKey).toString(CryptoJS.enc.Utf8)
+}
+
+function parseUserAgent (s) {
+    const {ua, browser, device, os} = userAgentParser(s)
+    return {ua, browser, device, os}
 }

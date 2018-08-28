@@ -1,6 +1,7 @@
 const Router = require('koa-router')
-const _ = require('lodash')
 const db = require('../../lib/util/db')
+const agGrid = require('../../lib/util/agGrid')
+const fundCache = require('../cache/fund-cache')
 const FinancialTimes = require('../../lib/fund/FinancialTimes')
 
 const FUNDS_URL_PREFIX = '/api/funds'
@@ -45,6 +46,17 @@ router.get('/summary', async ctx => {
     }
     const funds = await db.getFunds().find(query, options).toArray()
     ctx.body = funds
+})
+
+router.post('/list', async ctx => {
+    const {isins, params} = ctx.request.body
+    const funds = fundCache.get(isins, {filterText: params.filterText})
+    const {asof, stats} = fundCache.getMetadata()
+    const {funds: showFunds, lastRow} = agGrid.applyParams(funds, params.agGridRequest)
+    ctx.body = {
+        funds: showFunds,
+        metadata: { lastRow, asof, stats }
+    }
 })
 
 module.exports = router

@@ -8,9 +8,6 @@ export default new VuexPersistence({
     account: {
       watchlist: state.account.watchlist,
       recentlyViewed: state.account.recentlyViewed
-    },
-    funds: {
-      loaded: state.funds.loaded,
-      summary: state.funds.summary
-    }})
+    }
+  })
 })
