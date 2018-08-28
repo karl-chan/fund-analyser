@@ -1,9 +1,10 @@
 <template lang="pug">
   .relative-position
-    ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="enrichedFunds || []"
+    ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs"
                 :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked"
                 :getContextMenuItems="getContextMenuItems" :gridOptions="gridOptions"
-                :style="{height}" :gridAutoHeight="!height" :rowClicked="onRowSelected")
+                :style="{height}" :gridAutoHeight="!height" :rowClicked="onRowSelected"
+                :cacheBlockSize="window")
 
     .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
       // transclude empty view here
@@ -16,9 +17,19 @@ import { mapState, mapActions } from 'vuex'
 
 export default {
   name: 'FundsTable',
-  props: ['funds', 'filterText', 'showPinnedRows', 'showEmptyView', 'height', 'highlightIsin', 'rowSelectedHandler'],
+  props: {
+    isins: { type: Array },
+    height: String, // null for autoheight
+    window: { type: Number, default: 200 },
+    filterText: { type: String, default: '' },
+    showPinnedRows: Boolean,
+    highlightIsin: String
+  },
   data () {
     return {
+      funds: [],
+      stats: {},
+      showEmptyView: false,
       columnDefs: [
         { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated },
         { headerName: 'ISIN', field: 'isin', width: 120 },
@@ -43,21 +54,25 @@ export default {
         { headerName: 'Entry Charge', field: 'entryCharge', width: 80 },
         { headerName: 'Exit Charge', field: 'exitCharge', width: 80 },
         { headerName: 'Stability', field: 'indicators.stability', width: 90 },
-        { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter, getQuickFilterText: this.jsonFormatter },
+        { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ],
       gridOptions: {
         context: this,
-        cacheQuickFilter: true,
         enableColResize: true,
         enableFilter: true,
+        enableServerSideSorting: true,
+        enableServerSideFiltering: true,
         enableRangeSelection: true,
-        enableSorting: true,
         suppressLoadingOverlay: true,
         suppressNoRowsOverlay: true,
         toolPanelSuppressSideButtons: true,
+        toolPanelSuppressPivotMode: true,
+        toolPanelSuppressRowGroups: true,
+        toolPanelSuppressValues: true,
         rowSelection: 'multiple',
         popupParent: document.body,
+        rowModelType: 'serverSide',
         rowStyle: {
           cursor: 'pointer'
         },
@@ -67,7 +82,7 @@ export default {
             const pinnedClasses = ['text-bold', 'bg-dark', 'text-white']
             classes = [...classes, ...pinnedClasses]
           }
-          if (params.data.isin === params.context.highlightIsin) {
+          if (params.data && params.data.isin === params.context.highlightIsin) {
             const highlightClasses = ['bg-yellow']
             classes = [...classes, ...highlightClasses]
           }
@@ -83,14 +98,11 @@ export default {
   },
   computed: {
     ...mapState('account', ['watchlist']),
-    enrichedFunds: function () {
-      return this.$utils.fund.enrichScores(this.funds)
-    },
     pinnedRowsData: function () {
-      if (!this.funds || !this.funds.length) {
+      if (!this.stats) {
         return []
       }
-      const { maxReturns, minReturns, medianReturns } = this.$utils.fund.calcStats(this.enrichedFunds)
+      const { maxReturns, minReturns, medianReturns } = this.stats
       return [
         {isin: 'Max returns', returns: maxReturns},
         {isin: 'Median returns', returns: medianReturns},
@@ -102,11 +114,15 @@ export default {
     ...mapActions('account', ['addToWatchlist', 'removeFromWatchlist']),
     onGridReady (params) {
       this.updateColDefs(params)
+      this.initDataSource()
+    },
+    onRowsChanged (metadata) {
+      this.showEmptyView = !metadata.lastRow > 0
+      this.stats = metadata.stats
+      this.$emit('rowsChanged', metadata)
     },
     onRowSelected (params) {
-      if (this.rowSelectedHandler) {
-        this.rowSelectedHandler(params)
-      }
+      this.$emit('rowSelected', params)
     },
     onRowDoubleClicked (params) {
       const notApplicable = this.isRowPinned(params)
@@ -116,33 +132,43 @@ export default {
       this.$utils.router.redirectToFund(params.data.isin, {newTab: true})
     },
     getContextMenuItems (params) {
-      const notApplicable = this.isRowPinned(params)
-      if (notApplicable) {
-        return params.defaultItems
-      }
+      let contextMenu = params.defaultItems
 
-      const isin = params.node.data.isin
-      const isFavourite = this.watchlist.includes(isin)
-      return [
+      const filterContextMenuItems = [
         {
-          name: 'Add to watch list',
-          icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
+          name: 'Reset all Filters',
           action: () => {
-            this.addToWatchlist(isin)
-          },
-          disabled: isFavourite
-        },
-        {
-          name: 'Remove from watch list',
-          icon: '<i class="q-icon material-icons text-dark" style="font-size:15px" aria-hidden="true">star_border</i>',
-          action: () => {
-            this.removeFromWatchlist(isin)
-          },
-          disabled: !isFavourite
-        },
-        'separator',
-        ...params.defaultItems
+            params.context.resetFilters()
+          }
+        }
       ]
+      contextMenu = [...filterContextMenuItems, 'separator', ...contextMenu]
+
+      if (!this.isRowPinned(params)) {
+        // row is fund
+        const isin = params.node.data.isin
+        const isFavourite = this.watchlist.includes(isin)
+        const fundContextMenuItems = [
+          {
+            name: 'Add to watch list',
+            icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
+            action: () => {
+              params.context.addToWatchlist(isin)
+            },
+            disabled: isFavourite
+          },
+          {
+            name: 'Remove from watch list',
+            icon: '<i class="q-icon material-icons text-dark" style="font-size:15px" aria-hidden="true">star_border</i>',
+            action: () => {
+              params.context.removeFromWatchlist(isin)
+            },
+            disabled: !isFavourite
+          }
+        ]
+        contextMenu = [...fundContextMenuItems, 'separator', ...contextMenu]
+      }
+      return contextMenu
     },
     updateColDefs (params) {
       const returnsFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
@@ -157,19 +183,23 @@ export default {
         if (returnsFields.has(colDef.field)) {
           colDef.cellStyle = this.colourReturnsCellStyler
           colDef.filter = 'agNumberColumnFilter'
+          colDef.filterParams = {newRowsAction: 'keep', apply: true}
         }
         if (percentFields.has(colDef.field)) {
           colDef.valueFormatter = this.percentFormatter
           colDef.comparator = this.numberComparator
           colDef.filter = 'agNumberColumnFilter'
+          colDef.filterParams = {newRowsAction: 'keep', apply: true}
         }
         if (numberFields.has(colDef.field)) {
           colDef.valueFormatter = this.numberFormatter
           colDef.comparator = this.numberComparator
           colDef.filter = 'agNumberColumnFilter'
+          colDef.filterParams = {newRowsAction: 'keep', apply: true}
         }
         if (dateFields.has(colDef.field)) {
           colDef.filter = 'agDateColumnFilter'
+          colDef.filterParams = {newRowsAction: 'keep', apply: true}
         }
         colDef.headerTooltip = colDef.headerName
         return colDef
@@ -193,8 +223,8 @@ export default {
     },
     colourReturnsCellStyler (params) {
       const period = params.colDef.headerName
-      if (params.data.metadata) {
-        const score = params.data.metadata.scores[period]
+      if (params.data.scores) {
+        const score = params.data.scores[period]
         return this.$utils.format.colourNumberCell(score)
       }
       return undefined
@@ -205,11 +235,37 @@ export default {
     numDaysOutdated (params) {
       return this.$utils.date.diffBusinessDays(new Date(), params.data.asof)
     },
+    resetFilters () {
+      this.gridOptions.api.setFilterModel(null)
+    },
     togglePinnedRows () {
       this.gridOptions.api.setPinnedTopRowData(this.showPinnedRows ? this.pinnedRowsData : [])
     },
     isRowPinned (params) {
       return params.node.rowPinned
+    },
+    initDataSource () {
+      const self = this
+      this.gridOptions.api.setServerSideDatasource({
+        getRows: async params => {
+          try {
+            const {funds, metadata} = await self.$services.fund.list(this.isins, {
+              agGridRequest: params.request,
+              filterText: this.filterText
+            })
+
+            this.onRowsChanged(metadata)
+            if (metadata.lastRow) {
+              params.successCallback(funds, metadata.lastRow)
+              this.showEmptyView = false
+              return
+            }
+          } catch (err) {
+            params.failCallback()
+          }
+          this.showEmptyView = true
+        }
+      })
     },
     exportCsv () {
       const params = {
@@ -241,6 +297,9 @@ export default {
     }
   },
   watch: {
+    isins: function () {
+      this.initDataSource()
+    },
     showPinnedRows: function () {
       this.togglePinnedRows()
     },
@@ -248,7 +307,7 @@ export default {
       this.togglePinnedRows()
     },
     filterText: function (text) {
-      this.gridOptions.api.setQuickFilter(text)
+      this.initDataSource()
     },
     highlightIsin: function (isin) {
       this.gridOptions.api.redrawRows()

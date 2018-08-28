@@ -6,7 +6,7 @@
       q-btn.q-ml-xl(outline color="red" @click="clearWatchlist") Remove all
 
     // table
-    funds-rolling-table(:isins="watchlist" :highlightIsin="selectedIsin" @rowSelected="onRowSelected")
+    funds-table(:isins="watchlist" :highlightIsin="selectedIsin" @rowSelected="onRowSelected")
       template(slot="empty-view")
         q-tooltip
           .row.items-center

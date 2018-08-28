@@ -8,7 +8,6 @@ import FundChartGrid from 'components/fund/FundChartGrid'
 import FundCharges from 'components/fund/FundCharges'
 import FundHoldings from 'components/fund/FundHoldings'
 import FundsTable from 'components/fund/FundsTable'
-import FundsRollingTable from 'components/fund/FundsRollingTable'
 import FundsSummary from 'components/fund/FundsSummary'
 import FundWatchList from 'components/fund/FundWatchList'
 
@@ -29,7 +28,6 @@ export default ({ Vue }) => {
   Vue.component('fund-charges', FundCharges)
   Vue.component('fund-holdings', FundHoldings)
   Vue.component('funds-table', FundsTable)
-  Vue.component('funds-rolling-table', FundsRollingTable)
   Vue.component('funds-summary', FundsSummary)
   Vue.component('fund-watch-list', FundWatchList)
 

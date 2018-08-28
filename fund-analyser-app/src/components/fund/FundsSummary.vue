@@ -15,10 +15,8 @@
               q-tooltip {{ showPinnedRows ? 'Hide' : 'Show' }} statistics
 
     // actual table
-    //- funds-table(:funds="summary" :showPinnedRows="showPinnedRows" :showEmptyView="showEmptyView" :filterText="filterText"
-    //-             height="500px" ref="fundsTable")
-    funds-rolling-table(:showPinnedRows="showPinnedRows" :filterText="filterText" height="500px" ref="fundsTable"
-                        @rowsChanged="onRowsChanged")
+    funds-table(:showPinnedRows="showPinnedRows" :filterText="filterText" height="500px" ref="fundsTable"
+                @rowsChanged="onRowsChanged")
       template(slot="empty-view")
         q-chip.absolute-center.shadow-5.z-top(square detail icon="error" color="negative") Sorry, there are no matching funds
 </template>
