@@ -13,7 +13,7 @@
 
 export default {
   name: 'FundChartGrid',
-  props: ['funds', 'cols', 'selectedIsin', 'chartSelectedHandler'],
+  props: ['funds', 'cols', 'selectedIsin'],
   data () {
     return {
       selectedFund: null
@@ -57,9 +57,7 @@ export default {
       this.selectedFund = this.funds.find(f => f.isin === isin)
     },
     selectedFund: function (fund) {
-      if (this.chartSelectedHandler) {
-        this.chartSelectedHandler(fund)
-      }
+      this.$emit('chartSelected', fund)
     }
   }
 }

@@ -3,21 +3,23 @@
     // title
     .row.items-center
       .q-headline Watch List
-      q-btn.q-ml-xl(v-if="dataReady" outline color="red" @click="clearWatchlist") Remove all
+      q-btn.q-ml-xl(outline color="red" @click="clearWatchlist") Remove all
 
     // table
-    funds-table(:funds="funds" :showEmptyView="!dataReady" :highlightIsin="selectedIsin" :rowSelectedHandler="onRowSelected")
+    funds-rolling-table(:isins="watchlist" :highlightIsin="selectedIsin" @rowSelected="onRowSelected")
       template(slot="empty-view")
         q-tooltip
           .row.items-center
-            | Right click on funds in Summary view >
+            | Right click on funds in
+            .text-weight-bold.q-px-sm SUMMARY VIEW
+            | >
             q-icon.q-mx-xs(name="star" color="amber")
             | Add to watch list
-        q-chip.absolute-center.shadow-5(square detail icon="warning" color="secondary") Watchlist is empty
+        q-chip.absolute-center.shadow-5.z-top(square detail icon="warning" color="secondary") Your watchlist is empty
 
     // charts
     q-slide-transition
-      fund-chart-grid(:funds="funds" :cols="3" :selectedIsin="selectedIsin" :chartSelectedHandler="onChartSelected")
+      fund-chart-grid(:funds="funds" :cols="3" :selectedIsin="selectedIsin" @chartSelected="onChartSelected")
 </template>
 
 <script>
@@ -31,13 +33,7 @@ export default {
     }
   },
   computed: {
-    dataReady: function () {
-      return this.watchlist && this.watchlist.length
-    },
     funds: function () {
-      if (!this.dataReady) {
-        return []
-      }
       return this.watchlist.map(isin => this.lookupFund()(isin))
         .filter(f => f) // remove undefined entries in case fund not ready
     }

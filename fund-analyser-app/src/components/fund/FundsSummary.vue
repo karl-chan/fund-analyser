@@ -20,7 +20,7 @@
     funds-rolling-table(:showPinnedRows="showPinnedRows" :filterText="filterText" height="500px" ref="fundsTable"
                         @rowsChanged="onRowsChanged")
       template(slot="empty-view")
-        q-chip.absolute-center.shadow-5.z-max(square detail icon="error" color="negative") Sorry, there are no matching funds!
+        q-chip.absolute-center.shadow-5.z-top(square detail icon="error" color="negative") Sorry, there are no matching funds
 </template>
 
 <script>

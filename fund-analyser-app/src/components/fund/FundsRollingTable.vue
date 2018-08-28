@@ -23,8 +23,7 @@ export default {
     window: { type: Number, default: 200 },
     filterText: { type: String, default: '' },
     showPinnedRows: Boolean,
-    highlightIsin: Boolean,
-    rowSelectedHandler: Function
+    highlightIsin: String
   },
   data () {
     return {
@@ -83,10 +82,10 @@ export default {
             const pinnedClasses = ['text-bold', 'bg-dark', 'text-white']
             classes = [...classes, ...pinnedClasses]
           }
-          // if (params.data.isin === params.context.highlightIsin) {
-          //   const highlightClasses = ['bg-yellow']
-          //   classes = [...classes, ...highlightClasses]
-          // }
+          if (params.data && params.data.isin === params.context.highlightIsin) {
+            const highlightClasses = ['bg-yellow']
+            classes = [...classes, ...highlightClasses]
+          }
           return classes
         }
       }
@@ -100,14 +99,15 @@ export default {
   computed: {
     ...mapState('account', ['watchlist']),
     pinnedRowsData: function () {
+      if (!this.stats) {
+        return []
+      }
       const { maxReturns, minReturns, medianReturns } = this.stats
-      return maxReturns && minReturns && medianReturns
-        ? [
-          {isin: 'Max returns', returns: maxReturns},
-          {isin: 'Median returns', returns: medianReturns},
-          {isin: 'Min returns', returns: minReturns}
-        ]
-        : []
+      return [
+        {isin: 'Max returns', returns: maxReturns},
+        {isin: 'Median returns', returns: medianReturns},
+        {isin: 'Min returns', returns: minReturns}
+      ]
     }
   },
   methods: {
@@ -122,9 +122,7 @@ export default {
       this.$emit('rowsChanged', metadata)
     },
     onRowSelected (params) {
-      if (this.rowSelectedHandler) {
-        this.rowSelectedHandler(params)
-      }
+      this.$emit('rowSelected', params)
     },
     onRowDoubleClicked (params) {
       const notApplicable = this.isRowPinned(params)
@@ -300,7 +298,7 @@ export default {
   },
   watch: {
     isins: function () {
-      this.$services.fund.list()
+      this.initDataSource()
     },
     showPinnedRows: function () {
       this.togglePinnedRows()
