@@ -14,10 +14,11 @@ const log = require('../../lib/util/log.js')
 async function updateCatalog () {
     const newSedols = await new Promise((resolve, reject) => {
         new CharlesStanleyDirect().getSedols((err, sedols) => {
-            if (sedols && !sedols.length) {
-                err = new Error('No sedols found')
+            if (sedols && sedols.length) {
+                resolve(sedols)
+            } else {
+                reject(err || new Error('No sedols found'))
             }
-            err ? reject(err) : resolve(sedols)
         })
     })
 
@@ -34,12 +35,12 @@ async function updateCatalog () {
 
     const toRemove = _.difference(oldSedols, newSedols)
     const toAdd = _.difference(newSedols, oldSedols)
-    log.info(`To remove: %j`, toRemove)
-    log.info(`To add: %j`, toAdd)
+    log.info(`To remove: %s`, JSON.stringify(toRemove))
+    log.info(`To add: %s`, JSON.stringify(toAdd))
 
     // delete old sedols
     await db.getFunds().deleteMany({sedol: {$in: toRemove}})
-    log.info('Deleted old sedols: %j', toRemove)
+    log.info('Deleted old sedols: %s', JSON.stringify(toRemove))
 
     // insert new sedols with time 1970
     const funds = _.map(toAdd, (sedol) => {
@@ -50,5 +51,5 @@ async function updateCatalog () {
         return fund
     })
     await FundDAO.upsertFunds(funds)
-    log.info('Inserted new sedols: %j', toAdd)
+    log.info('Inserted new sedols: %s', JSON.stringify(toAdd))
 };

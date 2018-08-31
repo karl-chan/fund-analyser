@@ -25,7 +25,7 @@ async function updateFunds () {
         })
     })
     const sedols = _.map(fundsToUpdate, f => f.sedol)
-    log.info('Sedols to update: %j', sedols)
+    log.info('Sedols to update: %s', JSON.stringify(sedols))
 
     const fundStream = new FundFactory().streamFundsFromSedols(sedols)
     const upsertFundStream = streamWrapper.asWritable(FundDAO.upsertFund)
