@@ -16,7 +16,7 @@
           q-item(@click.native="openURL('https://www.charles-stanley-direct.co.uk/')")
             q-item-side(image="statics/charles-stanley-direct.jpg")
             q-item-main(label="Charles Stanley Direct")
-          q-item(@click.native="openURL('http://financialtimes.herokuapp.com/')")
+          q-item(@click.native="openURL('http://financialtimes3.herokuapp.com/')")
             q-item-side(avatar="statics/financial-times.jpg")
             q-item-main(label="Financial Times")
 </template>

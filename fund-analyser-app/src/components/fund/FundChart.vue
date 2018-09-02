@@ -21,7 +21,16 @@ export default {
           zoomType: 'x'
         },
         rangeSelector: {
-          selected: 2 // recent 6 months
+          selected: 2, // recent 6 months
+          buttons: [{ type: 'month', count: 1, text: '1M' },
+            { type: 'month', count: 3, text: '3M' },
+            { type: 'month', count: 6, text: '6M' },
+            { type: 'ytd', text: 'YTD' },
+            { type: 'year', count: 1, text: '1Y' },
+            { type: 'year', count: 3, text: '3Y' },
+            { type: 'year', count: 5, text: '5Y' },
+            { type: 'all', text: 'All' }
+          ]
         },
         title: {
           text: `${fund.name}`

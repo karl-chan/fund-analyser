@@ -1,12 +1,17 @@
 <template lang="pug">
   .column.gutter-y-sm
     // title
-    .row.items-center
-      .q-headline Watch List
-      q-btn.q-ml-xl(outline color="red" @click="clearWatchlist") Remove all
+    .row.justify-between.items-center
+      .row
+        .q-headline Watch List
+        q-btn.q-ml-xl(outline color="red" @click="clearWatchlist") Remove all
+      q-btn-group
+        q-btn(color="tertiary" :icon="showPinnedRows? 'expand_less': 'expand_more'" @click="togglePinnedRows")
+          q-tooltip {{ showPinnedRows ? 'Hide' : 'Show' }} statistics
 
     // table
-    funds-table(:isins="watchlist" :highlightIsin="selectedIsin" @rowSelected="onRowSelected")
+    funds-table(:isins="watchlist" :highlightIsin="selectedIsin" :showPinnedRows="showPinnedRows"
+                @rowSelected="onRowSelected")
       template(slot="empty-view")
         q-tooltip
           .row.items-center
@@ -29,7 +34,8 @@ export default {
   props: ['watchlist'],
   data () {
     return {
-      selectedIsin: null
+      selectedIsin: null,
+      showPinnedRows: false
     }
   },
   computed: {
@@ -46,6 +52,9 @@ export default {
     },
     onChartSelected (fund) {
       this.selectedIsin = fund && fund.isin
+    },
+    togglePinnedRows () {
+      this.showPinnedRows = !this.showPinnedRows
     }
   }
 }
