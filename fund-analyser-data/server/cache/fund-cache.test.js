@@ -14,11 +14,11 @@ describe('fund-cache', () => {
         await db.close()
         fundCache.shutdown()
     })
-    it('cache should be empty initially', () => {
+    test('cache should be empty initially', () => {
         const funds = fundCache.get()
         expect(funds).toEqual([])
     })
-    it('cache should be loaded after a short moment', (done) => {
+    test('cache should be loaded after a short moment', (done) => {
         const wait = moment.duration(5, 'seconds')
         setTimeout(() => {
             const funds = fundCache.get()

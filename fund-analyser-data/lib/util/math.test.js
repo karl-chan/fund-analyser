@@ -6,13 +6,13 @@ const _ = require('lodash')
 
 describe('math', () => {
     describe('pcToFloat', () => {
-        it('should return float for valid input', () => {
+        test('should return float for valid input', () => {
             const valid = ['0%', '2.3%']
             const expected = [0, 0.023]
             const actual = _.map(valid, math.pcToFloat)
             expect(actual).toEqual(expected)
         })
-        it('should return NaN for invalid input', () => {
+        test('should return NaN for invalid input', () => {
             const invalid = [undefined, null, '--']
             const expected = [NaN, NaN, NaN]
             const actual = _.map(invalid, math.pcToFloat)
@@ -21,13 +21,13 @@ describe('math', () => {
     })
 
     describe('floatToPc', () => {
-        it('should return percentage string for valid input', () => {
+        test('should return percentage string for valid input', () => {
             const valid = [0, 0.023]
             const expected = ['0%', '2.3%']
             const actual = _.map(valid, math.floatToPc)
             expect(actual).toEqual(expected)
         })
-        it('should return unchanged invalid input', () => {
+        test('should return unchanged invalid input', () => {
             const invalid = [NaN, undefined, null, '--']
             const expected = [NaN, undefined, null, '--']
             const actual = _.map(invalid, math.floatToPc)
@@ -47,7 +47,7 @@ describe('math', () => {
             new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
             new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
         ]
-        it('should find closest records', () => {
+        test('should find closest records', () => {
             const boundary = new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0)
             expect(math.closestRecord('5Y', historicPrices)).toEqual(boundary)
             expect(math.closestRecord('3Y', historicPrices)).toEqual(boundary)
@@ -79,7 +79,7 @@ describe('math', () => {
             new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
             new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
         ]
-        it('should append correct returns', () => {
+        test('should append correct returns', () => {
             const newReturns = math.enrichReturns(returns, historicPrices, additionalLookbacks)
             expect(newReturns).toContainKeys(Object.keys(returns))
             expect(newReturns).toHaveProperty('5Y', 0.5)
@@ -109,7 +109,7 @@ describe('math', () => {
             new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
             new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
         ]
-        it('should calc correct percentiles', () => {
+        test('should calc correct percentiles', () => {
             const newReturns = math.calcPercentiles(returns, historicPrices, additionalLookbacks)
             const boundary = (469 - 467) / (486 - 467)
             expect(newReturns).toHaveProperty('5Y', boundary)
@@ -131,7 +131,7 @@ describe('math', () => {
             new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
             new Fund.HistoricPrice(new Date(2017, 3, 12), 482.0)
         ]
-        it('should return a collection of indicators', () => {
+        test('should return a collection of indicators', () => {
             const indicators = math.calcIndicators(historicPrices)
             expect(indicators).toHaveProperty('stability')
             expect(indicators.stability).toBeNumber()

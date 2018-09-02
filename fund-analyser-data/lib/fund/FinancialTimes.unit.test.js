@@ -20,7 +20,7 @@ describe('FinancialTimes', function () {
     })
 
     describe('Core methods', function () {
-        it('getFundsFromIsins should return array of funds', function (done) {
+        test('getFundsFromIsins should return array of funds', function (done) {
             const isin1 = 'GB00B80QG615'
             const isin2 = 'GB00B80QFX11'
             const fund1 = Fund.Builder(isin1).build()
@@ -43,7 +43,7 @@ describe('FinancialTimes', function () {
             })
         })
 
-        it('getFundFromIsin should return fund', function (done) {
+        test('getFundFromIsin should return fund', function (done) {
             const isin = 'GB00000ISIN0'
             const summary = {
                 name: 'My fund',
@@ -108,7 +108,7 @@ describe('FinancialTimes', function () {
             })
         })
 
-        it('getSummary should return summary object', function (done) {
+        test('getSummary should return summary object', function (done) {
             financialTimes.getSummary('GB00B80QG615', (err, summary) => {
                 expect(summary).toHaveProperty('name', 'HSBC American Index Fund Accumulation C')
                 expect(summary).toHaveProperty('type', Fund.types.OEIC)
@@ -126,7 +126,7 @@ describe('FinancialTimes', function () {
             })
         })
 
-        it('getPerformance should return performance object', function (done) {
+        test('getPerformance should return performance object', function (done) {
             financialTimes.getPerformance('GB00B80QG615', (err, performance) => {
                 expect(performance).toHaveProperty('5Y')
                 expect(performance).toHaveProperty('3Y')
@@ -144,7 +144,7 @@ describe('FinancialTimes', function () {
             })
         })
 
-        it('getHistoricPrices should return historic prices object', function (done) {
+        test('getHistoricPrices should return historic prices object', function (done) {
             financialTimes.getHistoricPrices('GB00B80QG615', (err, historicPrices) => {
                 expect(historicPrices).toBeArray()
                 for (let hp of historicPrices) {
@@ -155,7 +155,7 @@ describe('FinancialTimes', function () {
             })
         })
 
-        it('getHoldings should return holdings object', function (done) {
+        test('getHoldings should return holdings object', function (done) {
             financialTimes.getHoldings('GB00B80QG615', (err, holdings) => {
                 expect(holdings).toBeArray()
                 expect(holdings).not.toBeEmpty()
@@ -174,7 +174,7 @@ describe('FinancialTimes', function () {
             })
         })
 
-        it('getRealTimeDetails should return real time details object', async () => {
+        test('getRealTimeDetails should return real time details object', async () => {
             const isin = 'GB00B80QG615'
             const historicPrices = [
                 new Fund.HistoricPrice(new Date(2017, 0, 1), 457.0)
@@ -205,7 +205,7 @@ describe('FinancialTimes', function () {
 
     describe('Stream methods', function () {
         const version = 'v2'
-        it('streamFundsFromIsins should return Transform stream outputting array of funds', function (done) {
+        test('streamFundsFromIsins should return Transform stream outputting array of funds', function (done) {
             isin1 = 'GB00B80QG615'
             isin2 = 'GB00B80QFX11'
             fund1 = Fund.Builder(isin1).build()

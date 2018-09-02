@@ -10,7 +10,7 @@ describe('CharlesStanleyDirect', () => {
         charlesStanleyDirect = new CharlesStanleyDirect()
     })
 
-    it('getIsins should be able to return large collection of sedols in Charles Stanley', done => {
+    test('getIsins should be able to return large collection of sedols in Charles Stanley', done => {
         charlesStanleyDirect.getSedols((err, sedols) => {
             expect(sedols).toBeArray()
             expect(sedols).toSatisfyAll(sedol => sedol.length === 7)

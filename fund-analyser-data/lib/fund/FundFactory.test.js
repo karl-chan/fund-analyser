@@ -11,7 +11,7 @@ describe('FundFactory', function () {
         fundFactory = new FundFactory()
     })
 
-    it('getFunds should return array of funds', function (done) {
+    test('getFunds should return array of funds', function (done) {
         const expected = [
             Fund.Builder('GB00000ISIN0').build(),
             Fund.Builder('GB00000ISIN1').build()
@@ -38,7 +38,7 @@ describe('FundFactory', function () {
         })
     })
 
-    it('streamFunds should return a Transform stream outputting array of funds', function (done) {
+    test('streamFunds should return a Transform stream outputting array of funds', function (done) {
         const isin1 = 'GB00000ISIN0'
         const isin2 = 'GB00000ISIN1'
         const fund1 = Fund.Builder(isin1).build()

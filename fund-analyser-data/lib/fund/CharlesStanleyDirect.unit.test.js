@@ -18,7 +18,7 @@ describe('CharlesStanleyDirect', () => {
     })
 
     describe('Core methods', () => {
-        it('getSedols should return array of sedols', done => {
+        test('getSedols should return array of sedols', done => {
             const pageRange = [1, 2]
             const sedols = ['SEDOL01', 'SEDOL02']
             const partialFunds = [
@@ -45,14 +45,14 @@ describe('CharlesStanleyDirect', () => {
             })
         })
 
-        it('getNumPages should return positive integer', done => {
+        test('getNumPages should return positive integer', done => {
             charlesStanleyDirect.getNumPages((err, numPages) => {
                 expect(numPages).toBeGreaterThan(80)
                 done(err)
             })
         })
 
-        it('getSedolsFromPage should return array of sedols', done => {
+        test('getSedolsFromPage should return array of sedols', done => {
             const samplePage = 1
             charlesStanleyDirect.getSedolsFromPage(samplePage, (err, sedols) => {
                 expect(sedols).toBeArray()
@@ -61,7 +61,7 @@ describe('CharlesStanleyDirect', () => {
             })
         })
 
-        it('getFundFromSedol should return partial fund', done => {
+        test('getFundFromSedol should return partial fund', done => {
             const sedol = 'B8N44B3'
             charlesStanleyDirect.getFundFromSedol(sedol, (err, partialFund) => {
                 expect(partialFund).toHaveProperty('isin', 'GB00B8N44B34')
@@ -73,7 +73,7 @@ describe('CharlesStanleyDirect', () => {
             })
         })
 
-        it('getPageRange should return array of consecutive ints', done => {
+        test('getPageRange should return array of consecutive ints', done => {
             const lastPage = 71
             charlesStanleyDirect.getPageRange(lastPage, (err, pageRange) => {
                 expect(pageRange).toEqual(_.range(1, lastPage + 1))
@@ -81,7 +81,7 @@ describe('CharlesStanleyDirect', () => {
             })
         })
 
-        it('getSedolsFromPages should return array of sedols', done => {
+        test('getSedolsFromPages should return array of sedols', done => {
             const pages = [1, 2]
 
             jest.spyOn(charlesStanleyDirect, 'getSedolsFromPage')
@@ -100,7 +100,7 @@ describe('CharlesStanleyDirect', () => {
             })
         })
 
-        it('getFundsFromSedols should return array of partial fund', done => {
+        test('getFundsFromSedols should return array of partial fund', done => {
             const sedols = ['SEDOL01', 'SEDOL02']
             const partialFunds = [
                 Fund.Builder('GB00000ISIN1').bidAskSpread(0.01),
@@ -126,7 +126,7 @@ describe('CharlesStanleyDirect', () => {
 
     describe('Stream methods', () => {
         const version = 'v2'
-        it('streamFunds should return Readable stream outputting array of partial funds', done => {
+        test('streamFunds should return Readable stream outputting array of partial funds', done => {
             const pageRange = [1, 2]
             const partialFunds = [
                 Fund.Builder('GB00000ISIN1').bidAskSpread(0.01),
@@ -169,7 +169,7 @@ describe('CharlesStanleyDirect', () => {
                     done(err)
                 }))
         })
-        it('streamNumPages should return Readable stream with single element', done => {
+        test('streamNumPages should return Readable stream with single element', done => {
             jest.spyOn(charlesStanleyDirect, 'getNumPages')
                 .mockImplementation(callback => {
                     callback(null, 71)
@@ -181,7 +181,7 @@ describe('CharlesStanleyDirect', () => {
                 done(err)
             }))
         })
-        it('streamPageRange should return Transform stream outputting array of consecutive ints', done => {
+        test('streamPageRange should return Transform stream outputting array of consecutive ints', done => {
             const lastPage = 71
             jest.spyOn(charlesStanleyDirect, 'getPageRange')
                 .mockImplementation((lastPage, callback) => {
@@ -197,7 +197,7 @@ describe('CharlesStanleyDirect', () => {
                     done(err)
                 }))
         })
-        it('streamSedolsFromPages should return Transform stream outputting array of sedols', done => {
+        test('streamSedolsFromPages should return Transform stream outputting array of sedols', done => {
             const pages = [1, 2]
             jest.spyOn(charlesStanleyDirect, 'getSedolsFromPage')
                 .mockImplementation((page, callback) => {
@@ -218,7 +218,7 @@ describe('CharlesStanleyDirect', () => {
                     done(err)
                 }))
         })
-        it('streamFundsFromSedols should return Transform stream outputting array of partial funds', done => {
+        test('streamFundsFromSedols should return Transform stream outputting array of partial funds', done => {
             const sedols = ['SEDOL01', 'SEDOL02']
             const partialFunds = [
                 Fund.Builder('GB00000ISIN1').bidAskSpread(0.01),

@@ -45,7 +45,7 @@ describe('FundCalculator', function () {
             .build()
     })
 
-    it('evaluate should evaluate fund', function (done) {
+    test('evaluate should evaluate fund', function (done) {
         const newReturns = _.assign(returns, {
             '2W': 0.01,
             '1W': 0.005
@@ -94,7 +94,7 @@ describe('FundCalculator', function () {
         })
     })
 
-    it('stream should return a Transform stream that evaluates fund', function (done) {
+    test('stream should return a Transform stream that evaluates fund', function (done) {
         const newReturns = _.assign(returns, {
             '2W': 0.01,
             '1W': 0.005

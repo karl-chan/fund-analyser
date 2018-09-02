@@ -25,20 +25,20 @@ describe('SessionDAO', function () {
         }
         sessionId = 'TEST'
     })
-    it('copy constructor', function () {
+    test('copy constructor', function () {
         expect(dao).toHaveProperty('user', 'user')
         expect(dao).toHaveProperty('pass', 'pass')
         expect(dao).toHaveProperty('memorableWord', 'memorableWord')
     })
-    it('serialise', function () {
+    test('serialise', function () {
         const result = SessionDAO.serialise(data, sessionId)
         expect(result).toEqual(entry)
     })
-    it('deserialise', function () {
+    test('deserialise', function () {
         const result = SessionDAO.deserialise(entry)
         expect(result).toEqual({data, sessionId})
     })
-    it('upsertSession, findSession and deleteSession', async function () {
+    test('upsertSession, findSession and deleteSession', async function () {
         await SessionDAO.upsertSession(data, sessionId)
         let retrievedSession = await SessionDAO.findSession(sessionId)
         expect(retrievedSession).toMatchObject(data)

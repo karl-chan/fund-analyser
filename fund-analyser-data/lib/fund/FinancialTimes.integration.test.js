@@ -10,7 +10,7 @@ describe('FinancialTimes', function () {
         financialTimes = new FinancialTimes()
     })
 
-    it('getFundsFromIsins should be able to return funds from Financial Times', function (done) {
+    test('getFundsFromIsins should be able to return funds from Financial Times', function (done) {
         const isins = Array(10).fill('GB00B80QG615')
         financialTimes.getFundsFromIsins(isins, (err, funds) => {
             expect(funds).toBeArray()

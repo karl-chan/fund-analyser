@@ -23,19 +23,19 @@ describe('UserDAO', function () {
             watchlist: ['isin1', 'isin2']
         }
     })
-    it('copy constructor', function () {
+    test('copy constructor', function () {
         expect(dao).toHaveProperty('user', 'user')
         expect(dao).toHaveProperty('meta', meta)
     })
-    it('serialise', function () {
+    test('serialise', function () {
         const result = UserDAO.serialise(user, meta)
         expect(result).toEqual(entry)
     })
-    it('deserialise', function () {
+    test('deserialise', function () {
         const result = UserDAO.deserialise(entry)
         expect(result).toEqual({user, meta})
     })
-    it('watchlist', async function () {
+    test('watchlist', async function () {
         await UserDAO.deleteUser(user)
 
         await UserDAO.createUserIfNotExists(user)
