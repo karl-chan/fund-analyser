@@ -1,9 +1,7 @@
 import VuexPersistence from 'vuex-persist'
-import localForage from 'localforage'
 
 export default new VuexPersistence({
-  strictMode: true,
-  storage: localForage,
+  storage: localStorage,
   reducer: state => ({
     account: {
       watchlist: state.account.watchlist,
