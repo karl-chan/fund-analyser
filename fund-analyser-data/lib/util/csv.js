@@ -1,7 +1,9 @@
-const JsonToCsvStream = require('json2csv-stream')
+const json2csv = require('json2csv')
+const CsvConverter = json2csv.Parser
+const CsvStreamer = json2csv.Transform
 
-const log = require('./log.js')
 const math = require('./math.js')
+const streamWrapper = require('./streamWrapper')
 
 const _ = require('lodash')
 
@@ -200,17 +202,26 @@ const formatFields = (fields) => {
     return _.map(fields, f => _.get(fieldMapping, f, f))
 }
 
-const streamParser = (headerFields) => {
-    const parser = new JsonToCsvStream()
-    parser.on('header', (data) => {
-        log.info('Header:')
-        log.info(data)
+const convert = (funds, headerFields) => {
+    const opts = {
+        fields: formatFields(headerFields)
+    }
+    return new CsvConverter(opts).parse(funds)
+}
+
+const convertStream = (headerFields) => {
+    const opts = {
+        fields: formatFields(headerFields)
+    }
+    const jsonTransform = streamWrapper.asTransform((fund, callback) => {
+        try {
+            callback(null, JSON.stringify(fund))
+        } catch (err) {
+            callback(err)
+        }
     })
-    parser.on('line', (data) => {
-        log.info('Line: ')
-        log.info(data)
-    })
-    return parser
+    const csvTransform = new CsvStreamer(opts)
+    return jsonTransform.pipe(csvTransform)
 }
 
 const toPercentage = (v) => {
@@ -219,6 +230,6 @@ const toPercentage = (v) => {
 }
 
 module.exports = {
-    formatFields,
-    streamParser
+    convert,
+    convertStream
 }

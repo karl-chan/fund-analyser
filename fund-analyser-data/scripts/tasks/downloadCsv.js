@@ -4,6 +4,7 @@ const properties = require('../../lib/util/properties.js')
 const log = require('../../lib/util/log.js')
 const FundDAO = require('../../lib/db/FundDAO.js')
 const moment = require('moment')
+const fs = require('fs')
 
 async function downloadCsv () {
     let savePath = properties.get('csv.save.path')
@@ -73,12 +74,14 @@ async function downloadCsv () {
         'percentiles.1Y', 'percentiles.6M', 'percentiles.3M', 'percentiles.1M', 'percentiles.2W',
         'percentiles.1W', 'percentiles.3D', 'percentiles.1D', 'indicators.stability', 'cv', 'holdings', 'asof']
     return new Promise((resolve, reject) => {
-        FundDAO.exportCsv(savePath, options, headerFields, (err) => {
-            if (err) {
-                return reject(err)
-            }
-            log.info('Saved csv file to %s', savePath)
-            return resolve()
+        FundDAO.exportCsv(headerFields, options, (err, csvFile) => {
+            if (err) { return reject(err) }
+
+            fs.writeFile(savePath, csvFile, (err) => {
+                if (err) { return reject(err) }
+                log.info('Saved csv file to %s', savePath)
+                return resolve()
+            })
         })
     })
 }

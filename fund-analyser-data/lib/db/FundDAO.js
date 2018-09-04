@@ -3,9 +3,7 @@ const log = require('../util/log.js')
 const csv = require('../util/csv.js')
 const Fund = require('../fund/Fund.js')
 
-const fs = require('fs')
 const _ = require('lodash')
-const json2csv = require('json2csv')
 const stream = require('stream')
 
 function FundDAO (fund) {
@@ -125,20 +123,16 @@ FundDAO.streamFunds = function (options) {
     return fundStream
 }
 
-FundDAO.exportCsv = function (savePath, options, headerFields, callback) {
+FundDAO.exportCsv = function (headerFields, options, callback) {
     FundDAO.listFunds(options, true, (err, funds) => {
         if (err) {
             return callback(err)
         }
-        const csvFile = json2csv({
-            data: funds,
-            fields: csv.formatFields(headerFields)
-        })
-        fs.writeFile(savePath, csvFile, callback)
+        callback(null, csv.convert(funds, headerFields))
     })
 }
 
-FundDAO.streamCsv = function (savepath, options, headerFields) {
+FundDAO.streamCsv = function (headerFields, options) {
     const fundStream = FundDAO.streamFunds(options)
     const parserStream = csv.streamParser(headerFields)
     const csvStream = fundStream.pipe(parserStream)

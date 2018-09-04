@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "download": "node scripts/main.js -r downloadCsv",
+    "downloadCsv": "node scripts/main.js -r downloadCsv",
     "createIndex": "node scripts/main.js -r createIndex",
     "updateFunds": "node scripts/main.js -r updateFunds",
     "updateCatalog": "node scripts/main.js -r updateCatalog",
@@ -37,7 +37,6 @@
     "heroku-client": "3.0.6",
     "jStat": "1.7.1",
     "json2csv": "4.2.1",
-    "json2csv-stream": "0.1.4",
     "koa": "2.5.2",
     "koa-bodyparser": "4.2.1",
     "koa-compress": "3.0.0",
@@ -58,7 +57,7 @@
     "semaphore": "1.1.0",
     "streaming-json-stringify": "3.1.0",
     "streamtest": "1.2.4",
-    "technicalindicators": "1.1.12",
+    "technicalindicators": "^1.1.13",
     "ua-parser-js": "^0.7.18",
     "winston": "3.0.0"
   },
