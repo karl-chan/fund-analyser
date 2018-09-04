@@ -51,7 +51,7 @@ FinancialTimes.prototype.getFundFromIsin = function (isin, callback) {
         }
         const [summary, performance, historicPrices, holdings] = results
 
-        const fund = new Fund.Builder(isin)
+        const fund = Fund.Builder(isin)
             .sedol(sedol)
             .name(summary.name)
             .type(summary.type)
@@ -237,26 +237,34 @@ FinancialTimes.prototype.getRealTimeDetails = async fund => {
                 if (err) {
                     return reject(err)
                 }
+                const $ = cheerio.load(body)
+                let currency, todaysChange
                 try {
-                    const $ = cheerio.load(body)
+                    const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(1) > span.mod-ui-data-list__label').text().trim()
+                    const groups = cell.match(/Price \((.*)\)/)
+                    currency = groups[1]
+                } catch (err) {
+                    log.warn('Currency failed for: %s. Cause: %s', holdingTicker, err.stack)
+                }
+
+                try {
                     const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(2) > .mod-ui-data-list__value').text().trim()
                     const groups = cell.match('(.*)/(.*)%')
-                    const todaysChange = groups[2] / 100
-                    return resolve(todaysChange)
+                    todaysChange = groups[2] / 100
                 } catch (err) {
                     log.warn('Todays change failed for: %s. Cause: %s', holdingTicker, err.stack)
-                    return resolve(null)
                 }
+                resolve({currency, todaysChange})
             })
         })
     }
 
-    const todaysChanges = await Promise.all(fund.holdings.map(async h => {
-        const change = h.symbol ? await getTodaysChange(h.symbol) : null
-        return {name: h.name, ticker: h.symbol, todaysChange: change, weight: h.weight}
+    const enrichedHoldings = await Promise.all(fund.holdings.map(async h => {
+        const {currency, todaysChange} = h.symbol ? await getTodaysChange(h.symbol) : {currency: null, todaysChange: null}
+        return {name: h.name, ticker: h.symbol, currency, todaysChange, weight: h.weight}
     }))
 
-    const realTimeDetails = { holdings: todaysChanges, lastUpdated: new Date() }
+    const realTimeDetails = { holdings: enrichedHoldings, lastUpdated: new Date() }
     return math.enrichRealTimeDetails(realTimeDetails, fund)
 }
 

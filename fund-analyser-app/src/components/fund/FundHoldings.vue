@@ -10,6 +10,8 @@
         q-btn(v-if="props.row.ticker" icon="info" @click="openURL('https://markets.ft.com/data/equities/tearsheet/summary?s=' + props.row.ticker)" color="primary" flat rounded dense)
       q-td(key="weight" :props="props")
         | {{ $utils.format.formatPercentage(props.row.weight) }}
+      q-td(key="currency" :props="props")
+        | {{ $utils.format.formatString(props.row.currency) }}
 </template>
 
 <script>
@@ -25,7 +27,8 @@ export default {
       columns: [
         {name: 'name', label: 'Name', field: 'name', sortable: true, align: 'left'},
         {name: 'todaysChange', label: 'Todays \'Change (%)', field: 'todaysChange', sortable: true, format: val => 100 * val},
-        {name: 'weight', label: 'Weight (%)', field: 'weight', sortable: true}
+        {name: 'weight', label: 'Weight (%)', field: 'weight', sortable: true},
+        {name: 'currency', label: 'Currency', field: 'currency', sortable: true}
       ]
     }
   },

@@ -24,6 +24,13 @@ export default {
     return fallbackValue == null ? '-' : fallbackValue
   },
 
+  formatString (s, fallbackValue) {
+    if (s == null) {
+      return this.fallbackDisplay(this.fallbackValue)
+    }
+    return s
+  },
+
   formatNumber (float, fallbackValue) {
     if (float == null) {
       return this.fallbackDisplay(fallbackValue)

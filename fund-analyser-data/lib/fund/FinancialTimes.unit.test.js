@@ -199,6 +199,7 @@ describe('FinancialTimes', function () {
             expect(realTimeDetails.stdev).toBeGreaterThan(0)
             expect(realTimeDetails.ci).toBeArrayOfSize(2)
             expect(realTimeDetails.holdings).toBeArrayOfSize(2)
+            expect(realTimeDetails.holdings).toSatisfyAll(h => h.currency && typeof h.currency === 'string' && h.currency.length === 3)
             expect(realTimeDetails.holdings).toSatisfyAll(h => h.todaysChange && typeof h.todaysChange === 'number')
         })
     })

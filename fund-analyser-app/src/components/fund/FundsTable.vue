@@ -82,7 +82,7 @@ export default {
             const pinnedClasses = ['text-bold', 'bg-dark', 'text-white']
             classes = [...classes, ...pinnedClasses]
           }
-          if (params.data && params.data.isin === params.context.highlightIsin) {
+          if (params.data && params.data.isin === params.context.highlightIsin && !params.context.isRowPinned(params)) {
             const highlightClasses = ['bg-yellow']
             classes = [...classes, ...highlightClasses]
           }

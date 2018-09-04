@@ -6,7 +6,8 @@ module.exports = {
     ],
     "env": {
         "node": true,
-        "jest": true
+        "jest": true,
+        "es6": true
     },
     "rules": {
         "indent":  ["error", 4]
