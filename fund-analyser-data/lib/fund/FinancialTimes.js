@@ -206,6 +206,10 @@ FinancialTimes.prototype.getHistoricPrices = function (isin, callback) {
     })
 }
 
+FinancialTimes.prototype.getHistoricExchangeRates = function (baseCurrency, quoteCurrency, callback) {
+    this.getHistoricPrices(`${baseCurrency}${quoteCurrency}`, callback)
+}
+
 FinancialTimes.prototype.getHoldings = function (isin, callback) {
     const url = `https://markets.ft.com/data/funds/tearsheet/holdings?s=${isin}`
     http.gets(url, (err, res, body) => {
@@ -232,31 +236,26 @@ FinancialTimes.prototype.getHoldings = function (isin, callback) {
 FinancialTimes.prototype.getRealTimeDetails = async fund => {
     const getTodaysChange = async holdingTicker => {
         const url = `https://markets.ft.com/data/equities/tearsheet/summary?s=${holdingTicker}`
-        return new Promise((resolve, reject) => {
-            http.gets(url, (err, res, body) => {
-                if (err) {
-                    return reject(err)
-                }
-                const $ = cheerio.load(body)
-                let currency, todaysChange
-                try {
-                    const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(1) > span.mod-ui-data-list__label').text().trim()
-                    const groups = cell.match(/Price \((.*)\)/)
-                    currency = groups[1]
-                } catch (err) {
-                    log.warn('Currency failed for: %s. Cause: %s', holdingTicker, err.stack)
-                }
 
-                try {
-                    const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(2) > .mod-ui-data-list__value').text().trim()
-                    const groups = cell.match('(.*)/(.*)%')
-                    todaysChange = groups[2] / 100
-                } catch (err) {
-                    log.warn('Todays change failed for: %s. Cause: %s', holdingTicker, err.stack)
-                }
-                resolve({currency, todaysChange})
-            })
-        })
+        const {body} = await http.asyncGet(url)
+        const $ = cheerio.load(body)
+        let currency, todaysChange
+        try {
+            const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(1) > span.mod-ui-data-list__label').text().trim()
+            const groups = cell.match(/Price \((.*)\)/)
+            currency = groups[1]
+        } catch (err) {
+            log.warn('Currency failed for: %s. Cause: %s', holdingTicker, err.stack)
+        }
+
+        try {
+            const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(2) > .mod-ui-data-list__value').text().trim()
+            const groups = cell.match('(.*)/(.*)%')
+            todaysChange = groups[2] / 100
+        } catch (err) {
+            log.warn('Todays change failed for: %s. Cause: %s', holdingTicker, err.stack)
+        }
+        return {currency, todaysChange}
     }
 
     const enrichedHoldings = await Promise.all(fund.holdings.map(async h => {
@@ -266,6 +265,22 @@ FinancialTimes.prototype.getRealTimeDetails = async fund => {
 
     const realTimeDetails = { holdings: enrichedHoldings, lastUpdated: new Date() }
     return math.enrichRealTimeDetails(realTimeDetails, fund)
+}
+
+FinancialTimes.prototype.listCurrencies = async () => {
+    const url = 'https://markets.ft.com/data/currencies'
+
+    const {body} = await http.asyncGet(url)
+    const $ = cheerio.load(body)
+    const currencyOptions = $('form.mod-currency-selector__controls select:nth-of-type(1)').find('option')
+    const currencies = _.sortedUniq(currencyOptions
+        .map((i, option) => {
+            return $(option).attr('value').trim()
+        })
+        .get()
+        .filter(text => text.length) // filter out empty string
+    )
+    return currencies
 }
 
 /**

@@ -147,9 +147,22 @@ describe('FinancialTimes', function () {
         test('getHistoricPrices should return historic prices object', function (done) {
             financialTimes.getHistoricPrices('GB00B80QG615', (err, historicPrices) => {
                 expect(historicPrices).toBeArray()
+                expect(historicPrices).not.toBeEmpty()
                 for (let hp of historicPrices) {
                     expect(moment(hp.date).isValid()).toBeTruthy()
                     expect(moment(hp.price)).not.toBeNaN()
+                }
+                done(err)
+            })
+        })
+
+        test('getHistoricExchangeRates should return historic exchange rates series', function (done) {
+            financialTimes.getHistoricExchangeRates('GBP', 'USD', (err, historicRates) => {
+                expect(historicRates).toBeArray()
+                expect(historicRates).not.toBeEmpty()
+                for (let hr of historicRates) {
+                    expect(moment(hr.date).isValid()).toBeTruthy()
+                    expect(moment(hr.price)).not.toBeNaN()
                 }
                 done(err)
             })
@@ -201,6 +214,12 @@ describe('FinancialTimes', function () {
             expect(realTimeDetails.holdings).toBeArrayOfSize(2)
             expect(realTimeDetails.holdings).toSatisfyAll(h => h.currency && typeof h.currency === 'string' && h.currency.length === 3)
             expect(realTimeDetails.holdings).toSatisfyAll(h => h.todaysChange && typeof h.todaysChange === 'number')
+        })
+
+        test('listCurrencies should return list of available currencies', async () => {
+            const currencies = await financialTimes.listCurrencies()
+            expect(currencies).toBeArray()
+            expect(currencies).toIncludeAllMembers(['GBP', 'USD', 'CNY', 'EUR', 'BRL'])
         })
     })
 
