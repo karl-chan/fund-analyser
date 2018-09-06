@@ -1,5 +1,6 @@
 module.exports = {
     calcMacd,
+    calcMdd,
     calcStability
 }
 
@@ -7,7 +8,7 @@ const _ = require('lodash')
 const ta = require('technicalindicators')
 
 function calcMacd (historicPrices) {
-    if (!historicPrices) {
+    if (_.isEmpty(historicPrices)) {
         return NaN
     }
     const options = {
@@ -22,29 +23,58 @@ function calcMacd (historicPrices) {
     return _.get(_.last(macd), 'histogram', NaN)
 }
 
+// TODO: backtesting platform
+// decurrency
+// equity curve
+// Maximum drawdown risk
+function calcMdd (historicPrices) {
+    if (_.isEmpty(historicPrices)) {
+        return NaN
+    }
+    let maxDrawdown = 0
+    let mostRecentPeak = historicPrices[0].price
+    let cumulativeDown = 0
+    for (let i = 0; i < historicPrices.length - 1; i++) {
+        const first = historicPrices[i]
+        const second = historicPrices[i + 1]
+        if (first.price < second.price) {
+            // increasing
+            maxDrawdown = Math.max(maxDrawdown, cumulativeDown / mostRecentPeak)
+            mostRecentPeak = second.price
+            cumulativeDown = 0
+        } else if (first.price >= second.price) {
+            // decreasing
+            cumulativeDown += (first.price - second.price)
+        }
+    }
+    return Math.max(maxDrawdown, cumulativeDown / mostRecentPeak)
+}
+
 function calcStability (historicPrices) {
     if (_.isEmpty(historicPrices) || historicPrices.length < 2) {
         return NaN
     }
-    let sum = 0
-    let sign = 1
+    let trendyDays = []
+    let sign = 0
+    let currTrendDays = 0
     for (let i = 0; i < historicPrices.length - 1; i++) {
         const first = historicPrices[i]
         const second = historicPrices[i + 1]
-        if (first.price <= second.price) {
-            // increasing
-            if (sign === 1) {
-                sum += 1
-            }
-            sign = 1
+        currTrendDays++
+        const turningPoint =
+                (sign < 0 && first.price < second.price) || // trough
+                (sign > 0 && first.price > second.price) // peak
+        if (turningPoint) {
+            trendyDays.push(currTrendDays)
+            currTrendDays = 0
+        }
+        if (first.price < second.price) {
+            sign = 1 // increasing
         } else if (first.price > second.price) {
-            // decreasing
-            if (sign === -1) {
-                sum += 1
-            }
-            sign = -1
+            sign = -1 // decreasing
         }
     }
-    const stability = sum / (historicPrices.length - 1)
-    return stability
+    currTrendDays++
+    trendyDays.push(currTrendDays)
+    return _.mean(trendyDays)
 }

@@ -44,27 +44,37 @@ describe('indicators', () => {
     })
 
     describe('calcMacd', () => {
-        it('should return nan for invalid or too few input', () => {
+        test('should return nan for invalid or too few input', () => {
             expect(indicators.calcMacd(null)).toBeNaN()
             expect(indicators.calcMacd([])).toBeNaN()
             expect(indicators.calcMacd(historicPrices.slice(0, 33))).toBeNaN()
         })
-        it('should return correct MACD', () => {
+        test('should return correct MACD', () => {
             expect(indicators.calcMacd(historicPrices)).toBeCloseTo(1.69)
         })
     })
 
+    describe('calcMdd', () => {
+        test('should return nan for invalid input', () => {
+            expect(indicators.calcMdd(null)).toBeNaN()
+            expect(indicators.calcMdd([])).toBeNaN()
+        })
+        test('should return correct MDD', () => {
+            expect(indicators.calcMdd(historicPrices)).toBeCloseTo(1.69)
+        })
+    })
+
     describe('calcStability', () => {
-        it('should return nan for invalid input', () => {
+        test('should return nan for invalid input', () => {
             expect(indicators.calcStability(null)).toBeNaN()
             expect(indicators.calcStability([])).toBeNaN()
             expect(indicators.calcStability([
                 new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0) // requires at least two datapoints
             ])).toBeNaN()
         })
-        it('should calculate correct stability', () => {
+        test('should calculate correct stability', () => {
             const stability = indicators.calcStability(historicPrices)
-            expect(stability).toBeCloseTo(0.59)
+            expect(stability).toBe(2.5)
         })
     })
 })
