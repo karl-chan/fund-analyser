@@ -70,9 +70,11 @@ export default {
       }
       return this.balance.holdings.map(h => {
         const fund = this.lookupFund()(h.ISIN)
-        const realTimeEstPct = fund.realTimeDetails.estChange
-        const realTimeEst = h.MktValue * realTimeEstPct
-        return { ...h, realTimeEstPct, realTimeEst }
+        if (fund) {
+          h.realTimeEstPct = fund.realTimeDetails.estChange
+          h.realTimeEst = h.MktValue * h.realTimeEstPct
+        }
+        return h
       })
     }
   },

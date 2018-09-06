@@ -112,7 +112,7 @@ function calcStats (funds) {
     }
     const rowWithReturns = funds.find(row => row.returns)
     const periods = Object.keys(rowWithReturns.returns)
-    const periodReturns = _.fromPairs(periods.map(period => [period, funds.map(fund => fund.returns && fund.returns[period]).filter(isFinite)]))
+    const periodReturns = _.fromPairs(periods.map(period => [period, funds.map(fund => fund.returns && fund.returns[period]).filter(_.isFinite)]))
     const maxReturns = _.fromPairs(periods.map(period => [period, stat.max(periodReturns[period])]))
     const minReturns = _.fromPairs(periods.map(period => [period, stat.min(periodReturns[period])]))
     // const meanReturns = _.fromPairs(periods.map(period => [period, mean(periodReturns[period])]))
