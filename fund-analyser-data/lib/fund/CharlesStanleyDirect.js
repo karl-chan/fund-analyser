@@ -83,9 +83,9 @@ CharlesStanleyDirect.prototype.getFundFromSedol = function (sedol, callback) {
         }
 
         // bid ask
-        const floatRegex = /[0-9]+(\.[0-9]+)?/
-        const bidPrice = parseFloat($('.fund-summary ul li:nth-child(1)').text().match(floatRegex)[0])
-        const askPrice = parseFloat($('.fund-summary ul li:nth-child(2)').text().match(floatRegex)[0])
+        const floatRegex = /[0-9,.\s]+/
+        const bidPrice = parseFloat($('.fund-summary ul li:nth-child(1)').text().match(floatRegex)[0].replace(/[,\s]/g, ''))
+        const askPrice = parseFloat($('.fund-summary ul li:nth-child(2)').text().match(floatRegex)[0].replace(/[,\s]/g, ''))
         const midPrice = (bidPrice + askPrice) / 2
         const bidAskSpread = (bidPrice - askPrice) / midPrice
 
