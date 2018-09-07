@@ -102,11 +102,11 @@ export default {
       if (!this.stats) {
         return []
       }
-      const { maxReturns, minReturns, medianReturns } = this.stats
+      const { max, min, median } = this.stats
       return [
-        {isin: 'Max returns', returns: maxReturns},
-        {isin: 'Median returns', returns: medianReturns},
-        {isin: 'Min returns', returns: minReturns}
+        {isin: 'Max', ...max},
+        {isin: 'Median', ...median},
+        {isin: 'Min', ...min}
       ]
     }
   },
@@ -233,7 +233,7 @@ export default {
       return this.$utils.number.numberComparator(a, b)
     },
     numDaysOutdated (params) {
-      return this.$utils.date.diffBusinessDays(new Date(), params.data.asof)
+      return !this.isRowPinned && this.$utils.date.diffBusinessDays(new Date(), params.data.asof)
     },
     resetFilters () {
       this.gridOptions.api.setFilterModel(null)
@@ -266,6 +266,9 @@ export default {
           this.showEmptyView = true
         }
       })
+    },
+    refresh () {
+      this.initDataSource()
     },
     exportCsv () {
       const params = {

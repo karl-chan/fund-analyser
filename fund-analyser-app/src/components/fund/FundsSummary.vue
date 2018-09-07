@@ -9,6 +9,8 @@
         div As of: {{ $utils.format.formatDateLong(asof) }}
         div
           q-btn-group
+            q-btn(color="tertiary" icon="refresh" @click="refreshData")
+              q-tooltip Refresh data
             q-btn(color="tertiary" icon="fas fa-file-excel" @click="exportCsv")
               q-tooltip Export to CSV
             q-btn(color="tertiary" :icon="showPinnedRows? 'expand_less': 'expand_more'" @click="togglePinnedRows")
@@ -44,6 +46,9 @@ export default {
     },
     onRowsChanged (metadata) {
       this.asof = metadata.asof
+    },
+    refreshData () {
+      this.$refs.fundsTable.refresh()
     },
     exportCsv () {
       this.$refs.fundsTable.exportCsv()
