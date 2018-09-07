@@ -107,26 +107,28 @@ function calcIndicators (historicPrices) {
 }
 
 function calcStats (funds) {
-    if (!funds.length || !funds.find(row => row.returns)) {
+    if (!funds.length) {
         return undefined
     }
-    const rowWithReturns = funds.find(row => row.returns)
-    const periods = Object.keys(rowWithReturns.returns)
-    const periodReturns = _.fromPairs(periods.map(period => [period, funds.map(fund => fund.returns && fund.returns[period]).filter(_.isFinite)]))
-    const maxReturns = _.fromPairs(periods.map(period => [period, stat.max(periodReturns[period])]))
-    const minReturns = _.fromPairs(periods.map(period => [period, stat.min(periodReturns[period])]))
-    // const meanReturns = _.fromPairs(periods.map(period => [period, mean(periodReturns[period])]))
-    const medianReturns = _.fromPairs(periods.map(period => [period, stat.median(periodReturns[period])]))
-    // const stddevReturns = _.fromPairs(periods.map(period => [period, stdev(periodReturns[period])]))
-    // const meddevReturns = _.fromPairs(periods.map(period => [period, meddev(periodReturns[period])]))
-    return {
-        minReturns,
-        maxReturns,
-        // meanReturns,
-        medianReturns
-        // stddevReturns,
-        // meddevReturns
+    const columns = ['ocf', 'amc', 'entryCharge', 'exitCharge', 'bidAskSpread', 'returns.5Y', 'returns.3Y',
+        'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'returns.2W',
+        'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D', 'indicators.stability', 'asof']
+
+    const getColumnValues = col => {
+        return funds.map(f => _.get(f, col))
     }
+    const keyValuesToFund = keyValuePairs => {
+        const fund = {}
+        for (let [key, value] of keyValuePairs) {
+            _.set(fund, key, value)
+        }
+        return fund
+    }
+
+    const max = keyValuesToFund(columns.map(col => [col, stat.max(getColumnValues(col))]))
+    const min = keyValuesToFund(columns.map(col => [col, stat.min(getColumnValues(col))]))
+    const median = keyValuesToFund(columns.map(col => [col, stat.median(getColumnValues(col))]))
+    return { max, min, median }
 }
 
 function enrichRealTimeDetails (realTimeDetails, fund) {

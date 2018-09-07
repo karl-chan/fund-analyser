@@ -125,6 +125,32 @@ describe('math', () => {
         })
     })
 
+    describe('calcStats', () => {
+        const funds = [
+            Fund.Builder('Fund1')
+                .ocf(0.07)
+                .entryCharge(0.02)
+                .returns({'5Y': 0.3})
+                .indicators({stability: 1})
+                .asof(new Date(2001, 0, 1))
+                .build(),
+            Fund.Builder('Fund2')
+                .amc(0.04)
+                .entryCharge(0.02)
+                .returns({'5Y': 0.1})
+                .indicators({stability: 2})
+                .asof(new Date(2001, 0, 2))
+                .build()
+        ]
+        test('should calc correct stats', () => {
+            const {max, min, median} = math.calcStats(funds)
+            expect(max).not.toHaveProperty('isin')
+            expect(max).toMatchObject({'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': undefined, 'returns': {'5Y': 0.3}, 'indicators': {'stability': 2}, 'asof': new Date(2001, 0, 2)})
+            expect(min).toMatchObject({'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': undefined, 'returns': {'5Y': 0.1}, 'indicators': {'stability': 1}, 'asof': new Date(2001, 0, 1)})
+            expect(median).toMatchObject({'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': NaN, 'returns': {'5Y': 0.2}, 'indicators': {'stability': 1.5}, 'asof': NaN})
+        })
+    })
+
     describe('calcIndicators', () => {
         const historicPrices = [
             new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),

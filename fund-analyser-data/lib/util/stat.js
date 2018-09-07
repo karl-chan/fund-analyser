@@ -49,13 +49,23 @@ function ci95 (mean, stdev, n) {
 }
 
 function min (arr) {
-    return jStat.min(arr)
+    return jStat.min(arr.filter(isOrdered))
 }
 
 function max (arr) {
-    return jStat.max(arr)
+    return jStat.max(arr.filter(isOrdered))
 }
 
 function median (arr) {
-    return jStat.median(arr)
+    return jStat.median(arr.filter(isOrdered))
+}
+
+function isOrdered (v) {
+    if (typeof v === 'number') {
+        return _.isFinite(v)
+    }
+    if (v instanceof Date) {
+        return true
+    }
+    return false
 }
