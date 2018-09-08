@@ -1,6 +1,5 @@
 const Router = require('koa-router')
 const auth = require('../auth')
-const log = require('../../lib/util/log.js')
 const CharlesStanleyDirectAccount = require('../../lib/account/CharlesStanleyDirectAccount')
 const UserDAO = require('../../lib/db/UserDAO')
 
@@ -16,7 +15,12 @@ router.get('/balance', async ctx => {
     const jar = ctx.jar
     const balance = await csdAccount.getBalance(jar)
     ctx.body = {balance}
-    log.info('Returned balance')
+})
+
+router.get('/statement', async ctx => {
+    const jar = ctx.jar
+    const statement = await csdAccount.getStatement(jar)
+    ctx.body = {statement}
 })
 
 router.get('/watchlist', async ctx => {

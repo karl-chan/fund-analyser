@@ -1,10 +1,10 @@
 module.exports = updateFunds
 
-const FundFactory = require('../../lib/fund/FundFactory.js')
-const FundDAO = require('../../lib/db/FundDAO.js')
-const streamWrapper = require('../../lib/util/streamWrapper.js')
-const db = require('../../lib/util/db.js')
-const log = require('../../lib/util/log.js')
+const FundFactory = require('../../lib/fund/FundFactory')
+const FundDAO = require('../../lib/db/FundDAO')
+const streamWrapper = require('../../lib/util/streamWrapper')
+const db = require('../../lib/util/db')
+const log = require('../../lib/util/log')
 
 const moment = require('moment')
 const _ = require('lodash')
@@ -28,10 +28,13 @@ async function updateFunds () {
     log.info('Sedols to update: %s', JSON.stringify(sedols))
 
     const fundStream = new FundFactory().streamFundsFromSedols(sedols)
+    const fundValidFilter = streamWrapper.asFilter(isFundValid)
     const upsertFundStream = streamWrapper.asWritable(FundDAO.upsertFund)
 
     await new Promise((resolve) => {
-        const stream = fundStream.pipe(upsertFundStream)
+        const stream = fundStream
+            .pipe(fundValidFilter)
+            .pipe(upsertFundStream)
         stream.on('finish', resolve)
     })
 
@@ -39,3 +42,11 @@ async function updateFunds () {
     await db.getFunds().deleteMany({name: {$eq: null}})
     log.info('Deleted funds without names')
 };
+
+function isFundValid (fund, callback) {
+    if (!fund.isValid()) {
+        log.warn('Fund is not valid: %j. Skipping upsert.', fund)
+        callback(null, false)
+    }
+    callback(null, true)
+}

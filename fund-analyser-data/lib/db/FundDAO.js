@@ -1,21 +1,27 @@
-const db = require('../util/db.js')
-const log = require('../util/log.js')
-const csv = require('../util/csv.js')
-const Fund = require('../fund/Fund.js')
+module.exports = {
+    fromFund,
+    toFund,
+    upsertFund,
+    upsertFunds,
+    listFunds,
+    streamFunds,
+    exportCsv,
+    streamCsv
+}
+
+const db = require('../util/db')
+const log = require('../util/log')
+const csv = require('../util/csv')
+const Fund = require('../fund/Fund')
 
 const _ = require('lodash')
 const stream = require('stream')
 
-function FundDAO (fund) {
-    _.assign(this, fund)
+function fromFund (fund) {
+    return _.toPlainObject(fund)
 }
 
-FundDAO.fromFund = function (fund) {
-    const entry = _.cloneDeep(fund)
-    return new FundDAO(entry)
-}
-
-FundDAO.toFund = function (entry) {
+function toFund (entry) {
     let builder = Fund.Builder(entry.isin)
 
     builder = _.isNil(entry.sedol) ? builder : builder.sedol(entry.sedol)
@@ -46,18 +52,10 @@ FundDAO.toFund = function (entry) {
     return builder.build()
 }
 
-FundDAO.upsertFund = function (fund, callback) {
-    const entry = FundDAO.fromFund(fund)
-    const query = { sedol: entry.sedol }
-    const doc = _.toPlainObject(entry)
-    const fundsCollection = db.getFunds()
-
-    if (!fund.isValid()) {
-        log.warn('Fund is not valid: %j. Skipping upsert.', fund)
-        return callback()
-    }
-
-    fundsCollection.replaceOne(query, doc, { upsert: true }, (err, response) => {
+function upsertFund (fund, callback) {
+    const query = { sedol: fund.sedol }
+    const doc = fromFund(fund)
+    db.getFunds().replaceOne(query, doc, { upsert: true }, (err, response) => {
         if (err) {
             return callback(err)
         }
@@ -66,9 +64,9 @@ FundDAO.upsertFund = function (fund, callback) {
     })
 }
 
-FundDAO.upsertFunds = async function (funds) {
+async function upsertFunds (funds) {
     const operations = _.map(funds, (fund) => {
-        const entry = FundDAO.fromFund(fund)
+        const entry = fromFund(fund)
         const query = { sedol: entry.sedol }
         const doc = _.toPlainObject(entry)
         const operation = { replaceOne: { filter: query, replacement: doc, upsert: true } }
@@ -93,7 +91,7 @@ FundDAO.upsertFunds = async function (funds) {
  * @param toPlainObject [optional] boolean - true: to plain object, false: to fund
  * @param callback
  */
-FundDAO.listFunds = function (options, toPlainObject, callback) {
+function listFunds (options, toPlainObject, callback) {
     // shift args if needed
     if (!callback) {
         callback = toPlainObject
@@ -102,17 +100,17 @@ FundDAO.listFunds = function (options, toPlainObject, callback) {
 
     let query = buildQuery(options)
     query.toArray((err, docs) => {
-        const transform = toPlainObject ? _.toPlainObject : FundDAO.toFund
+        const transform = toPlainObject ? _.toPlainObject : toFund
         return callback(err, _.map(docs, transform))
     })
 }
 
-FundDAO.streamFunds = function (options) {
+function streamFunds (options) {
     const dbStream = buildQuery(options).stream()
     const fundTransform = new stream.Transform({
         objectMode: true,
         transform (doc, encoding, callback) {
-            const fund = FundDAO.toFund(doc)
+            const fund = toFund(doc)
             return callback(null, fund)
         }
     })
@@ -123,8 +121,8 @@ FundDAO.streamFunds = function (options) {
     return fundStream
 }
 
-FundDAO.exportCsv = function (headerFields, options, callback) {
-    FundDAO.listFunds(options, true, (err, funds) => {
+function exportCsv (headerFields, options, callback) {
+    listFunds(options, true, (err, funds) => {
         if (err) {
             return callback(err)
         }
@@ -132,40 +130,14 @@ FundDAO.exportCsv = function (headerFields, options, callback) {
     })
 }
 
-FundDAO.streamCsv = function (headerFields, options) {
-    const fundStream = FundDAO.streamFunds(options)
+function streamCsv (headerFields, options) {
+    const fundStream = streamFunds(options)
     const parserStream = csv.streamParser(headerFields)
     const csvStream = fundStream.pipe(parserStream)
     fundStream.on('error', (err) => {
         csvStream.emit('error', err)
     })
     return csvStream
-}
-
-FundDAO.prototype.equals = function (o) {
-    if (!(o instanceof FundDAO)) {
-        return false
-    }
-    const omitField = '_id'
-    const selfCopy = _.omit(_.cloneDeep(this), omitField)
-    const otherCopy = _.omit(_.cloneDeep(o), omitField)
-
-    selfCopy.holdings = omitDeep(selfCopy.holdings, omitField)
-    otherCopy.holdings = omitDeep(otherCopy.holdings, omitField)
-    selfCopy.historicPrices = omitDeep(selfCopy.historicPrices, omitField)
-    otherCopy.historicPrices = omitDeep(otherCopy.historicPrices, omitField)
-    selfCopy.indicators = omitDeep(selfCopy.indicators, omitField)
-    otherCopy.indicators = omitDeep(otherCopy.indicators, omitField)
-
-    return _.isEqual(selfCopy, otherCopy)
-}
-
-function omitDeep (arr, omitField) {
-    const copy = _.clone(arr)
-    for (let i = 0; i < arr.length; i++) {
-        copy[i] = _.omit(arr[i], omitField)
-    }
-    return copy
 }
 
 const buildQuery = (options) => {
@@ -210,5 +182,3 @@ const buildFindQuery = (options) => {
 const buildAggregateQuery = (pipeline) => {
     return db.getFunds().aggregate(pipeline, { allowDiskUse: true })
 }
-
-module.exports = FundDAO

@@ -1,16 +1,17 @@
 const commander = require('commander')
 const _ = require('lodash')
 
-const db = require('../lib/util/db.js')
-const log = require('../lib/util/log.js')
-const Stopwatch = require('../lib/util/stopwatch.js')
+const db = require('../lib/util/db')
+const log = require('../lib/util/log')
+const Stopwatch = require('../lib/util/stopwatch')
 
-const updateFunds = require('./tasks/updateFunds.js')
-const updateCatalog = require('./tasks/updateCatalog.js')
-const createIndex = require('./tasks/createIndex.js')
-const repairDatabase = require('./tasks/repairDatabase.js')
-const downloadCsv = require('./tasks/downloadCsv.js')
-const dynoHealthcheck = require('./tasks/dynoHealthcheck.js')
+const updateFunds = require('./tasks/updateFunds')
+const updateCatalog = require('./tasks/updateCatalog')
+const updateCurrencies = require('./tasks/updateCurrencies')
+const createIndex = require('./tasks/createIndex')
+const repairDatabase = require('./tasks/repairDatabase')
+const downloadCsv = require('./tasks/downloadCsv')
+const dynoHealthcheck = require('./tasks/dynoHealthcheck')
 
 function Main () {
 }
@@ -18,6 +19,7 @@ function Main () {
 Main.tasks = {
     'updateCatalog': updateCatalog,
     'updateFunds': updateFunds,
+    'updateCurrencies': updateCurrencies,
     'createIndex': createIndex,
     'repairDatabase': repairDatabase,
     'downloadCsv': downloadCsv,

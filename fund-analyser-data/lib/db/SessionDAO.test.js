@@ -1,6 +1,6 @@
-const SessionDAO = require('./SessionDAO.js')
+const SessionDAO = require('./SessionDAO')
 
-const db = require('../util/db.js')
+const db = require('../util/db')
 
 describe('SessionDAO', function () {
     let entry, dao, data, sessionId

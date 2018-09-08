@@ -1,4 +1,4 @@
-const properties = require('./properties.js')
+const properties = require('./properties')
 const winston = require('winston')
 
 const log = winston.createLogger({

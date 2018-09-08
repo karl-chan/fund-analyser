@@ -2,10 +2,10 @@ module.exports = updateCatalog
 
 const CharlesStanleyDirect = require('../../lib/fund/CharlesStanleyDirect')
 const _ = require('lodash')
-const FundDAO = require('../../lib/db/FundDAO.js')
-const Fund = require('../../lib/fund/Fund.js')
-const db = require('../../lib/util/db.js')
-const log = require('../../lib/util/log.js')
+const FundDAO = require('../../lib/db/FundDAO')
+const Fund = require('../../lib/fund/Fund')
+const db = require('../../lib/util/db')
+const log = require('../../lib/util/log')
 
 /**
  * Update the latest list of sedols

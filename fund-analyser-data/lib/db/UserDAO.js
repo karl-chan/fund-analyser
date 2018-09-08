@@ -1,5 +1,5 @@
-const db = require('../util/db.js')
-const log = require('../util/log.js')
+const db = require('../util/db')
+const log = require('../util/log')
 const _ = require('lodash')
 
 /**

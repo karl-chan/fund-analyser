@@ -1,8 +1,8 @@
 module.exports = downloadCsv
 
-const properties = require('../../lib/util/properties.js')
-const log = require('../../lib/util/log.js')
-const FundDAO = require('../../lib/db/FundDAO.js')
+const properties = require('../../lib/util/properties')
+const log = require('../../lib/util/log')
+const FundDAO = require('../../lib/db/FundDAO')
 const moment = require('moment')
 const fs = require('fs')
 

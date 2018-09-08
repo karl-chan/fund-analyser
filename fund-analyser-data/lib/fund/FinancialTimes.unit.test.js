@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-expressions */
 
-const FinancialTimes = require('./FinancialTimes.js')
-const Fund = require('./Fund.js')
+const FinancialTimes = require('./FinancialTimes')
+const Fund = require('./Fund')
+const Currency = require('./Currency')
 const moment = require('moment')
 
 const TIMEOUT = 10000 // 10 seconds
@@ -114,32 +115,22 @@ describe('FinancialTimes', function () {
                 expect(summary).toHaveProperty('type', Fund.types.OEIC)
                 expect(summary).toHaveProperty('shareClass', Fund.shareClasses.ACC)
                 expect(summary).toHaveProperty('frequency', 'Daily')
-                expect(summary).toHaveProperty('ocf')
-                expect(summary).toHaveProperty('amc')
-                expect(summary).toHaveProperty('entryCharge')
-                expect(summary).toHaveProperty('exitCharge')
-                expect(summary.ocf).toBeNumber()
-                expect(summary.amc).toBeNumber()
-                expect(summary.entryCharge).toBeNumber()
-                expect(summary.exitCharge).toBeNumber()
+                expect(summary).toHaveProperty('ocf', expect.toBeNumber())
+                expect(summary).toHaveProperty('amc', expect.toBeNumber())
+                expect(summary).toHaveProperty('entryCharge', expect.toBeNumber())
+                expect(summary).toHaveProperty('exitCharge', expect.toBeNumber())
                 done(err)
             })
         })
 
         test('getPerformance should return performance object', function (done) {
             financialTimes.getPerformance('GB00B80QG615', (err, performance) => {
-                expect(performance).toHaveProperty('5Y')
-                expect(performance).toHaveProperty('3Y')
-                expect(performance).toHaveProperty('1Y')
-                expect(performance).toHaveProperty('6M')
-                expect(performance).toHaveProperty('3M')
-                expect(performance).toHaveProperty('1M')
-                expect(performance['5Y']).not.toBeNaN()
-                expect(performance['3Y']).not.toBeNaN()
-                expect(performance['1Y']).not.toBeNaN()
-                expect(performance['6M']).not.toBeNaN()
-                expect(performance['3M']).not.toBeNaN()
-                expect(performance['1M']).not.toBeNaN()
+                expect(performance).toHaveProperty('5Y', expect.not.toBeNaN())
+                expect(performance).toHaveProperty('3Y', expect.not.toBeNaN())
+                expect(performance).toHaveProperty('1Y', expect.not.toBeNaN())
+                expect(performance).toHaveProperty('6M', expect.not.toBeNaN())
+                expect(performance).toHaveProperty('3M', expect.not.toBeNaN())
+                expect(performance).toHaveProperty('1M', expect.not.toBeNaN())
                 done(err)
             })
         })
@@ -147,6 +138,7 @@ describe('FinancialTimes', function () {
         test('getHistoricPrices should return historic prices object', function (done) {
             financialTimes.getHistoricPrices('GB00B80QG615', (err, historicPrices) => {
                 expect(historicPrices).toBeArray()
+                expect(historicPrices).toSatisfyAll(hp => hp instanceof Fund.HistoricPrice)
                 expect(historicPrices).not.toBeEmpty()
                 for (let hp of historicPrices) {
                     expect(moment(hp.date).isValid()).toBeTruthy()
@@ -159,6 +151,7 @@ describe('FinancialTimes', function () {
         test('getHistoricExchangeRates should return historic exchange rates series', function (done) {
             financialTimes.getHistoricExchangeRates('GBP', 'USD', (err, historicRates) => {
                 expect(historicRates).toBeArray()
+                expect(historicRates).toSatisfyAll(hr => hr instanceof Currency.HistoricRate)
                 expect(historicRates).not.toBeEmpty()
                 for (let hr of historicRates) {
                     expect(moment(hr.date).isValid()).toBeTruthy()
@@ -174,14 +167,9 @@ describe('FinancialTimes', function () {
                 expect(holdings).not.toBeEmpty()
 
                 for (let h of holdings) {
-                    expect(h).toHaveProperty('name')
-                    expect(h).toHaveProperty('symbol')
-                    expect(h).toHaveProperty('weight')
-                    expect(h.name).toBeString()
-                    expect(h.name).not.toBeEmpty()
-                    expect(h.symbol).toBeString()
-                    expect(h.weight).toBeNumber()
-                    expect(h.weight).not.toBeNaN()
+                    expect(h).toHaveProperty('name', expect.toBeString().not.toBeEmpty())
+                    expect(h).toHaveProperty('symbol', expect.toBeString())
+                    expect(h).toHaveProperty('weight', expect.toBeFinite())
                 }
                 done(err)
             })

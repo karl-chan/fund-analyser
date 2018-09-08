@@ -1,12 +1,12 @@
-const FundDAO = require('./FundDAO.js')
-const Fund = require('../fund/Fund.js')
+const FundDAO = require('./FundDAO')
+const Fund = require('../fund/Fund')
 const StreamTest = require('streamtest')
 
 const _ = require('lodash')
-const db = require('../util/db.js')
+const db = require('../util/db')
 
 describe('FundDAO', function () {
-    let fund, dao, dao2
+    let fund, doc
     beforeAll(async () => {
         await db.init()
     })
@@ -42,8 +42,7 @@ describe('FundDAO', function () {
                 stability: -3
             })
             .build()
-        dao = new FundDAO({
-            _id: 'test',
+        doc = {
             isin: 'test',
             sedol: undefined,
             name: 'Test fund',
@@ -82,39 +81,27 @@ describe('FundDAO', function () {
                 stability: -3
             },
             realTimeDetails: undefined
-        })
-        dao2 = _.clone(dao)
+        }
     })
-    test('fromFund should return FundDAO object', function () {
+    test('fromFund should return plain object', function () {
         const actual = FundDAO.fromFund(fund)
-        expect(actual.equals(dao)).toBeTruthy()
+        expect(_.isPlainObject(actual)).toBeTruthy()
+        expect(fund).toMatchObject(actual)
     })
     test('toFund should return Fund object', function () {
-        const actual = FundDAO.toFund(dao)
-        expect(actual.equals(fund)).toBeTruthy()
+        const actual = FundDAO.toFund(doc)
+        expect(actual).toBeInstanceOf(Fund)
+        expect(actual).toEqual(fund)
     })
     test('upsertFund should upsert Fund object', function (done) {
         FundDAO.upsertFund(fund, (err) => {
             if (err) {
                 return done(err)
             }
-            db.getFunds().findOneAndDelete({isin: dao.isin}, (err, res) => {
+            db.getFunds().findOneAndDelete({isin: doc.isin}, (err, res) => {
                 const found = res.value
                 const foundFund = FundDAO.toFund(found)
-                expect(foundFund.equals(fund))
-                done(err)
-            })
-        })
-    })
-    test('upsertFund should remove obsolete record', function (done) {
-        const obsoleteFund = _.clone(fund)
-        obsoleteFund.name = ''
-        FundDAO.upsertFund(obsoleteFund, (err) => {
-            if (err) {
-                return done(err)
-            }
-            db.getFunds().findOneAndDelete({isin: dao.isin}, (err, res) => {
-                expect(res.value).toBeNull()
+                expect(foundFund).toEqual(fund)
                 done(err)
             })
         })
@@ -139,69 +126,5 @@ describe('FundDAO', function () {
             }
             done(err)
         }))
-    })
-
-    test('equals should return true for equal FundDAO objects', function () {
-        expect(dao.equals(dao2)).toBeTruthy()
-    })
-
-    test('equals should return false for different fund name', function () {
-        dao2.name = 'Different'
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different fund type', function () {
-        dao2.type = Fund.types.OEIC
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different share classes', function () {
-        dao2.shareClass = Fund.shareClasses.OEIC
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different pricing frequencies', function () {
-        dao2.frequency = 'Weekly'
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different ongoing fund charge', function () {
-        dao2.ocf = 0
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different annual management charge', function () {
-        dao2.amc = 0
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different entry charge', function () {
-        dao2.entryCharge = 100
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different exit charge', function () {
-        dao2.exitCharge = 100
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different holdings', function () {
-        dao2.holdings = [{
-            holdings: 'Different Holding',
-            symbol: 'TEST',
-            weight: 0
-        }]
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different historic prices', function () {
-        dao2.historicPrices = [{
-            date: new Date(2001, 1, 1),
-            price: 457.0
-        }]
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different returns', function () {
-        dao2.returns = {'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': 0}
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different percentiles', function () {
-        dao2.percentiles = {'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': 0}
-        expect(dao.equals(dao2)).toBeFalsy()
-    })
-    test('equals should return false for different indicators', function () {
-        dao2.indicators = {stability: 0}
-        expect(dao.equals(dao2)).toBeFalsy()
     })
 })

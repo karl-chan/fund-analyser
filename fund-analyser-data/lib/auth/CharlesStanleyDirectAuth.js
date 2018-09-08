@@ -1,7 +1,7 @@
 module.exports = CharlesStanleyDirectAuth
 
-const http = require('../util/http.js')
-const log = require('../util/log.js')
+const http = require('../util/http')
+const log = require('../util/log')
 const cheerio = require('cheerio')
 const request = require('request')
 

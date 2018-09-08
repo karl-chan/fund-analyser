@@ -1,8 +1,9 @@
 const json2csv = require('json2csv')
+const stream = require('stream')
 const CsvConverter = json2csv.Parser
 const CsvStreamer = json2csv.Transform
 
-const math = require('./math.js')
+const math = require('./math')
 const streamWrapper = require('./streamWrapper')
 
 const _ = require('lodash')
@@ -213,11 +214,15 @@ const convertStream = (headerFields) => {
     const opts = {
         fields: formatFields(headerFields)
     }
-    const jsonTransform = streamWrapper.asTransform((fund, callback) => {
-        try {
-            callback(null, JSON.stringify(fund))
-        } catch (err) {
-            callback(err)
+    const jsonTransform = stream.Transform({
+        allowHalfOpen: false,
+        writableObjectMode: true,
+        transform (fund, encoding, callback) {
+            try {
+                callback(null, JSON.stringify(fund))
+            } catch (err) {
+                callback(err)
+            }
         }
     })
     const csvTransform = new CsvStreamer(opts)

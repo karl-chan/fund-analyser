@@ -1,4 +1,4 @@
-const stat = require('./stat.js')
+const stat = require('./stat')
 
 describe('stat', () => {
     describe('weightedMean', () => {

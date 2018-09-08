@@ -1,5 +1,5 @@
-const FundFactory = require('./FundFactory.js')
-const Fund = require('./Fund.js')
+const FundFactory = require('./FundFactory')
+const Fund = require('./Fund')
 const stream = require('stream')
 
 const StreamTest = require('streamtest')

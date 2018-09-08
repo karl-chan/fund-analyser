@@ -3,8 +3,8 @@ module.exports = dynoHealthcheck
 const _ = require('lodash')
 const moment = require('moment')
 
-const heroku = require('../../lib/util/heroku.js')
-const log = require('../../lib/util/log.js')
+const heroku = require('../../lib/util/heroku')
+const log = require('../../lib/util/log')
 
 const idleThreshold = moment.duration(5, 'minutes')
 

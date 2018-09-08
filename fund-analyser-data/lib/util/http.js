@@ -1,5 +1,5 @@
-const properties = require('./properties.js')
-const log = require('./log.js')
+const properties = require('./properties')
+const log = require('./log')
 
 const defaultMaxAttempts = properties.get('http.max.attempts')
 const defaultRetryInterval = properties.get('http.retry.interval')

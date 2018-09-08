@@ -13,14 +13,14 @@ const properties = require('../lib/util/properties')
 const db = require('../lib/util/db')
 const log = require('../lib/util/log')
 const SessionDAO = require('../lib/db/SessionDAO')
-const Stopwatch = require('../lib/util/stopwatch.js')
+const Stopwatch = require('../lib/util/stopwatch')
 
 const auth = require('./auth')
 const accountRoutes = require('./routes/account-routes')
 const authRoutes = require('./routes/auth-routes')
 const fundsRoutes = require('./routes/funds-routes')
 const miscRoutes = require('./routes/misc-routes')
-const fundCache = require('./cache/fund-cache')
+const fundCache = require('./cache/fundCache')
 
 const PORT = process.env.PORT || properties.get('server.default.port')
 

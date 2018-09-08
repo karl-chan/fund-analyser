@@ -1,6 +1,6 @@
-const UserDAO = require('./UserDAO.js')
+const UserDAO = require('./UserDAO')
 
-const db = require('../util/db.js')
+const db = require('../util/db')
 
 describe('UserDAO', function () {
     let entry, dao, user, meta

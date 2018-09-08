@@ -1,6 +1,6 @@
 const Router = require('koa-router')
-const log = require('../../lib/util/log.js')
-const security = require('../../lib/util/security.js')
+const log = require('../../lib/util/log')
+const security = require('../../lib/util/security')
 const auth = require('../auth')
 
 const AUTH_URL_PREFIX = '/api/auth'

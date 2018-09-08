@@ -4,7 +4,7 @@ module.exports = {
     parseUserAgent
 }
 
-const properties = require('./properties.js')
+const properties = require('./properties')
 const CryptoJS = require('crypto-js')
 const userAgentParser = require('ua-parser-js')
 

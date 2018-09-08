@@ -1,4 +1,4 @@
-const security = require('./security.js')
+const security = require('./security')
 
 describe('encrypt', () => {
     test('encryptString decryptString should be inverses', () => {

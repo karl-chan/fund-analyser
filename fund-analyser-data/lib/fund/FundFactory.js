@@ -1,8 +1,8 @@
 module.exports = FundFactory
 
-const CharlesStanleyDirect = require('./CharlesStanleyDirect.js')
-const FinancialTimes = require('./FinancialTimes.js')
-const FundCalculator = require('./FundCalculator.js')
+const CharlesStanleyDirect = require('./CharlesStanleyDirect')
+const FinancialTimes = require('./FinancialTimes')
+const FundCalculator = require('./FundCalculator')
 
 const async = require('async')
 const StreamTest = require('streamtest')

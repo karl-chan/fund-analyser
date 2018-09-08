@@ -1,4 +1,4 @@
-const geolocation = require('./geolocation.js')
+const geolocation = require('./geolocation')
 
 describe('geolocation', () => {
     describe('getLocationByIp', () => {

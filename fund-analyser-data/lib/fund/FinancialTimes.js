@@ -1,11 +1,13 @@
 module.exports = FinancialTimes
 
-const Fund = require('./Fund.js')
-const math = require('../util/math.js')
-const http = require('../util/http.js')
-const log = require('../util/log.js')
-const properties = require('../util/properties.js')
-const streamWrapper = require('../util/streamWrapper.js')
+const Fund = require('./Fund')
+const Currency = require('../currency/Currency')
+const math = require('../util/math')
+const fundUtils = require('../util/fundUtils')
+const http = require('../util/http')
+const log = require('../util/log')
+const properties = require('../util/properties')
+const streamWrapper = require('../util/streamWrapper')
 
 const _ = require('lodash')
 const async = require('async')
@@ -207,7 +209,12 @@ FinancialTimes.prototype.getHistoricPrices = function (isin, callback) {
 }
 
 FinancialTimes.prototype.getHistoricExchangeRates = function (baseCurrency, quoteCurrency, callback) {
-    this.getHistoricPrices(`${baseCurrency}${quoteCurrency}`, callback)
+    this.getHistoricPrices(`${baseCurrency}${quoteCurrency}`, (err, entries) => {
+        if (err) {
+            return callback(err)
+        }
+        callback(null, entries.map(entry => new Currency.HistoricRate(entry.date, entry.price)))
+    })
 }
 
 FinancialTimes.prototype.getHoldings = function (isin, callback) {
@@ -264,7 +271,7 @@ FinancialTimes.prototype.getRealTimeDetails = async fund => {
     }))
 
     const realTimeDetails = { holdings: enrichedHoldings, lastUpdated: new Date() }
-    return math.enrichRealTimeDetails(realTimeDetails, fund)
+    return fundUtils.enrichRealTimeDetails(realTimeDetails, fund)
 }
 
 FinancialTimes.prototype.listCurrencies = async () => {

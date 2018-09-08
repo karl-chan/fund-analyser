@@ -1,6 +1,6 @@
 module.exports = createIndex
 
-const db = require('../../lib/util/db.js')
+const db = require('../../lib/util/db')
 
 /**
  * Create index on popular fields for sorting

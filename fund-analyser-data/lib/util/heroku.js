@@ -1,5 +1,5 @@
 
-const properties = require('./properties.js')
+const properties = require('./properties')
 const http = require('./http')
 const log = require('./log')
 const Heroku = require('heroku-client')

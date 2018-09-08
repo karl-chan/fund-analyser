@@ -1,8 +1,11 @@
 const Router = require('koa-router')
+const moment = require('moment')
+const csv = require('../../lib/util/csv')
 const db = require('../../lib/util/db')
 const agGrid = require('../../lib/util/agGrid')
-const fundCache = require('../cache/fund-cache')
+const fundCache = require('../cache/fundCache')
 const FinancialTimes = require('../../lib/fund/FinancialTimes')
+const FundDAO = require('../../lib/db/FundDAO')
 
 const FUNDS_URL_PREFIX = '/api/funds'
 const router = new Router({
@@ -57,6 +60,19 @@ router.post('/list', async ctx => {
         funds: showFunds,
         metadata: { lastRow, asof, stats }
     }
+})
+
+router.get('/csv', async ctx => {
+    const options = {
+        projection: { _id: 0, historicPrices: 0 }
+    }
+    const headerFields = ['isin', 'name', 'type', 'shareClass', 'frequency',
+        'ocf', 'amc', 'entryCharge', 'exitCharge', 'bidAskSpread', 'returns.5Y', 'returns.3Y',
+        'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'returns.2W',
+        'returns.1W', 'returns.3D', 'returns.1D', 'indicators.stability', 'holdings', 'asof']
+    ctx.body = FundDAO.streamCsv(headerFields, options)
+    ctx.set('Content-disposition', `attachment;filename=fund_${moment().format('YYYYMMDD')}.csv`)
+    ctx.set('Content-type', 'text/csv')
 })
 
 module.exports = router

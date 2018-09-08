@@ -1,5 +1,5 @@
-const FundCalculator = require('./FundCalculator.js')
-const Fund = require('./Fund.js')
+const FundCalculator = require('./FundCalculator')
+const Fund = require('./Fund')
 
 const _ = require('lodash')
 

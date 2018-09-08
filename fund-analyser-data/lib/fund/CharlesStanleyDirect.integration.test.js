@@ -1,4 +1,4 @@
-const CharlesStanleyDirect = require('./CharlesStanleyDirect.js')
+const CharlesStanleyDirect = require('./CharlesStanleyDirect')
 
 const TIMEOUT = 600000 // 10 mins
 

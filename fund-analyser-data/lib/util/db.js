@@ -2,12 +2,13 @@ module.exports = {
     init,
     get,
     getFunds,
+    getCurrencies,
     getSessions,
     getUsers,
     close
 }
 
-const properties = require('./properties.js')
+const properties = require('./properties')
 const uri = properties.get('db.mongo.uri')
 
 const MongoClient = require('mongodb').MongoClient
@@ -25,6 +26,10 @@ function get () {
 
 function getFunds () {
     return _db.collection('funds')
+}
+
+function getCurrencies () {
+    return _db.collection('currencies')
 }
 
 function getSessions () {

@@ -9,7 +9,7 @@ module.exports = {
 }
 
 const _ = require('lodash')
-const jStat = require('jStat').jStat
+const jStat = require('jStat')
 
 // [w1, w2, ...] normalise such that w1' / w2' = w1 / w2 and w1' + w2' = 1
 function normaliseWeights (weights) {

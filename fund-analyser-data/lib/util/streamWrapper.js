@@ -2,6 +2,7 @@ module.exports = {
     asReadable,
     asWritable,
     asTransform,
+    asFilter,
     asParallelTransform
 }
 
@@ -95,6 +96,30 @@ function asTransform (fn) {
         process.exit(-1)
     })
     return transformStream
+}
+
+function asFilter (fn) {
+    const filterStream = new stream.Transform({
+        allowHalfOpen: false,
+        objectMode: true,
+        transform (chunk, encoding, callback) {
+            fn(chunk, (err, bool) => {
+                if (err) {
+                    this.emit('error', err)
+                    return callback(err)
+                }
+                if (bool) {
+                    this.push(chunk)
+                }
+                return callback()
+            })
+        }
+    })
+    filterStream.on('error', function (err) {
+        log.error(err)
+        process.exit(-1)
+    })
+    return filterStream
 }
 
 /**

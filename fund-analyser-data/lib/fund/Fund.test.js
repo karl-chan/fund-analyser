@@ -1,76 +1,70 @@
-const Fund = require('./Fund.js')
+const Fund = require('./Fund')
 
 describe('Fund', function () {
-    let fund1, fund2
-    beforeEach(function () {
-        fund1 = Fund.Builder('test')
-            .name('Test fund')
-            .type(Fund.types.UNIT)
-            .shareClass(Fund.shareClasses.ACC)
-            .frequency('Daily')
-            .ocf(0.0007)
-            .amc(0.0004)
-            .entryCharge(0)
-            .exitCharge(0)
-            .holdings([new Fund.Holding('Test Holding', 'TEST', 0)])
-            .historicPrices([new Fund.HistoricPrice(new Date(2017, 3, 23), 457.0)])
-            .returns({'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2})
-            .build()
-        fund2 = Fund.Builder('test')
-            .name('Test fund')
-            .type(Fund.types.UNIT)
-            .shareClass(Fund.shareClasses.ACC)
-            .frequency('Daily')
-            .ocf(0.0007)
-            .amc(0.0004)
-            .entryCharge(0)
-            .exitCharge(0)
-            .holdings([new Fund.Holding('Test Holding', 'TEST', 0)])
-            .historicPrices([new Fund.HistoricPrice(new Date(2017, 3, 23), 457.0)])
-            .returns({'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2})
-            .build()
+    let isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge,
+        bidAskSpread, holdings, historicPrices, returns, percentiles, asof, indicators, realTimeDetails
+    let fund
+
+    beforeEach(() => {
+        isin = 'GB00B80QG615'
+        sedol = 'B80QG61'
+        name = 'HSBC American Index Fund Accumulation C'
+        type = Fund.types.OEIC
+        shareClass = Fund.shareClasses.ACC
+        frequency = 'Daily'
+        ocf = 0.0006
+        amc = NaN
+        entryCharge = 0
+        exitCharge = 0
+        bidAskSpread = NaN
+        holdings = [ new Fund.Holding('Apple Inc', 'AAPL:NSQ', 0.0407) ]
+        historicPrices = [ new Fund.HistoricPrice(new Date(2015, 8, 9), 3.198), new Fund.HistoricPrice(new Date(2015, 8, 10), 3.149) ]
+        returns = { '5Y': 0.1767, '3Y': 0.226 }
+        percentiles = { '5Y': 0.95, '3Y': 0.95 }
+        asof = new Date(2018, 8, 8)
+        indicators = { stability: 1.96 }
+        realTimeDetails = { estChange: -0.00123 }
+
+        fund = new Fund(isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge,
+            bidAskSpread, holdings, historicPrices, returns, percentiles, asof, indicators, realTimeDetails)
     })
-    test('equals should return true for equal Fund objects', function () {
-        expect(fund1.equals(fund2)).toBeTruthy()
+    test('constructor should populate Fund with correct fields', () => {
+        expect(fund).toMatchObject({ isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge, bidAskSpread, holdings, historicPrices, returns, percentiles, asof, indicators, realTimeDetails })
     })
-    test('equals should return false for different fund name', function () {
-        fund2.name = 'Different'
-        expect(fund1.equals(fund2)).toBeFalsy()
+
+    test('isValid should return true for fund with name', () => {
+        expect(fund.isValid()).toBeTruthy()
     })
-    test('equals should return false for different share classes', function () {
-        fund2.shareClass = Fund.shareClasses.INC
-        expect(fund1.equals(fund2)).toBeFalsy()
+    test('isValid should return false for fund without name', () => {
+        const undefinedNameFund = new Fund(isin, sedol, undefined)
+        const nullNameFund = new Fund(isin, sedol, null)
+        const emptyNameFund = new Fund(isin, sedol, '')
+        expect([undefinedNameFund, nullNameFund, emptyNameFund]).toSatisfyAll(f => !f.isValid())
     })
-    test('equals should return false for different pricing frequencies', function () {
-        fund2.frequency = 'Weekly'
-        expect(fund1.equals(fund2)).toBeFalsy()
-    })
-    test('equals should return false for different ongoing fund charge', function () {
-        fund2.ocf = 0
-        expect(fund1.equals(fund2)).toBeFalsy()
-    })
-    test('equals should return false for different annual management charge', function () {
-        fund2.amc = 0
-        expect(fund1.equals(fund2)).toBeFalsy()
-    })
-    test('equals should return false for different entry charge', function () {
-        fund2.entryCharge = NaN
-        expect(fund1.equals(fund2)).toBeFalsy()
-    })
-    test('equals should return false for different exit charge', function () {
-        fund2.exitCharge = NaN
-        expect(fund1.equals(fund2)).toBeFalsy()
-    })
-    test('equals should return false for different holdings', function () {
-        fund2.holdings = [new Fund.Holding('Different Holding', 'TEST', 0)]
-        expect(fund1.equals(fund2)).toBeFalsy()
-    })
-    test('equals should return false for different historic prices', function () {
-        fund2.historicPrices = [new Fund.HistoricPrice(new Date(2001, 1, 1), 457.0)]
-        expect(fund1.equals(fund2)).toBeFalsy()
-    })
-    test('equals should return false for different returns', function () {
-        fund2.returns = {'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': 0}
-        expect(fund1.equals(fund2)).toBeFalsy()
+
+    describe('Builder', () => {
+        test('build should bulid Fund object', () => {
+            const builder = Fund.Builder(isin)
+                .sedol(sedol)
+                .name(name)
+                .type(type)
+                .shareClass(shareClass)
+                .frequency(frequency)
+                .ocf(ocf)
+                .amc(amc)
+                .entryCharge(entryCharge)
+                .exitCharge(exitCharge)
+                .bidAskSpread(bidAskSpread)
+                .holdings(holdings)
+                .historicPrices(historicPrices)
+                .returns(returns)
+                .percentiles(percentiles)
+                .asof(asof)
+                .indicators(indicators)
+                .realTimeDetails(realTimeDetails)
+            const actual = builder.build()
+            expect(actual).toBeInstanceOf(Fund)
+            expect(actual).toEqual(fund)
+        })
     })
 })

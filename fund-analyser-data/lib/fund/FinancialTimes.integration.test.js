@@ -1,5 +1,5 @@
-const FinancialTimes = require('./FinancialTimes.js')
-const Fund = require('./Fund.js')
+const FinancialTimes = require('./FinancialTimes')
+const Fund = require('./Fund')
 
 const TIMEOUT = 7200000 // 2 hours
 

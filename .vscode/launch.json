@@ -32,6 +32,16 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Update Currencies",
+            "program": "${workspaceFolder}/fund-analyser-data/scripts/main.js",
+            "args": [
+                "-r",
+                "updateCurrencies"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Update Funds",
             "program": "${workspaceFolder}/fund-analyser-data/scripts/main.js",
             "args": [

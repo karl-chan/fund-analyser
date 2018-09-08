@@ -1,5 +1,5 @@
-const indicators = require('./indicators.js')
-const Fund = require('../fund/Fund.js')
+const indicators = require('./indicators')
+const Fund = require('../fund/Fund')
 
 describe('indicators', () => {
     let historicPrices
@@ -60,7 +60,7 @@ describe('indicators', () => {
             expect(indicators.calcMdd([])).toBeNaN()
         })
         test('should return correct MDD', () => {
-            expect(indicators.calcMdd(historicPrices)).toBeCloseTo(1.69)
+            expect(indicators.calcMdd(historicPrices)).toBeCloseTo(0.04)
         })
     })
 

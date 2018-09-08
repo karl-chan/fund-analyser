@@ -1,8 +1,8 @@
 module.exports = FundCalculator
 
-const math = require('../util/math.js')
-const properties = require('../util/properties.js')
-const streamWrapper = require('../util/streamWrapper.js')
+const fundUtils = require('../util/fundUtils')
+const properties = require('../util/properties')
+const streamWrapper = require('../util/streamWrapper')
 
 const async = require('async')
 
@@ -23,16 +23,16 @@ FundCalculator.prototype.stream = function () {
 }
 
 FundCalculator.prototype.enrichReturns = function (fund, callback) {
-    fund.returns = math.enrichReturns(fund.returns, fund.historicPrices, this.lookbacks)
+    fund.returns = fundUtils.enrichReturns(fund.returns, fund.historicPrices, this.lookbacks)
     callback(null, fund)
 }
 
 FundCalculator.prototype.calcPercentiles = function (fund, callback) {
-    fund.percentiles = math.calcPercentiles(fund.returns, fund.historicPrices, this.lookbacks)
+    fund.percentiles = fundUtils.calcPercentiles(fund.returns, fund.historicPrices, this.lookbacks)
     callback(null, fund)
 }
 
 FundCalculator.prototype.calcIndicators = function (fund, callback) {
-    fund.indicators = math.calcIndicators(fund.historicPrices)
+    fund.indicators = fundUtils.calcIndicators(fund.historicPrices)
     callback(null, fund)
 }

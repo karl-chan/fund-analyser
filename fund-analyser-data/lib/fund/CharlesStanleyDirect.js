@@ -1,11 +1,11 @@
 module.exports = CharlesStanleyDirect
 
-const Fund = require('./Fund.js')
-const http = require('../util/http.js')
-const math = require('../util/math.js')
-const properties = require('../util/properties.js')
-const log = require('../util/log.js')
-const streamWrapper = require('../util/streamWrapper.js')
+const Fund = require('./Fund')
+const http = require('../util/http')
+const math = require('../util/math')
+const properties = require('../util/properties')
+const log = require('../util/log')
+const streamWrapper = require('../util/streamWrapper')
 const async = require('async')
 const _ = require('lodash')
 const cheerio = require('cheerio')
