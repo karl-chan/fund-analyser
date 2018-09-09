@@ -208,8 +208,8 @@ FinancialTimes.prototype.getHistoricPrices = function (isin, callback) {
     })
 }
 
-FinancialTimes.prototype.getHistoricExchangeRates = function (baseCurrency, quoteCurrency, callback) {
-    this.getHistoricPrices(`${baseCurrency}${quoteCurrency}`, (err, entries) => {
+FinancialTimes.prototype.getHistoricExchangeRates = function (base, quote, callback) {
+    this.getHistoricPrices(`${base}${quote}`, (err, entries) => {
         if (err) {
             return callback(err)
         }

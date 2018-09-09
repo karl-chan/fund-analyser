@@ -2,7 +2,7 @@
 
 const FinancialTimes = require('./FinancialTimes')
 const Fund = require('./Fund')
-const Currency = require('./Currency')
+const Currency = require('../currency/Currency')
 const moment = require('moment')
 
 const TIMEOUT = 10000 // 10 seconds
@@ -155,7 +155,7 @@ describe('FinancialTimes', function () {
                 expect(historicRates).not.toBeEmpty()
                 for (let hr of historicRates) {
                     expect(moment(hr.date).isValid()).toBeTruthy()
-                    expect(moment(hr.price)).not.toBeNaN()
+                    expect(moment(hr.rate)).not.toBeNaN()
                 }
                 done(err)
             })
