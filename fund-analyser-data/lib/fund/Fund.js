@@ -1,7 +1,7 @@
 const _ = require('lodash')
 
 class Fund {
-    constructor (isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge, bidAskSpread, holdings, historicPrices, returns, percentiles, asof, indicators, realTimeDetails) {
+    constructor (isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge, bidAskSpread, holdings, historicPrices, returns, asof, indicators, realTimeDetails) {
         this.isin = isin
         this.sedol = sedol
         this.name = name
@@ -16,7 +16,6 @@ class Fund {
         this.holdings = holdings
         this.historicPrices = historicPrices
         this.returns = returns
-        this.percentiles = percentiles
         this.asof = asof
         this.indicators = indicators
         this.realTimeDetails = realTimeDetails
@@ -125,11 +124,6 @@ class Builder {
         return this
     }
 
-    percentiles (percentiles) {
-        this._percentiles = percentiles
-        return this
-    }
-
     asof (asof) {
         this._asof = asof
         return this
@@ -148,7 +142,7 @@ class Builder {
     build () {
         return new Fund(this._isin, this._sedol, this._name, this._type, this._shareClass, this._frequency,
             this._ocf, this._amc, this._entryCharge, this._exitCharge, this._bidAskSpread,
-            this._holdings, this._historicPrices, this._returns, this._percentiles, this._asof, this._indicators, this._realTimeDetails)
+            this._holdings, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails)
     }
 }
 

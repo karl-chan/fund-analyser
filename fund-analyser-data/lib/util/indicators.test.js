@@ -77,4 +77,15 @@ describe('indicators', () => {
             expect(stability).toBe(2.5)
         })
     })
+
+    describe('calcIndicators', () => {
+        test('should return combined indicators', () => {
+            const actual = indicators.calcIndicators(historicPrices)
+            expect(actual).toBeObject()
+                .toContainAllKeys(['stability', 'macd', 'mdd'])
+            expect(actual.stability).toBeFinite()
+            expect(actual.macd).toBeFinite()
+            expect(actual.mdd).toBeFinite()
+        })
+    })
 })

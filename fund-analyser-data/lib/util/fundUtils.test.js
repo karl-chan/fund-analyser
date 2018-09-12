@@ -63,36 +63,6 @@ describe('fundUtils', () => {
         })
     })
 
-    describe('calcPercentiles', () => {
-        const additionalLookbacks = ['2W', '1W', '3D', '1D']
-        const returns = { '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2 }
-        const historicPrices = [
-            new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
-            new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
-            new Fund.HistoricPrice(new Date(2017, 3, 12), 482.0),
-            new Fund.HistoricPrice(new Date(2017, 3, 13), 479.0),
-            new Fund.HistoricPrice(new Date(2017, 3, 18), 475.0),
-            new Fund.HistoricPrice(new Date(2017, 3, 19), 467.0),
-            new Fund.HistoricPrice(new Date(2017, 3, 20), 468.0),
-            new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
-            new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
-        ]
-        test('should calc correct percentiles', () => {
-            const newReturns = fundUtils.calcPercentiles(returns, historicPrices, additionalLookbacks)
-            const boundary = (469 - 467) / (486 - 467)
-            expect(newReturns).toHaveProperty('5Y', boundary)
-            expect(newReturns).toHaveProperty('3Y', boundary)
-            expect(newReturns).toHaveProperty('1Y', boundary)
-            expect(newReturns).toHaveProperty('6M', boundary)
-            expect(newReturns).toHaveProperty('3M', boundary)
-            expect(newReturns).toHaveProperty('1M', boundary)
-            expect(newReturns).toHaveProperty('2W', boundary)
-            expect(newReturns).toHaveProperty('1W', (469 - 467) / (475 - 467))
-            expect(newReturns).toHaveProperty('3D', (469 - 469) / (472 - 469))
-            expect(newReturns).toHaveProperty('1D', (469 - 469) / (472 - 469))
-        })
-    })
-
     describe('calcStats', () => {
         const funds = [
             Fund.Builder('Fund1')

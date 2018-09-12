@@ -1,4 +1,5 @@
 module.exports = {
+    calcIndicators,
     calcMacd,
     calcMdd,
     calcStability
@@ -6,6 +7,14 @@ module.exports = {
 
 const _ = require('lodash')
 const ta = require('technicalindicators')
+
+function calcIndicators (historicPrices) {
+    return {
+        stability: calcStability(historicPrices),
+        macd: calcMacd(historicPrices),
+        mdd: calcMdd(historicPrices)
+    }
+}
 
 function calcMacd (historicPrices) {
     if (_.isEmpty(historicPrices)) {
@@ -27,6 +36,7 @@ function calcMacd (historicPrices) {
 // decurrency
 // equity curve
 // Maximum drawdown risk
+// empirical probability distribution
 function calcMdd (historicPrices) {
     if (_.isEmpty(historicPrices)) {
         return NaN

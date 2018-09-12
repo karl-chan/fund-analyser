@@ -1,6 +1,5 @@
 module.exports = {
     enrichReturns,
-    calcPercentiles,
     calcIndicators,
     calcStats,
     closestRecord,
@@ -67,33 +66,8 @@ function enrichReturns (returns, historicPrices, additionalLookbacks) {
     return newReturns
 }
 
-function calcPercentiles (returns, historicPrices, additionalLookbacks) {
-    const percentiles = {}
-
-    // Null safe check
-    if (_.isEmpty(returns) || _.isEmpty(historicPrices)) {
-        return percentiles
-    }
-
-    const lookbacks = _.union(_.keys(returns), additionalLookbacks)
-    const latestPrice = _.last(historicPrices).price
-    _.forEach(lookbacks, (lookback) => {
-        const beginRecord = closestRecord(lookback, historicPrices)
-        if (_.isNil(beginRecord)) {
-            return
-        }
-        const interestedRecords = _.dropWhile(historicPrices, (record) => moment.utc(record.date).isBefore(beginRecord.date))
-        const minPrice = _.minBy(interestedRecords, (record) => record.price).price
-        const maxPrice = _.maxBy(interestedRecords, (record) => record.price).price
-        const percentile = minPrice === maxPrice ? NaN : (latestPrice - minPrice) / (maxPrice - minPrice) // careful division by 0
-        percentiles[lookback] = percentile
-    })
-    return percentiles
-}
-
 function calcIndicators (historicPrices) {
-    const stability = indicators.calcStability(historicPrices)
-    return { stability }
+    return indicators.calcIndicators(historicPrices)
 }
 
 function calcStats (funds) {

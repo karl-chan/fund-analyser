@@ -40,16 +40,6 @@ async function downloadCsv () {
                     'returns.1W': 1,
                     'returns.3D': 1,
                     'returns.1D': 1,
-                    'percentiles.5Y': 1,
-                    'percentiles.3Y': 1,
-                    'percentiles.1Y': 1,
-                    'percentiles.6M': 1,
-                    'percentiles.3M': 1,
-                    'percentiles.1M': 1,
-                    'percentiles.2W': 1,
-                    'percentiles.1W': 1,
-                    'percentiles.3D': 1,
-                    'percentiles.1D': 1,
                     'indicators.stability': 1,
                     'cv': {
                         $divide: [
@@ -70,9 +60,7 @@ async function downloadCsv () {
     const headerFields = ['isin', 'name', 'type', 'shareClass', 'frequency',
         'ocf', 'amc', 'entryCharge', 'exitCharge', 'bidAskSpread', 'returns.5Y', 'returns.3Y',
         'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'returns.2W',
-        'returns.1W', 'returns.3D', 'returns.1D', 'percentiles.5Y', 'percentiles.3Y',
-        'percentiles.1Y', 'percentiles.6M', 'percentiles.3M', 'percentiles.1M', 'percentiles.2W',
-        'percentiles.1W', 'percentiles.3D', 'percentiles.1D', 'indicators.stability', 'cv', 'holdings', 'asof']
+        'returns.1W', 'returns.3D', 'returns.1D', 'indicators.stability', 'cv', 'holdings', 'asof']
     return new Promise((resolve, reject) => {
         FundDAO.exportCsv(headerFields, options, (err, csvFile) => {
             if (err) { return reject(err) }

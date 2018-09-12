@@ -35,7 +35,6 @@ function toFund (entry) {
     builder = _.isNil(entry.exitCharge) ? builder : builder.exitCharge(entry.exitCharge)
     builder = _.isNil(entry.bidAskSpread) ? builder : builder.bidAskSpread(entry.bidAskSpread)
     builder = _.isNil(entry.returns) ? builder : builder.returns(entry.returns)
-    builder = _.isNil(entry.percentiles) ? builder : builder.percentiles(entry.percentiles)
     builder = _.isNil(entry.asof) ? builder : builder.asof(entry.asof)
     builder = _.isNil(entry.indicators) ? builder : builder.indicators(entry.indicators)
 

@@ -2,7 +2,7 @@ const Fund = require('./Fund')
 
 describe('Fund', function () {
     let isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge,
-        bidAskSpread, holdings, historicPrices, returns, percentiles, asof, indicators, realTimeDetails
+        bidAskSpread, holdings, historicPrices, returns, asof, indicators, realTimeDetails
     let fund
 
     beforeEach(() => {
@@ -20,16 +20,15 @@ describe('Fund', function () {
         holdings = [ new Fund.Holding('Apple Inc', 'AAPL:NSQ', 0.0407) ]
         historicPrices = [ new Fund.HistoricPrice(new Date(2015, 8, 9), 3.198), new Fund.HistoricPrice(new Date(2015, 8, 10), 3.149) ]
         returns = { '5Y': 0.1767, '3Y': 0.226 }
-        percentiles = { '5Y': 0.95, '3Y': 0.95 }
         asof = new Date(2018, 8, 8)
         indicators = { stability: 1.96 }
         realTimeDetails = { estChange: -0.00123 }
 
         fund = new Fund(isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge,
-            bidAskSpread, holdings, historicPrices, returns, percentiles, asof, indicators, realTimeDetails)
+            bidAskSpread, holdings, historicPrices, returns, asof, indicators, realTimeDetails)
     })
     test('constructor should populate Fund with correct fields', () => {
-        expect(fund).toMatchObject({ isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge, bidAskSpread, holdings, historicPrices, returns, percentiles, asof, indicators, realTimeDetails })
+        expect(fund).toMatchObject({ isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge, bidAskSpread, holdings, historicPrices, returns, asof, indicators, realTimeDetails })
     })
 
     test('isValid should return true for fund with name', () => {
@@ -58,7 +57,6 @@ describe('Fund', function () {
                 .holdings(holdings)
                 .historicPrices(historicPrices)
                 .returns(returns)
-                .percentiles(percentiles)
                 .asof(asof)
                 .indicators(indicators)
                 .realTimeDetails(realTimeDetails)

@@ -13,7 +13,6 @@ function FundCalculator () {
 FundCalculator.prototype.evaluate = function (fund, callback) {
     async.waterfall([
         this.enrichReturns.bind(this, fund),
-        this.calcPercentiles.bind(this),
         this.calcIndicators.bind(this)
     ], callback)
 }
@@ -24,11 +23,6 @@ FundCalculator.prototype.stream = function () {
 
 FundCalculator.prototype.enrichReturns = function (fund, callback) {
     fund.returns = fundUtils.enrichReturns(fund.returns, fund.historicPrices, this.lookbacks)
-    callback(null, fund)
-}
-
-FundCalculator.prototype.calcPercentiles = function (fund, callback) {
-    fund.percentiles = fundUtils.calcPercentiles(fund.returns, fund.historicPrices, this.lookbacks)
     callback(null, fund)
 }
 

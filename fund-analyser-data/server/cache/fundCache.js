@@ -20,7 +20,7 @@ let refreshTask = null
 async function refresh () {
     const query = {}
     const options = {
-        projection: { _id: 0, historicPrices: 0, percentiles: 0 }
+        projection: { _id: 0, historicPrices: 0 }
     }
     log.info('Refreshing fund cache...')
     fundCache = await db.getFunds().find(query, options).toArray()

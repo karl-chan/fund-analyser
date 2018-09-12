@@ -26,18 +26,6 @@ describe('FundDAO', function () {
             .holdings([new Fund.Holding('Test Holding', 'TEST', 0)])
             .historicPrices([new Fund.HistoricPrice(new Date(2017, 3, 23), 457.0)])
             .returns({'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2})
-            .percentiles({
-                '5Y': 0.2,
-                '3Y': 0.3,
-                '1Y': 0.8,
-                '6M': 0.75,
-                '3M': 0.9,
-                '1M': 0.4,
-                '2W': 0.5,
-                '1W': 0.2,
-                '3D': 0.6,
-                '1D': 0.6
-            })
             .indicators({
                 stability: -3
             })
@@ -64,18 +52,6 @@ describe('FundDAO', function () {
                 price: 457.0
             }],
             returns: {'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2},
-            percentiles: {
-                '5Y': 0.2,
-                '3Y': 0.3,
-                '1Y': 0.8,
-                '6M': 0.75,
-                '3M': 0.9,
-                '1M': 0.4,
-                '2W': 0.5,
-                '1W': 0.2,
-                '3D': 0.6,
-                '1D': 0.6
-            },
             asof: undefined,
             indicators: {
                 stability: -3

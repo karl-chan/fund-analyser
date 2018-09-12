@@ -21,18 +21,6 @@ describe('FundCalculator', function () {
         new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
         new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
     ]
-    const percentiles = {
-        '5Y': 0.2,
-        '3Y': 0.3,
-        '1Y': 0.8,
-        '6M': 0.75,
-        '3M': 0.9,
-        '1M': 0.4,
-        '2W': 0.5,
-        '1W': 0.2,
-        '3D': 0.6,
-        '1D': 0.6
-    }
     const indicators = {
         stability: -3
     }
@@ -54,21 +42,14 @@ describe('FundCalculator', function () {
             .historicPrices(historicPrices)
             .returns(newReturns)
             .build()
-        const fundWithPercentiles = Fund.Builder('GB00000ISIN0')
-            .historicPrices(historicPrices)
-            .returns(newReturns)
-            .percentiles(percentiles)
-            .build()
         const fundWithIndicators = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(newReturns)
-            .percentiles(percentiles)
             .indicators(indicators)
             .build()
         const fundResult = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(newReturns)
-            .percentiles(percentiles)
             .indicators(indicators)
             .build()
 
@@ -77,14 +58,9 @@ describe('FundCalculator', function () {
                 callback(null, fundWithNewReturns)
             })
 
-        jest.spyOn(fundCalculator, 'calcPercentiles')
-            .mockImplementation((f, callback) => {
-                expect(f).toEqual(fund)
-                callback(null, fundWithPercentiles)
-            })
         jest.spyOn(fundCalculator, 'calcIndicators')
             .mockImplementation((f, callback) => {
-                expect(f).toEqual(fundWithPercentiles)
+                expect(f).toEqual(fundWithIndicators)
                 callback(null, fundWithIndicators)
             })
 
@@ -102,7 +78,6 @@ describe('FundCalculator', function () {
         const expected = Fund.Builder('GB00000ISIN0')
             .historicPrices(historicPrices)
             .returns(newReturns)
-            .percentiles(percentiles)
             .build()
 
         const version = 'v2'

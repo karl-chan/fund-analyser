@@ -121,68 +121,6 @@ const fieldMapping = {
             }
         }
     },
-    percentiles: {
-        '5Y': {
-            label: 'percentiles.5Y',
-            value: (row, field, data) => {
-                return toPercentage(row.percentiles['5Y'])
-            }
-        },
-        '3Y': {
-            label: 'percentiles.3Y',
-            value: (row, field, data) => {
-                return toPercentage(row.percentiles['3Y'])
-            }
-        },
-        '1Y': {
-            label: 'percentiles.1Y',
-            value: (row, field, data) => {
-                return toPercentage(row.percentiles['1Y'])
-            }
-        },
-        '6M': {
-            label: 'percentiles.6M',
-            value: (row, field, data) => {
-                return toPercentage(row.percentiles['6M'])
-            }
-        },
-        '3M': {
-            label: 'percentiles.3M',
-            value: (row, field, data) => {
-                return toPercentage(row.percentiles['3M'])
-            }
-        },
-        '1M': {
-            label: 'percentiles.1M',
-            value: (row, field, data) => {
-                return toPercentage(row.percentiles['1M'])
-            }
-        },
-        '2W': {
-            label: 'percentiles.2W',
-            value: (row, field, data) => {
-                return toPercentage(row.percentiles['2W'])
-            }
-        },
-        '1W': {
-            label: 'percentiles.1W',
-            value: (row, field, data) => {
-                return toPercentage(row.percentiles['1W'])
-            }
-        },
-        '3D': {
-            label: 'percentiles.3D',
-            value: (row, field, data) => {
-                return toPercentage(row.percentiles['3D'])
-            }
-        },
-        '1D': {
-            label: 'percentiles.1D',
-            value: (row, field, data) => {
-                return toPercentage(row.percentiles['1D'])
-            }
-        }
-    },
     holdings: {
         label: 'Holdings',
         value: 'holdings'
