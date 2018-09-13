@@ -1,6 +1,7 @@
 <template lang="pug">
   q-page(padding)
     template(v-if="fund && !refreshing")
+      // header
       .row.items-center.gutter-sm.q-mb-md
         .q-headline {{fund.name}}
         div
@@ -14,15 +15,28 @@
           q-btn(v-else flat round color="amber" size="xl" :icon="favouriteIcon"
                 @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false"
                 @click="addToWatchlist(fund.isin)")
+        div
+          q-btn(flat round dense icon="more_vert")
+            q-popover
+              q-list(link)
+                q-item(v-close-overlay)
+                  q-item-main(label="Currency View")
 
+      // middle section
       fund-info-bar(:fund="fund")
       .row.gutter-x-sm.q-mt-xl
         .col-md-8
           fund-chart(:fund="fund")
         .col-md-4
           fund-holdings(:fund="fund")
-      .row.q-mt-sm
+      .row.gutter-x-sm.q-mt-sm
         fund-charges(:fund="fund")
+
+      // modal with extra information
+      q-modal(v-model="showModal" :content-css="{width: '80vw'}")
+        q-icon.absolute-top-right.z-top(name="cancel" v-close-overlay)
+        fund-currency-view(:fund="fund")
+
     template(v-else)
       .absolute-center.row.items-center.gutter-x-sm.text-purple
         q-spinner-facebook(size="36px" color="purple")
@@ -50,7 +64,8 @@ export default {
   data () {
     return {
       refreshing: false,
-      hoveringFavouriteIcon: false
+      hoveringFavouriteIcon: false,
+      showModal: false
     }
   },
   computed: {

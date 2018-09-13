@@ -67,7 +67,6 @@ module.exports = function (ctx) {
         'QLayoutDrawer',
         'QPageContainer',
         'QPage',
-        'QPageSticky',
         'QToolbar',
         'QToolbarTitle',
         'QBtn',
@@ -103,7 +102,8 @@ module.exports = function (ctx) {
         'QSlideTransition'
       ],
       directives: [
-        'Ripple'
+        'Ripple',
+        'CloseOverlay'
       ]
     },
     // animations: 'all' --- includes all animations

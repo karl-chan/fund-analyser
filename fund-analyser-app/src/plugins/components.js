@@ -11,11 +11,14 @@ import FundsTable from 'components/fund/FundsTable'
 import FundsSummary from 'components/fund/FundsSummary'
 import FundWatchList from 'components/fund/FundWatchList'
 
-import AppDrawer from 'components/layout/AppDrawer'
-import AppHeader from 'components/layout/AppHeader'
+import CurrencyExposure from 'components/currency/CurrencyExposure'
 
 import Healthcheck from 'components/misc/Healthcheck'
 import TipOfTheDay from 'components/misc/TipOfTheDay'
+
+import AppDrawer from 'layouts/AppDrawer'
+import AppHeader from 'layouts/AppHeader'
+import FundCurrencyView from 'layouts/fund/FundCurrencyView'
 
 export default ({ Vue }) => {
   Vue.component('account-balance', AccountBalance)
@@ -31,9 +34,12 @@ export default ({ Vue }) => {
   Vue.component('funds-summary', FundsSummary)
   Vue.component('fund-watch-list', FundWatchList)
 
+  Vue.component('currency-exposure', CurrencyExposure)
+
   Vue.component('healthcheck', Healthcheck)
   Vue.component('tip-of-the-day', TipOfTheDay)
 
   Vue.component('app-drawer', AppDrawer)
   Vue.component('app-header', AppHeader)
+  Vue.component('fund-currency-view', FundCurrencyView)
 }
