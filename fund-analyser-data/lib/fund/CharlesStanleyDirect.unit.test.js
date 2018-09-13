@@ -65,8 +65,10 @@ describe('CharlesStanleyDirect', () => {
             const sedol = 'B8N44B3'
             charlesStanleyDirect.getFundFromSedol(sedol, (err, partialFund) => {
                 expect(partialFund).toHaveProperty('isin', 'GB00B8N44B34')
-                expect(partialFund).toHaveProperty('bidAskSpread', expect.toBeNumber())
-                expect(partialFund).toHaveProperty('entryCharge', expect.toBeNumber())
+                expect(partialFund).toHaveProperty('bidAskSpread')
+                expect(partialFund).toHaveProperty('entryCharge')
+                expect(partialFund.bidAskSpread).toBeNumber()
+                expect(partialFund.entryCharge).toBeNumber()
                 done(err)
             })
         })

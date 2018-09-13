@@ -31,11 +31,12 @@ async function updateFunds () {
     const fundValidFilter = streamWrapper.asFilter(isFundValid)
     const upsertFundStream = streamWrapper.asWritable(FundDAO.upsertFund)
 
-    await new Promise((resolve) => {
+    await new Promise((resolve, reject) => {
         const stream = fundStream
             .pipe(fundValidFilter)
             .pipe(upsertFundStream)
         stream.on('finish', resolve)
+        stream.on('error', reject)
     })
 
     // delete funds with no data
@@ -47,6 +48,7 @@ function isFundValid (fund, callback) {
     if (!fund.isValid()) {
         log.warn('Fund is not valid: %j. Skipping upsert.', fund)
         callback(null, false)
+        return
     }
     callback(null, true)
 }

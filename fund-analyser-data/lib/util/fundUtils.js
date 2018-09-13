@@ -104,7 +104,7 @@ function enrichRealTimeDetails (realTimeDetails, fund) {
     const stdev = stat.weightedStd(holdingsX)
     const ci = stat.ci95(estChange, stdev, holdingsX.length)
 
-    const latestPrice = _.last(fund.historicPrices).price
+    const latestPrice = _.get(_.last(fund.historicPrices), 'price')
     const estPrice = latestPrice * (1 + estChange)
 
     const enrichment = { estChange, estPrice, stdev, ci }

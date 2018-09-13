@@ -1,6 +1,11 @@
 <template lang="pug">
   q-page(padding)
-    template(v-if="fund && !refreshing")
+    template(v-if="loading")
+      .absolute-center.row.items-center.text-purple.gutter-x-lg
+        q-spinner-facebook(size="72px" color="purple")
+        .q-display-3 Loading
+
+    template(v-else-if="fund")
       // header
       .row.items-center.gutter-sm.q-mb-md
         .q-headline {{fund.name}}
@@ -38,9 +43,9 @@
         fund-currency-view(:fund="fund")
 
     template(v-else)
-      .absolute-center.row.items-center.gutter-x-sm.text-purple
-        q-spinner-facebook(size="36px" color="purple")
-        .q-title Loading
+      .absolute-center.row.items-center.gutter-x-sm.text-red
+        q-icon(name="error" color="error" size="144px")
+        .q-display-4 Sorry! Error loading fund
 </template>
 
 <script>
@@ -52,18 +57,22 @@ export default {
   props: ['isin'],
   beforeRouteEnter (to, from, next) {
     next(async vm => {
+      vm.loading = true
       const fund = await vm.lazyGet(to.params.isin)
+      vm.loading = false
       vm.addToRecentlyViewed({isin: fund.isin, name: fund.name})
     })
   },
   async beforeRouteUpdate (to, from, next) {
     next()
+    this.loading = true
     const fund = await this.lazyGet(to.params.isin)
+    this.loading = false
     this.addToRecentlyViewed({isin: fund.isin, name: fund.name})
   },
   data () {
     return {
-      refreshing: false,
+      loading: true,
       hoveringFavouriteIcon: false,
       showModal: false
     }
@@ -86,9 +95,9 @@ export default {
     ...mapActions('funds', [ 'get', 'lazyGet' ]),
     ...mapGetters('funds', [ 'lookupFund' ]),
     async refreshFund () {
-      this.refreshing = true
+      this.loading = true
       await this.get(this.isin)
-      this.refreshing = false
+      this.loading = false
     },
     onFavouriteIconHovering (isMouseEnter) {
       this.hoveringFavouriteIcon = isMouseEnter
