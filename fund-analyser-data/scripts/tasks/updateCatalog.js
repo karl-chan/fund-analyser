@@ -38,6 +38,10 @@ async function updateCatalog () {
     log.info(`To remove: %s`, JSON.stringify(toRemove))
     log.info(`To add: %s`, JSON.stringify(toAdd))
 
+    if (toRemove.length >= 1000) {
+        throw new Error(`Too many funds ${toRemove.length} to remove. Shutting down due to possible error from Charles Stanley Server!`)
+    }
+
     // delete old sedols
     await db.getFunds().deleteMany({sedol: {$in: toRemove}})
     log.info('Deleted old sedols: %s', JSON.stringify(toRemove))
