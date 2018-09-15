@@ -1,5 +1,5 @@
 <template lang="pug">
-  q-search.shadow-2(v-model="input" :placeholder="placeholder" color="grey-2" inverted-light clearable)
+  q-search.shadow-2(v-model="userInput" @clear="clear" :placeholder="placeholder" color="grey-2" inverted-light clearable)
     q-autocomplete(@search="search" @selected="selected"
                   :max-results="5000" :debounce="150")
 </template>
@@ -10,12 +10,12 @@ export default {
   props: ['placeholder'],
   data () {
     return {
-      input: ''
+      userInput: ''
     }
   },
   methods: {
     async search (term, done) {
-      this.$emit('input', term)
+      this.input(term)
 
       const response = await this.$services.fund.search(term)
       const results = response.map(r => ({ label: r.name, sublabel: r.isin, value: r.name, fund: r }))
@@ -23,6 +23,12 @@ export default {
     },
     selected (item) {
       this.$emit('select', item.fund)
+    },
+    clear () {
+      this.input('')
+    },
+    input (text) {
+      this.$emit('input', text)
     }
   }
 }
