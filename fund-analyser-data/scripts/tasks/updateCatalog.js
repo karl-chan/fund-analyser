@@ -12,15 +12,10 @@ const log = require('../../lib/util/log')
  * @returns {Promise.<void>}
  */
 async function updateCatalog () {
-    const newSedols = await new Promise((resolve, reject) => {
-        new CharlesStanleyDirect().getSedols((err, sedols) => {
-            if (sedols && sedols.length) {
-                resolve(sedols)
-            } else {
-                reject(err || new Error('No sedols found'))
-            }
-        })
-    })
+    const newSedols = await new CharlesStanleyDirect().getSedols()
+    if (!newSedols || !newSedols.length) {
+        throw new Error('No sedols found')
+    }
 
     const oldSedols = await new Promise((resolve, reject) => {
         FundDAO.listFunds({project: {sedol: 1}}, (err, funds) => {

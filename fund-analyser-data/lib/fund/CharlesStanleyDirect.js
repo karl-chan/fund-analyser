@@ -1,77 +1,74 @@
-module.exports = CharlesStanleyDirect
-
 const Fund = require('./Fund')
 const http = require('../util/http')
 const math = require('../util/math')
 const properties = require('../util/properties')
 const log = require('../util/log')
 const streamWrapper = require('../util/streamWrapper')
-const async = require('async')
 const _ = require('lodash')
 const cheerio = require('cheerio')
 
-function CharlesStanleyDirect () {
-    this.pageSize = properties.get('fund.charlesstanleydirect.page.size')
-    http.setOptions({
-        maxParallelConnections: properties.get('fund.charlesstanleydirect.max.parallel.connections'),
-        retryInterval: properties.get('fund.charlesstanleydirect.retry.interval')
-    })
-}
+class CharlesStanleyDirect {
+    constructor () {
+        this.pageSize = properties.get('fund.charlesstanleydirect.page.size')
+        http.setOptions({
+            maxParallelConnections: properties.get('fund.charlesstanleydirect.max.parallel.connections'),
+            retryInterval: properties.get('fund.charlesstanleydirect.retry.interval')
+        })
+    }
 
-CharlesStanleyDirect.prototype.getFunds = function (callback) {
-    async.waterfall([
-        this.getNumPages.bind(this),
-        this.getPageRange.bind(this),
-        this.getSedolsFromPages.bind(this),
-        this.getFundsFromSedols.bind(this)
-    ], callback)
-}
+    async getFunds () {
+        const numPages = await this.getNumPages()
+        const pageRange = await this.getPageRange(numPages)
+        const sedols = await this.getSedolsFromPage(pageRange)
+        const funds = await this.getFundsFromSedols(sedols)
+        return funds
+    }
 
-CharlesStanleyDirect.prototype.getSedols = function (callback) {
-    async.waterfall([
-        this.getNumPages.bind(this),
-        this.getPageRange.bind(this),
-        this.getSedolsFromPages.bind(this)
-    ], callback)
-}
+    async getSedols () {
+        const numPages = await this.getNumPages()
+        const pageRange = await this.getPageRange(numPages)
+        const sedols = await this.getSedolsFromPage(pageRange)
+        return sedols
+    }
 
-CharlesStanleyDirect.prototype.getNumPages = function (callback) {
-    const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?Category=Funds&Pagesize=${this.pageSize}`
-    http.gets(url, (err, res, body) => {
-        if (err) {
-            return callback(err)
-        }
+    async getPageRange (lastPage) {
+        return _.range(1, lastPage + 1)
+    }
+
+    async getNumPages () {
+        const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?Category=Funds&Pagesize=${this.pageSize}`
+        const {body} = await http.asyncGet(url)
+
         const $ = cheerio.load(body)
         const lastPage = parseInt($('#search-results-top > p > em:last-child').text())
         log.debug('Total number of pages: %d', lastPage)
-        return callback(null, lastPage)
-    })
-}
+        return lastPage
+    }
 
-CharlesStanleyDirect.prototype.getSedolsFromPage = function (page, callback) {
-    const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?sortdirection=ASC&SearchType=KeywordSearch&Category=Funds&SortColumn=TER&SortDirection=DESC&Pagesize=${this.pageSize}&Page=${page}`
-    http.gets(url, (err, res, body) => {
-        if (err) {
-            return callback(err)
-        }
+    async getSedolsFromPage (page) {
+        const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?sortdirection=ASC&SearchType=KeywordSearch&Category=Funds&SortColumn=TER&SortDirection=DESC&Pagesize=${this.pageSize}&Page=${page}`
+        const {body} = await http.asyncGet(url)
+
         const $ = cheerio.load(body)
         const sedols = $('#funds-table').find('tbody td:nth-child(3)').map((i, td) => $(td).text().trim()).get()
         log.debug('Sedols in page %d: %j', page, sedols)
-        return callback(null, sedols)
-    })
-}
+        return sedols
+    }
 
-/**
- * ONLY PARTIAL FUND IS RETURNED!! (with isin and bid ask spread as % of price)
- * @param sedol
- * @param callback
- */
-CharlesStanleyDirect.prototype.getFundFromSedol = function (sedol, callback) {
-    const url = `https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=${sedol}`
-    http.gets(url, (err, res, body) => {
-        if (err) {
-            return callback(err)
-        }
+    async getSedolsFromPages (pages) {
+        const sedols = await Promise.all(pages.map(this.getSedolsFromPage))
+        return _.flatten(sedols)
+    }
+
+    /**
+     * ONLY PARTIAL FUND IS RETURNED!! (with isin and bid ask spread as % of price)
+     * @param sedol
+     * @param callback
+     */
+    async getFundFromSedol (sedol) {
+        const url = `https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=${sedol}`
+        const {body} = await http.asyncGet(url)
+
         const $ = cheerio.load(body)
         const isinRegex = /[A-Z0-9]{12}/
         let isin
@@ -79,7 +76,7 @@ CharlesStanleyDirect.prototype.getFundFromSedol = function (sedol, callback) {
             isin = $('.para').text().match(isinRegex)[0]
         } catch (err) {
             log.error('Invalid page for sedol on Charles Stanley: %s', sedol)
-            return callback(null, undefined) // return undefined so that it will continue all the way to FundDAO and get rejected
+            return undefined // return undefined so that it will continue all the way to FundDAO and get rejected
         }
 
         // bid ask
@@ -98,51 +95,44 @@ CharlesStanleyDirect.prototype.getFundFromSedol = function (sedol, callback) {
             .entryCharge(entryCharge)
             .build()
         log.debug('Isin: %s found for sedol: %s - bid ask spread: %d, entry charge: %d', isin, sedol, bidAskSpread, entryCharge)
-        return callback(null, partialFund)
-    })
-}
+        return partialFund
+    }
 
-CharlesStanleyDirect.prototype.getPageRange = function (lastPage, callback) {
-    callback(null, _.range(1, lastPage + 1))
-}
+    async getFundsFromSedols (sedols) {
+        return Promise.all(sedols.map(this.getFundFromSedol))
+    }
 
-CharlesStanleyDirect.prototype.getSedolsFromPages = function (pages, callback) {
-    async.map(pages, this.getSedolsFromPage.bind(this), (err, sedols) => callback(err, _.flatten(sedols)))
-}
+    /**
+     * Analogous stream methods below
+     */
+    streamFunds () {
+        return this.streamNumPages()
+            .pipe(this.streamPageRange())
+            .pipe(this.streamSedolsFromPages())
+            .pipe(this.streamFundsFromSedols())
+    }
+    streamNumPages () {
+        return streamWrapper.asReadableAsync(this.getNumPages)
+    }
+    streamPageRange () {
+        return streamWrapper.asTransformAsync(this.getPageRange)
+    }
+    streamSedolsFromPages () {
+        return streamWrapper.asTransformAsync(this.getSedolsFromPage)
+    }
+    streamFundsFromSedols () {
+        return streamWrapper.asParallelTransformAsync(this.getFundFromSedol)
+    }
 
-CharlesStanleyDirect.prototype.getFundsFromSedols = function (sedols, callback) {
-    async.map(sedols, this.getFundFromSedol.bind(this), callback)
-}
-
-CharlesStanleyDirect.prototype.healthCheck = function (callback) {
-    const url = `https://www.charles-stanley-direct.co.uk`
-    http.gets(url, (err, res, body) => {
-        if (err) {
-            return callback(err)
-        }
+    /**
+     * Miscellaneous s
+     */
+    async healthCheck () {
+        const url = `https://www.charles-stanley-direct.co.uk`
+        const {body} = await http.asyncGet(url)
         const isDown = body.toLowerCase().includes('unavailable')
-        return callback(null, !isDown)
-    })
+        return !isDown
+    }
 }
 
-/**
- * Analogous stream methods below
- */
-CharlesStanleyDirect.prototype.streamFunds = function () {
-    return this.streamNumPages()
-        .pipe(this.streamPageRange())
-        .pipe(this.streamSedolsFromPages())
-        .pipe(this.streamFundsFromSedols())
-}
-CharlesStanleyDirect.prototype.streamNumPages = function () {
-    return streamWrapper.asReadable(this.getNumPages.bind(this))
-}
-CharlesStanleyDirect.prototype.streamPageRange = function () {
-    return streamWrapper.asTransform(this.getPageRange.bind(this))
-}
-CharlesStanleyDirect.prototype.streamSedolsFromPages = function () {
-    return streamWrapper.asTransform(this.getSedolsFromPage.bind(this))
-}
-CharlesStanleyDirect.prototype.streamFundsFromSedols = function () {
-    return streamWrapper.asParallelTransform(this.getFundFromSedol.bind(this))
-}
+module.exports = CharlesStanleyDirect
