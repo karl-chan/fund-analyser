@@ -86,6 +86,7 @@ module.exports = function (ctx) {
         'QItemTile',
         'QAutocomplete',
         'QInput',
+        'QSearch',
         'QCheckbox',
         'QAlert',
         'QTable',

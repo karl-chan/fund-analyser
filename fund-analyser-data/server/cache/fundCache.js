@@ -14,6 +14,7 @@ const fundUtils = require('../../lib/util/fundUtils')
 const REFRESH_INTERVAL = moment.duration(15, 'minutes')
 
 let fundCache = []
+let quickFilterCache = []
 let metadata = {}
 let refreshTask = null
 
@@ -25,7 +26,7 @@ async function refresh () {
     log.info('Refreshing fund cache...')
     fundCache = await db.getFunds().find(query, options).toArray()
     fundCache = fundUtils.enrichSummary(fundCache)
-    fundCache = attachQuickFilterCache(fundCache)
+    quickFilterCache = buildQuickFilterCache(fundCache)
     log.info('Fund cache refreshed.')
 
     refreshMetadata()
@@ -41,11 +42,16 @@ function get (isins, options) {
     if (options) {
         const {filterText} = options
         if (filterText && filterText.trim()) {
-            funds = funds.filter(f => f.quickFilterCache.includes(filterText.trim().toLowerCase()))
+            funds = []
+            for (let [i, cache] of quickFilterCache.entries()) {
+                if (cache.includes(filterText.trim().toLowerCase())) {
+                    funds.push(fundCache[i])
+                }
+            }
         }
     }
 
-    return removeQuickFilterCache(funds)
+    return funds
 }
 
 function getMetadata () {
@@ -63,8 +69,8 @@ function shutdown () {
     clearInterval(refreshTask)
 }
 
-function attachQuickFilterCache (funds) {
-    funds.forEach(f => {
+function buildQuickFilterCache (funds) {
+    return funds.map(f => {
         let s = ''
         for (let v of Object.values(f)) {
             switch (typeof v) {
@@ -75,15 +81,7 @@ function attachQuickFilterCache (funds) {
                 s += v
             }
         }
-        f.quickFilterCache = s.toLowerCase()
-    })
-    return funds
-}
-
-function removeQuickFilterCache (funds) {
-    return funds.map(f => {
-        const {quickFilterCache, ...rest} = f
-        return rest
+        return s.toLowerCase()
     })
 }
 
