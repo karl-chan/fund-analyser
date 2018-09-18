@@ -1,9 +1,11 @@
 module.exports = CharlesStanleyDirectAuth
 
-const http = require('../util/http')
+const Http = require('../util/http')
 const log = require('../util/log')
 const cheerio = require('cheerio')
-const request = require('request')
+const rp = require('request-promise')
+
+const http = new Http()
 
 function CharlesStanleyDirectAuth () {
     this.accountUrl = 'https://www.charles-stanley-direct.co.uk/Account'
@@ -20,7 +22,7 @@ CharlesStanleyDirectAuth.prototype.login = async function (user, pass, memorable
     if (!pass) throw new Error('Missing password')
     if (!memorableWord) throw new Error('Missing memorable word')
 
-    const jar = request.jar()
+    const jar = rp.jar()
 
     // Step 1: User name and password
     const {csrfToken} = await enterUserAndPass.apply(this, [ user, pass, {jar} ])
@@ -41,8 +43,8 @@ CharlesStanleyDirectAuth.prototype.login = async function (user, pass, memorable
 // cost is about 200ms per call
 CharlesStanleyDirectAuth.prototype.isLoggedIn = async function (jar) {
     if (!jar) throw new Error('Missing jar')
-    const {res} = await http.asyncGet(this.investmentSummaryUrl, {jar, followRedirect: false})
-    return res.statusCode === 200
+    const {statusCode} = await http.asyncGet(this.investmentSummaryUrl, {jar, followRedirect: false})
+    return statusCode === 200
 }
 
 const enterUserAndPass = async function (user, pass, {jar}) {
@@ -51,7 +53,7 @@ const enterUserAndPass = async function (user, pass, {jar}) {
     const $1 = cheerio.load(b1)
     const csrfToken1 = $1('input[name="__RequestVerificationToken"]').val()
 
-    const {res: r2} = await http.asyncPost(this.accountUrl,
+    const {headers: h2} = await http.asyncPost(this.accountUrl,
         {
             jar,
             form: {
@@ -61,7 +63,7 @@ const enterUserAndPass = async function (user, pass, {jar}) {
             }
         }
     )
-    if (!this.checkMemorableWordUrl.includes(r2.headers.location)) {
+    if (!this.checkMemorableWordUrl.includes(h2.location)) {
         throw new Error('Incorrect username or password')
     }
 
@@ -80,7 +82,7 @@ const checkMemorableWord = async function (memorableWord, {csrfToken, jar}) {
     const charIndex2 = parseInt($1('#memorable-word-form > div.field > div > strong:nth-child(3)').text())
     const charIndex3 = parseInt($1('#memorable-word-form > div.field > div > strong:nth-child(5)').text())
 
-    const {res: r2} = await http.asyncPost(this.checkMemorableWordUrl,
+    const {headers: h2} = await http.asyncPost(this.checkMemorableWordUrl,
         {
             jar,
             form: {
@@ -91,7 +93,7 @@ const checkMemorableWord = async function (memorableWord, {csrfToken, jar}) {
             }
         }
     )
-    if (!this.accountLoginChecksUrl.includes(r2.headers.location)) {
+    if (!this.accountLoginChecksUrl.includes(h2.location)) {
         throw new Error('Incorrect memorable word')
     }
     log.debug('Memorable word accepted')
@@ -99,8 +101,8 @@ const checkMemorableWord = async function (memorableWord, {csrfToken, jar}) {
 
 const accountLoginChecks = async function ({jar}) {
     log.debug('Performing account login check')
-    const {res} = await http.asyncGet(this.accountLoginChecksUrl, {jar, followRedirect: false})
-    if (!this.myDashboardUrl.includes(res.headers.location)) {
+    const {headers} = await http.asyncGet(this.accountLoginChecksUrl, {jar, followRedirect: false})
+    if (!this.myDashboardUrl.includes(headers.location)) {
         throw new Error('Account login checks failed')
     }
     log.debug('Account login check completed')

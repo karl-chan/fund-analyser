@@ -1,6 +1,7 @@
 module.exports = createIndex
 
 const db = require('../../lib/util/db')
+const Promise = require('bluebird')
 
 /**
  * Create index on popular fields for sorting

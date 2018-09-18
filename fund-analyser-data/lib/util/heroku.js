@@ -1,6 +1,6 @@
 
 const properties = require('./properties')
-const http = require('./http')
+const Http = require('./http')
 const log = require('./log')
 const Heroku = require('heroku-client')
 const _ = require('lodash')
@@ -9,6 +9,7 @@ const moment = require('moment')
 const appName = properties.get('heroku.app.name')
 const token = properties.get('heroku.api.token')
 const client = new Heroku({token})
+const http = new Http()
 
 const WORKER_DYNO = 'worker'
 

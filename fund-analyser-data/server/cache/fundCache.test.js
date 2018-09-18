@@ -1,14 +1,11 @@
 const fundCache = require('./fundCache')
 const db = require('../../lib/util/db')
-const moment = require('moment')
 
-const TIMEOUT = moment.duration(10, 'minutes')
+jest.setTimeout(30000) // 30 seconds
 
 describe('fundCache', () => {
-    jest.setTimeout(TIMEOUT.asMilliseconds())
     beforeAll(async () => {
         await db.init()
-        await fundCache.start()
     })
     afterAll(async () => {
         await db.close()
@@ -22,8 +19,8 @@ describe('fundCache', () => {
     })
 
     describe('after cache is populated', () => {
-        beforeAll((done) => {
-            setTimeout(done, 10000) // sleep for 10 seconds while cache is being loaded
+        beforeAll(async () => {
+            await fundCache.start()
         })
         test('cache should be loaded after a short moment', () => {
             const funds = fundCache.get()

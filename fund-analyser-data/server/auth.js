@@ -7,6 +7,7 @@ const log = require('../lib/util/log')
 const security = require('../lib/util/security')
 
 const moment = require('moment')
+const Promise = require('bluebird')
 
 const SHORT_EXPIRY = moment.duration(15, 'minutes')
 const LONG_EXPIRY = moment.duration(1, 'month')

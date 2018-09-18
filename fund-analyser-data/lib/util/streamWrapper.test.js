@@ -1,5 +1,6 @@
 const streamWrapper = require('./streamWrapper.js')
 const StreamTest = require('streamtest')
+const Promise = require('bluebird')
 
 describe('streamWraper', () => {
     const version = 'v2'

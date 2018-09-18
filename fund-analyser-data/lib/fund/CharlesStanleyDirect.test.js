@@ -1,14 +1,12 @@
 const CharlesStanleyDirect = require('./CharlesStanleyDirect')
 const Fund = require('./Fund')
 
-const TIMEOUT = 600000 // 10 minutes
-
 const _ = require('lodash')
 const StreamTest = require('streamtest')
 
-describe('CharlesStanleyDirect', () => {
-    jest.setTimeout(TIMEOUT)
+jest.setTimeout(10000) // 10 seconds
 
+describe('CharlesStanleyDirect', () => {
     let charlesStanleyDirect
     beforeEach(() => {
         charlesStanleyDirect = new CharlesStanleyDirect()
@@ -30,10 +28,25 @@ describe('CharlesStanleyDirect', () => {
                 .mockImplementation(async () => 2)
             jest.spyOn(charlesStanleyDirect, 'getPageRange')
                 .mockImplementation(async lastPage => pageRange)
-            jest.spyOn(charlesStanleyDirect, 'getSedolsFromPages')
-                .mockImplementation(async pages => sedols)
-            jest.spyOn(charlesStanleyDirect, 'getFundsFromSedols')
-                .mockImplementation(async sedols => partialFunds)
+            jest.spyOn(charlesStanleyDirect, 'getSedolsFromPage')
+                .mockImplementation(async page => {
+                    switch (page) {
+                    case 1:
+                        return ['SEDOL01']
+                    case 2:
+                        return ['SEDOL02']
+                    }
+                })
+            jest.spyOn(charlesStanleyDirect, 'getFundFromSedol')
+                .mockImplementation(async (sedol) => {
+                    switch (sedol) {
+                    case 'SEDOL01':
+                        return partialFunds[0]
+
+                    case 'SEDOL02':
+                        return partialFunds[1]
+                    }
+                })
 
             const actual = await charlesStanleyDirect.getFunds()
             expect(actual).toEqual(partialFunds)

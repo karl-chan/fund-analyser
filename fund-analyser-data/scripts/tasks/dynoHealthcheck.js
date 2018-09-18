@@ -1,6 +1,5 @@
 module.exports = dynoHealthcheck
 
-const _ = require('lodash')
 const moment = require('moment')
 
 const heroku = require('../../lib/util/heroku')

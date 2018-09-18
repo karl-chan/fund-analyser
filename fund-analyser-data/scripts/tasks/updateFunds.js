@@ -8,6 +8,7 @@ const log = require('../../lib/util/log')
 
 const moment = require('moment')
 const _ = require('lodash')
+const Promise = require('bluebird')
 
 /**
  * Update funds that need to be updated based on asof time

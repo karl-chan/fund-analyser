@@ -1,111 +1,51 @@
 const properties = require('./properties')
-const log = require('./log')
+const retry = require('./retry')
 
 const defaultMaxAttempts = properties.get('http.max.attempts')
 const defaultRetryInterval = properties.get('http.retry.interval')
 const defaultMaxParallelConnections = properties.get('http.max.parallel.connections')
 
-const async = require('async')
-const request = require('request')
+const rp = require('request-promise')
 const _ = require('lodash')
-const semaphore = require('semaphore')
-const util = require('util')
+const {default: Semaphore} = require('semaphore-async-await')
 
-const http = request.defaults({
-    headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
-    }
-})
-http.maxAttempts = defaultMaxAttempts
-http.retryInterval = defaultRetryInterval
-http.counter = semaphore(defaultMaxParallelConnections)
-
-http.setOptions = function (options) {
-    if (options.maxAttempts) {
-        this.maxAttempts = options.maxAttempts
-    }
-    if (options.retryInterval) {
-        this.retryInterval = options.retryInterval
-    }
-    if (options.maxParallelConnections) {
-        this.counter = semaphore(options.maxParallelConnections)
-    }
-}
-
-http.gets = function (url, options, callback) {
-    [options, callback] = processArgs(url, options, callback)
-    async.retry({
-        times: this.maxAttempts,
-        interval: this.retryInterval
-    }, (cb) => {
-        this.counter.take(() => {
-            this.get(options, (err, res, body) => {
-                this.counter.leave()
-                if (err) {
-                    return cb(err)
-                }
-                try {
-                    callback(err, res, body)
-                } catch (err) {
-                    log.error('Error caught in http callback for %s. Cause: %s', options.url || options, err.stack)
-                    return cb(err)
-                }
-                cb()
-            })
+class Http {
+    constructor (options) {
+        this.http = rp.defaults({
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
+            },
+            simple: false
         })
-    })
-}
-
-http.posts = function (url, options, callback) {
-    [options, callback] = processArgs(url, options, callback)
-    async.retry({
-        times: this.maxAttempts,
-        interval: this.retryInterval
-    }, (cb) => {
-        this.counter.take(() => {
-            this.post(options, (err, res, body) => {
-                this.counter.leave()
-                if (err) {
-                    return cb(err)
-                }
-                try {
-                    callback(err, res, body)
-                } catch (err) {
-                    log.error('Error caught in http callback for %s, body: %s. Cause: %s',
-                        options.url, util.inspect(options.form), err.stack)
-                    return cb(err)
-                }
-                cb()
-            })
-        })
-    })
-}
-
-http.asyncGet = async function (url, options) {
-    return new Promise((resolve, reject) => {
-        http.gets(url, options, (err, res, body) => {
-            err ? reject(err) : resolve({res, body})
-        })
-    })
-}
-
-http.asyncPost = async function (url, options) {
-    return new Promise((resolve, reject) => {
-        http.posts(url, options, (err, res, body) => {
-            err ? reject(err) : resolve({res, body})
-        })
-    })
-}
-
-const processArgs = function (first, second, third) {
-    let options, callback
-    if (_.isNil(third)) {
-        [options, callback] = [first, second]
-    } else {
-        [options, callback] = [second, third]
-        options = {...options, ...{url: first}}
+        this.maxAttempts = _.get(options, 'maxAttempts', defaultMaxAttempts)
+        this.retryInterval = _.get(options, 'retryInterval', defaultRetryInterval)
+        this.counter = new Semaphore(_.get(options, 'maxParallelConnections', defaultMaxParallelConnections))
     }
-    return [options, callback]
-}
 
-module.exports = _.clone(http)
+    async asyncGet (url, options) {
+        return this.asyncRequest('GET', url, options)
+    }
+
+    async asyncPost (url, options) {
+        return this.asyncRequest('POST', url, options)
+    }
+
+    async asyncRequest (method, url, options) {
+        const requestOptions = {
+            url,
+            ...options,
+            method,
+            resolveWithFullResponse: true
+        }
+        const retryOptions = {
+            maxAttempts: this.maxAttempts,
+            retryInterval: this.retryInterval,
+            description: `${method} request to ${url}`
+        }
+        await this.counter.acquire()
+        const result = await retry(async () => this.http(requestOptions), retryOptions)
+        this.counter.release()
+        return result
+    }
+}
+module.exports = Http

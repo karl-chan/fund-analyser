@@ -1,32 +1,30 @@
-module.exports = FundCalculator
-
 const fundUtils = require('../util/fundUtils')
 const properties = require('../util/properties')
 const streamWrapper = require('../util/streamWrapper')
 
-const async = require('async')
+class FundCalculator {
+    constructor () {
+        this.lookbacks = JSON.parse(properties.get('fund.postprocessor.returns.extra.lookbacks'))
+    }
 
-function FundCalculator () {
-    this.lookbacks = JSON.parse(properties.get('fund.postprocessor.returns.extra.lookbacks'))
+    async evaluate (fund) {
+        fund = await this.enrichReturns(fund)
+        fund = await this.calcIndicators(fund)
+        return fund
+    }
+
+    stream () {
+        return streamWrapper.asParallelTransform(this.evaluate.bind(this))
+    }
+
+    enrichReturns (fund) {
+        fund.returns = fundUtils.enrichReturns(fund.returns, fund.historicPrices, this.lookbacks)
+        return fund
+    }
+    calcIndicators (fund) {
+        fund.indicators = fundUtils.calcIndicators(fund.historicPrices)
+        return fund
+    }
 }
 
-FundCalculator.prototype.evaluate = function (fund, callback) {
-    async.waterfall([
-        this.enrichReturns.bind(this, fund),
-        this.calcIndicators.bind(this)
-    ], callback)
-}
-
-FundCalculator.prototype.stream = function () {
-    return streamWrapper.asParallelTransform(this.evaluate.bind(this))
-}
-
-FundCalculator.prototype.enrichReturns = function (fund, callback) {
-    fund.returns = fundUtils.enrichReturns(fund.returns, fund.historicPrices, this.lookbacks)
-    callback(null, fund)
-}
-
-FundCalculator.prototype.calcIndicators = function (fund, callback) {
-    fund.indicators = fundUtils.calcIndicators(fund.historicPrices)
-    callback(null, fund)
-}
+module.exports = FundCalculator

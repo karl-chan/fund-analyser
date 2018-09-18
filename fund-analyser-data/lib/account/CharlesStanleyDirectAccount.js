@@ -1,9 +1,12 @@
 module.exports = CharlesStanleyDirectAccount
 
-const http = require('../util/http')
+const Http = require('../util/http')
 const cheerio = require('cheerio')
 const moment = require('moment')
 const url = require('url')
+const Promise = require('bluebird')
+
+const http = new Http()
 
 function CharlesStanleyDirectAccount () {
     this.myDirectAccountsUrl = 'https://www.charles-stanley-direct.co.uk/My_Dashboard/My_Direct_Accounts'
@@ -29,11 +32,11 @@ CharlesStanleyDirectAccount.prototype.getBalance = async function (jar) {
 }
 
 CharlesStanleyDirectAccount.prototype.getStatement = async function (jar) {
-    const {res: r1} = http.asyncGet(this.statementUrl, {jar, followRedirect: false})
-    if (!r1.headers.location || !r1.headers.location.includes('AccountCode')) {
+    const {headers: h1} = http.asyncGet(this.statementUrl, {jar, followRedirect: false})
+    if (!h1.location || !h1.location.includes('AccountCode')) {
         throw new Error('Failed to get account number in statement query')
     }
-    const accountCode = new url.URL(r1.headers.location).searchParams.get('AccountCode')
+    const accountCode = new url.URL(h1.location).searchParams.get('AccountCode')
     const qs = {
         AccountCode: accountCode,
         capital: true,

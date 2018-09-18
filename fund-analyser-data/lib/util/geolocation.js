@@ -2,7 +2,9 @@ module.exports = {
     getLocationByIp
 }
 
-const http = require('./http')
+const Http = require('./http')
+
+const http = new Http()
 
 async function getLocationByIp (ip) {
     if (!ip) {

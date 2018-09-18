@@ -49,16 +49,17 @@ if (require.main === module) {
 
         for (let task of commander.run) {
             log.info(`Started running: ${task}`)
-            const taskDuration = timer.split()
             try {
                 await Main.tasks[task]()
             } catch (err) {
+                const taskDuration = timer.split()
                 log.error(`Error during ${task}: ${err.stack} after ${taskDuration}.`)
 
                 const overallDuration = timer.end()
                 log.error(`Aborted due to error: ${err.stack} after ${overallDuration}.`)
                 process.exit(-1)
             }
+            const taskDuration = timer.split()
             log.info(`Completed: ${task} in ${taskDuration}.`)
         }
         const overallDuration = timer.end()

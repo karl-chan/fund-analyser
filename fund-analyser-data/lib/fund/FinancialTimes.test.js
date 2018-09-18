@@ -1,16 +1,13 @@
-/* eslint-disable no-unused-expressions */
-
 const FinancialTimes = require('./FinancialTimes')
 const Fund = require('./Fund')
 const Currency = require('../currency/Currency')
 const moment = require('moment')
 
-const TIMEOUT = 10000 // 10 seconds
-
 const StreamTest = require('streamtest')
 
+jest.setTimeout(10000) // 10 seconds
+
 describe('FinancialTimes', function () {
-    jest.setTimeout(TIMEOUT)
     let financialTimes, isin1, isin2, fund1, fund2
     beforeEach(function () {
         financialTimes = new FinancialTimes()
@@ -21,30 +18,27 @@ describe('FinancialTimes', function () {
     })
 
     describe('Core methods', function () {
-        test('getFundsFromIsins should return array of funds', function (done) {
+        test('getFundsFromIsins should return array of funds', async () => {
             const isin1 = 'GB00B80QG615'
             const isin2 = 'GB00B80QFX11'
             const fund1 = Fund.Builder(isin1).build()
             const fund2 = Fund.Builder(isin2).build()
 
             jest.spyOn(financialTimes, 'getFundFromIsin')
-                .mockImplementation((isin, callback) => {
+                .mockImplementation(async isin => {
                     switch (isin) {
                     case isin1:
-                        callback(null, fund1)
-                        return
+                        return fund1
                     case isin2:
-                        callback(null, fund2)
+                        return fund2
                     }
                 })
 
-            financialTimes.getFundsFromIsins([isin1, isin2], (err, funds) => {
-                expect(funds).toEqual([fund1, fund2])
-                done(err)
-            })
+            const funds = await financialTimes.getFundsFromIsins([isin1, isin2])
+            expect(funds).toEqual([fund1, fund2])
         })
 
-        test('getFundFromIsin should return fund', function (done) {
+        test('getFundFromIsin should return fund', async () => {
             const isin = 'GB00000ISIN0'
             const summary = {
                 name: 'My fund',
@@ -72,21 +66,13 @@ describe('FinancialTimes', function () {
             ]
 
             jest.spyOn(financialTimes, 'getSummary')
-                .mockImplementation((isin, callback) => {
-                    callback(null, summary)
-                })
+                .mockImplementation(async (isin) => summary)
             jest.spyOn(financialTimes, 'getPerformance')
-                .mockImplementation((isin, callback) => {
-                    callback(null, performance)
-                })
+                .mockImplementation(async (isin) => performance)
             jest.spyOn(financialTimes, 'getHistoricPrices')
-                .mockImplementation((isin, callback) => {
-                    callback(null, historicPrices)
-                })
+                .mockImplementation(async (isin) => historicPrices)
             jest.spyOn(financialTimes, 'getHoldings')
-                .mockImplementation((isin, callback) => {
-                    callback(null, holdings)
-                })
+                .mockImplementation(async (isin) => holdings)
 
             const expected = Fund.Builder(isin)
                 .name('My fund')
@@ -103,81 +89,71 @@ describe('FinancialTimes', function () {
                 .build()
             expected.realTimeDetails = expect.any(Object)
 
-            financialTimes.getFundFromIsin(isin, (err, actual) => {
-                expect(actual).toMatchObject(expected)
-                done(err)
-            })
+            const actual = await financialTimes.getFundFromIsin(isin)
+            expect(actual).toMatchObject(expected)
         })
 
-        test('getSummary should return summary object', function (done) {
-            financialTimes.getSummary('GB00B80QG615', (err, summary) => {
-                expect(summary).toHaveProperty('name', 'HSBC American Index Fund Accumulation C')
-                expect(summary).toHaveProperty('type', Fund.types.OEIC)
-                expect(summary).toHaveProperty('shareClass', Fund.shareClasses.ACC)
-                expect(summary).toHaveProperty('frequency', 'Daily')
-                expect(summary).toHaveProperty('ocf')
-                expect(summary).toHaveProperty('amc')
-                expect(summary).toHaveProperty('entryCharge')
-                expect(summary).toHaveProperty('exitCharge')
-                expect(summary.ocf).toBeNumber()
-                expect(summary.amc).toBeNumber()
-                expect(summary.entryCharge).toBeNumber()
-                expect(summary.exitCharge).toBeNumber()
-                done(err)
-            })
+        test('getSummary should return summary object', async () => {
+            const summary = await financialTimes.getSummary('GB00B80QG615')
+            expect(summary).toHaveProperty('name', 'HSBC American Index Fund Accumulation C')
+            expect(summary).toHaveProperty('type', Fund.types.OEIC)
+            expect(summary).toHaveProperty('shareClass', Fund.shareClasses.ACC)
+            expect(summary).toHaveProperty('frequency', 'Daily')
+            expect(summary).toHaveProperty('ocf')
+            expect(summary).toHaveProperty('amc')
+            expect(summary).toHaveProperty('entryCharge')
+            expect(summary).toHaveProperty('exitCharge')
+            expect(summary.ocf).toBeNumber()
+            expect(summary.amc).toBeNumber()
+            expect(summary.entryCharge).toBeNumber()
+            expect(summary.exitCharge).toBeNumber()
         })
 
-        test('getPerformance should return performance object', function (done) {
-            financialTimes.getPerformance('GB00B80QG615', (err, performance) => {
-                expect(performance['5Y']).not.toBeNaN()
-                expect(performance['3Y']).not.toBeNaN()
-                expect(performance['1Y']).not.toBeNaN()
-                expect(performance['6M']).not.toBeNaN()
-                expect(performance['3M']).not.toBeNaN()
-                expect(performance['1M']).not.toBeNaN()
-                done(err)
-            })
+        test('getPerformance should return performance object', async () => {
+            const performance = await financialTimes.getPerformance('GB00B80QG615')
+            expect(performance['5Y']).toBeNumber().not.toBeNaN()
+            expect(performance['3Y']).toBeNumber().not.toBeNaN()
+            expect(performance['1Y']).toBeNumber().not.toBeNaN()
+            expect(performance['6M']).toBeNumber().not.toBeNaN()
+            expect(performance['3M']).toBeNumber().not.toBeNaN()
+            expect(performance['1M']).toBeNumber().not.toBeNaN()
         })
 
-        test('getHistoricPrices should return historic prices object', function (done) {
-            financialTimes.getHistoricPrices('GB00B80QG615', (err, historicPrices) => {
-                expect(historicPrices).toBeArray()
-                expect(historicPrices).toSatisfyAll(hp => hp instanceof Fund.HistoricPrice)
-                expect(historicPrices).not.toBeEmpty()
-                for (let hp of historicPrices) {
-                    expect(moment(hp.date).isValid()).toBeTruthy()
-                    expect(moment(hp.price)).not.toBeNaN()
-                }
-                done(err)
-            })
+        test('getHistoricPrices should return historic prices object', async () => {
+            const historicPrices = await financialTimes.getHistoricPrices('GB00B80QG615')
+            expect(historicPrices).toBeArray()
+            expect(historicPrices).toSatisfyAll(hp => hp instanceof Fund.HistoricPrice)
+            expect(historicPrices).not.toBeEmpty()
+            for (let hp of historicPrices) {
+                expect(moment(hp.date).isValid()).toBeTruthy()
+                expect(moment(hp.price)).not.toBeNaN()
+            }
         })
 
-        test('getHistoricExchangeRates should return historic exchange rates series', function (done) {
-            financialTimes.getHistoricExchangeRates('GBP', 'USD', (err, historicRates) => {
-                expect(historicRates).toBeArray()
-                expect(historicRates).toSatisfyAll(hr => hr instanceof Currency.HistoricRate)
-                expect(historicRates).not.toBeEmpty()
-                for (let hr of historicRates) {
-                    expect(moment(hr.date).isValid()).toBeTruthy()
-                    expect(moment(hr.rate)).not.toBeNaN()
-                }
-                done(err)
-            })
+        test('getHistoricExchangeRates should return historic exchange rates series', async () => {
+            const historicRates = await financialTimes.getHistoricExchangeRates('GBP', 'USD')
+            expect(historicRates).toBeArray()
+            expect(historicRates).toSatisfyAll(hr => hr instanceof Currency.HistoricRate)
+            expect(historicRates).not.toBeEmpty()
+            for (let hr of historicRates) {
+                expect(moment(hr.date).isValid()).toBeTruthy()
+                expect(moment(hr.rate)).not.toBeNaN()
+            }
         })
 
-        test('getHoldings should return holdings object', function (done) {
-            financialTimes.getHoldings('GB00B80QG615', (err, holdings) => {
-                expect(holdings).toBeArray()
-                expect(holdings).not.toBeEmpty()
+        test('getHoldings should return holdings object', async () => {
+            const holdings = await financialTimes.getHoldings('GB00B80QG615')
+            expect(holdings).toBeArray()
+            expect(holdings).not.toBeEmpty()
 
-                for (let h of holdings) {
-                    expect(h).toHaveProperty('name', expect.toBeString().not.toBeEmpty())
-                    expect(h).toHaveProperty('symbol', expect.toBeString())
-                    expect(h).toHaveProperty('weight')
-                    expect(h.weight).toBeFinite()
-                }
-                done(err)
-            })
+            for (let h of holdings) {
+                expect(h).toHaveProperty('name')
+                expect(h).toHaveProperty('symbol')
+                expect(h).toHaveProperty('weight')
+                expect(h.name).toBeString().not.toBeEmpty()
+                expect(h.symbol).toBeString().not.toBeEmpty()
+                expect(h.weight).toBeFinite()
+            }
         })
 
         test('getRealTimeDetails should return real time details object', async () => {
@@ -218,20 +194,19 @@ describe('FinancialTimes', function () {
 
     describe('Stream methods', function () {
         const version = 'v2'
-        test('streamFundsFromIsins should return Transform stream outputting array of funds', function (done) {
+        test('streamFundsFromIsins should return Transform stream outputting array of funds', done => {
             isin1 = 'GB00B80QG615'
             isin2 = 'GB00B80QFX11'
             fund1 = Fund.Builder(isin1).build()
             fund2 = Fund.Builder(isin2).build()
 
             jest.spyOn(financialTimes, 'getFundFromIsin')
-                .mockImplementation((isin, callback) => {
+                .mockImplementation(async isin => {
                     switch (isin) {
                     case isin1:
-                        callback(null, fund1)
-                        return
+                        return fund1
                     case isin2:
-                        callback(null, fund2)
+                        return fund2
                     }
                 })
 

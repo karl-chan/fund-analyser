@@ -33,7 +33,7 @@ describe('FundCalculator', function () {
             .build()
     })
 
-    test('evaluate should evaluate fund', function (done) {
+    test('evaluate should evaluate fund', async () => {
         const newReturns = _.assign(returns, {
             '2W': 0.01,
             '1W': 0.005
@@ -54,23 +54,19 @@ describe('FundCalculator', function () {
             .build()
 
         jest.spyOn(fundCalculator, 'enrichReturns')
-            .mockImplementation((f, callback) => {
-                callback(null, fundWithNewReturns)
-            })
+            .mockImplementation(async f => fundWithNewReturns)
 
         jest.spyOn(fundCalculator, 'calcIndicators')
-            .mockImplementation((f, callback) => {
-                expect(f).toEqual(fundWithIndicators)
-                callback(null, fundWithIndicators)
+            .mockImplementation(async f => {
+                expect(f).toEqual(fundWithNewReturns)
+                return fundWithIndicators
             })
 
-        fundCalculator.evaluate(fund, (err, actual) => {
-            expect(actual).toEqual(fundResult)
-            done(err)
-        })
+        const actual = await fundCalculator.evaluate(fund)
+        expect(actual).toEqual(fundResult)
     })
 
-    test('stream should return a Transform stream that evaluates fund', function (done) {
+    test('stream should return a Transform stream that evaluates fund', done => {
         const newReturns = _.assign(returns, {
             '2W': 0.01,
             '1W': 0.005

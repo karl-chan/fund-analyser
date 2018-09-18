@@ -1,25 +1,28 @@
 const Fund = require('./Fund')
-const http = require('../util/http')
+const Http = require('../util/http')
 const math = require('../util/math')
 const properties = require('../util/properties')
 const log = require('../util/log')
 const streamWrapper = require('../util/streamWrapper')
 const _ = require('lodash')
 const cheerio = require('cheerio')
+const Promise = require('bluebird')
+
+const http = new Http({
+    maxParallelConnections: properties.get('fund.charlesstanleydirect.max.parallel.connections'),
+    maxAttempts: properties.get('fund.charlesstanleydirect.max.attempts'),
+    retryInterval: properties.get('fund.charlesstanleydirect.retry.interval')
+})
 
 class CharlesStanleyDirect {
     constructor () {
         this.pageSize = properties.get('fund.charlesstanleydirect.page.size')
-        http.setOptions({
-            maxParallelConnections: properties.get('fund.charlesstanleydirect.max.parallel.connections'),
-            retryInterval: properties.get('fund.charlesstanleydirect.retry.interval')
-        })
     }
 
     async getFunds () {
         const numPages = await this.getNumPages()
         const pageRange = await this.getPageRange(numPages)
-        const sedols = await this.getSedolsFromPage(pageRange)
+        const sedols = await this.getSedolsFromPages(pageRange)
         const funds = await this.getFundsFromSedols(sedols)
         return funds
     }
@@ -27,7 +30,7 @@ class CharlesStanleyDirect {
     async getSedols () {
         const numPages = await this.getNumPages()
         const pageRange = await this.getPageRange(numPages)
-        const sedols = await this.getSedolsFromPage(pageRange)
+        const sedols = await this.getSedolsFromPages(pageRange)
         return sedols
     }
 
@@ -56,7 +59,7 @@ class CharlesStanleyDirect {
     }
 
     async getSedolsFromPages (pages) {
-        const sedols = await Promise.all(pages.map(this.getSedolsFromPage))
+        const sedols = await Promise.map(pages, this.getSedolsFromPage.bind(this))
         return _.flatten(sedols)
     }
 
@@ -99,7 +102,7 @@ class CharlesStanleyDirect {
     }
 
     async getFundsFromSedols (sedols) {
-        return Promise.all(sedols.map(this.getFundFromSedol))
+        return Promise.map(sedols, this.getFundFromSedol.bind(this))
     }
 
     /**

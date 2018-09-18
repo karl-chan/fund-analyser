@@ -1,46 +1,47 @@
-module.exports = FundFactory
-
 const CharlesStanleyDirect = require('./CharlesStanleyDirect')
 const FinancialTimes = require('./FinancialTimes')
 const FundCalculator = require('./FundCalculator')
+const streamWrapper = require('../util/streamWrapper')
 
-const async = require('async')
-const StreamTest = require('streamtest')
+const Promise = require('bluebird')
 
-function FundFactory () {
-    this.isinProvider = new CharlesStanleyDirect()
-    this.fundProvider = new FinancialTimes()
-    this.fundCalculator = new FundCalculator()
+class FundFactory {
+    constructor () {
+        this.isinProvider = new CharlesStanleyDirect()
+        this.fundProvider = new FinancialTimes()
+        this.fundCalculator = new FundCalculator()
+    }
+
+    async getFunds () {
+        const isins = await this.isinProvider.getFunds()
+        const funds = await this.fundProvider.getFundsFromIsins(isins)
+        const enrichedFunds = await Promise.map(funds, this.fundCalculator.evaluate.bind(this))
+        return enrichedFunds
+    }
+
+    streamFunds () {
+        const isinStream = this.isinProvider.streamFunds()
+        const isinToFundStream = this.fundProvider.streamFundsFromIsins()
+        const fundCalculationStream = this.fundCalculator.stream()
+
+        const fundStream = isinStream
+            .pipe(isinToFundStream)
+            .pipe(fundCalculationStream)
+        return fundStream
+    }
+
+    streamFundsFromSedols (sedols) {
+        const sedolStream = streamWrapper.asReadableAsync(async () => sedols)
+        const isinStream = this.isinProvider.streamFundsFromSedols()
+        const isinToFundStream = this.fundProvider.streamFundsFromIsins()
+        const fundCalculationStream = this.fundCalculator.stream()
+
+        const fundStream = sedolStream
+            .pipe(isinStream)
+            .pipe(isinToFundStream)
+            .pipe(fundCalculationStream)
+        return fundStream
+    }
 }
 
-FundFactory.prototype.getFunds = function (callback) {
-    async.waterfall([
-        this.isinProvider.getFunds.bind(this.isinProvider),
-        this.fundProvider.getFundsFromIsins.bind(this.fundProvider),
-        this.fundCalculator.evaluate.bind(this.fundCalculator)
-    ], callback)
-}
-
-FundFactory.prototype.streamFunds = function () {
-    const isinStream = this.isinProvider.streamFunds()
-    const isinToFundStream = this.fundProvider.streamFundsFromIsins()
-    const fundCalculationStream = this.fundCalculator.stream()
-
-    const fundStream = isinStream
-        .pipe(isinToFundStream)
-        .pipe(fundCalculationStream)
-    return fundStream
-}
-
-FundFactory.prototype.streamFundsFromSedols = function (sedols) {
-    const sedolStream = StreamTest['v2'].fromObjects(sedols)
-    const isinStream = this.isinProvider.streamFundsFromSedols()
-    const isinToFundStream = this.fundProvider.streamFundsFromIsins()
-    const fundCalculationStream = this.fundCalculator.stream()
-
-    const fundStream = sedolStream
-        .pipe(isinStream)
-        .pipe(isinToFundStream)
-        .pipe(fundCalculationStream)
-    return fundStream
-}
+module.exports = FundFactory

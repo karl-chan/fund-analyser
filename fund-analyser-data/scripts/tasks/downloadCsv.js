@@ -5,6 +5,7 @@ const log = require('../../lib/util/log')
 const FundDAO = require('../../lib/db/FundDAO')
 const moment = require('moment')
 const fs = require('fs')
+const Promise = require('bluebird')
 
 async function downloadCsv () {
     let savePath = properties.get('csv.save.path')
@@ -41,12 +42,6 @@ async function downloadCsv () {
                     'returns.3D': 1,
                     'returns.1D': 1,
                     'indicators.stability': 1,
-                    'cv': {
-                        $divide: [
-                            { $stdDevSamp: '$historicPrices.price' },
-                            { $avg: '$historicPrices.price' }
-                        ]
-                    },
                     'holdings': 1,
                     'asof': 1
                 }
@@ -60,7 +55,7 @@ async function downloadCsv () {
     const headerFields = ['isin', 'name', 'type', 'shareClass', 'frequency',
         'ocf', 'amc', 'entryCharge', 'exitCharge', 'bidAskSpread', 'returns.5Y', 'returns.3Y',
         'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'returns.2W',
-        'returns.1W', 'returns.3D', 'returns.1D', 'indicators.stability', 'cv', 'holdings', 'asof']
+        'returns.1W', 'returns.3D', 'returns.1D', 'indicators.stability', 'holdings', 'asof']
     return new Promise((resolve, reject) => {
         FundDAO.exportCsv(headerFields, options, (err, csvFile) => {
             if (err) { return reject(err) }

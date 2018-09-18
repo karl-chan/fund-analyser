@@ -1,57 +1,58 @@
-module.exports = FinancialTimes
-
 const Fund = require('./Fund')
 const Currency = require('../currency/Currency')
 const math = require('../util/math')
 const fundUtils = require('../util/fundUtils')
-const http = require('../util/http')
+const Http = require('../util/http')
 const log = require('../util/log')
 const properties = require('../util/properties')
 const streamWrapper = require('../util/streamWrapper')
 
 const _ = require('lodash')
-const async = require('async')
 const cheerio = require('cheerio')
 const moment = require('moment')
+const Promise = require('bluebird')
 
-function FinancialTimes () {
-    this.fundTypeMap = {
-        'Open Ended Investment Company': Fund.types.OEIC,
-        'SICAV': Fund.types.OEIC,
-        'FCP': Fund.types.OEIC,
-        'Unit Trust': Fund.types.UNIT
-    }
-    this.shareClassMap = {
-        'Income': Fund.shareClasses.INC,
-        'Accumulation': Fund.shareClasses.ACC
-    }
-    this.lookback = properties.get('fund.financialtimes.lookback.days')
-}
+const http = new Http({
+    maxParallelConnections: properties.get('fund.financialtimes.max.parallel.connections'),
+    maxAttempts: properties.get('fund.financialtimes.max.attempts'),
+    retryInterval: properties.get('fund.financialtimes.retry.interval')
+})
 
-FinancialTimes.prototype.getFundsFromIsins = function (isins, callback) {
-    async.map(isins, this.getFundFromIsin.bind(this), callback)
-}
-
-FinancialTimes.prototype.getFundFromIsin = function (isin, callback) {
-    if (!isin) {
-        return callback(null, new Fund())
-    }
-    /* Overload to accept partial fund case from Charles Stanley */
-    const sedol = isin instanceof Fund ? isin.sedol : undefined
-    const bidAskSpread = isin instanceof Fund ? isin.bidAskSpread : undefined
-    const entryCharge = isin instanceof Fund ? isin.entryCharge : undefined
-    isin = isin instanceof Fund ? isin.isin : isin
-
-    async.parallel([
-        this.getSummary.bind(this, isin),
-        this.getPerformance.bind(this, isin),
-        this.getHistoricPrices.bind(this, isin),
-        this.getHoldings.bind(this, isin)
-    ], (err, results) => {
-        if (err) {
-            return callback(err)
+class FinancialTimes {
+    constructor () {
+        this.fundTypeMap = {
+            'Open Ended Investment Company': Fund.types.OEIC,
+            'SICAV': Fund.types.OEIC,
+            'FCP': Fund.types.OEIC,
+            'Unit Trust': Fund.types.UNIT
         }
-        const [summary, performance, historicPrices, holdings] = results
+        this.shareClassMap = {
+            'Income': Fund.shareClasses.INC,
+            'Accumulation': Fund.shareClasses.ACC
+        }
+        this.lookback = properties.get('fund.financialtimes.lookback.days')
+    }
+
+    async getFundsFromIsins (isins) {
+        return Promise.map(isins, this.getFundFromIsin.bind(this))
+    }
+
+    async getFundFromIsin (isin) {
+        if (!isin) {
+            return new Fund()
+        }
+        /* Overload to accept partial fund case from Charles Stanley */
+        const sedol = isin instanceof Fund ? isin.sedol : undefined
+        const bidAskSpread = isin instanceof Fund ? isin.bidAskSpread : undefined
+        const entryCharge = isin instanceof Fund ? isin.entryCharge : undefined
+        isin = isin instanceof Fund ? isin.isin : isin
+
+        const [summary, performance, historicPrices, holdings] = await Promise.all([
+            this.getSummary(isin),
+            this.getPerformance(isin),
+            this.getHistoricPrices(isin),
+            this.getHoldings(isin)
+        ])
 
         const fund = Fund.Builder(isin)
             .sedol(sedol)
@@ -77,24 +78,19 @@ FinancialTimes.prototype.getFundFromIsin = function (isin, callback) {
         }
 
         // try enrich with real time details
-        this.getRealTimeDetails(fund)
-            .then(realTimeDetails => {
-                fund.realTimeDetails = realTimeDetails
-                callback(null, fund)
-            })
-            .catch(err => {
-                log.error('Failed to get real time details for isin: %s. Cause: %s', isin, err.stack)
-                callback(null, fund)
-            })
-    })
-}
-
-FinancialTimes.prototype.getSummary = function (isin, callback) {
-    const url = `https://markets.ft.com/data/funds/tearsheet/summary?s=${isin}`
-    http.gets(url, (err, res, body) => {
-        if (err) {
-            return callback(err)
+        try {
+            const realTimeDetails = await this.getRealTimeDetails(fund)
+            fund.realTimeDetails = realTimeDetails
+        } catch (err) {
+            log.error('Failed to get real time details for isin: %s. Cause: %s', isin, err.stack)
         }
+        return fund
+    }
+
+    async getSummary (isin) {
+        const url = `https://markets.ft.com/data/funds/tearsheet/summary?s=${isin}`
+        const {body} = await http.asyncGet(url)
+
         const $ = cheerio.load(body)
         const name = $(`body > div.o-grid-container.mod-container > div:nth-child(2) > section:nth-child(1) 
                 > div > div > div.mod-tearsheet-overview__overview.clearfix > div.mod-tearsheet-overview__header 
@@ -121,16 +117,13 @@ FinancialTimes.prototype.getSummary = function (isin, callback) {
             entryCharge: math.pcToFloat(entryCharge),
             exitCharge: math.pcToFloat(exitCharge)
         }
-        return callback(null, summary)
-    })
-}
+        return summary
+    }
 
-FinancialTimes.prototype.getPerformance = function (isin, callback) {
-    const url = `https://markets.ft.com/data/funds/tearsheet/performance?s=${isin}`
-    http.gets(url, (err, res, body) => {
-        if (err) {
-            return callback(err)
-        }
+    async getPerformance (isin) {
+        const url = `https://markets.ft.com/data/funds/tearsheet/performance?s=${isin}`
+        const {body} = await http.asyncGet(url)
+
         const $ = cheerio.load(body)
         const returns = $(`body > div.o-grid-container.mod-container > div:nth-child(3) 
                 > section > div:nth-child(1) > div > div.mod-module__content 
@@ -152,16 +145,13 @@ FinancialTimes.prototype.getPerformance = function (isin, callback) {
             '3M': math.pcToFloat(threeMonthReturn),
             '1M': math.pcToFloat(oneMonthReturn)
         }
-        return callback(null, performance)
-    })
-}
+        return performance
+    }
 
-FinancialTimes.prototype.getHistoricPrices = function (isin, callback) {
-    const url = `https://markets.ft.com/data/funds/tearsheet/charts?s=${isin}`
-    http.gets(url, (err, res, body) => {
-        if (err) {
-            return callback(err)
-        }
+    async getHistoricPrices (isin) {
+        let url = `https://markets.ft.com/data/funds/tearsheet/charts?s=${isin}`
+        let {body} = await http.asyncGet(url)
+
         const $ = cheerio.load(body)
 
         // In case of failure, simply return an empty array and continue
@@ -172,12 +162,12 @@ FinancialTimes.prototype.getHistoricPrices = function (isin, callback) {
                 > div.mod-ui-overlay.clearfix.mod-overview-quote-app-overlay > div > div 
                 > section.mod-tearsheet-add-to-watchlist`).attr('data-mod-config')).xid
         } catch (err) {
-            return callback(null, [])
+            return []
         }
-        const url = `https://markets.ft.com/data/chartapi/series`
 
-        http.posts({
-            url: url,
+        const url2 = `https://markets.ft.com/data/chartapi/series`
+
+        const {body: body2} = await http.asyncPost(url2, {
             headers: {
                 'content-type': 'application/json'
             },
@@ -187,42 +177,32 @@ FinancialTimes.prototype.getHistoricPrices = function (isin, callback) {
                 'returnDateType': 'ISO8601',
                 'elements': [{ 'Type': 'price', 'Symbol': symbol }]
             }
-        }, (err, res, body) => {
-            if (err) {
-                return callback(err)
-            }
-            // In case of failure, simply return an empty array and continue
-            try {
-                const series = JSON.parse(body)
-                const dates = series.Dates
-                const prices = series.Elements[0].ComponentSeries.find(s => s.Type === 'Close').Values
-                const historicPrices = _.zipWith(dates, prices, (dateString, price) => {
-                    const date = moment(dateString).toDate()
-                    return new Fund.HistoricPrice(date, price)
-                })
-                return callback(null, historicPrices)
-            } catch (err) {
-                return callback(null, [])
-            }
         })
-    })
-}
 
-FinancialTimes.prototype.getHistoricExchangeRates = function (base, quote, callback) {
-    this.getHistoricPrices(`${base}${quote}`, (err, entries) => {
-        if (err) {
-            return callback(err)
+        // In case of failure, simply return an empty array and continue
+        try {
+            const series = JSON.parse(body2)
+            const dates = series.Dates
+            const prices = series.Elements[0].ComponentSeries.find(s => s.Type === 'Close').Values
+            const historicPrices = _.zipWith(dates, prices, (dateString, price) => {
+                const date = moment(dateString).toDate()
+                return new Fund.HistoricPrice(date, price)
+            })
+            return historicPrices
+        } catch (err) {
+            return []
         }
-        callback(null, entries.map(entry => new Currency.HistoricRate(entry.date, entry.price)))
-    })
-}
+    }
 
-FinancialTimes.prototype.getHoldings = function (isin, callback) {
-    const url = `https://markets.ft.com/data/funds/tearsheet/holdings?s=${isin}`
-    http.gets(url, (err, res, body) => {
-        if (err) {
-            return callback(err)
-        }
+    async getHistoricExchangeRates (base, quote) {
+        const entries = await this.getHistoricPrices(`${base}${quote}`)
+        return entries.map(entry => new Currency.HistoricRate(entry.date, entry.price))
+    }
+
+    async getHoldings (isin) {
+        const url = `https://markets.ft.com/data/funds/tearsheet/holdings?s=${isin}`
+        const {body} = await http.asyncGet(url)
+
         const $ = cheerio.load(body)
         const table = $(`body > div.o-grid-container.mod-container > div:nth-child(3) > section 
                 > div:nth-child(3) > div > div > table`)
@@ -234,65 +214,67 @@ FinancialTimes.prototype.getHoldings = function (isin, callback) {
             const weight = math.pcToFloat($(tr).find('td:nth-child(3)').text())
             return new Fund.Holding(name, symbol, weight)
         }).get()
-        return callback(null, holdings)
-    })
-}
+        return holdings
+    }
 
-// Real time details
-// precondition: fund with holdings and historic prices
-FinancialTimes.prototype.getRealTimeDetails = async fund => {
-    const getTodaysChange = async holdingTicker => {
-        const url = `https://markets.ft.com/data/equities/tearsheet/summary?s=${holdingTicker}`
+    // Real time details
+    // precondition: fund with holdings and historic prices
+    async getRealTimeDetails (fund) {
+        const getTodaysChange = async holdingTicker => {
+            const url = `https://markets.ft.com/data/equities/tearsheet/summary?s=${holdingTicker}`
+
+            const {body} = await http.asyncGet(url)
+            const $ = cheerio.load(body)
+            let currency, todaysChange
+            try {
+                const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(1) > span.mod-ui-data-list__label').text().trim()
+                const groups = cell.match(/Price \((.*)\)/)
+                currency = groups[1]
+            } catch (err) {
+                log.warn('Currency failed for: %s. Cause: %s', holdingTicker, err.stack)
+            }
+
+            try {
+                const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(2) > .mod-ui-data-list__value').text().trim()
+                const groups = cell.match('(.*)/(.*)%')
+                todaysChange = groups[2] / 100
+            } catch (err) {
+                log.warn('Todays change failed for: %s. Cause: %s', holdingTicker, err.stack)
+            }
+            return {currency, todaysChange}
+        }
+
+        const enrichedHoldings = await Promise.map(fund.holdings, async h => {
+            const {currency, todaysChange} = h.symbol ? await getTodaysChange(h.symbol) : {currency: null, todaysChange: null}
+            return {name: h.name, ticker: h.symbol, currency, todaysChange, weight: h.weight}
+        })
+
+        const realTimeDetails = { holdings: enrichedHoldings, lastUpdated: new Date() }
+        return fundUtils.enrichRealTimeDetails(realTimeDetails, fund)
+    }
+
+    async listCurrencies () {
+        const url = 'https://markets.ft.com/data/currencies'
 
         const {body} = await http.asyncGet(url)
         const $ = cheerio.load(body)
-        let currency, todaysChange
-        try {
-            const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(1) > span.mod-ui-data-list__label').text().trim()
-            const groups = cell.match(/Price \((.*)\)/)
-            currency = groups[1]
-        } catch (err) {
-            log.warn('Currency failed for: %s. Cause: %s', holdingTicker, err.stack)
-        }
-
-        try {
-            const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(2) > .mod-ui-data-list__value').text().trim()
-            const groups = cell.match('(.*)/(.*)%')
-            todaysChange = groups[2] / 100
-        } catch (err) {
-            log.warn('Todays change failed for: %s. Cause: %s', holdingTicker, err.stack)
-        }
-        return {currency, todaysChange}
+        const currencyOptions = $('form.mod-currency-selector__controls select:nth-of-type(1)').find('option')
+        const currencies = _.sortedUniq(currencyOptions
+            .map((i, option) => {
+                return $(option).attr('value').trim()
+            })
+            .get()
+            .filter(text => text.length) // filter out empty string
+        )
+        return currencies
     }
 
-    const enrichedHoldings = await Promise.all(fund.holdings.map(async h => {
-        const {currency, todaysChange} = h.symbol ? await getTodaysChange(h.symbol) : {currency: null, todaysChange: null}
-        return {name: h.name, ticker: h.symbol, currency, todaysChange, weight: h.weight}
-    }))
-
-    const realTimeDetails = { holdings: enrichedHoldings, lastUpdated: new Date() }
-    return fundUtils.enrichRealTimeDetails(realTimeDetails, fund)
+    /**
+     * Analogous stream methods below
+     */
+    streamFundsFromIsins () {
+        return streamWrapper.asParallelTransformAsync(this.getFundFromIsin.bind(this))
+    }
 }
 
-FinancialTimes.prototype.listCurrencies = async () => {
-    const url = 'https://markets.ft.com/data/currencies'
-
-    const {body} = await http.asyncGet(url)
-    const $ = cheerio.load(body)
-    const currencyOptions = $('form.mod-currency-selector__controls select:nth-of-type(1)').find('option')
-    const currencies = _.sortedUniq(currencyOptions
-        .map((i, option) => {
-            return $(option).attr('value').trim()
-        })
-        .get()
-        .filter(text => text.length) // filter out empty string
-    )
-    return currencies
-}
-
-/**
- * Analogous stream methods below
- */
-FinancialTimes.prototype.streamFundsFromIsins = function () {
-    return streamWrapper.asParallelTransform(this.getFundFromIsin.bind(this))
-}
+module.exports = FinancialTimes

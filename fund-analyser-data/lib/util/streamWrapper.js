@@ -19,34 +19,33 @@ const log = require('./log.js')
 const stream = require('stream')
 const ParallelTransform = require('parallel-transform')
 const _ = require('lodash')
-const semaphore = require('semaphore')
+const {Lock} = require('semaphore-async-await')
 
 function asReadable (fn) {
-    const mutex = newMutex()
+    const lock = new Lock()
     const readableStream = new stream.Readable({
         objectMode: true,
-        read (size) {
-            mutex.take(() => {
-                if (this.done) {
+        async read (size) {
+            await lock.acquire()
+            if (this.done) {
+                return
+            }
+            fn((err, data) => {
+                if (err) {
+                    this.emit('error', err)
+                    lock.leave()
                     return
                 }
-                fn((err, data) => {
-                    if (err) {
-                        this.emit('error', err)
-                        mutex.leave()
-                        return
-                    }
-                    if (_.isArray(data)) {
-                        _.forEach(data, (chunk) => {
-                            this.push(chunk)
-                        })
-                    } else {
-                        this.push(data)
-                    }
-                    this.push(null)
-                    this.done = true
-                    mutex.leave()
-                })
+                if (_.isArray(data)) {
+                    _.forEach(data, (chunk) => {
+                        this.push(chunk)
+                    })
+                } else {
+                    this.push(data)
+                }
+                this.push(null)
+                this.done = true
+                lock.release()
             })
         }
     })
@@ -131,7 +130,7 @@ function asFilter (fn) {
 
 /**
  * Warning: wrapped function needs to be single output per input
- * @param fn
+ * @param asyncFn
  * @returns {ParallelTransform}
  */
 function asParallelTransform (fn) {
@@ -147,32 +146,31 @@ function asParallelTransform (fn) {
  * ASYNC METHODS BELOW
  */
 
-function asReadableAsync (promise) {
-    const mutex = newMutex()
+function asReadableAsync (asyncFn) {
+    const lock = new Lock()
     const readableStream = new stream.Readable({
         objectMode: true,
-        read (size) {
-            mutex.take(async () => {
-                if (this.done) {
-                    return
+        async read (size) {
+            await lock.acquire()
+            if (this.done) {
+                return
+            }
+            try {
+                const data = await asyncFn()
+                if (_.isArray(data)) {
+                    _.forEach(data, (chunk) => {
+                        this.push(chunk)
+                    })
+                } else {
+                    this.push(data)
                 }
-                try {
-                    const data = await promise()
-                    if (_.isArray(data)) {
-                        _.forEach(data, (chunk) => {
-                            this.push(chunk)
-                        })
-                    } else {
-                        this.push(data)
-                    }
-                    this.push(null)
-                    this.done = true
-                    mutex.leave()
-                } catch (err) {
-                    this.emit('error', err)
-                    mutex.leave()
-                }
-            })
+                this.push(null)
+                this.done = true
+                lock.release()
+            } catch (err) {
+                this.emit('error', err)
+                lock.release()
+            }
         }
     })
     readableStream.on('error', function (err) {
@@ -182,12 +180,12 @@ function asReadableAsync (promise) {
     return readableStream
 }
 
-function asWritableAsync (promise) {
+function asWritableAsync (asyncFn) {
     const writableStream = new stream.Writable({
         objectMode: true,
         async  write (chunk, encoding, callback) {
             try {
-                await promise(chunk)
+                await asyncFn(chunk)
                 callback()
             } catch (err) {
                 this.emit('error', err)
@@ -202,13 +200,13 @@ function asWritableAsync (promise) {
     return writableStream
 }
 
-function asTransformAsync (promise) {
+function asTransformAsync (asyncFn) {
     const transformStream = new stream.Transform({
         allowHalfOpen: false,
         objectMode: true,
         async transform (chunk, encoding, callback) {
             try {
-                const data = await promise(chunk)
+                const data = await asyncFn(chunk)
                 if (_.isArray(data)) {
                     _.forEach(data, (chunk) => {
                         this.push(chunk)
@@ -230,13 +228,13 @@ function asTransformAsync (promise) {
     return transformStream
 }
 
-function asFilterAsync (promise) {
+function asFilterAsync (asyncFn) {
     const filterStream = new stream.Transform({
         allowHalfOpen: false,
         objectMode: true,
         async transform (chunk, encoding, callback) {
             try {
-                const bool = await promise(chunk)
+                const bool = await asyncFn(chunk)
                 if (bool) {
                     this.push(chunk)
                 }
@@ -256,13 +254,13 @@ function asFilterAsync (promise) {
 
 /**
  * Warning: wrapped function needs to be single output per input
- * @param fn
+ * @param asyncFn
  * @returns {ParallelTransform}
  */
-function asParallelTransformAsync (promise) {
+function asParallelTransformAsync (asyncFn) {
     const parallelTransformStream = new ParallelTransform(maxParallelTransforms, async (chunk, callback) => {
         try {
-            const data = await promise(chunk)
+            const data = await asyncFn(chunk)
             callback(null, data)
         } catch (err) {
             callback(err)
@@ -273,8 +271,4 @@ function asParallelTransformAsync (promise) {
         process.exit(-1)
     })
     return parallelTransformStream
-}
-
-function newMutex () {
-    return semaphore(1)
 }
