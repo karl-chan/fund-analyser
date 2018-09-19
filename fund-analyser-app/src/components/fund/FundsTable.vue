@@ -34,17 +34,28 @@ export default {
         { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated },
         { headerName: 'ISIN', field: 'isin', width: 120 },
         { headerName: 'Name', field: 'name', width: 180, tooltipField: 'name' },
-        { headerName: '5Y', field: 'returns.5Y', width: 65 },
-        { headerName: '3Y', field: 'returns.3Y', width: 65 },
-        { headerName: '1Y', field: 'returns.1Y', width: 65 },
-        { headerName: '6M', field: 'returns.6M', width: 65 },
-        { headerName: '3M', field: 'returns.3M', width: 65 },
-        { headerName: '1M', field: 'returns.1M', width: 65 },
-        { headerName: '2W', field: 'returns.2W', width: 65 },
-        { headerName: '1W', field: 'returns.1W', width: 65 },
-        { headerName: '3D', field: 'returns.3D', width: 65 },
-        { headerName: '1D', field: 'returns.1D', sort: 'desc', width: 65 },
-        { headerName: '+1D', field: 'returns.+1D', width: 65 },
+        { headerName: 'Returns',
+          marryChildren: true,
+          children: [
+            { headerName: '5Y', field: 'returns.5Y', width: 65 },
+            { headerName: '3Y', field: 'returns.3Y', width: 65 },
+            { headerName: '1Y', field: 'returns.1Y', width: 65 },
+            { headerName: '6M', field: 'returns.6M', width: 65 },
+            { headerName: '3M', field: 'returns.3M', width: 65 },
+            { headerName: '1M', field: 'returns.1M', width: 65 },
+            { headerName: '2W', field: 'returns.2W', width: 65 },
+            { headerName: '1W', field: 'returns.1W', width: 65 },
+            { headerName: '3D', field: 'returns.3D', width: 65 },
+            { headerName: '1D', field: 'returns.1D', sort: 'desc', width: 65 },
+            { headerName: '+1D', field: 'returns.+1D', width: 65 }
+          ]
+        },
+        { headerName: 'Indicators',
+          marryChildren: true,
+          children: [
+            { headerName: 'Stability', field: 'indicators.stability', width: 90 }
+          ]
+        },
         { headerName: 'Type', field: 'type', width: 70 },
         { headerName: 'Share Class', field: 'shareClass', width: 60 },
         { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 70 },
@@ -53,7 +64,6 @@ export default {
         { headerName: 'AMC', field: 'amc', width: 70 },
         { headerName: 'Entry Charge', field: 'entryCharge', width: 80 },
         { headerName: 'Exit Charge', field: 'exitCharge', width: 80 },
-        { headerName: 'Stability', field: 'indicators.stability', width: 90 },
         { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter, tooltip: this.jsonFormatter },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ],
@@ -178,8 +188,8 @@ export default {
         'bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge'])
       const numberFields = new Set(['indicators.stability'])
       const dateFields = new Set(['asof'])
-      const newColDefs = params.columnApi.getAllColumns().map(col => {
-        const colDef = col.getColDef()
+
+      const updateColDef = colDef => {
         if (returnsFields.has(colDef.field)) {
           colDef.cellStyle = this.colourReturnsCellStyler
           colDef.filter = 'agNumberColumnFilter'
@@ -202,9 +212,9 @@ export default {
           colDef.filterParams = {newRowsAction: 'keep', apply: true}
         }
         colDef.headerTooltip = colDef.headerName
-        return colDef
-      })
-      params.api.setColumnDefs(newColDefs)
+      }
+
+      params.columnApi.getAllColumns().forEach(col => updateColDef(col.getColDef()))
     },
     numberFormatter (params) {
       return this.$utils.format.formatNumber(params.value)
