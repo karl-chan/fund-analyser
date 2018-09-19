@@ -54,11 +54,11 @@ router.get('/summary', async ctx => {
 router.post('/list', async ctx => {
     const {isins, params} = ctx.request.body
     const funds = fundCache.get(isins, {filterText: params.filterText})
-    const {asof, stats} = fundCache.getMetadata()
-    const {funds: showFunds, lastRow} = agGrid.applyParams(funds, params.agGridRequest)
+    const {asof, stats, totalFunds} = fundCache.getMetadata()
+    const {funds: window, lastRow} = agGrid.applyParams(funds, params.agGridRequest)
     ctx.body = {
-        funds: showFunds,
-        metadata: { lastRow, asof, stats }
+        funds: window,
+        metadata: { lastRow, totalFunds, asof, stats }
     }
 })
 

@@ -86,9 +86,14 @@ function buildQuickFilterCache (funds) {
 }
 
 function refreshMetadata () {
-    const asof = _.max(fundCache.map(f => f.asof))
+    const asofDate = _.max(fundCache.map(f => f.asof))
+    const asof = {
+        date: asofDate,
+        numUpToDate: fundCache.filter(f => f.asof && asofDate && f.asof.getTime() === asofDate.getTime()).length
+    }
     const stats = fundUtils.calcStats(fundCache)
-    metadata = {asof, stats}
+    const totalFunds = fundCache.length
+    metadata = {asof, stats, totalFunds}
 }
 
 function checkRunning () {

@@ -6,7 +6,12 @@
       div
         fund-search(placeholder="Filter table" @input="filter" @select="filterFund")
       .row.justify-end.items-center.gutter-x-md
-        div As of: {{ $utils.format.formatDateLong(asof) }}
+        div As of: {{ $utils.format.formatDateLong(asofDate) }}
+        q-btn(icon="info" color="primary" flat rounded dense)
+          q-tooltip
+            .q-subheading.q-mb-sm
+              <b>{{ pctUpToDate }}</b> up to date
+            div {{ numUpToDate }} out of {{ totalFunds }} funds
         div
           q-btn-group
             q-btn(color="tertiary" icon="refresh" @click="refreshData")
@@ -29,9 +34,16 @@ export default {
   name: 'FundsSummary',
   data () {
     return {
-      asof: null,
+      asofDate: null,
       showPinnedRows: true,
-      filterText: ''
+      filterText: '',
+      numUpToDate: 0,
+      totalFunds: 0
+    }
+  },
+  computed: {
+    pctUpToDate: function () {
+      return this.$utils.format.formatPercentage(this.numUpToDate / this.totalFunds, '0%')
     }
   },
   methods: {
@@ -45,7 +57,9 @@ export default {
       this.showPinnedRows = !this.showPinnedRows
     },
     onRowsChanged (metadata) {
-      this.asof = metadata.asof
+      this.asofDate = metadata.asof.date
+      this.numUpToDate = metadata.asof.numUpToDate
+      this.totalFunds = metadata.totalFunds
     },
     refreshData () {
       this.$refs.fundsTable.refresh()

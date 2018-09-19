@@ -12,22 +12,6 @@ const moment = require('moment')
 const stat = require('./stat')
 const indicators = require('./indicators')
 
-// function sedolToIsin (sedol) {
-//     const isinNoCheckDigit = 'GB00' + sedol
-//     const digitString = Array.prototype.map
-//         .call(isinNoCheckDigit, a => `${parseInt(a, 36)}`)
-//         .join('')
-//     const nums = Array.prototype.map.call(digitString, digit => parseInt(digit, 10))
-//     for (let i = nums.length - 1; i >= 0; i -= 2) {
-//         nums[i] *= 2
-//     }
-//     const digitSum = _.sumBy(nums, n => {
-//         return _.sum(Array.prototype.map.call(`${n}`, digit => parseInt(digit, 10)))
-//     })
-//     const checkDigit = (10 - digitSum % 10) % 10
-//     return `${isinNoCheckDigit}${checkDigit}`
-// };
-
 function closestRecord (lookback, historicPrices) {
     // Remove last record as we don't want last record to be included in search later on
     const latestDate = moment.utc(_.last(historicPrices).date)
@@ -76,7 +60,7 @@ function calcStats (funds) {
     }
     const columns = ['ocf', 'amc', 'entryCharge', 'exitCharge', 'bidAskSpread', 'returns.5Y', 'returns.3Y',
         'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'returns.2W',
-        'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D', 'indicators.stability', 'asof']
+        'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D', 'indicators.stability', 'indicators.macd', 'indicators.mdd', 'asof']
 
     const getColumnValues = col => {
         return funds.map(f => _.get(f, col))
@@ -119,27 +103,42 @@ function enrichSummary (summary) {
             row.returns['+1D'] = row.realTimeDetails ? row.realTimeDetails.estChange : NaN
         })
 
-    const rowWithReturns = summary.find(row => row.returns)
-    if (rowWithReturns) {
-        const periods = Object.keys(rowWithReturns.returns)
-        const periodReturns = _.fromPairs(periods.map(period => [period, summary.map(row => row.returns && row.returns[period])]))
-        const maxReturns = _.fromPairs(periods.map(period => [period, _.max(periodReturns[period])]))
-        const minReturns = _.fromPairs(periods.map(period => [period, _.min(periodReturns[period])]))
+    // add colours to returns
+    const periods = ['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
+        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D']
+    const periodToReturns = _.fromPairs(periods.map(period => [period, summary.map(row => _.get(row, period))]))
+    const maxReturns = _.fromPairs(periods.map(period => [period, stat.max(periodToReturns[period])]))
+    const minReturns = _.fromPairs(periods.map(period => [period, stat.min(periodToReturns[period])]))
 
-        // add scores for colours
-        summary
-            .filter(row => row.returns)
-            .forEach(row => {
-                row.scores = _.fromPairs(Object.entries(row.returns).map(([period, ret]) => {
-                    let score = 0
-                    if (ret > 0) {
-                        score = ret / maxReturns[period]
-                    } else if (ret < 0) {
-                        score = -ret / minReturns[period]
-                    }
+    const medianStability = stat.median(summary.map(row => _.get(row, 'indicators.stability')))
+    const maxStability = 10 // not interested in anything above 10
+    const minStability = stat.min(summary.map(row => _.get(row, 'indicators.stability')))
+    const maxMacd = stat.max(summary.map(row => _.get(row, 'indicators.macd')))
+    const minMacd = stat.min(summary.map(row => _.get(row, 'indicators.macd')))
+    const maxMdd = stat.max(summary.map(row => _.get(row, 'indicators.mdd')))
+
+    // add scores for colours
+    summary
+        .forEach(row => {
+            const returns = row.returns
+                ? _.fromPairs(Object.entries(row.returns).map(([period, ret]) => {
+                    let score = ret > 0 ? ret / maxReturns[`returns.${period}`]
+                        : (ret < 0 ? -ret / minReturns[`returns.${period}`] : 0)
                     return [period, score]
-                }))
-            })
-    }
+                })) : {}
+
+            const indicators = row.indicators ? {
+                stability: row.indicators.stability > medianStability ? Math.min(1.5, (row.indicators.stability - medianStability) / (maxStability - medianStability))
+                    : (row.indicators.stability < medianStability ? (row.indicators.stability - medianStability) / (medianStability - minStability) : 0),
+                macd: row.indicators.macd > 0 ? row.indicators.macd / maxMacd
+                    : (row.indicators.macd < 0 ? -row.indicators.macd / minMacd : 0),
+                mdd: -row.indicators.mdd / maxMdd
+            } : {}
+
+            row.scores = {
+                returns,
+                indicators
+            }
+        })
     return summary
 }

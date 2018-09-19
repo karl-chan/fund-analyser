@@ -14,6 +14,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import get from 'lodash/get'
 
 export default {
   name: 'FundsTable',
@@ -53,7 +54,9 @@ export default {
         { headerName: 'Indicators',
           marryChildren: true,
           children: [
-            { headerName: 'Stability', field: 'indicators.stability', width: 90 }
+            { headerName: 'Stability', field: 'indicators.stability', width: 75 },
+            { headerName: 'MACD', field: 'indicators.macd', width: 75 },
+            { headerName: 'MDD', field: 'indicators.mdd', width: 75 }
           ]
         },
         { headerName: 'Type', field: 'type', width: 70 },
@@ -181,17 +184,18 @@ export default {
       return contextMenu
     },
     updateColDefs (params) {
-      const returnsFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
-        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D'])
-      const percentFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
+      const colourFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
         'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D',
+        'indicators.stability', 'indicators.macd', 'indicators.mdd'])
+      const percentFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
+        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D', 'indicators.mdd',
         'bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge'])
       const numberFields = new Set(['indicators.stability'])
       const dateFields = new Set(['asof'])
 
       const updateColDef = colDef => {
-        if (returnsFields.has(colDef.field)) {
-          colDef.cellStyle = this.colourReturnsCellStyler
+        if (colourFields.has(colDef.field)) {
+          colDef.cellStyle = this.colourCellStyler
           colDef.filter = 'agNumberColumnFilter'
           colDef.filterParams = {newRowsAction: 'keep', apply: true}
         }
@@ -231,10 +235,9 @@ export default {
     colourNumberStyler (params) {
       return this.$utils.format.colourNumber(params.value)
     },
-    colourReturnsCellStyler (params) {
-      const period = params.colDef.headerName
+    colourCellStyler (params) {
       if (params.data.scores) {
-        const score = params.data.scores[period]
+        const score = get(params.data.scores, params.colDef.field)
         return this.$utils.format.colourNumberCell(score)
       }
       return undefined
