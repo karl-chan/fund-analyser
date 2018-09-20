@@ -246,7 +246,7 @@ export default {
       return this.$utils.number.numberComparator(a, b)
     },
     numDaysOutdated (params) {
-      return !this.isRowPinned && this.$utils.date.diffBusinessDays(new Date(), params.data.asof)
+      return !this.isRowPinned(params) && this.$utils.date.diffBusinessDays(new Date(), params.data.asof)
     },
     resetFilters () {
       this.gridOptions.api.setFilterModel(null)
