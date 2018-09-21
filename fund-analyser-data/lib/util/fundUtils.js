@@ -73,10 +73,12 @@ function calcStats (funds) {
         return fund
     }
 
-    const max = keyValuesToFund(columns.map(col => [col, stat.max(getColumnValues(col))]))
     const min = keyValuesToFund(columns.map(col => [col, stat.min(getColumnValues(col))]))
+    const q1 = keyValuesToFund(columns.map(col => [col, stat.q1(getColumnValues(col))]))
     const median = keyValuesToFund(columns.map(col => [col, stat.median(getColumnValues(col))]))
-    return { max, min, median }
+    const q3 = keyValuesToFund(columns.map(col => [col, stat.q3(getColumnValues(col))]))
+    const max = keyValuesToFund(columns.map(col => [col, stat.max(getColumnValues(col))]))
+    return { min, q1, median, q3, max }
 }
 
 function enrichRealTimeDetails (realTimeDetails, fund) {
@@ -104,7 +106,7 @@ function enrichSummary (summary) {
         })
 
     // add colours to returns
-    const periods = ['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
+    const periods = ['returns.5Y', 'returns.3Y', 'returns.1Y', 'retfurns.6M', 'returns.3M',
         'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D']
     const periodToReturns = _.fromPairs(periods.map(period => [period, summary.map(row => _.get(row, period))]))
     const maxReturns = _.fromPairs(periods.map(period => [period, stat.max(periodToReturns[period])]))

@@ -37,7 +37,10 @@ async function updateFunds () {
             .pipe(fundValidFilter)
             .pipe(upsertFundStream)
         stream.on('finish', resolve)
-        stream.on('error', reject)
+        stream.on('error', (err) => {
+            log.error('Fatal error, aborting updateFunds: %s', err.stack)
+            reject(err)
+        })
     })
 
     // delete funds with no data

@@ -1,5 +1,6 @@
 const properties = require('./properties')
 const retry = require('./retry')
+const log = require('./log')
 
 const defaultMaxAttempts = properties.get('http.max.attempts')
 const defaultRetryInterval = properties.get('http.retry.interval')
@@ -42,8 +43,16 @@ class Http {
             retryInterval: this.retryInterval,
             description: `${method} request to ${url}`
         }
+
         await this.counter.acquire()
-        const result = await retry(async () => this.http(requestOptions), retryOptions)
+        let result
+        try {
+            result = await retry(async () => this.http(requestOptions), retryOptions)
+        } catch (err) {
+            this.counter.release()
+            log.error(`HTTP ${method} request to ${url} failed!`)
+            throw err
+        }
         this.counter.release()
         return result
     }

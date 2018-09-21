@@ -1,5 +1,4 @@
 module.exports = {
-    asReadable,
     asWritable,
     asTransform,
     asFilter,
@@ -19,42 +18,6 @@ const log = require('./log.js')
 const stream = require('stream')
 const ParallelTransform = require('parallel-transform')
 const _ = require('lodash')
-const {Lock} = require('semaphore-async-await')
-
-function asReadable (fn) {
-    const lock = new Lock()
-    const readableStream = new stream.Readable({
-        objectMode: true,
-        async read (size) {
-            await lock.acquire()
-            if (this.done) {
-                return
-            }
-            fn((err, data) => {
-                if (err) {
-                    this.emit('error', err)
-                    lock.leave()
-                    return
-                }
-                if (_.isArray(data)) {
-                    _.forEach(data, (chunk) => {
-                        this.push(chunk)
-                    })
-                } else {
-                    this.push(data)
-                }
-                this.push(null)
-                this.done = true
-                lock.release()
-            })
-        }
-    })
-    readableStream.on('error', function (err) {
-        log.error(err)
-        process.exit(-1)
-    })
-    return readableStream
-}
 
 function asWritable (fn) {
     const writableStream = new stream.Writable({
@@ -147,30 +110,28 @@ function asParallelTransform (fn) {
  */
 
 function asReadableAsync (asyncFn) {
-    const lock = new Lock()
+    let queue
     const readableStream = new stream.Readable({
         objectMode: true,
         async read (size) {
-            await lock.acquire()
-            if (this.done) {
-                return
-            }
-            try {
-                const data = await asyncFn()
-                if (_.isArray(data)) {
-                    _.forEach(data, (chunk) => {
-                        this.push(chunk)
-                    })
-                } else {
-                    this.push(data)
+            if (queue === undefined) {
+                // lazy initialise
+                this.pause()
+                try {
+                    queue = await asyncFn()
+                    queue.reverse()
+                } catch (err) {
+                    this.emit('error', err)
                 }
-                this.push(null)
-                this.done = true
-                lock.release()
-            } catch (err) {
-                this.emit('error', err)
-                lock.release()
+                this.resume()
             }
+            let next
+            while ((next = queue.pop()) !== undefined) {
+                if (!this.push(next)) {
+                    return
+                }
+            }
+            this.push(null)
         }
     })
     readableStream.on('error', function (err) {
@@ -208,17 +169,17 @@ function asTransformAsync (asyncFn) {
             try {
                 const data = await asyncFn(chunk)
                 if (_.isArray(data)) {
-                    _.forEach(data, (chunk) => {
+                    for (let chunk of data) {
                         this.push(chunk)
-                    })
+                    }
                 } else {
                     this.push(data)
                 }
-                callback()
             } catch (err) {
-                this.emit('error', err)
-                callback(err)
+                this.destroy(err)
+                return
             }
+            callback()
         }
     })
     transformStream.on('error', function (err) {

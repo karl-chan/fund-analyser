@@ -5,7 +5,7 @@ const moment = require('moment')
 
 const StreamTest = require('streamtest')
 
-jest.setTimeout(10000) // 10 seconds
+jest.setTimeout(30000) // 30 seconds
 
 describe('FinancialTimes', function () {
     let financialTimes, isin1, isin2, fund1, fund2
@@ -126,7 +126,7 @@ describe('FinancialTimes', function () {
             expect(historicPrices).not.toBeEmpty()
             for (let hp of historicPrices) {
                 expect(moment(hp.date).isValid()).toBeTruthy()
-                expect(moment(hp.price)).not.toBeNaN()
+                expect(moment(hp.price)).toBeNumber().not.toBeNaN()
             }
         })
 

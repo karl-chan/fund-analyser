@@ -14,7 +14,7 @@ class FundCalculator {
     }
 
     stream () {
-        return streamWrapper.asParallelTransform(this.evaluate.bind(this))
+        return streamWrapper.asParallelTransformAsync(this.evaluate.bind(this))
     }
 
     enrichReturns (fund) {
