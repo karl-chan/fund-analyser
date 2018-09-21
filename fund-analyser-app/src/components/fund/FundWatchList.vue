@@ -6,11 +6,11 @@
         .q-headline Watch List
         q-btn.q-ml-xl(outline color="red" @click="clearWatchlist") Remove all
       q-btn-group
-        q-btn(color="tertiary" :icon="showPinnedRows? 'expand_less': 'expand_more'" @click="togglePinnedRows")
-          q-tooltip {{ showPinnedRows ? 'Hide' : 'Show' }} statistics
+        q-btn(color="tertiary" :icon="showStatMode <= 1 ? 'expand_more' : 'expand_less'" @click="toggleStatMode")
+          q-tooltip {{ showStatMode <= 1 ? 'Show' : 'Hide' }} statistics
 
     // table
-    funds-table(:isins="watchlist" :highlightIsin="selectedIsin" :showPinnedRows="showPinnedRows"
+    funds-table(:isins="watchlist" :highlightIsin="selectedIsin" :showStatMode="showStatMode"
                 @rowSelected="onRowSelected")
       template(slot="empty-view")
         q-tooltip
@@ -35,7 +35,7 @@ export default {
   data () {
     return {
       selectedIsin: null,
-      showPinnedRows: false
+      showStatMode: 0 // hidden
     }
   },
   computed: {
@@ -53,8 +53,8 @@ export default {
     onChartSelected (fund) {
       this.selectedIsin = fund && fund.isin
     },
-    togglePinnedRows () {
-      this.showPinnedRows = !this.showPinnedRows
+    toggleStatMode () {
+      this.showStatMode = (this.showStatMode + 1) % 3
     }
   }
 }

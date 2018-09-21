@@ -18,11 +18,11 @@
               q-tooltip Refresh data
             q-btn(color="tertiary" icon="fas fa-file-excel" @click="exportCsv")
               q-tooltip Export to CSV
-            q-btn(color="tertiary" :icon="showPinnedRows? 'expand_less': 'expand_more'" @click="togglePinnedRows")
-              q-tooltip {{ showPinnedRows ? 'Hide' : 'Show' }} statistics
+            q-btn(color="tertiary" :icon="showStatMode <= 1 ? 'expand_more' : 'expand_less'" @click="toggleStatMode")
+              q-tooltip {{ showStatMode <= 1 ? 'Show' : 'Hide' }} statistics
 
     // actual table
-    funds-table(:showPinnedRows="showPinnedRows" :filterText="filterText" height="500px" ref="fundsTable"
+    funds-table(:showStatMode="showStatMode" :filterText="filterText" height="500px" ref="fundsTable"
                 @rowsChanged="onRowsChanged")
       template(slot="empty-view")
         q-chip.absolute-center.shadow-5.z-top(square detail icon="error" color="negative") Sorry, there are no matching funds
@@ -35,7 +35,7 @@ export default {
   data () {
     return {
       asofDate: null,
-      showPinnedRows: true,
+      showStatMode: 1, // show min, median, max only
       filterText: '',
       numUpToDate: 0,
       totalFunds: 0
@@ -53,8 +53,8 @@ export default {
     filterFund (fund) {
       this.filterText = fund.isin
     },
-    togglePinnedRows () {
-      this.showPinnedRows = !this.showPinnedRows
+    toggleStatMode () {
+      this.showStatMode = (this.showStatMode + 1) % 3
     },
     onRowsChanged (metadata) {
       this.asofDate = metadata.asof.date

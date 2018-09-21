@@ -5,7 +5,9 @@ module.exports = {
     ci95,
     min,
     max,
-    median
+    median,
+    q1,
+    q3
 }
 
 const _ = require('lodash')
@@ -58,6 +60,14 @@ function max (arr) {
 
 function median (arr) {
     return jStat.median(arr.filter(isOrdered))
+}
+
+function q1 (arr) {
+    return jStat.percentile(arr.filter(isOrdered), 0.25)
+}
+
+function q3 (arr) {
+    return jStat.percentile(arr.filter(isOrdered), 0.75)
 }
 
 function isOrdered (v) {

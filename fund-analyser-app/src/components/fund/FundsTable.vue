@@ -23,7 +23,7 @@ export default {
     height: String, // null for autoheight
     window: { type: Number, default: 200 },
     filterText: { type: String, default: '' },
-    showPinnedRows: Boolean,
+    showStatMode: { type: Number, validator: value => [0, 1, 2].includes(value) },
     highlightIsin: String
   },
   data () {
@@ -110,18 +110,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('account', ['watchlist']),
-    pinnedRowsData: function () {
-      if (!this.stats) {
-        return []
-      }
-      const { max, min, median } = this.stats
-      return [
-        {isin: 'Max', ...max},
-        {isin: 'Median', ...median},
-        {isin: 'Min', ...min}
-      ]
-    }
+    ...mapState('account', ['watchlist'])
   },
   methods: {
     ...mapActions('account', ['addToWatchlist', 'removeFromWatchlist']),
@@ -252,7 +241,29 @@ export default {
       this.gridOptions.api.setFilterModel(null)
     },
     togglePinnedRows () {
-      this.gridOptions.api.setPinnedTopRowData(this.showPinnedRows ? this.pinnedRowsData : [])
+      let pinnedRows = []
+      if (this.stats) {
+        const { min, q1, median, q3, max } = this.stats
+        switch (this.showStatMode) {
+          case 1:
+            pinnedRows = [
+              {isin: 'Max', ...max},
+              {isin: 'Median', ...median},
+              {isin: 'Min', ...min}
+            ]
+            break
+          case 2:
+            pinnedRows = [
+              {isin: 'Max', ...max},
+              {isin: 'Q3', ...q3},
+              {isin: 'Median', ...median},
+              {isin: 'Q1', ...q1},
+              {isin: 'Min', ...min}
+            ]
+            break
+        }
+      }
+      this.gridOptions.api.setPinnedTopRowData(pinnedRows)
     },
     isRowPinned (params) {
       return params.node.rowPinned
@@ -316,10 +327,10 @@ export default {
     isins: function () {
       this.initDataSource()
     },
-    showPinnedRows: function () {
+    showStatMode: function () {
       this.togglePinnedRows()
     },
-    pinnedRowsData: function () {
+    stats: function () {
       this.togglePinnedRows()
     },
     filterText: function (text) {
