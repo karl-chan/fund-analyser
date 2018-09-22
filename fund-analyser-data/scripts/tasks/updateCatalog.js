@@ -17,16 +17,8 @@ async function updateCatalog () {
         throw new Error('No sedols found')
     }
 
-    const oldSedols = await new Promise((resolve, reject) => {
-        FundDAO.listFunds({project: {sedol: 1}}, (err, funds) => {
-            if (err) {
-                reject(err)
-            } else {
-                const sedols = _.map(funds, f => f.sedol)
-                resolve(sedols)
-            }
-        })
-    })
+    const docs = await FundDAO.listFunds({project: {sedol: 1}}, true)
+    const oldSedols = docs.map(d => d.sedol)
 
     const toRemove = _.difference(oldSedols, newSedols)
     const toAdd = _.difference(newSedols, oldSedols)
@@ -49,6 +41,6 @@ async function updateCatalog () {
             .build()
         return fund
     })
-    await FundDAO.upsertFunds(funds)
+    await FundDAO.upsertFunds(docs)
     log.info('Inserted new sedols: %s', JSON.stringify(toAdd))
 };

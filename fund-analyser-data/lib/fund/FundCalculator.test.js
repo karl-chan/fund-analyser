@@ -79,9 +79,9 @@ describe('FundCalculator', function () {
         const version = 'v2'
 
         jest.spyOn(fundCalculator, 'evaluate')
-            .mockImplementation((f, callback) => {
+            .mockImplementation(async f => {
                 expect(f).toEqual(fund)
-                callback(null, expected)
+                return expected
             })
 
         const fundStream = StreamTest[version].fromObjects([fund])

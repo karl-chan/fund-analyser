@@ -56,15 +56,7 @@ async function downloadCsv () {
         'ocf', 'amc', 'entryCharge', 'exitCharge', 'bidAskSpread', 'returns.5Y', 'returns.3Y',
         'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'returns.2W',
         'returns.1W', 'returns.3D', 'returns.1D', 'indicators.stability', 'holdings', 'asof']
-    return new Promise((resolve, reject) => {
-        FundDAO.exportCsv(headerFields, options, (err, csvFile) => {
-            if (err) { return reject(err) }
-
-            fs.writeFile(savePath, csvFile, (err) => {
-                if (err) { return reject(err) }
-                log.info('Saved csv file to %s', savePath)
-                return resolve()
-            })
-        })
-    })
+    const csvFile = await FundDAO.exportCsv(headerFields, options)
+    fs.writeFileSync(savePath, csvFile)
+    log.info('Saved csv file to %s', savePath)
 }

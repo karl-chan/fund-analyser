@@ -69,34 +69,27 @@ describe('FundDAO', function () {
         expect(actual).toBeInstanceOf(Fund)
         expect(actual).toEqual(fund)
     })
-    test('upsertFund should upsert Fund object', function (done) {
-        FundDAO.upsertFund(fund, (err) => {
-            if (err) {
-                return done(err)
-            }
-            db.getFunds().findOneAndDelete({isin: doc.isin}, (err, res) => {
-                const found = res.value
-                const foundFund = FundDAO.toFund(found)
-                expect(foundFund).toEqual(fund)
-                done(err)
-            })
-        })
+    test('upsertFund should upsert Fund object', async () => {
+        await FundDAO.upsertFund(fund)
+        const {entry} = await db.getFunds().findOneAndDelete({isin: doc.isin})
+        const actual = FundDAO.toFund(entry)
+        expect(actual).toEqual(fund)
     })
-    test('listFunds should return array of Fund objects', function (done) {
+    test('listFunds should return array of Fund objects', async () => {
         const options = {limit: 10}
-        FundDAO.listFunds(options, (err, funds) => {
-            for (let fund of funds) {
-                expect(fund).toBeInstanceOf(Fund)
-            }
-            done(err)
-        })
+        const funds = await FundDAO.listFunds(options)
+        expect(funds).toBeArrayOfSize(10)
+        for (let fund of funds) {
+            expect(fund).toBeInstanceOf(Fund)
+        }
     })
     test('streamFunds should return transform stream of Fund objects', function (done) {
-        const options = {limit: 1}
+        const options = {limit: 10}
         const fundStream = FundDAO.streamFunds(options)
 
         const version = 'v2'
         fundStream.pipe(StreamTest[version].toObjects((err, funds) => {
+            expect(funds).toBeArrayOfSize(10)
             for (let fund of funds) {
                 expect(fund).toBeInstanceOf(Fund)
             }

@@ -57,7 +57,7 @@ if (require.main === module) {
 
                 const overallDuration = timer.end()
                 log.error(`Aborted due to error: ${err.stack} after ${overallDuration}.`)
-                process.exit(-1)
+                process.exit(1)
             }
             const taskDuration = timer.split()
             log.info(`Completed: ${task} in ${taskDuration}.`)

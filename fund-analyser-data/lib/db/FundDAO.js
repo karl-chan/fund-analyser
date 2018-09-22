@@ -12,10 +12,10 @@ module.exports = {
 const db = require('../util/db')
 const log = require('../util/log')
 const csv = require('../util/csv')
+const streamWrapper = require('../util/streamWrapper')
 const Fund = require('../fund/Fund')
 
 const _ = require('lodash')
-const stream = require('stream')
 
 function fromFund (fund) {
     return _.toPlainObject(fund)
@@ -51,20 +51,15 @@ function toFund (entry) {
     return builder.build()
 }
 
-function upsertFund (fund, callback) {
+async function upsertFund (fund) {
     const query = { sedol: fund.sedol }
     const doc = fromFund(fund)
-    db.getFunds().replaceOne(query, doc, { upsert: true }, (err, response) => {
-        if (err) {
-            return callback(err)
-        }
-        log.debug('Upserted fund in database: %j. Response: %j', fund, response)
-        return callback()
-    })
+    const response = await db.getFunds().replaceOne(query, doc, { upsert: true })
+    log.debug('Upserted fund in database: %j. Response: %j', fund, response)
 }
 
 async function upsertFunds (funds) {
-    const operations = _.map(funds, (fund) => {
+    const operations = funds.map(fund => {
         const entry = fromFund(fund)
         const query = { sedol: entry.sedol }
         const doc = _.toPlainObject(entry)
@@ -88,31 +83,16 @@ async function upsertFunds (funds) {
  *
  * @param options mongodb options
  * @param toPlainObject [optional] boolean - true: to plain object, false: to fund
- * @param callback
  */
-function listFunds (options, toPlainObject, callback) {
-    // shift args if needed
-    if (!callback) {
-        callback = toPlainObject
-        toPlainObject = false
-    }
-
+async function listFunds (options, toPlainObject) {
     let query = buildQuery(options)
-    query.toArray((err, docs) => {
-        const transform = toPlainObject ? _.toPlainObject : toFund
-        return callback(err, _.map(docs, transform))
-    })
+    const docs = await query.toArray()
+    return docs.map(toPlainObject ? _.toPlainObject : toFund)
 }
 
 function streamFunds (options) {
     const dbStream = buildQuery(options).stream()
-    const fundTransform = new stream.Transform({
-        objectMode: true,
-        transform (doc, encoding, callback) {
-            const fund = toFund(doc)
-            return callback(null, fund)
-        }
-    })
+    const fundTransform = streamWrapper.asTransformAsync(toFund)
     const fundStream = dbStream.pipe(fundTransform)
     dbStream.on('error', (err) => {
         fundStream.emit('error', err)
@@ -120,13 +100,9 @@ function streamFunds (options) {
     return fundStream
 }
 
-function exportCsv (headerFields, options, callback) {
-    listFunds(options, true, (err, funds) => {
-        if (err) {
-            return callback(err)
-        }
-        callback(null, csv.convert(funds, headerFields))
-    })
+async function exportCsv (headerFields, options) {
+    const funds = await listFunds(options, true)
+    return csv.convert(funds, headerFields)
 }
 
 function streamCsv (headerFields, options) {

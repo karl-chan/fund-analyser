@@ -4,7 +4,7 @@ const Fund = require('./Fund')
 const _ = require('lodash')
 const StreamTest = require('streamtest')
 
-jest.setTimeout(10000) // 10 seconds
+jest.setTimeout(30000) // 30 seconds
 
 describe('CharlesStanleyDirect', () => {
     let charlesStanleyDirect
@@ -32,18 +32,18 @@ describe('CharlesStanleyDirect', () => {
                 .mockImplementation(async page => {
                     switch (page) {
                     case 1:
-                        return ['SEDOL01']
+                        return sedols[0]
                     case 2:
-                        return ['SEDOL02']
+                        return sedols[1]
                     }
                 })
             jest.spyOn(charlesStanleyDirect, 'getFundFromSedol')
                 .mockImplementation(async (sedol) => {
                     switch (sedol) {
-                    case 'SEDOL01':
+                    case sedols[0]:
                         return partialFunds[0]
 
-                    case 'SEDOL02':
+                    case sedols[1]:
                         return partialFunds[1]
                     }
                 })

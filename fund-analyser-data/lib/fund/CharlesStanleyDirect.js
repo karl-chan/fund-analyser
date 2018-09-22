@@ -66,7 +66,6 @@ class CharlesStanleyDirect {
     /**
      * ONLY PARTIAL FUND IS RETURNED!! (with isin and bid ask spread as % of price)
      * @param sedol
-     * @param callback
      */
     async getFundFromSedol (sedol) {
         const url = `https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=${sedol}`

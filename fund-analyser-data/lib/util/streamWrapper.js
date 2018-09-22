@@ -34,7 +34,7 @@ function asWritable (fn) {
     })
     writableStream.on('error', function (err) {
         log.error(err)
-        process.exit(-1)
+        process.exit(1)
     })
     return writableStream
 }
@@ -62,7 +62,7 @@ function asTransform (fn) {
     })
     transformStream.on('error', function (err) {
         log.error(err)
-        process.exit(-1)
+        process.exit(1)
     })
     return transformStream
 }
@@ -86,7 +86,7 @@ function asFilter (fn) {
     })
     filterStream.on('error', function (err) {
         log.error(err)
-        process.exit(-1)
+        process.exit(1)
     })
     return filterStream
 }
@@ -100,7 +100,7 @@ function asParallelTransform (fn) {
     const parallelTransformStream = new ParallelTransform(maxParallelTransforms, fn)
     parallelTransformStream.on('error', function (err) {
         log.error(err)
-        process.exit(-1)
+        process.exit(1)
     })
     return parallelTransformStream
 }
@@ -136,7 +136,7 @@ function asReadableAsync (asyncFn) {
     })
     readableStream.on('error', function (err) {
         log.error(err)
-        process.exit(-1)
+        process.exit(1)
     })
     return readableStream
 }
@@ -156,7 +156,7 @@ function asWritableAsync (asyncFn) {
     })
     writableStream.on('error', function (err) {
         log.error(err)
-        process.exit(-1)
+        process.exit(1)
     })
     return writableStream
 }
@@ -184,7 +184,7 @@ function asTransformAsync (asyncFn) {
     })
     transformStream.on('error', function (err) {
         log.error(err)
-        process.exit(-1)
+        process.exit(1)
     })
     return transformStream
 }
@@ -208,7 +208,7 @@ function asFilterAsync (asyncFn) {
     })
     filterStream.on('error', function (err) {
         log.error(err)
-        process.exit(-1)
+        process.exit(1)
     })
     return filterStream
 }
@@ -229,7 +229,7 @@ function asParallelTransformAsync (asyncFn) {
     })
     parallelTransformStream.on('error', function (err) {
         log.error(err)
-        process.exit(-1)
+        process.exit(1)
     })
     return parallelTransformStream
 }
