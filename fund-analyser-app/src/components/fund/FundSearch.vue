@@ -1,5 +1,5 @@
 <template lang="pug">
-  q-search.shadow-2(v-model="userInput" @clear="clear" :placeholder="placeholder" color="grey-2" inverted-light clearable)
+  q-search.shadow-2(v-model="userInput" :placeholder="placeholder" color="grey-2" inverted-light clearable)
     q-autocomplete(@search="search" @selected="selected"
                   :max-results="5000" :debounce="150")
 </template>
@@ -29,6 +29,13 @@ export default {
     },
     input (text) {
       this.$emit('input', text)
+    }
+  },
+  watch: {
+    userInput: function (value) {
+      if (!value) {
+        this.clear()
+      }
     }
   }
 }

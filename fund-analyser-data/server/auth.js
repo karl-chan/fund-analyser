@@ -188,7 +188,7 @@ const isLoggedIn = async function (ctx) {
         }
     }
     if (jar) {
-        const stillLoggedIn = await csdAuth.isLoggedIn(jar)
+        const stillLoggedIn = await csdAuth.isLoggedIn({jar})
         if (stillLoggedIn) {
             return true
         }

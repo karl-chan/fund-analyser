@@ -74,6 +74,8 @@ module.exports = function (ctx) {
         'QCollapsible',
         'QChip',
         'QDialog',
+        'QFab',
+        'QFabAction',
         'QModal',
         'QTooltip',
         'QIcon',

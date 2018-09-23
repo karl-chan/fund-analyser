@@ -34,7 +34,7 @@ function asWritable (fn) {
     })
     writableStream.on('error', function (err) {
         log.error(err)
-        process.exit(1)
+        throw err
     })
     return writableStream
 }
@@ -62,7 +62,7 @@ function asTransform (fn) {
     })
     transformStream.on('error', function (err) {
         log.error(err)
-        process.exit(1)
+        throw err
     })
     return transformStream
 }
@@ -86,7 +86,7 @@ function asFilter (fn) {
     })
     filterStream.on('error', function (err) {
         log.error(err)
-        process.exit(1)
+        throw err
     })
     return filterStream
 }
@@ -100,7 +100,7 @@ function asParallelTransform (fn) {
     const parallelTransformStream = new ParallelTransform(maxParallelTransforms, fn)
     parallelTransformStream.on('error', function (err) {
         log.error(err)
-        process.exit(1)
+        throw err
     })
     return parallelTransformStream
 }
@@ -119,6 +119,9 @@ function asReadableAsync (asyncFn) {
                 this.pause()
                 try {
                     queue = await asyncFn()
+                    if (!Array.isArray(queue)) {
+                        queue = [queue]
+                    }
                     queue.reverse()
                 } catch (err) {
                     this.emit('error', err)
@@ -136,7 +139,7 @@ function asReadableAsync (asyncFn) {
     })
     readableStream.on('error', function (err) {
         log.error(err)
-        process.exit(1)
+        throw err
     })
     return readableStream
 }
@@ -156,7 +159,7 @@ function asWritableAsync (asyncFn) {
     })
     writableStream.on('error', function (err) {
         log.error(err)
-        process.exit(1)
+        throw err
     })
     return writableStream
 }
@@ -184,7 +187,7 @@ function asTransformAsync (asyncFn) {
     })
     transformStream.on('error', function (err) {
         log.error(err)
-        process.exit(1)
+        throw err
     })
     return transformStream
 }
@@ -208,7 +211,7 @@ function asFilterAsync (asyncFn) {
     })
     filterStream.on('error', function (err) {
         log.error(err)
-        process.exit(1)
+        throw err
     })
     return filterStream
 }
@@ -229,7 +232,7 @@ function asParallelTransformAsync (asyncFn) {
     })
     parallelTransformStream.on('error', function (err) {
         log.error(err)
-        process.exit(1)
+        throw err
     })
     return parallelTransformStream
 }

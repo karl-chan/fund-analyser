@@ -18,7 +18,6 @@ import TipOfTheDay from 'components/misc/TipOfTheDay'
 
 import AppDrawer from 'layouts/AppDrawer'
 import AppHeader from 'layouts/AppHeader'
-import FundCurrencyView from 'layouts/fund/FundCurrencyView'
 
 export default ({ Vue }) => {
   Vue.component('account-balance', AccountBalance)
@@ -41,5 +40,4 @@ export default ({ Vue }) => {
 
   Vue.component('app-drawer', AppDrawer)
   Vue.component('app-header', AppHeader)
-  Vue.component('fund-currency-view', FundCurrencyView)
 }

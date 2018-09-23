@@ -9,17 +9,17 @@ const router = new Router({
 })
 router.use(auth.authorise)
 
-const csdAccount = new CharlesStanleyDirectAccount()
-
 router.get('/balance', async ctx => {
     const jar = ctx.jar
-    const balance = await csdAccount.getBalance(jar)
+    const csdAccount = new CharlesStanleyDirectAccount(jar)
+    const balance = await csdAccount.getBalance()
     ctx.body = {balance}
 })
 
 router.get('/statement', async ctx => {
     const jar = ctx.jar
-    const statement = await csdAccount.getStatement(jar)
+    const csdAccount = new CharlesStanleyDirectAccount(jar)
+    const statement = await csdAccount.getStatement()
     ctx.body = {statement}
 })
 

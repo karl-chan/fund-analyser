@@ -6,3 +6,7 @@ node_modules
 npm-debug.log*
 switch.bat
 push.bat
+
+
+# Important! contains sensitive credentials
+jest.secret.js

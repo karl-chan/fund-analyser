@@ -2,6 +2,7 @@ module.exports = updateCatalog
 
 const CharlesStanleyDirect = require('../../lib/fund/CharlesStanleyDirect')
 const _ = require('lodash')
+const moment = require('moment')
 const FundDAO = require('../../lib/db/FundDAO')
 const Fund = require('../../lib/fund/Fund')
 const db = require('../../lib/util/db')
@@ -17,17 +18,15 @@ async function updateCatalog () {
         throw new Error('No sedols found')
     }
 
-    const docs = await FundDAO.listFunds({project: {sedol: 1}}, true)
-    const oldSedols = docs.map(d => d.sedol)
+    const docs = await FundDAO.listFunds({project: {sedol: 1, asof: 1}}, true)
+    const sedolToDoc = _.keyBy(docs, 'sedol')
+    const oldSedols = Object.keys(sedolToDoc)
 
     const toRemove = _.difference(oldSedols, newSedols)
+        .filter(sedol => moment().diff(sedolToDoc[sedol].asof, 'weeks') >= 2) // remove only if two weeks old
     const toAdd = _.difference(newSedols, oldSedols)
     log.info(`To remove: %s`, JSON.stringify(toRemove))
     log.info(`To add: %s`, JSON.stringify(toAdd))
-
-    if (toRemove.length >= 1000) {
-        throw new Error(`Too many funds ${toRemove.length} to remove. Shutting down due to possible error from Charles Stanley Server!`)
-    }
 
     // delete old sedols
     await db.getFunds().deleteMany({sedol: {$in: toRemove}})
@@ -41,6 +40,6 @@ async function updateCatalog () {
             .build()
         return fund
     })
-    await FundDAO.upsertFunds(docs)
+    await FundDAO.upsertFunds(funds)
     log.info('Inserted new sedols: %s', JSON.stringify(toAdd))
 };

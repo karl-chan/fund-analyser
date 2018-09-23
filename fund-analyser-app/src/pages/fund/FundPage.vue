@@ -20,12 +20,11 @@
           q-btn(v-else flat round color="amber" size="xl" :icon="favouriteIcon"
                 @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false"
                 @click="addToWatchlist(fund.isin)")
+
         div
-          q-btn(flat round dense icon="more_vert")
-            q-popover
-              q-list(link)
-                q-item(v-close-overlay)
-                  q-item-main(label="Currency View")
+          q-fab(flat color="tertiary" icon="more_vert" direction="down")
+            q-fab-action(color="pink" icon="fas fa-yen-sign" @click="$router.push({name: 'currency'})")
+              q-tooltip(anchor="center left" self="center right" :offset="[20, 0]") Currency View
 
       // middle section
       fund-info-bar(:fund="fund")
@@ -40,7 +39,7 @@
       // modal with extra information
       q-modal(v-model="showModal" :content-css="{width: '80vw'}")
         q-icon.absolute-top-right.z-top(name="cancel" v-close-overlay)
-        fund-currency-view(:fund="fund")
+        router-view
 
     template(v-else)
       .absolute-center.row.items-center.gutter-x-sm.text-red
@@ -65,10 +64,12 @@ export default {
   },
   async beforeRouteUpdate (to, from, next) {
     next()
-    this.loading = true
-    const fund = await this.lazyGet(to.params.isin)
-    this.loading = false
-    this.addToRecentlyViewed({isin: fund.isin, name: fund.name})
+    if (to.params.isin !== from.params.isin) {
+      this.loading = true
+      const fund = await this.lazyGet(to.params.isin)
+      this.loading = false
+      this.addToRecentlyViewed({isin: fund.isin, name: fund.name})
+    }
   },
   data () {
     return {
