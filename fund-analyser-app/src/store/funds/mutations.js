@@ -14,26 +14,14 @@ export function removeAllFunds (state) {
   state.loaded = {}
 }
 
-export function setRealTimeDetails (state, {isin, realTimeDetails}) {
-  if (isin in state.loaded) {
-    state.loaded[isin].realTimeDetails = realTimeDetails
+export function setRealTimeDetails (state, realTimeDetailsPairs) {
+  for (let [isin, realTimeDetails] of realTimeDetailsPairs) {
+    if (isin in state.loaded) {
+      state.loaded[isin].realTimeDetails = realTimeDetails
+    }
   }
 }
 
 export function setSummary (state, fundsSummary) {
   state.summary = fundsSummary
-}
-
-export function addActiveJobs (state, activeJobs) {
-  state.activeJobs = {...state.activeJobs, ...activeJobs}
-}
-
-export function removeActiveJob (state, isin) {
-  if (isin in state.activeJobs) {
-    clearInterval(state.activeJobs[isin])
-  }
-}
-
-export function removeAllActiveJobs (state) {
-  Object.values(state.activeJobs).forEach(clearInterval)
 }

@@ -1,5 +1,6 @@
 const Router = require('koa-router')
 const moment = require('moment')
+const Promise = require('bluebird')
 const agGrid = require('../../lib/util/agGrid')
 const fundCache = require('../cache/fundCache')
 const FinancialTimes = require('../../lib/fund/FinancialTimes')
@@ -9,6 +10,8 @@ const FUNDS_URL_PREFIX = '/api/funds'
 const router = new Router({
     prefix: FUNDS_URL_PREFIX
 })
+
+const financialTimes = new FinancialTimes()
 
 router.get('/isins/:isins', async ctx => {
     const isins = ctx.params.isins.split(',')
@@ -20,13 +23,16 @@ router.get('/isins/:isins', async ctx => {
     ctx.body = funds
 })
 
-router.get('/real-time-details/:isin', async ctx => {
+router.get('/real-time-details/:isins', async ctx => {
+    const isins = ctx.params.isins.split(',')
     const options = {
-        query: {isin: ctx.params.isin}
+        query: {isin: {$in: isins}}
     }
     const funds = await FundDAO.listFunds(options)
-    const details = await new FinancialTimes().getRealTimeDetails(funds[0])
-    ctx.body = details
+    const realTimeDetailsPairs = await Promise.map(funds, async f => {
+        return [f.isin, await financialTimes.getRealTimeDetails(f)]
+    })
+    ctx.body = realTimeDetailsPairs
 })
 
 router.get('/search/:searchText', async ctx => {
@@ -49,7 +55,7 @@ router.post('/list', async ctx => {
     const {isins, params} = ctx.request.body
     const funds = fundCache.get(isins, {filterText: params.filterText})
     const {asof, stats, totalFunds} = fundCache.getMetadata()
-    const {funds: window, lastRow} = agGrid.applyParams(funds, params.agGridRequest)
+    const {funds: window, lastRow} = agGrid.applyRequest(funds, params.agGridRequest)
     ctx.body = {
         funds: window,
         metadata: { lastRow, totalFunds, asof, stats }

@@ -8,6 +8,7 @@ import layout from './layout'
 import misc from './misc'
 
 import persist from './plugins/persist'
+import realTimeDetailsPoller from './plugins/real-time-details-poller'
 
 Vue.use(Vuex)
 
@@ -20,7 +21,8 @@ const store = new Vuex.Store({
     misc
   },
   plugins: [
-    persist.plugin
+    persist.plugin,
+    realTimeDetailsPoller
   ],
   strict: process.env.NODE_ENV !== 'production'
 })

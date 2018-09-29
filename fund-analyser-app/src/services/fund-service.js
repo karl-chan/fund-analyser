@@ -4,8 +4,8 @@ export default {
   gets (isins) {
     return apiService.get(`/funds/isins/${isins.join(',')}`)
   },
-  getRealTimeDetails (isin) {
-    return apiService.get(`/funds/real-time-details/${isin}`)
+  getRealTimeDetails (isins) {
+    return apiService.get(`/funds/real-time-details/${isins.join(',')}`)
   },
   getSummary () {
     return apiService.get('/funds/summary')

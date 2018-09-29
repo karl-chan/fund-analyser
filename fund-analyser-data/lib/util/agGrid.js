@@ -1,5 +1,5 @@
 module.exports = {
-    applyParams
+    applyRequest
 }
 
 const _ = require('lodash')
@@ -11,7 +11,7 @@ const moment = require('moment')
  * @param {*} funds
  * @param {IServerSideGetRowsRequest} agGridRequest
  */
-function applyParams (funds, agGridRequest) {
+function applyRequest (funds, agGridRequest) {
     funds = applyFilter(funds, agGridRequest.filterModel)
     funds = applySort(funds, agGridRequest.sortModel)
 
