@@ -31,4 +31,17 @@ describe('math', () => {
             expect(actual).toEqual(expected)
         })
     })
+
+    describe('minIndex', () => {
+        test('should return index of min element in array', () => {
+            expect(math.minIndex([2, 3, -1, -4, 5])).toBe(3)
+        })
+        test('should return -1 for invalid input', () => {
+            expect(math.minIndex()).toBe(-1)
+            expect(math.minIndex(null)).toBe(-1)
+            expect(math.minIndex('')).toBe(-1)
+            expect(math.minIndex({})).toBe(-1)
+            expect(math.minIndex(1)).toBe(-1)
+        })
+    })
 })

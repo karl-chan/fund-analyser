@@ -1,7 +1,5 @@
 const Router = require('koa-router')
 const moment = require('moment')
-const csv = require('../../lib/util/csv')
-const db = require('../../lib/util/db')
 const agGrid = require('../../lib/util/agGrid')
 const fundCache = require('../cache/fundCache')
 const FinancialTimes = require('../../lib/fund/FinancialTimes')
@@ -14,40 +12,36 @@ const router = new Router({
 
 router.get('/isins/:isins', async ctx => {
     const isins = ctx.params.isins.split(',')
-    const query = {isin: {$in: isins}}
     const options = {
+        query: {isin: {$in: isins}},
         projection: {_id: 0}
     }
-    const funds = await db.getFunds().find(query, options).toArray()
+    const funds = await FundDAO.listFunds(options)
     ctx.body = funds
 })
 
 router.get('/real-time-details/:isin', async ctx => {
-    const query = {isin: ctx.params.isin}
-    const options = {}
-    const fund = await db.getFunds().findOne(query, options)
-    const details = await new FinancialTimes().getRealTimeDetails(fund)
+    const options = {
+        query: {isin: ctx.params.isin}
+    }
+    const funds = await FundDAO.listFunds(options)
+    const details = await new FinancialTimes().getRealTimeDetails(funds[0])
     ctx.body = details
 })
 
 router.get('/search/:searchText', async ctx => {
     const searchText = ctx.params.searchText
-    const query = {$text: {$search: searchText}}
-    const options = {
-        projection: {_id: 0, isin: 1, sedol: 1, name: 1, score: {$meta: 'textScore'}},
-        sort: {score: {$meta: 'textScore'}},
-        limit: 25
-    }
-    const searchResults = await db.getFunds().find(query, options).toArray()
+    const projection = {_id: 0, isin: 1, sedol: 1, name: 1}
+    const limit = 25
+    const searchResults = await FundDAO.search(searchText, projection, limit)
     ctx.body = searchResults
 })
 
 router.get('/summary', async ctx => {
-    const query = {}
     const options = {
         projection: { _id: 0, historicPrices: 0 }
     }
-    const funds = await db.getFunds().find(query, options).toArray()
+    const funds = await FundDAO.listFunds(options)
     ctx.body = funds
 })
 
@@ -70,7 +64,7 @@ router.get('/csv', async ctx => {
         'ocf', 'amc', 'entryCharge', 'exitCharge', 'bidAskSpread', 'returns.5Y', 'returns.3Y',
         'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'returns.2W',
         'returns.1W', 'returns.3D', 'returns.1D', 'indicators.stability', 'holdings', 'asof']
-    ctx.body = FundDAO.streamCsv(headerFields, options)
+    ctx.body = FundDAO.exportCsv(headerFields, options)
     ctx.set('Content-disposition', `attachment;filename=fund_${moment().format('YYYYMMDD')}.csv`)
     ctx.set('Content-type', 'text/csv')
 })

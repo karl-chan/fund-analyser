@@ -7,8 +7,8 @@ module.exports = {
 
 const _ = require('lodash')
 const moment = require('moment')
+const FundDAO = require('../../lib/db/FundDAO')
 const log = require('../../lib/util/log')
-const db = require('../../lib/util/db')
 const fundUtils = require('../../lib/util/fundUtils')
 
 const REFRESH_INTERVAL = moment.duration(15, 'minutes')
@@ -19,12 +19,11 @@ let metadata = {}
 let refreshTask = null
 
 async function refresh () {
-    const query = {}
     const options = {
         projection: { _id: 0, historicPrices: 0 }
     }
     log.info('Refreshing fund cache...')
-    fundCache = await db.getFunds().find(query, options).toArray()
+    fundCache = await FundDAO.listFunds(options, true)
     fundCache = fundUtils.enrichSummary(fundCache)
     quickFilterCache = buildQuickFilterCache(fundCache)
     log.info('Fund cache refreshed.')

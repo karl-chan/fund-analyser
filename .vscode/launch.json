@@ -62,6 +62,26 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Create Index",
+            "program": "${workspaceFolder}/fund-analyser-data/scripts/main.js",
+            "args": [
+                "-r",
+                "createIndex"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Repair Database",
+            "program": "${workspaceFolder}/fund-analyser-data/scripts/main.js",
+            "args": [
+                "-r",
+                "repairDatabase"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Jest All",
             "program": "${workspaceFolder}/fund-analyser-data/node_modules/.bin/jest",
             "args": ["--runInBand"],

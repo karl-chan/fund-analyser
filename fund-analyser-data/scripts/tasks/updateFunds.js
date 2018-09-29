@@ -3,7 +3,6 @@ module.exports = updateFunds
 const FundFactory = require('../../lib/fund/FundFactory')
 const FundDAO = require('../../lib/db/FundDAO')
 const streamWrapper = require('../../lib/util/streamWrapper')
-const db = require('../../lib/util/db')
 const log = require('../../lib/util/log')
 
 const moment = require('moment')
@@ -19,14 +18,16 @@ async function updateFunds () {
 
     const fundsToUpdate = await FundDAO.listFunds({
         query: {$or: [{asof: {$eq: null}}, {asof: {$lt: today}}]},
-        project: {sedol: 1}
+        projection: {sedol: 1}
     })
     const sedols = _.map(fundsToUpdate, f => f.sedol)
     log.info('Sedols to update: %s', JSON.stringify(sedols))
 
     const fundStream = new FundFactory().streamFundsFromSedols(sedols)
     const fundValidFilter = streamWrapper.asFilterAsync(isFundValid)
-    const upsertFundStream = streamWrapper.asWritableAsync(FundDAO.upsertFund)
+    const upsertFundStream = streamWrapper.asWritableAsync(async fund => {
+        FundDAO.upsertFunds([fund])
+    })
 
     await new Promise((resolve, reject) => {
         const stream = fundStream
@@ -40,7 +41,7 @@ async function updateFunds () {
     })
 
     // delete funds with no data
-    await db.getFunds().deleteMany({name: {$eq: null}})
+    await FundDAO.deleteFunds({query: {name: {$eq: null}}})
     log.info('Deleted funds without names')
 };
 

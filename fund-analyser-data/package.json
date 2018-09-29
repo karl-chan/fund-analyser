@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "downloadCsv": "node scripts/main.js -r downloadCsv",
     "createIndex": "node scripts/main.js -r createIndex",
+    "downloadCsv": "node scripts/main.js -r downloadCsv",
+    "dynoHealthcheck": "node scripts/main.js -r dynoHealthcheck",
+    "repairDatabase": "node scripts/main.js -r repairDatabase",
     "updateCurrencies": "node scripts/main.js -r updateCurrencies",
     "updateFunds": "node scripts/main.js -r updateFunds",
     "updateCatalog": "node scripts/main.js -r updateCatalog",
-    "dynoHealthcheck": "node scripts/main.js -r dynoHealthcheck",
     "server": "node server/server.js",
     "server.dev": "nodemon --inspect server/server.js",
     "test": "jest --coverage"

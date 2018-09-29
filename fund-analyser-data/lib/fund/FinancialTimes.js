@@ -110,7 +110,7 @@ class FinancialTimes {
         const summary = {
             name: name,
             type: this.fundTypeMap[type],
-            shareClass: this.shareClassMap[shareClass],
+            shareClass: this._getShareClass(shareClass, name),
             frequency: frequency,
             ocf: math.pcToFloat(ocf),
             amc: math.pcToFloat(amc),
@@ -274,6 +274,22 @@ class FinancialTimes {
      */
     streamFundsFromIsins () {
         return streamWrapper.asParallelTransformAsync(this.getFundFromIsin.bind(this))
+    }
+
+    _getShareClass (shareClass, name) {
+        if (shareClass in this.shareClassMap) {
+            return this.shareClassMap[shareClass]
+        }
+        // otherwise try to infer from name
+        const accumulationKeywords = ['(acc)', 'Acc']
+        const incomeKeywords = ['(inc)', 'Inc', '(dist)', 'Dist']
+        if (accumulationKeywords.some(kw => name.includes(kw))) {
+            return Fund.shareClasses.ACC
+        }
+        if (incomeKeywords.some(kw => name.includes(kw))) {
+            return Fund.shareClasses.INC
+        }
+        return undefined
     }
 }
 

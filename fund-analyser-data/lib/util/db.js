@@ -9,23 +9,36 @@ module.exports = {
 }
 
 const properties = require('./properties')
-const uri = properties.get('db.mongo.uri')
+const uri = properties.get('db.mongo.uri.main')
+const fundUris = JSON.parse(properties.get('db.mongo.uri.funds'))
 
+const Promise = require('bluebird')
 const MongoClient = require('mongodb').MongoClient
 
 let _client, _db
+let _fundClients, _fundDbs
 
 async function init () {
-    _client = await MongoClient.connect(uri)
+    [_client, _fundClients] = await Promise.all([
+        MongoClient.connect(uri),
+        Promise.map(fundUris, MongoClient.connect)
+    ])
+
     _db = _client.db()
+    _fundDbs = _fundClients.map(client => client.db())
 }
 
 function get () {
-    return _db
+    return {
+        mainClient: _client,
+        mainDb: _db,
+        fundClients: _fundClients,
+        fundDbs: _fundDbs
+    }
 }
 
 function getFunds () {
-    return _db.collection('funds')
+    return _fundDbs.map(db => db.collection('funds'))
 }
 
 function getCurrencies () {
@@ -41,5 +54,8 @@ function getUsers () {
 }
 
 async function close () {
-    await _client.close()
+    await Promise.all([
+        _client.close(),
+        Promise.map(_fundClients, client => client.close())
+    ])
 }

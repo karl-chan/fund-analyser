@@ -125,7 +125,7 @@ describe('FinancialTimes', function () {
             expect(historicPrices).toSatisfyAll(hp => hp instanceof Fund.HistoricPrice)
             expect(historicPrices).not.toBeEmpty()
             for (let hp of historicPrices) {
-                expect(moment(hp.date).isValid()).toBeTruthy()
+                expect(moment(hp.date).isValid()).toBeTrue()
                 expect(moment(hp.price)).toBeNumber().not.toBeNaN()
             }
         })
@@ -136,7 +136,7 @@ describe('FinancialTimes', function () {
             expect(historicRates).toSatisfyAll(hr => hr instanceof Currency.HistoricRate)
             expect(historicRates).not.toBeEmpty()
             for (let hr of historicRates) {
-                expect(moment(hr.date).isValid()).toBeTruthy()
+                expect(moment(hr.date).isValid()).toBeTrue()
                 expect(moment(hr.rate)).not.toBeNaN()
             }
         })

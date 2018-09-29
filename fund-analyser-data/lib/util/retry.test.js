@@ -1,8 +1,9 @@
 const retry = require('./retry')
 const { performance } = require('perf_hooks')
 
+jest.setTimeout(10000) // 10 seconds
+
 describe('retry', () => {
-    jest.setTimeout(10000)
     describe('base case with default options', () => {
         test('should fail on first attempt', async () => {
             const task = jest.fn().mockRejectedValue(-1)

@@ -1,20 +1,24 @@
 const FundDAO = require('./FundDAO')
 const Fund = require('../fund/Fund')
-const StreamTest = require('streamtest')
 
 const _ = require('lodash')
 const db = require('../util/db')
+
+jest.setTimeout(30000) // 30 seconds
 
 describe('FundDAO', function () {
     let fund, doc
     beforeAll(async () => {
         await db.init()
+        await FundDAO.deleteFunds({query: {isin: /test/}})
     })
     afterAll(async () => {
+        await FundDAO.deleteFunds({query: {isin: /test/}})
         await db.close()
     })
     beforeEach(function () {
         fund = Fund.Builder('test')
+            .sedol('SEDOL01')
             .name('Test fund')
             .type(Fund.types.UNIT)
             .shareClass(Fund.shareClasses.ACC)
@@ -29,10 +33,12 @@ describe('FundDAO', function () {
             .indicators({
                 stability: -3
             })
+            .realTimeDetails({estChange: 0.01})
             .build()
         doc = {
+            _id: 'SEDOL01',
             isin: 'test',
-            sedol: undefined,
+            sedol: 'SEDOL01',
             name: 'Test fund',
             type: Fund.types.UNIT,
             shareClass: Fund.shareClasses.ACC,
@@ -56,44 +62,63 @@ describe('FundDAO', function () {
             indicators: {
                 stability: -3
             },
-            realTimeDetails: undefined
+            realTimeDetails: {estChange: 0.01}
         }
     })
     test('fromFund should return plain object', function () {
         const actual = FundDAO.fromFund(fund)
-        expect(_.isPlainObject(actual)).toBeTruthy()
-        expect(fund).toMatchObject(actual)
+        expect(_.isPlainObject(actual)).toBeTrue()
+        expect(actual).toEqual(doc)
     })
     test('toFund should return Fund object', function () {
         const actual = FundDAO.toFund(doc)
         expect(actual).toBeInstanceOf(Fund)
         expect(actual).toEqual(fund)
     })
-    test('upsertFund should upsert Fund object', async () => {
-        await FundDAO.upsertFund(fund)
-        const {entry} = await db.getFunds().findOneAndDelete({isin: doc.isin})
-        const actual = FundDAO.toFund(entry)
-        expect(actual).toEqual(fund)
-    })
-    test('listFunds should return array of Fund objects', async () => {
-        const options = {limit: 10}
-        const funds = await FundDAO.listFunds(options)
-        expect(funds).toBeArrayOfSize(10)
-        for (let fund of funds) {
-            expect(fund).toBeInstanceOf(Fund)
-        }
-    })
-    test('streamFunds should return transform stream of Fund objects', function (done) {
-        const options = {limit: 10}
-        const fundStream = FundDAO.streamFunds(options)
 
-        const version = 'v2'
-        fundStream.pipe(StreamTest[version].toObjects((err, funds) => {
-            expect(funds).toBeArrayOfSize(10)
-            for (let fund of funds) {
-                expect(fund).toBeInstanceOf(Fund)
-            }
-            done(err)
-        }))
+    test('listFunds', async () => {
+        await FundDAO.upsertFunds([fund])
+        const funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        expect(funds).toBeArrayOfSize(1)
+        expect(funds[0]).toEqual(fund)
+
+        const sedols = await FundDAO.listFunds({query: {isin: fund.isin}, projection: {_id: 0, sedol: 1}}, true)
+        expect(sedols).toBeArrayOfSize(1)
+        expect(sedols[0]).toContainAllKeys(['sedol']) // only 'sedol' and not other keys
+    })
+    test('upsertFunds', async () => {
+        // insert fund
+        await FundDAO.upsertFunds([fund])
+        let funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        expect(funds).toBeArrayOfSize(1)
+        expect(funds[0]).toEqual(fund)
+
+        // modify fund and upsert again
+        fund.isin = 'test2'
+        await FundDAO.upsertFunds([fund])
+        funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        expect(funds).toBeArrayOfSize(1)
+        expect(funds[0]).toHaveProperty('isin', 'test2')
+    })
+    test('deleteFunds', async () => {
+        await FundDAO.upsertFunds([fund])
+        let funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        expect(funds).toBeArrayOfSize(1)
+
+        await FundDAO.deleteFunds({query: {isin: 'bad isin'}})
+        funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        expect(funds).toBeArrayOfSize(1)
+
+        await FundDAO.deleteFunds({query: {isin: fund.isin}})
+        funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        expect(funds).toBeArrayOfSize(0)
+    })
+    test('search should return relevant results', async () => {
+        await FundDAO.upsertFunds([fund])
+        let funds = await FundDAO.search('test', {sedol: 1, isin: 1}, 1)
+        expect(funds).toBeArrayOfSize(1)
+        expect(funds[0].sedol).toBe(fund.sedol)
+        expect(funds[0].isin).toBe(fund.isin)
+        expect(funds[0].score).toBePositive()
     })
 })

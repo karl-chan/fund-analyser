@@ -5,7 +5,6 @@ const _ = require('lodash')
 const moment = require('moment')
 const FundDAO = require('../../lib/db/FundDAO')
 const Fund = require('../../lib/fund/Fund')
-const db = require('../../lib/util/db')
 const log = require('../../lib/util/log')
 
 /**
@@ -13,14 +12,15 @@ const log = require('../../lib/util/log')
  * @returns {Promise.<void>}
  */
 async function updateCatalog () {
+    const docs = await FundDAO.listFunds({projection: {sedol: 1, asof: 1}})
+    const sedolToDoc = _.keyBy(docs, 'sedol')
+    const oldSedols = Object.keys(sedolToDoc)
+    log.info('%d sedols found in database', oldSedols.length)
+
     const newSedols = await new CharlesStanleyDirect().getSedols()
     if (!newSedols || !newSedols.length) {
         throw new Error('No sedols found')
     }
-
-    const docs = await FundDAO.listFunds({project: {sedol: 1, asof: 1}}, true)
-    const sedolToDoc = _.keyBy(docs, 'sedol')
-    const oldSedols = Object.keys(sedolToDoc)
 
     const toRemove = _.difference(oldSedols, newSedols)
         .filter(sedol => moment().diff(sedolToDoc[sedol].asof, 'weeks') >= 2) // remove only if two weeks old
@@ -29,7 +29,7 @@ async function updateCatalog () {
     log.info(`To add: %s`, JSON.stringify(toAdd))
 
     // delete old sedols
-    await db.getFunds().deleteMany({sedol: {$in: toRemove}})
+    await FundDAO.deleteFunds({query: {sedol: {$in: toRemove}}})
     log.info('Deleted old sedols: %s', JSON.stringify(toRemove))
 
     // insert new sedols with time 1970

@@ -1,29 +1,35 @@
 module.exports = {
     fromFund,
     toFund,
-    upsertFund,
     upsertFunds,
     listFunds,
-    streamFunds,
+    deleteFunds,
     exportCsv,
-    streamCsv
+    search
 }
 
 const db = require('../util/db')
 const log = require('../util/log')
 const csv = require('../util/csv')
-const streamWrapper = require('../util/streamWrapper')
+const math = require('../util/math')
 const Fund = require('../fund/Fund')
 
 const _ = require('lodash')
+const Promise = require('bluebird')
+
+const idField = 'sedol'
 
 function fromFund (fund) {
-    return _.toPlainObject(fund)
+    return {
+        _id: fund[idField],
+        ..._.toPlainObject(fund)
+    }
 }
 
 function toFund (entry) {
-    let builder = Fund.Builder(entry.isin)
+    delete entry._id
 
+    let builder = Fund.Builder(entry.isin)
     builder = _.isNil(entry.sedol) ? builder : builder.sedol(entry.sedol)
     builder = _.isNil(entry.name) ? builder : builder.name(entry.name)
     builder = _.isNil(entry.type) ? builder : builder.type(entry.type)
@@ -37,6 +43,7 @@ function toFund (entry) {
     builder = _.isNil(entry.returns) ? builder : builder.returns(entry.returns)
     builder = _.isNil(entry.asof) ? builder : builder.asof(entry.asof)
     builder = _.isNil(entry.indicators) ? builder : builder.indicators(entry.indicators)
+    builder = _.isNil(entry.realTimeDetails) ? builder : builder.realTimeDetails(entry.realTimeDetails)
 
     if (!_.isNil(entry.holdings)) {
         builder = builder.holdings(entry.holdings.map(
@@ -51,32 +58,55 @@ function toFund (entry) {
     return builder.build()
 }
 
-async function upsertFund (fund) {
-    const query = { sedol: fund.sedol }
-    const doc = fromFund(fund)
-    const response = await db.getFunds().replaceOne(query, doc, { upsert: true })
-    log.debug('Upserted fund in database: %j. Response: %j', fund, response)
-}
-
 async function upsertFunds (funds) {
-    const operations = funds.map(fund => {
-        const entry = fromFund(fund)
-        const query = { sedol: entry.sedol }
-        const doc = _.toPlainObject(entry)
-        const operation = { replaceOne: { filter: query, replacement: doc, upsert: true } }
-        return operation
-    })
-    if (!operations.length) {
+    if (!funds.length) {
         log.info('No funds to upsert. Returning...')
         return
     }
-    try {
-        await db.getFunds().bulkWrite(operations)
-    } catch (err) {
-        log.error('Failed to upsert funds')
-        log.error(err)
+
+    // count all funds
+    const shardCounts = await Promise.map(db.getFunds(), fundDb => fundDb.countDocuments())
+
+    // find matching ids in shards
+    const searchIds = funds.map(f => f[idField]).filter(val => val)
+    const findOptions = {
+        query: {_id: {$in: searchIds}},
+        projection: {_id: 1}
     }
-    log.info(`Upserted funds: %j`, funds)
+    const shardedDocs = await Promise.map(buildFindQuery(findOptions), query => query.toArray())
+    const shardedIds = shardedDocs.map(docs => new Set(docs.map(doc => doc._id)))
+
+    // partition funds into shards
+    const bucketedFunds = shardedIds.map(shard => [])
+    for (let fund of funds) {
+        let shardIdx = shardedIds.findIndex(shard => shard.has(fund[idField]))
+        if (shardIdx === -1) {
+            // assign to least occupied shard
+            shardIdx = math.minIndex(shardCounts)
+            shardCounts[shardIdx]++
+        }
+        bucketedFunds[shardIdx].push(fund)
+    }
+
+    const upsertOperation = fund => {
+        const doc = fromFund(fund)
+        const query = { _id: fund[idField] }
+        const operation = { replaceOne: { filter: query, replacement: doc, upsert: true } }
+        return operation
+    }
+
+    const bucketedOperations = bucketedFunds.map((bucket) => bucket.map(upsertOperation))
+    try {
+        await Promise.map(
+            _.zip(db.getFunds(), bucketedOperations), ([fundDb, operations]) => {
+                return operations.length ? fundDb.bulkWrite(operations) : []
+            })
+    } catch (err) {
+        log.error('Failed to upsert funds: %j. Error: %s', funds, err.stack)
+        return
+    }
+    log.info('Upserted funds: %j', bucketedFunds.map(
+        (funds, i) => `${JSON.stringify(funds)} in shard ${i}`).join('; '))
 }
 
 /**
@@ -85,19 +115,27 @@ async function upsertFunds (funds) {
  * @param toPlainObject [optional] boolean - true: to plain object, false: to fund
  */
 async function listFunds (options, toPlainObject) {
-    let query = buildQuery(options)
-    const docs = await query.toArray()
+    const shardedDocs = await Promise.map(buildFindQuery(options), query => query.toArray())
+    let docs = _.flatten(shardedDocs)
+
+    // need postprocessing because we are merging from different databases
+    if (options && options.sort) {
+        docs = _.orderBy(docs, Object.keys(options.sort), Object.values(options.sort).map(dir => dir === -1 || dir['$meta'] === 'textScore' ? 'desc' : 'asc'))
+    }
+    if (options && options.limit) {
+        docs = docs.slice(0, options.limit)
+    }
     return docs.map(toPlainObject ? _.toPlainObject : toFund)
 }
 
-function streamFunds (options) {
-    const dbStream = buildQuery(options).stream()
-    const fundTransform = streamWrapper.asTransformAsync(toFund)
-    const fundStream = dbStream.pipe(fundTransform)
-    dbStream.on('error', (err) => {
-        fundStream.emit('error', err)
-    })
-    return fundStream
+async function deleteFunds (options) {
+    const queryOpts = _.defaultTo(options.query, {})
+    try {
+        await Promise.map(db.getFunds(), fundDb => fundDb.deleteMany(queryOpts))
+    } catch (err) {
+        log.error('Failed to delete funds. Error: %s', err.stack)
+    }
+    log.info('Deleted funds')
 }
 
 async function exportCsv (headerFields, options) {
@@ -105,55 +143,31 @@ async function exportCsv (headerFields, options) {
     return csv.convert(funds, headerFields)
 }
 
-function streamCsv (headerFields, options) {
-    const fundStream = streamFunds(options)
-    const parserStream = csv.streamParser(headerFields)
-    const csvStream = fundStream.pipe(parserStream)
-    fundStream.on('error', (err) => {
-        csvStream.emit('error', err)
-    })
-    return csvStream
-}
-
-const buildQuery = (options) => {
-    const type = options.type
-    delete options.type
-    switch (type) {
-    case 'aggregate':
-        return buildAggregateQuery(options.pipeline)
-    default:
-        return buildFindQuery(options)
+async function search (text, projection, limit) {
+    const options = {
+        query: {$text: {$search: text}},
+        projection: {...projection, score: {$meta: 'textScore'}},
+        sort: {score: {$meta: 'textScore'}},
+        limit
     }
+    return listFunds(options, true)
 }
 
 /**
  * Executes mongodb find query
  * @param options {
  *  query: obj,
- *  project: obj,
+ *  projection: obj,
  *  sort: int,
  *  limit: int
  *  }
  */
 const buildFindQuery = (options) => {
-    const queryOpts = _.defaultTo(options.query, {})
-    const projectOpts = _.defaultTo(options.project, {})
-    const sortOpts = options.sort
-    const skipOpts = options.skip
-    const limitOpts = options.limit
-
-    let query = db.getFunds().find(queryOpts)
-    query = projectOpts ? query.project(projectOpts) : query
-    query = sortOpts ? query.sort(sortOpts) : query
-    query = skipOpts ? query.skip(skipOpts) : query
-    query = limitOpts ? query.limit(limitOpts) : query
-    return query
-}
-
-/**
- * Executes mongodb aggregate query
- * @param pipeline array
- */
-const buildAggregateQuery = (pipeline) => {
-    return db.getFunds().aggregate(pipeline, { allowDiskUse: true })
+    const query = (options && options.query) || {}
+    const findOptions = {
+        projection: options && options.projection,
+        sort: options && options.sort,
+        limit: options && options.limit
+    }
+    return db.getFunds().map(fundDb => fundDb.find(query, findOptions))
 }

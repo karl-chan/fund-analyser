@@ -32,7 +32,7 @@ describe('Fund', function () {
     })
 
     test('isValid should return true for fund with name', () => {
-        expect(fund.isValid()).toBeTruthy()
+        expect(fund.isValid()).toBeTrue()
     })
     test('isValid should return false for fund without name', () => {
         const undefinedNameFund = new Fund(isin, sedol, undefined)
