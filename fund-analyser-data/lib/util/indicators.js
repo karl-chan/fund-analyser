@@ -2,17 +2,23 @@ module.exports = {
     calcIndicators,
     calcMacd,
     calcMdd,
+    calcReturns,
     calcStability
 }
 
 const _ = require('lodash')
 const ta = require('technicalindicators')
+const properties = require('./properties')
+const fundUtils = require('./fundUtils')
+
+const lookbacks = properties.get('fund.lookbacks')
 
 function calcIndicators (historicPrices) {
     return {
         stability: calcStability(historicPrices),
         macd: calcMacd(historicPrices),
-        mdd: calcMdd(historicPrices)
+        mdd: calcMdd(historicPrices),
+        returns: calcReturns(historicPrices)
     }
 }
 
@@ -87,4 +93,25 @@ function calcStability (historicPrices) {
     currTrendDays++
     trendyDays.push(currTrendDays)
     return _.mean(trendyDays)
+}
+
+function calcReturns (historicPrices) {
+    const returns = {}
+    for (let period of lookbacks) {
+        const prevRecord = fundUtils.closestRecord(period, historicPrices)
+        if (_.isNil(prevRecord)) {
+            returns[period] = {min: null, max: null}
+            continue
+        }
+        const prevIndex = historicPrices.findIndex(hp => hp.date.getTime() === prevRecord.date.getTime())
+        let min = +Infinity; let max = -Infinity
+        for (let i = historicPrices.length - 1, j = prevIndex; j >= 0; i--, j--) {
+            const [currPrice, prevPrice] = [historicPrices[i].price, historicPrices[j].price]
+            const periodReturns = (currPrice - prevPrice) / prevPrice
+            min = Math.min(min, periodReturns)
+            max = Math.max(max, periodReturns)
+        }
+        returns[period] = {min, max}
+    }
+    return returns
 }

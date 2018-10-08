@@ -1,17 +1,23 @@
 <template lang="pug">
-  div.container.shadow-5
-    highstock(v-if="fund" :options="chartOptions" ref="highcharts")
-    template(v-else) No chart available
+  .shadow-5(:class="{container: !simple}")
+      highstock(v-if="fund" :options="chartOptions")
+      template(v-else) No chart available
+
 </template>
 
 <script>
 
 export default {
   name: 'FundChart',
-  props: ['fund'],
+  props: {
+    fund: Object,
+    simple: Boolean
+  },
   computed: {
     chartOptions: function () {
-      return this.buildChartOptions(this.fund)
+      return this.simple
+        ? this.buildSimpleChartOptions(this.fund)
+        : this.buildChartOptions(this.fund)
     }
   },
   methods: {
@@ -21,7 +27,7 @@ export default {
           zoomType: 'x'
         },
         rangeSelector: {
-          selected: 2, // recent 6 months
+          selected: 4, // recent 1 year
           buttons: [{ type: 'month', count: 1, text: '1M' },
             { type: 'month', count: 3, text: '3M' },
             { type: 'month', count: 6, text: '6M' },
@@ -57,6 +63,35 @@ export default {
               text: `Est. price ${this.formatNumber(fund.realTimeDetails.estPrice)}`
             }
           }]
+        }
+      }
+      return opts
+    },
+    buildSimpleChartOptions (fund) {
+      const opts = {
+        series: [{
+          name: 'Price',
+          data: fund.historicPrices.map(record => [Date.parse(record.date), record.price])
+        }],
+        chart: {
+          height: 150
+        },
+        credits: {
+          enabled: false
+        },
+        navigator: {
+          enabled: false
+        },
+        plotOptions: {
+          series: {
+            enableMouseTracking: false
+          }
+        },
+        rangeSelector: {
+          enabled: false
+        },
+        scrollbar: {
+          enabled: false
         }
       }
       return opts

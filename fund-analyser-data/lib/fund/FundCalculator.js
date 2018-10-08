@@ -4,7 +4,7 @@ const streamWrapper = require('../util/streamWrapper')
 
 class FundCalculator {
     constructor () {
-        this.lookbacks = JSON.parse(properties.get('fund.postprocessor.returns.extra.lookbacks'))
+        this.lookbacks = properties.get('fund.lookbacks')
     }
 
     async evaluate (fund) {
@@ -18,7 +18,8 @@ class FundCalculator {
     }
 
     enrichReturns (fund) {
-        fund.returns = fundUtils.enrichReturns(fund.returns, fund.historicPrices, this.lookbacks)
+        const extraLookbacks = this.lookbacks.filter(lookback => !(lookback in fund.returns))
+        fund.returns = fundUtils.enrichReturns(fund.returns, fund.historicPrices, extraLookbacks)
         return fund
     }
     calcIndicators (fund) {

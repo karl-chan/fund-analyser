@@ -10,7 +10,7 @@ module.exports = {
 
 const properties = require('./properties')
 const uri = properties.get('db.mongo.uri.main')
-const fundUris = JSON.parse(properties.get('db.mongo.uri.funds'))
+const fundUris = properties.get('db.mongo.uri.funds')
 
 const Promise = require('bluebird')
 const MongoClient = require('mongodb').MongoClient

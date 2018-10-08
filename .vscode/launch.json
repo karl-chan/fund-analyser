@@ -48,6 +48,16 @@
                 "-r",
                 "updateFunds"
             ]
+        },        
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Dyno Healthcheck",
+            "program": "${workspaceFolder}/fund-analyser-data/scripts/main.js",
+            "args": [
+                "-r",
+                "dynoHealthcheck"
+            ]
         },
         {
             "type": "node",

@@ -33,7 +33,10 @@ async function updateFunds () {
         const stream = fundStream
             .pipe(fundValidFilter)
             .pipe(upsertFundStream)
-        stream.on('finish', resolve)
+        stream.on('finish', () => {
+            log.info('Finished updating funds')
+            resolve()
+        })
         stream.on('error', (err) => {
             log.error('Fatal error, aborting updateFunds: %s', err.stack)
             reject(err)

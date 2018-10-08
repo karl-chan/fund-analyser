@@ -1,12 +1,17 @@
 const CharlesStanleyDirectAuth = require('./CharlesStanleyDirectAuth')
+const properties = require('../util/properties')
 
 jest.setTimeout(30000) // 30 seconds
 
 describe('CharlesStanleyDirectAuth', () => {
     let csdAuth, user, pass, memorableWord
+    beforeAll(() => {
+        user = properties.get('fund.charlesstanleydirect.user')
+        pass = properties.get('fund.charlesstanleydirect.pass')
+        memorableWord = properties.get('fund.charlesstanleydirect.memorableWord')
+    })
     beforeEach(() => {
         csdAuth = new CharlesStanleyDirectAuth()
-        ;({ user, pass, memorableWord } = global.jestSecrets.charlesStanleyDirect)
     })
     test('login should be successful with valid user, pass and memorable word', async () => {
         const {jar, name} = await csdAuth.login(user, pass, memorableWord)

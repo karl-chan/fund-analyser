@@ -15,7 +15,7 @@ async function dynoHealthcheck () {
 
     const cutoffTime = moment().subtract(idleThreshold)
     if (!lastActivity || lastActivity.isBefore(cutoffTime)) {
-        log.info(`Restarting dyno since last activity was %s`, lastActivity)
+        log.info(`Restarting dyno since last activity was %s`, lastActivity.toString())
         await heroku.restart()
     }
 }

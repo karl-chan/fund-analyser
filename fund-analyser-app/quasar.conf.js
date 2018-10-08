@@ -101,8 +101,7 @@ module.exports = function (ctx) {
         'QTabPane',
         'QSpinner',
         'QSpinnerFacebook',
-        'QAjaxBar',
-        'QSlideTransition'
+        'QAjaxBar'
       ],
       directives: [
         'Ripple',

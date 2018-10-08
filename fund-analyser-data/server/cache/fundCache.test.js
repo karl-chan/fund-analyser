@@ -12,9 +12,8 @@ describe('fundCache', () => {
         fundCache.shutdown()
     })
     describe('before cache is populated', () => {
-        test('cache should be empty initially', () => {
-            const funds = fundCache.get()
-            expect(funds).toEqual([])
+        test('cache should throw error on access', () => {
+            expect(fundCache.get).toThrowError()
         })
     })
 
@@ -28,7 +27,7 @@ describe('fundCache', () => {
             expect(funds.length).toBeGreaterThan(3000)
         })
         test('cache filter should perform substring match', () => {
-            const filterText = 'Baillie Gifford'
+            const filterText = 'Baillie Gifford American Fund B'
             const funds = fundCache.get(undefined, {filterText})
             expect(funds)
                 .not.toBeEmpty()
@@ -37,8 +36,10 @@ describe('fundCache', () => {
 
         test('getMetadata should return metadata object', () => {
             const metadata = fundCache.getMetadata()
-            expect(metadata).toHaveProperty('asof', expect.toBeValidDate())
-            expect(metadata).toHaveProperty('stats', expect.toBeObject())
+            expect(metadata.asof.date).toBeValidDate()
+            expect(metadata.asof.numUpToDate).toBePositive()
+            expect(metadata.stats).toBeObject()
+            expect(metadata.totalFunds).toBePositive()
         })
     })
 })

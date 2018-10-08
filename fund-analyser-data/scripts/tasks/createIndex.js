@@ -2,7 +2,10 @@ module.exports = createIndex
 
 const db = require('../../lib/util/db')
 const log = require('../../lib/util/log')
+const properties = require('../../lib/util/properties')
 const Promise = require('bluebird')
+
+const lookbacks = properties.get('fund.lookbacks')
 
 /**
  * Create index on popular fields for sorting
@@ -19,8 +22,7 @@ async function createFundsIndex () {
     })
     log.info('Dropped fund indexes')
 
-    const periods = ['1D', '3D', '1W', '2W', '1M', '3M', '6M', '1Y', '3Y', '5Y']
-    for (let period of periods) {
+    for (let period of lookbacks) {
         await Promise.map(db.getFunds(), fundDb => fundDb.createIndex({ [`returns.${period}`]: 1 }, { background: true }))
     }
     const columns = ['isin', 'asof']

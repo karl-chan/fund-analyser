@@ -64,6 +64,46 @@ describe('indicators', () => {
         })
     })
 
+    describe('calcReturns', () => {
+        test('should return nulls if exceeds range', () => {
+            expect(indicators.calcReturns([])).toEqual({
+                '5Y': {max: null, min: null},
+                '3Y': {max: null, min: null},
+                '1Y': {max: null, min: null},
+                '6M': {max: null, min: null},
+                '3M': {max: null, min: null},
+                '1M': {max: null, min: null},
+                '2W': {max: null, min: null},
+                '1W': {max: null, min: null},
+                '3D': {max: null, min: null},
+                '1D': {max: null, min: null}
+            })
+        })
+        test('should calculate correct results', () => {
+            const actual = indicators.calcReturns(historicPrices)
+            expect(actual['5Y']['max']).toBeNull()
+            expect(actual['5Y']['min']).toBeNull()
+            expect(actual['3Y']['max']).toBeNull()
+            expect(actual['3Y']['min']).toBeNull()
+            expect(actual['1Y']['max']).toBeNull()
+            expect(actual['1Y']['min']).toBeNull()
+            expect(actual['6M']['max']).toBeNull()
+            expect(actual['6M']['min']).toBeNull()
+            expect(actual['3M']['max']).toBeNull()
+            expect(actual['3M']['min']).toBeNull()
+            expect(actual['1M']['max']).toBeCloseTo(0.02)
+            expect(actual['1M']['min']).toBeCloseTo(-0.02)
+            expect(actual['2W']['max']).toBeCloseTo(0.04)
+            expect(actual['2W']['min']).toBeCloseTo(-0.02)
+            expect(actual['1W']['max']).toBeCloseTo(0.03)
+            expect(actual['1W']['min']).toBeCloseTo(-0.04)
+            expect(actual['3D']['max']).toBeCloseTo(0.02)
+            expect(actual['3D']['min']).toBeCloseTo(-0.03)
+            expect(actual['1D']['max']).toBeCloseTo(0.01)
+            expect(actual['1D']['min']).toBeCloseTo(-0.02)
+        })
+    })
+
     describe('calcStability', () => {
         test('should return nan for invalid input', () => {
             expect(indicators.calcStability(null)).toBeNaN()
@@ -82,10 +122,11 @@ describe('indicators', () => {
         test('should return combined indicators', () => {
             const actual = indicators.calcIndicators(historicPrices)
             expect(actual).toBeObject()
-                .toContainAllKeys(['stability', 'macd', 'mdd'])
+                .toContainAllKeys(['stability', 'macd', 'mdd', 'returns'])
             expect(actual.stability).toBeFinite()
             expect(actual.macd).toBeFinite()
             expect(actual.mdd).toBeFinite()
+            expect(actual.returns).toBeObject()
         })
     })
 })

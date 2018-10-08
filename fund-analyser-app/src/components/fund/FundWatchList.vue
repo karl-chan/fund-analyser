@@ -23,8 +23,7 @@
         q-chip.absolute-center.shadow-5.z-top(square detail icon="warning" color="secondary") Your watchlist is empty
 
     // charts
-    q-slide-transition
-      fund-chart-grid(:funds="funds" :cols="3" :selectedIsin="selectedIsin" @chartSelected="onChartSelected")
+    fund-chart-grid(:funds="funds" :cols="3" :selectedIsin="selectedIsin" @chartSelected="onChartSelected")
 </template>
 
 <script>

@@ -106,7 +106,7 @@ async function upsertFunds (funds) {
         return
     }
     log.info('Upserted funds: %j', bucketedFunds.map(
-        (funds, i) => `${JSON.stringify(funds)} in shard ${i}`).join('; '))
+        (funds, i) => `${JSON.stringify(funds.map(f => f[idField]))} in shard ${i}`).join('; '))
 }
 
 /**
@@ -135,7 +135,6 @@ async function deleteFunds (options) {
     } catch (err) {
         log.error('Failed to delete funds. Error: %s', err.stack)
     }
-    log.info('Deleted funds')
 }
 
 async function exportCsv (headerFields, options) {

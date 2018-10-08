@@ -15,6 +15,10 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import get from 'lodash/get'
+import startCase from 'lodash/startCase'
+
+const periods = ['5Y', '3Y', '1Y', '6M', '3M', '1M', '2W', '1W', '3D', '1D']
+const extendedPeriods = periods.concat('+1D')
 
 export default {
   name: 'FundsTable',
@@ -37,19 +41,9 @@ export default {
         { headerName: 'Name', field: 'name', width: 180, tooltipField: 'name' },
         { headerName: 'Returns',
           marryChildren: true,
-          children: [
-            { headerName: '5Y', field: 'returns.5Y', width: 65 },
-            { headerName: '3Y', field: 'returns.3Y', width: 65 },
-            { headerName: '1Y', field: 'returns.1Y', width: 65 },
-            { headerName: '6M', field: 'returns.6M', width: 65 },
-            { headerName: '3M', field: 'returns.3M', width: 65 },
-            { headerName: '1M', field: 'returns.1M', width: 65 },
-            { headerName: '2W', field: 'returns.2W', width: 65 },
-            { headerName: '1W', field: 'returns.1W', width: 65 },
-            { headerName: '3D', field: 'returns.3D', width: 65 },
-            { headerName: '1D', field: 'returns.1D', sort: 'desc', width: 65 },
-            { headerName: '+1D', field: 'returns.+1D', width: 65 }
-          ]
+          children: extendedPeriods.map(period => ({
+            headerName: period, field: `returns.${period}`, width: 65, sort: period === '1D' && 'desc'
+          }))
         },
         { headerName: 'Indicators',
           marryChildren: true,
@@ -57,7 +51,13 @@ export default {
             { headerName: 'Stability', field: 'indicators.stability', width: 75 },
             { headerName: 'MACD', field: 'indicators.macd', width: 75 },
             { headerName: 'MDD', field: 'indicators.mdd', width: 75 }
-          ]
+          ].concat(
+            ['max', 'min'].flatMap(type => {
+              return periods.map(period => {
+                return { headerName: `${startCase(type)} ${period}`, field: `indicators.returns.${period}.${type}`, width: 90 }
+              })
+            })
+          )
         },
         { headerName: 'Type', field: 'type', width: 70 },
         { headerName: 'Share Class', field: 'shareClass', width: 60 },
@@ -173,12 +173,15 @@ export default {
       return contextMenu
     },
     updateColDefs (params) {
-      const colourFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
-        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D',
-        'indicators.stability', 'indicators.macd', 'indicators.mdd'])
-      const percentFields = new Set(['returns.5Y', 'returns.3Y', 'returns.1Y', 'returns.6M', 'returns.3M',
-        'returns.1M', 'returns.2W', 'returns.1W', 'returns.3D', 'returns.1D', 'returns.+1D', 'indicators.mdd',
-        'bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge'])
+      const colourFields = new Set(
+        extendedPeriods.map(period => `returns.${period}`)
+          .concat(['indicators.stability', 'indicators.macd', 'indicators.mdd'])
+          .concat(['max', 'min'].flatMap(type => periods.map(period => `indicators.returns.${period}.${type}`))))
+      const percentFields = new Set(
+        ['bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge']
+          .concat(extendedPeriods.map(period => `returns.${period}`))
+          .concat(['indicators.mdd'])
+          .concat(['max', 'min'].flatMap(type => periods.map(period => `indicators.returns.${period}.${type}`))))
       const numberFields = new Set(['indicators.stability'])
       const dateFields = new Set(['asof'])
 
@@ -225,8 +228,8 @@ export default {
       return this.$utils.format.colourNumber(params.value)
     },
     colourCellStyler (params) {
-      if (params.data.scores) {
-        const score = get(params.data.scores, params.colDef.field)
+      if (params.data.colours) {
+        const score = get(params.data.colours, params.colDef.field)
         return this.$utils.format.colourNumberCell(score)
       }
       return undefined

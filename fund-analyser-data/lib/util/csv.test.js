@@ -28,20 +28,11 @@ describe('csv', () => {
             'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'indicators.stability', 'holdings', 'asof']
 
         csvHeader = `"ISIN","Name","Type","Share Class","Pricing Frequency","OCF","AMC","Entry Charge","Exit Charge","Bid-Ask Spread","returns.5Y","returns.3Y","returns.1Y","returns.6M","returns.3M","returns.1M","Stability","Holdings","As of date"`
-        csvRow = `"test","Test fund","UNIT","Acc","Daily","0.06999999999999999%","0.04%","1%","","","50%","-20%","30%","40%","0%","-20%","20%","30%","80%","75%","90%","40%","50%","20%","60%","60%",-3,"[{""name"":""Test Holding"",""symbol"":""TEST"",""weight"":0}]","2018-01-01T00:00:00.000Z"`
+        csvRow = `"test","Test fund","UNIT","Acc","Daily","0.06999999999999999%","0.04%","1%","","","50%","-20%","30%","40%","0%","-20%",-3,"[{""name"":""Test Holding"",""symbol"":""TEST"",""weight"":0}]","2018-01-01T00:00:00.000Z"`
     })
 
     test('convert should convert Fund to csv', () => {
         const csvString = csv.convert(funds, headerFields)
         expect(csvString.split(/\r?\n/)).toEqual([csvHeader, csvRow])
-    })
-    test.skip('convertStream should convert Fund to csv stream', () => {
-        const version = 'v2'
-        StreamTest[version].fromObjects(funds)
-            .pipe(csv.convertStream(headerFields))
-            .pipe(StreamTest[version].toText((err, [csvString]) => {
-                expect(err).toBeUndefined()
-                expect(csvString.split(/\r?\n/)).toEqual([csvHeader, csvRow])
-            }))
     })
 })

@@ -1,12 +1,13 @@
 const json2csv = require('json2csv')
 const stream = require('stream')
+const _ = require('lodash')
 const CsvConverter = json2csv.Parser
 const CsvStreamer = json2csv.Transform
 
 const math = require('./math')
-const streamWrapper = require('./streamWrapper')
+const properties = require('../util/properties')
 
-const _ = require('lodash')
+const lookbacks = properties.get('fund.lookbacks')
 
 const fieldMapping = {
     isin: {
@@ -59,68 +60,7 @@ const fieldMapping = {
             return toPercentage(row.bidAskSpread)
         }
     },
-    returns: {
-        '5Y': {
-            label: 'returns.5Y',
-            value: (row, field, data) => {
-                return toPercentage(row.returns['5Y'])
-            }
-        },
-        '3Y': {
-            label: 'returns.3Y',
-            value: (row, field, data) => {
-                return toPercentage(row.returns['3Y'])
-            }
-        },
-        '1Y': {
-            label: 'returns.1Y',
-            value: (row, field, data) => {
-                return toPercentage(row.returns['1Y'])
-            }
-        },
-        '6M': {
-            label: 'returns.6M',
-            value: (row, field, data) => {
-                return toPercentage(row.returns['6M'])
-            }
-        },
-        '3M': {
-            label: 'returns.3M',
-            value: (row, field, data) => {
-                return toPercentage(row.returns['3M'])
-            }
-        },
-        '1M': {
-            label: 'returns.1M',
-            value: (row, field, data) => {
-                return toPercentage(row.returns['1M'])
-            }
-        },
-        '2W': {
-            label: 'returns.2W',
-            value: (row, field, data) => {
-                return toPercentage(row.returns['2W'])
-            }
-        },
-        '1W': {
-            label: 'returns.1W',
-            value: (row, field, data) => {
-                return toPercentage(row.returns['1W'])
-            }
-        },
-        '3D': {
-            label: 'returns.3D',
-            value: (row, field, data) => {
-                return toPercentage(row.returns['3D'])
-            }
-        },
-        '1D': {
-            label: 'returns.1D',
-            value: (row, field, data) => {
-                return toPercentage(row.returns['1D'])
-            }
-        }
-    },
+    returns: getReturnsMapping(),
     holdings: {
         label: 'Holdings',
         value: 'holdings'
@@ -137,42 +77,35 @@ const fieldMapping = {
     }
 }
 
-const formatFields = (fields) => {
+function formatFields (fields) {
     return _.map(fields, f => _.get(fieldMapping, f, f))
 }
 
-const convert = (funds, headerFields) => {
+function convert (funds, headerFields) {
     const opts = {
         fields: formatFields(headerFields)
     }
     return new CsvConverter(opts).parse(funds)
 }
 
-const convertStream = (headerFields) => {
-    const opts = {
-        fields: formatFields(headerFields)
-    }
-    const jsonTransform = stream.Transform({
-        allowHalfOpen: false,
-        writableObjectMode: true,
-        transform (fund, encoding, callback) {
-            try {
-                callback(null, JSON.stringify(fund))
-            } catch (err) {
-                callback(err)
-            }
-        }
-    })
-    const csvTransform = new CsvStreamer(opts)
-    return jsonTransform.pipe(csvTransform)
-}
-
-const toPercentage = (v) => {
+function toPercentage (v) {
     const pc = math.floatToPc(v)
     return _.isString(pc) ? pc : ''
 }
 
+function getReturnsMapping () {
+    const mapping = {}
+    for (let period of lookbacks) {
+        mapping[period] = {
+            label: `returns.${period}`,
+            value: (row, field, data) => {
+                return toPercentage(row.returns[period])
+            }
+        }
+    }
+    return mapping
+}
+
 module.exports = {
-    convert,
-    convertStream
+    convert
 }

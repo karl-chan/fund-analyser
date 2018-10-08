@@ -28,7 +28,7 @@ describe('currencyUtils', () => {
     describe('multiplyCurrency', () => {
         test('multiplyCurrency should refuse to multiply for invalid pairs', () => {
             const currency2 = new Currency('GBP', 'HKD', []) // currency1.quote !== currency2.base
-            expect(() => currencyUtils.multiplyCurrencies(currency, currency2)).toThrow()
+            expect(() => currencyUtils.multiplyCurrencies(currency, currency2)).toThrowError()
         })
         test('multiplyCurrency should multiply and forward fill currency pairs', () => {
             const quote2 = 'HKD'

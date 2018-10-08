@@ -126,7 +126,7 @@ describe('FinancialTimes', function () {
             expect(historicPrices).not.toBeEmpty()
             for (let hp of historicPrices) {
                 expect(moment(hp.date).isValid()).toBeTrue()
-                expect(moment(hp.price)).toBeNumber().not.toBeNaN()
+                expect(hp.price).toBeNumber().not.toBeNaN()
             }
         })
 
@@ -137,7 +137,7 @@ describe('FinancialTimes', function () {
             expect(historicRates).not.toBeEmpty()
             for (let hr of historicRates) {
                 expect(moment(hr.date).isValid()).toBeTrue()
-                expect(moment(hr.rate)).not.toBeNaN()
+                expect(hr.rate).not.toBeNaN()
             }
         })
 

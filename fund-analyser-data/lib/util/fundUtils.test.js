@@ -15,14 +15,18 @@ describe('fundUtils', () => {
             new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
             new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
         ]
+        test('should return null for invalid input', () => {
+            expect(fundUtils.closestRecord('5Y', undefined)).toBeNull()
+            expect(fundUtils.closestRecord('5Y', [])).toBeNull()
+        })
         test('should find closest records', () => {
             const boundary = new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0)
-            expect(fundUtils.closestRecord('5Y', historicPrices)).toEqual(boundary)
-            expect(fundUtils.closestRecord('3Y', historicPrices)).toEqual(boundary)
-            expect(fundUtils.closestRecord('1Y', historicPrices)).toEqual(boundary)
-            expect(fundUtils.closestRecord('6M', historicPrices)).toEqual(boundary)
-            expect(fundUtils.closestRecord('3M', historicPrices)).toEqual(boundary)
-            expect(fundUtils.closestRecord('1M', historicPrices)).toEqual(boundary)
+            expect(fundUtils.closestRecord('5Y', historicPrices)).toBeNull()
+            expect(fundUtils.closestRecord('3Y', historicPrices)).toBeNull()
+            expect(fundUtils.closestRecord('1Y', historicPrices)).toBeNull()
+            expect(fundUtils.closestRecord('6M', historicPrices)).toBeNull()
+            expect(fundUtils.closestRecord('3M', historicPrices)).toBeNull()
+            expect(fundUtils.closestRecord('1M', historicPrices)).toBeNull()
             expect(fundUtils.closestRecord('2W', historicPrices)).toEqual(boundary)
             expect(fundUtils.closestRecord('1W', historicPrices)).toEqual(
                 new Fund.HistoricPrice(new Date(2017, 3, 18), 475.0))

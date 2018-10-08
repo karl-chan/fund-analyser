@@ -1,7 +1,7 @@
 const Router = require('koa-router')
 const moment = require('moment')
 const Promise = require('bluebird')
-const agGrid = require('../../lib/util/agGrid')
+const agGridUtils = require('../../lib/util/agGridUtils')
 const fundCache = require('../cache/fundCache')
 const FinancialTimes = require('../../lib/fund/FinancialTimes')
 const FundDAO = require('../../lib/db/FundDAO')
@@ -55,7 +55,7 @@ router.post('/list', async ctx => {
     const {isins, params} = ctx.request.body
     const funds = fundCache.get(isins, {filterText: params.filterText})
     const {asof, stats, totalFunds} = fundCache.getMetadata()
-    const {funds: window, lastRow} = agGrid.applyRequest(funds, params.agGridRequest)
+    const {funds: window, lastRow} = agGridUtils.applyRequest(funds, params.agGridRequest)
     ctx.body = {
         funds: window,
         metadata: { lastRow, totalFunds, asof, stats }
