@@ -1,8 +1,12 @@
 import AccountBalance from 'components/account/AccountBalance'
+import AccountStatement from 'components/account/AccountStatement'
+import AccountView from 'components/account/AccountView'
+
 import ActiveSessions from 'components/auth/ActiveSessions'
 
 import FundSearch from 'components/fund/FundSearch'
 import FundInfoBar from 'components/fund/FundInfoBar'
+import FundIndicators from 'components/fund/FundIndicators'
 import FundChart from 'components/fund/FundChart'
 import FundChartGrid from 'components/fund/FundChartGrid'
 import FundCharges from 'components/fund/FundCharges'
@@ -21,6 +25,9 @@ import AppHeader from 'layouts/AppHeader'
 
 export default ({ Vue }) => {
   Vue.component('account-balance', AccountBalance)
+  Vue.component('account-statement', AccountStatement)
+  Vue.component('account-view', AccountView)
+
   Vue.component('active-sessions', ActiveSessions)
 
   Vue.component('fund-search', FundSearch)
@@ -29,6 +36,7 @@ export default ({ Vue }) => {
   Vue.component('fund-chart-grid', FundChartGrid)
   Vue.component('fund-charges', FundCharges)
   Vue.component('fund-holdings', FundHoldings)
+  Vue.component('fund-indicators', FundIndicators)
   Vue.component('funds-table', FundsTable)
   Vue.component('funds-summary', FundsSummary)
   Vue.component('fund-watch-list', FundWatchList)

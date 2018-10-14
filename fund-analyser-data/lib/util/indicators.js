@@ -100,7 +100,7 @@ function calcReturns (historicPrices) {
     for (let period of lookbacks) {
         const prevRecord = fundUtils.closestRecord(period, historicPrices)
         if (_.isNil(prevRecord)) {
-            returns[period] = {min: null, max: null}
+            returns[period] = { min: null, max: null }
             continue
         }
         const prevIndex = historicPrices.findIndex(hp => hp.date.getTime() === prevRecord.date.getTime())
@@ -111,7 +111,7 @@ function calcReturns (historicPrices) {
             min = Math.min(min, periodReturns)
             max = Math.max(max, periodReturns)
         }
-        returns[period] = {min, max}
+        returns[period] = { min, max }
     }
     return returns
 }

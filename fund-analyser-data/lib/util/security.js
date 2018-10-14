@@ -19,6 +19,6 @@ function decryptString (s) {
 }
 
 function parseUserAgent (s) {
-    const {ua, browser, device, os} = userAgentParser(s)
-    return {ua, browser, device, os}
+    const { ua, browser, device, os } = userAgentParser(s)
+    return { ua, browser, device, os }
 }

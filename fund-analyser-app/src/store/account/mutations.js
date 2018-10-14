@@ -1,7 +1,9 @@
-import Vue from 'vue'
+export function saveBalance (state, balance) {
+  state.balance = balance
+}
 
-export function saveCsdBalance (state, balance) {
-  Vue.set(state.charlesStanleyDirect, 'balance', balance)
+export function saveStatement (state, statement) {
+  state.statement = statement
 }
 
 export function setWatchlist (state, watchlist) {
@@ -13,7 +15,8 @@ export function setRecentlyViewed (state, recentlyViewed) {
 }
 
 export function reset (state) {
-  state.charlesStanleyDirect = {balance: null}
+  state.balance = null
+  state.statement = null
   state.watchlist = []
   state.recentlyViewed = []
 }

@@ -2,7 +2,8 @@ module.exports = {
     deepKeys,
     deepKeysSatisfying,
     pairsToDeepObject,
-    isOrdered
+    isOrdered,
+    parseNumber
 }
 
 const _ = require('lodash')
@@ -44,4 +45,14 @@ function isOrdered (value) {
         return true
     }
     return false
+}
+
+function parseNumber (str) {
+    if (typeof str === 'number') {
+        return str
+    }
+    if (typeof str !== 'string') {
+        return NaN
+    }
+    return parseFloat(str.replace(/[, ]/g, ''))
 }

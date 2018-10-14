@@ -25,10 +25,10 @@ export default {
         rowsPerPage: 20
       },
       columns: [
-        {name: 'name', label: 'Name', field: 'name', sortable: true, align: 'left'},
-        {name: 'todaysChange', label: 'Todays \'Change (%)', field: 'todaysChange', sortable: true, format: val => 100 * val},
-        {name: 'weight', label: 'Weight (%)', field: 'weight', sortable: true},
-        {name: 'currency', label: 'Currency', field: 'currency', sortable: true}
+        { name: 'name', label: 'Name', field: 'name', sortable: true, align: 'left' },
+        { name: 'todaysChange', label: 'Todays \'Change (%)', field: 'todaysChange', sortable: true, format: val => 100 * val },
+        { name: 'weight', label: 'Weight (%)', field: 'weight', sortable: true },
+        { name: 'currency', label: 'Currency', field: 'currency', sortable: true }
       ]
     }
   },

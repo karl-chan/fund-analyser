@@ -10,10 +10,10 @@ describe('FundDAO', function () {
     let fund, doc
     beforeAll(async () => {
         await db.init()
-        await FundDAO.deleteFunds({query: {isin: /test/}})
+        await FundDAO.deleteFunds({ query: { isin: /test/ } })
     })
     afterAll(async () => {
-        await FundDAO.deleteFunds({query: {isin: /test/}})
+        await FundDAO.deleteFunds({ query: { isin: /test/ } })
         await db.close()
     })
     beforeEach(function () {
@@ -29,11 +29,11 @@ describe('FundDAO', function () {
             .exitCharge(0)
             .holdings([new Fund.Holding('Test Holding', 'TEST', 0)])
             .historicPrices([new Fund.HistoricPrice(new Date(2017, 3, 23), 457.0)])
-            .returns({'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2})
+            .returns({ '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2 })
             .indicators({
                 stability: -3
             })
-            .realTimeDetails({estChange: 0.01})
+            .realTimeDetails({ estChange: 0.01 })
             .build()
         doc = {
             _id: 'SEDOL01',
@@ -57,12 +57,12 @@ describe('FundDAO', function () {
                 date: new Date(2017, 3, 23),
                 price: 457.0
             }],
-            returns: {'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2},
+            returns: { '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2 },
             asof: undefined,
             indicators: {
                 stability: -3
             },
-            realTimeDetails: {estChange: 0.01}
+            realTimeDetails: { estChange: 0.01 }
         }
     })
     test('fromFund should return plain object', function () {
@@ -78,44 +78,44 @@ describe('FundDAO', function () {
 
     test('listFunds', async () => {
         await FundDAO.upsertFunds([fund])
-        const funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        const funds = await FundDAO.listFunds({ query: { isin: fund.isin } })
         expect(funds).toBeArrayOfSize(1)
         expect(funds[0]).toEqual(fund)
 
-        const sedols = await FundDAO.listFunds({query: {isin: fund.isin}, projection: {_id: 0, sedol: 1}}, true)
+        const sedols = await FundDAO.listFunds({ query: { isin: fund.isin }, projection: { _id: 0, sedol: 1 } }, true)
         expect(sedols).toBeArrayOfSize(1)
         expect(sedols[0]).toContainAllKeys(['sedol']) // only 'sedol' and not other keys
     })
     test('upsertFunds', async () => {
         // insert fund
         await FundDAO.upsertFunds([fund])
-        let funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        let funds = await FundDAO.listFunds({ query: { isin: fund.isin } })
         expect(funds).toBeArrayOfSize(1)
         expect(funds[0]).toEqual(fund)
 
         // modify fund and upsert again
         fund.isin = 'test2'
         await FundDAO.upsertFunds([fund])
-        funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        funds = await FundDAO.listFunds({ query: { isin: fund.isin } })
         expect(funds).toBeArrayOfSize(1)
         expect(funds[0]).toHaveProperty('isin', 'test2')
     })
     test('deleteFunds', async () => {
         await FundDAO.upsertFunds([fund])
-        let funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        let funds = await FundDAO.listFunds({ query: { isin: fund.isin } })
         expect(funds).toBeArrayOfSize(1)
 
-        await FundDAO.deleteFunds({query: {isin: 'bad isin'}})
-        funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        await FundDAO.deleteFunds({ query: { isin: 'bad isin' } })
+        funds = await FundDAO.listFunds({ query: { isin: fund.isin } })
         expect(funds).toBeArrayOfSize(1)
 
-        await FundDAO.deleteFunds({query: {isin: fund.isin}})
-        funds = await FundDAO.listFunds({query: {isin: fund.isin}})
+        await FundDAO.deleteFunds({ query: { isin: fund.isin } })
+        funds = await FundDAO.listFunds({ query: { isin: fund.isin } })
         expect(funds).toBeArrayOfSize(0)
     })
     test('search should return relevant results', async () => {
         await FundDAO.upsertFunds([fund])
-        let funds = await FundDAO.search('test', {sedol: 1, isin: 1}, 1)
+        let funds = await FundDAO.search('test', { sedol: 1, isin: 1 }, 1)
         expect(funds).toBeArrayOfSize(1)
         expect(funds[0].sedol).toBe(fund.sedol)
         expect(funds[0].isin).toBe(fund.isin)

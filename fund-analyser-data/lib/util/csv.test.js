@@ -1,6 +1,5 @@
 const csv = require('./csv')
 const Fund = require('../fund/Fund')
-const StreamTest = require('streamtest')
 
 describe('csv', () => {
     let funds, headerFields, csvHeader, csvRow
@@ -16,7 +15,7 @@ describe('csv', () => {
                 .entryCharge(0.01)
                 .holdings([new Fund.Holding('Test Holding', 'TEST', 0)])
                 .historicPrices([new Fund.HistoricPrice(new Date(2017, 3, 23), 457.0)])
-                .returns({'5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2, '2W': -0.1, '1W': -0.05, '3D': -0.05, '1D': -0.05})
+                .returns({ '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2, '2W': -0.1, '1W': -0.05, '3D': -0.05, '1D': -0.05 })
                 .indicators({
                     stability: -3
                 })

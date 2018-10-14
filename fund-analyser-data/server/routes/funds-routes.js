@@ -16,8 +16,8 @@ const financialTimes = new FinancialTimes()
 router.get('/isins/:isins', async ctx => {
     const isins = ctx.params.isins.split(',')
     const options = {
-        query: {isin: {$in: isins}},
-        projection: {_id: 0}
+        query: { isin: { $in: isins } },
+        projection: { _id: 0 }
     }
     const funds = await FundDAO.listFunds(options)
     ctx.body = funds
@@ -26,7 +26,7 @@ router.get('/isins/:isins', async ctx => {
 router.get('/real-time-details/:isins', async ctx => {
     const isins = ctx.params.isins.split(',')
     const options = {
-        query: {isin: {$in: isins}}
+        query: { isin: { $in: isins } }
     }
     const funds = await FundDAO.listFunds(options)
     const realTimeDetailsPairs = await Promise.map(funds, async f => {
@@ -37,7 +37,7 @@ router.get('/real-time-details/:isins', async ctx => {
 
 router.get('/search/:searchText', async ctx => {
     const searchText = ctx.params.searchText
-    const projection = {_id: 0, isin: 1, sedol: 1, name: 1}
+    const projection = { _id: 0, isin: 1, sedol: 1, name: 1 }
     const limit = 25
     const searchResults = await FundDAO.search(searchText, projection, limit)
     ctx.body = searchResults
@@ -52,10 +52,10 @@ router.get('/summary', async ctx => {
 })
 
 router.post('/list', async ctx => {
-    const {isins, params} = ctx.request.body
-    const funds = fundCache.get(isins, {filterText: params.filterText})
-    const {asof, stats, totalFunds} = fundCache.getMetadata()
-    const {funds: window, lastRow} = agGridUtils.applyRequest(funds, params.agGridRequest)
+    const { isins, params } = ctx.request.body
+    const funds = fundCache.get(isins, { filterText: params.filterText })
+    const { asof, stats, totalFunds } = fundCache.getMetadata()
+    const { funds: window, lastRow } = agGridUtils.applyRequest(funds, params.agGridRequest)
     ctx.body = {
         funds: window,
         metadata: { lastRow, totalFunds, asof, stats }

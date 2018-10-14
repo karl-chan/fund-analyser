@@ -1,14 +1,35 @@
 <template lang="pug">
-  .relative-position
-    ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs"
-                :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked"
-                :getContextMenuItems="getContextMenuItems" :gridOptions="gridOptions"
-                :style="{height}" :gridAutoHeight="!height" :rowClicked="onRowSelected"
-                :cacheBlockSize="window")
+  .column.gutter-y-xs
+    // transclude title on the left
+    .row.justify-between.items-end.gutter-x-md
+      slot(name="title")
 
-    .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
-      // transclude empty view here
-      slot(name="empty-view")
+      // mini-toolbar (num up to date / refresh / csv export / statistics)
+      .row.items-center
+        div As of: {{ $utils.format.formatDateLong(asofDate) }}
+        q-btn(icon="info" color="primary" flat rounded dense)
+          q-tooltip
+            .q-subheading.q-mb-sm
+              <b>{{ pctUpToDate }}</b> up to date
+            div {{ numUpToDate }} out of {{ totalFunds }} funds
+        q-btn-group.q-ml-md
+          q-btn(color="tertiary" icon="refresh" @click="refresh")
+            q-tooltip Refresh data
+          q-btn(color="tertiary" icon="fas fa-file-excel" @click="exportCsv")
+            q-tooltip Export to CSV
+          q-btn(color="tertiary" :icon="showStatMode <= 1 ? 'expand_more' : 'expand_less'" @click="toggleStatMode")
+            q-tooltip {{ showStatMode <= 1 ? 'Show' : 'Hide' }} statistics
+
+    .relative-position
+      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs"
+                  :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked"
+                  :getContextMenuItems="getContextMenuItems" :gridOptions="gridOptions"
+                  :style="{height}" :gridAutoHeight="!height" :rowClicked="onRowSelected"
+                  :cacheBlockSize="window")
+
+      .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
+        // transclude empty view here
+        slot(name="empty-view")
 
 </template>
 
@@ -27,7 +48,6 @@ export default {
     height: String, // null for autoheight
     window: { type: Number, default: 200 },
     filterText: { type: String, default: '' },
-    showStatMode: { type: Number, validator: value => [0, 1, 2].includes(value) },
     highlightIsin: String
   },
   data () {
@@ -35,10 +55,14 @@ export default {
       funds: [],
       stats: {},
       showEmptyView: false,
+      asofDate: null,
+      numUpToDate: 0,
+      totalFunds: 0,
+      showStatMode: 0, // hidden
       columnDefs: [
-        { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated },
-        { headerName: 'ISIN', field: 'isin', width: 120 },
-        { headerName: 'Name', field: 'name', width: 180, tooltipField: 'name' },
+        { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated, pinned: 'left' },
+        { headerName: 'ISIN', field: 'isin', width: 120, pinned: 'left' },
+        { headerName: 'Name', field: 'name', width: 180, tooltipField: 'name', pinned: 'left' },
         { headerName: 'Returns',
           marryChildren: true,
           children: extendedPeriods.map(period => ({
@@ -79,10 +103,30 @@ export default {
         enableRangeSelection: true,
         suppressLoadingOverlay: true,
         suppressNoRowsOverlay: true,
-        toolPanelSuppressSideButtons: true,
-        toolPanelSuppressPivotMode: true,
-        toolPanelSuppressRowGroups: true,
-        toolPanelSuppressValues: true,
+        sideBar: {
+          toolPanels: [
+            {
+              id: 'columns',
+              labelDefault: 'Columns',
+              labelKey: 'columns',
+              iconKey: 'columns',
+              toolPanel: 'agColumnsToolPanel',
+              toolPanelParams: {
+                suppressRowGroups: true,
+                suppressValues: true,
+                suppressPivots: true,
+                suppressPivotMode: true
+              }
+            },
+            {
+              id: 'filters',
+              labelDefault: 'Filters',
+              labelKey: 'filters',
+              iconKey: 'filter',
+              toolPanel: 'agFiltersToolPanel'
+            }
+          ]
+        },
         rowSelection: 'multiple',
         popupParent: document.body,
         rowModelType: 'serverSide',
@@ -95,10 +139,6 @@ export default {
             const pinnedClasses = ['text-bold', 'bg-dark', 'text-white']
             classes = [...classes, ...pinnedClasses]
           }
-          if (params.data && params.data.isin === params.context.highlightIsin && !params.context.isRowPinned(params)) {
-            const highlightClasses = ['bg-yellow']
-            classes = [...classes, ...highlightClasses]
-          }
           return classes
         }
       }
@@ -110,7 +150,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('account', ['watchlist'])
+    ...mapState('account', ['watchlist']),
+    pctUpToDate: function () {
+      return this.$utils.format.formatPercentage(this.numUpToDate / this.totalFunds, '0%')
+    }
   },
   methods: {
     ...mapActions('account', ['addToWatchlist', 'removeFromWatchlist']),
@@ -121,7 +164,9 @@ export default {
     onRowsChanged (metadata) {
       this.showEmptyView = !metadata.lastRow > 0
       this.stats = metadata.stats
-      this.$emit('rowsChanged', metadata)
+      this.asofDate = metadata.asof.date
+      this.numUpToDate = metadata.asof.numUpToDate
+      this.totalFunds = metadata.totalFunds
     },
     onRowSelected (params) {
       this.$emit('rowSelected', params)
@@ -131,7 +176,7 @@ export default {
       if (notApplicable) {
         return
       }
-      this.$utils.router.redirectToFund(params.data.isin, {newTab: true})
+      this.$utils.router.redirectToFund(params.data.isin, { newTab: true })
     },
     getContextMenuItems (params) {
       let contextMenu = params.defaultItems
@@ -189,23 +234,23 @@ export default {
         if (colourFields.has(colDef.field)) {
           colDef.cellStyle = this.colourCellStyler
           colDef.filter = 'agNumberColumnFilter'
-          colDef.filterParams = {newRowsAction: 'keep', apply: true}
+          colDef.filterParams = { newRowsAction: 'keep', apply: true }
         }
         if (percentFields.has(colDef.field)) {
           colDef.valueFormatter = this.percentFormatter
           colDef.comparator = this.numberComparator
           colDef.filter = 'agNumberColumnFilter'
-          colDef.filterParams = {newRowsAction: 'keep', apply: true}
+          colDef.filterParams = { newRowsAction: 'keep', apply: true }
         }
         if (numberFields.has(colDef.field)) {
           colDef.valueFormatter = this.numberFormatter
           colDef.comparator = this.numberComparator
           colDef.filter = 'agNumberColumnFilter'
-          colDef.filterParams = {newRowsAction: 'keep', apply: true}
+          colDef.filterParams = { newRowsAction: 'keep', apply: true }
         }
         if (dateFields.has(colDef.field)) {
           colDef.filter = 'agDateColumnFilter'
-          colDef.filterParams = {newRowsAction: 'keep', apply: true}
+          colDef.filterParams = { newRowsAction: 'keep', apply: true }
         }
         colDef.headerTooltip = colDef.headerName
       }
@@ -250,18 +295,18 @@ export default {
         switch (this.showStatMode) {
           case 1:
             pinnedRows = [
-              {isin: 'Max', ...max},
-              {isin: 'Median', ...median},
-              {isin: 'Min', ...min}
+              { isin: 'Max', ...max },
+              { isin: 'Median', ...median },
+              { isin: 'Min', ...min }
             ]
             break
           case 2:
             pinnedRows = [
-              {isin: 'Max', ...max},
-              {isin: 'Q3', ...q3},
-              {isin: 'Median', ...median},
-              {isin: 'Q1', ...q1},
-              {isin: 'Min', ...min}
+              { isin: 'Max', ...max },
+              { isin: 'Q3', ...q3 },
+              { isin: 'Median', ...median },
+              { isin: 'Q1', ...q1 },
+              { isin: 'Min', ...min }
             ]
             break
         }
@@ -276,7 +321,7 @@ export default {
       this.gridOptions.api.setServerSideDatasource({
         getRows: async params => {
           try {
-            const {funds, metadata} = await self.$services.fund.list(this.isins, {
+            const { funds, metadata } = await self.$services.fund.list(this.isins, {
               agGridRequest: params.request,
               filterText: this.filterText
             })
@@ -295,6 +340,7 @@ export default {
       })
     },
     refresh () {
+      this.resetFilters()
       this.initDataSource()
     },
     exportCsv () {
@@ -324,6 +370,9 @@ export default {
         shouldRowBeSkipped: this.isRowPinned
       }
       this.gridOptions.api.exportDataAsCsv(params)
+    },
+    toggleStatMode () {
+      this.showStatMode = (this.showStatMode + 1) % 3
     }
   },
   watch: {
@@ -340,7 +389,9 @@ export default {
       this.initDataSource()
     },
     highlightIsin: function (isin) {
-      this.gridOptions.api.redrawRows()
+      this.gridOptions.api.forEachNode(node => {
+        node.setSelected(node.data.isin === isin)
+      })
     }
   }
 }

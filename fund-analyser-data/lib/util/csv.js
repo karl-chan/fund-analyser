@@ -1,8 +1,6 @@
 const json2csv = require('json2csv')
-const stream = require('stream')
 const _ = require('lodash')
 const CsvConverter = json2csv.Parser
-const CsvStreamer = json2csv.Transform
 
 const math = require('./math')
 const properties = require('../util/properties')

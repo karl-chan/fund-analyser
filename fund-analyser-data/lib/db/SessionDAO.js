@@ -27,13 +27,13 @@ function SessionDAO (entry) {
 }
 
 SessionDAO.serialise = function (data, sessionId) {
-    const entry = {...data, sessionId}
+    const entry = { ...data, sessionId }
     return new SessionDAO(entry)
 }
 
 SessionDAO.deserialise = function (entry) {
-    const {sessionId, ...data} = entry
-    return {data, sessionId}
+    const { sessionId, ...data } = entry
+    return { data, sessionId }
 }
 
 SessionDAO.upsertSession = async function (data, sessionId) {
@@ -51,7 +51,7 @@ SessionDAO.findSession = async function (sessionId) {
     const entry = await db.getSessions().findOne(query)
     log.debug('Retrieved session from database')
     if (entry) {
-        const {data} = SessionDAO.deserialise(entry)
+        const { data } = SessionDAO.deserialise(entry)
         return data
     }
     return null

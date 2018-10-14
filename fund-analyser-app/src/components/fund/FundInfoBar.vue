@@ -38,7 +38,7 @@ export default {
   props: ['fund'],
   computed: {
     lastHistoricPrice: function () {
-      return this.fund.historicPrices[this.fund.historicPrices.length - 1] || {date: undefined, price: undefined}
+      return this.fund.historicPrices[this.fund.historicPrices.length - 1] || { date: undefined, price: undefined }
     },
     numDaysOutdated: function () {
       return (this.fund && this.$utils.date.diffBusinessDays(new Date(), this.fund.asof)) ||

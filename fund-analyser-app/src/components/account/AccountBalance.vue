@@ -1,20 +1,19 @@
 <template lang="pug">
-  .column.gutter-y-sm
-    .q-display-1.text-grey
-      template(v-if="user") Hello {{user}}
-      template(v-else) Hello guest, you are not logged in!
-    div(v-if="balance")
-      .row.gutter-lg
-        div Portfolio: £{{balance.portfolio}}
-        div Cash: £{{balance.cash}}
-        div Total Value: £{{balance.totalValue}}
-      div You have {{balance.holdings.length}} holdings:
+  .column.gutter-y-xs
+    .row.justify-between
+      .column
+        .row.gutter-lg
+          div Portfolio: £{{balance.portfolio}}
+          div Cash: £{{balance.cash}}
+          div Total Value: £{{balance.totalValue}}
+        div You have {{balance.holdings.length}} holdings:
+      slot(name="toolbar")
 
-      .relative-position
-        ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="holdings || []"
-                  :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked" :gridOptions="gridOptions")
-        .absolute-top-left.light-dimmed.fit(v-if="!holdings || !holdings.length")
-          q-chip.absolute-center.shadow-5(square detail icon="info" color="secondary") Nothing to show
+    .relative-position
+      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="holdings || []"
+                :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked" :gridOptions="gridOptions")
+      .absolute-top-left.light-dimmed.fit(v-if="!holdings || !holdings.length")
+        q-chip.absolute-center.shadow-5(square detail icon="info" color="secondary") Nothing to show
 
 </template>
 
@@ -23,7 +22,7 @@ import { mapGetters } from 'vuex'
 
 export default {
   name: 'AccountBalance',
-  props: ['user', 'balance'],
+  props: ['balance'],
   data () {
     return {
       columnDefs: [
@@ -52,7 +51,7 @@ export default {
         enableFilter: true,
         enableRangeSelection: true,
         enableSorting: true,
-        gridAutoHeight: true,
+        domLayout: 'autoHeight',
         popupParent: document.body,
         suppressLoadingOverlay: true,
         suppressNoRowsOverlay: true,
@@ -84,7 +83,7 @@ export default {
       this.updateColDefs(params)
     },
     onRowDoubleClicked (params) {
-      this.$utils.router.redirectToFund(params.data.ISIN, {newTab: true})
+      this.$utils.router.redirectToFund(params.data.ISIN, { newTab: true })
     },
     percentFormatter (params, fallbackValue) {
       return this.$utils.format.formatPercentage(params.value, true, fallbackValue)

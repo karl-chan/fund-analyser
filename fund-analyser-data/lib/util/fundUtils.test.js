@@ -37,6 +37,31 @@ describe('fundUtils', () => {
         })
     })
 
+    describe('closestRecordBeforeDate', () => {
+        const historicPrices = [
+            new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 12), 482.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 13), 479.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 18), 475.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 19), 467.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 20), 468.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
+        ]
+        test('should return exact date', () => {
+            expect(fundUtils.closestRecordBeforeDate(new Date(2017, 3, 10), historicPrices)).toEqual(new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0))
+            expect(fundUtils.closestRecordBeforeDate(new Date(2017, 3, 11), historicPrices)).toEqual(new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0))
+            expect(fundUtils.closestRecordBeforeDate(new Date(2017, 3, 18), historicPrices)).toEqual(new Fund.HistoricPrice(new Date(2017, 3, 18), 475.0))
+            expect(fundUtils.closestRecordBeforeDate(new Date(2017, 3, 24), historicPrices)).toEqual(new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0))
+        })
+        test('should return before date', () => {
+            expect(fundUtils.closestRecordBeforeDate(new Date(2017, 3, 14), historicPrices)).toEqual(new Fund.HistoricPrice(new Date(2017, 3, 13), 479.0))
+            expect(fundUtils.closestRecordBeforeDate(new Date(2017, 3, 17), historicPrices)).toEqual(new Fund.HistoricPrice(new Date(2017, 3, 13), 479.0))
+            expect(fundUtils.closestRecordBeforeDate(new Date(2017, 3, 25), historicPrices)).toEqual(new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0))
+        })
+    })
+
     describe('enrichReturns', () => {
         const additionalLookbacks = ['2W', '1W', '3D', '1D']
         const returns = { '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2 }
@@ -72,24 +97,24 @@ describe('fundUtils', () => {
             Fund.Builder('Fund1')
                 .ocf(0.07)
                 .entryCharge(0.02)
-                .returns({'5Y': 0.3})
-                .indicators({stability: 1})
+                .returns({ '5Y': 0.3 })
+                .indicators({ stability: 1 })
                 .asof(new Date(2001, 0, 1))
                 .build(),
             Fund.Builder('Fund2')
                 .amc(0.04)
                 .entryCharge(0.02)
-                .returns({'5Y': 0.1})
-                .indicators({stability: 2})
+                .returns({ '5Y': 0.1 })
+                .indicators({ stability: 2 })
                 .asof(new Date(2001, 0, 2))
                 .build()
         ]
         test('should calc correct stats', () => {
-            const {max, min, median} = fundUtils.calcStats(funds)
+            const { max, min, median } = fundUtils.calcStats(funds)
             expect(max).not.toHaveProperty('isin')
-            expect(max).toMatchObject({'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': undefined, 'returns': {'5Y': 0.3}, 'indicators': {'stability': 2}, 'asof': new Date(2001, 0, 2)})
-            expect(min).toMatchObject({'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': undefined, 'returns': {'5Y': 0.1}, 'indicators': {'stability': 1}, 'asof': new Date(2001, 0, 1)})
-            expect(median).toMatchObject({'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': NaN, 'returns': {'5Y': 0.2}, 'indicators': {'stability': 1.5}, 'asof': NaN})
+            expect(max).toMatchObject({ 'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': undefined, 'returns': { '5Y': 0.3 }, 'indicators': { 'stability': 2 }, 'asof': new Date(2001, 0, 2) })
+            expect(min).toMatchObject({ 'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': undefined, 'returns': { '5Y': 0.1 }, 'indicators': { 'stability': 1 }, 'asof': new Date(2001, 0, 1) })
+            expect(median).toMatchObject({ 'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': NaN, 'returns': { '5Y': 0.2 }, 'indicators': { 'stability': 1.5 }, 'asof': NaN })
         })
     })
 

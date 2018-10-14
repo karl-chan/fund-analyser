@@ -8,7 +8,7 @@ const moment = require('moment')
 
 const appName = properties.get('heroku.app.name')
 const token = properties.get('heroku.api.token')
-const client = new Heroku({token})
+const client = new Heroku({ token })
 const http = new Http()
 
 const WORKER_DYNO = 'worker'
@@ -21,7 +21,7 @@ async function getLogs (dyno = WORKER_DYNO) {
         }
     })
     const url = res.logplex_url
-    const {body} = await http.asyncGet(url)
+    const { body } = await http.asyncGet(url)
     return body
 }
 

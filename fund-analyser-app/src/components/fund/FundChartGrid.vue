@@ -1,11 +1,10 @@
 <template lang="pug">
   div
     .row(v-if="funds" v-for="y in rows")
-      .col(v-for="x in cols" :class="background(x, y)")
-        fund-chart(v-show="withinBounds(x, y)" :fund="getFundAt(x, y)"
-                   style="cursor: pointer"
-                   @mouseenter.native="hover(x, y, true)"
-                   @mouseleave.native="hover(x, y, false)"
+      .col(v-for="x in cols")
+        fund-chart.chart(v-show="withinBounds(x, y)" :fund="getFundAt(x, y)"
+                   :class="{selected: isSelected(x, y)}"
+                   @click.native="selectFundAt(x, y)"
                    @dblclick.native="openFundPage(x, y)")
 </template>
 
@@ -35,20 +34,16 @@ export default {
     getFundAt (x, y) {
       return this.withinBounds(x, y) ? this.funds[this.indexAt(x, y)] : undefined
     },
-    hover (x, y, isMouseOver) {
-      const fund = this.getFundAt(x, y)
-      this.selectedFund = isMouseOver ? fund : undefined
+    selectFundAt (x, y) {
+      this.selectedFund = this.getFundAt(x, y)
     },
-    background (x, y) {
-      const fund = this.getFundAt(x, y)
-      if (fund && fund === this.selectedFund) {
-        return 'bg-yellow'
-      }
+    isSelected (x, y) {
+      return this.getFundAt(x, y) === this.selectedFund
     },
     openFundPage (x, y) {
       const fund = this.getFundAt(x, y)
       if (fund) {
-        this.$utils.router.redirectToFund(fund.isin, {newTab: true})
+        this.$utils.router.redirectToFund(fund.isin, { newTab: true })
       }
     }
   },
@@ -62,3 +57,10 @@ export default {
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+.chart
+  cursor pointer
+  &:hover, &.selected
+    background-color gold
+</style>

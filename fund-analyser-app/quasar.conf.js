@@ -13,8 +13,8 @@ module.exports = function (ctx) {
     ],
     css: [
       'app.styl',
-      '../../node_modules/ag-grid/dist/styles/ag-grid.css',
-      '../../node_modules/ag-grid/dist/styles/ag-theme-balham.css'
+      '../../node_modules/ag-grid-community/dist/styles/ag-grid.css',
+      '../../node_modules/ag-grid-community/dist/styles/ag-theme-balham.css'
     ],
     extras: [
       ctx.theme.mat ? 'roboto-font' : null,
@@ -99,13 +99,19 @@ module.exports = function (ctx) {
         'QTabs',
         'QTab',
         'QTabPane',
+        'QTree',
         'QSpinner',
         'QSpinnerFacebook',
+        'QSlideTransition',
         'QAjaxBar'
       ],
       directives: [
         'Ripple',
         'CloseOverlay'
+      ],
+      plugins: [
+        'Dialog',
+        'Notify'
       ]
     },
     // animations: 'all' --- includes all animations

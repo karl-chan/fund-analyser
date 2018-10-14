@@ -14,6 +14,6 @@ export default {
     return apiService.get(`/funds/search/${searchText}`)
   },
   list (isins, params) {
-    return apiService.post('/funds/list', {isins, params})
+    return apiService.post('/funds/list', { isins, params })
   }
 }

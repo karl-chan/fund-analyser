@@ -40,7 +40,7 @@ class CharlesStanleyDirect {
 
     async getNumPages () {
         const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?Category=Funds&Pagesize=${this.pageSize}`
-        const {body} = await http.asyncGet(url)
+        const { body } = await http.asyncGet(url)
 
         const $ = cheerio.load(body)
         const lastPage = parseInt($('#search-results-top > p > em:last-child').text())
@@ -50,7 +50,7 @@ class CharlesStanleyDirect {
 
     async getSedolsFromPage (page) {
         const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?sortdirection=ASC&SearchType=KeywordSearch&Category=Funds&SortColumn=TER&SortDirection=DESC&Pagesize=${this.pageSize}&Page=${page}`
-        const {body} = await http.asyncGet(url)
+        const { body } = await http.asyncGet(url)
 
         const $ = cheerio.load(body)
         const sedols = $('#funds-table').find('tbody td:nth-child(3)').map((i, td) => $(td).text().trim()).get()
@@ -69,7 +69,7 @@ class CharlesStanleyDirect {
      */
     async getFundFromSedol (sedol) {
         const url = `https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=${sedol}`
-        const {body} = await http.asyncGet(url)
+        const { body } = await http.asyncGet(url)
 
         const $ = cheerio.load(body)
         const isinRegex = /[A-Z0-9]{12}/
@@ -131,7 +131,7 @@ class CharlesStanleyDirect {
      */
     async healthCheck () {
         const url = `https://www.charles-stanley-direct.co.uk`
-        const {body} = await http.asyncGet(url)
+        const { body } = await http.asyncGet(url)
         const isDown = body.toLowerCase().includes('unavailable')
         return !isDown
     }

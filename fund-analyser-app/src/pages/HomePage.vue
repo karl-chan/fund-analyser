@@ -8,7 +8,7 @@
 
       // Account View
       q-tab-pane.gutter-y-md(keep-alive name="account")
-        account-balance(:user="user" :balance="balance")
+        account-view(:user="user" :balance="balance" :statement="statement")
         fund-watch-list(:watchlist="watchlist")
 
       // Summary View
@@ -21,10 +21,7 @@ import { mapState, mapActions } from 'vuex'
 export default {
   name: 'HomePage',
   computed: {
-    ...mapState('account', ['watchlist']),
-    ...mapState('account', {
-      balance: state => state.charlesStanleyDirect.balance
-    }),
+    ...mapState('account', ['balance', 'statement', 'watchlist']),
     ...mapState('auth', ['user']),
     ...mapState('funds', ['favouriteIsins']),
     watchedFunds: function () {
@@ -32,21 +29,21 @@ export default {
     }
   },
   methods: {
-    ...mapActions('funds', ['gets'])
+    ...mapActions('funds', ['lazyGets'])
   },
   watch: {
     balance: {
       immediate: true,
       handler (newBalance) {
         const isins = this.$utils.account.getIsins(newBalance)
-        this.gets(isins)
+        this.lazyGets(isins)
       }
     },
     watchlist: {
       immediate: true,
       handler (newWatchlist, oldWatchlist) {
         if (newWatchlist && newWatchlist !== oldWatchlist) {
-          this.gets(newWatchlist)
+          this.lazyGets(newWatchlist)
         }
       }
     }

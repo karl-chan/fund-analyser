@@ -10,8 +10,10 @@ const moment = require('moment')
 const FundDAO = require('../../lib/db/FundDAO')
 const log = require('../../lib/util/log')
 const fundUtils = require('../../lib/util/fundUtils')
+const tmp = require('../../lib/util/tmp')
 
 const REFRESH_INTERVAL = moment.duration(15, 'minutes')
+const FILE_TMP_CACHE = 'fundCache'
 
 let fundCache = []
 let quickFilterCache = []
@@ -23,12 +25,10 @@ async function refresh () {
         projection: { _id: 0, historicPrices: 0 }
     }
     log.info('Refreshing fund cache...')
-    fundCache = await FundDAO.listFunds(options, true)
-    fundCache = fundUtils.enrichSummary(fundCache)
-    quickFilterCache = buildQuickFilterCache(fundCache)
-    log.info('Fund cache refreshed.')
-
+    fundCache = await FundDAO.listFunds(options)
     refreshMetadata()
+    saveToFile() // don't await to speed up 500ms
+    log.info('Fund cache refreshed.')
 }
 
 function get (isins, options) {
@@ -39,7 +39,7 @@ function get (isins, options) {
             : fundCache)
 
     if (options) {
-        const {filterText} = options
+        const { filterText } = options
         if (filterText && filterText.trim()) {
             funds = []
             for (let [i, cache] of quickFilterCache.entries()) {
@@ -58,9 +58,19 @@ function getMetadata () {
     return metadata
 }
 
-async function start () {
+async function start (clean) {
     log.info('Warming up fund cache.')
-    await refresh()
+    if (clean) {
+        // clean boot
+        await refresh()
+    } else {
+        // try load from cache
+        try {
+            await loadFromFile()
+        } catch (err) {
+            await refresh()
+        }
+    }
     refreshTask = setInterval(refresh, REFRESH_INTERVAL.asMilliseconds())
 }
 
@@ -85,6 +95,9 @@ function buildQuickFilterCache (funds) {
 }
 
 function refreshMetadata () {
+    fundCache = fundUtils.enrichSummary(fundCache)
+    quickFilterCache = buildQuickFilterCache(fundCache)
+
     const asofDate = _.max(fundCache.map(f => f.asof))
     const asof = {
         date: asofDate,
@@ -92,11 +105,26 @@ function refreshMetadata () {
     }
     const stats = fundUtils.calcStats(fundCache)
     const totalFunds = fundCache.length
-    metadata = {asof, stats, totalFunds}
+    metadata = { asof, stats, totalFunds }
 }
 
 function checkRunning () {
     if (!refreshTask) {
         throw new Error('Fund cache not started yet! Call fundCache.start() before querying cache!')
     }
+}
+
+async function loadFromFile () {
+    ({ fundCache, quickFilterCache, metadata } = await tmp.read(FILE_TMP_CACHE))
+    for (let row of fundCache) {
+        row.asof = new Date(row.asof)
+    }
+    metadata.asof.date = new Date(metadata.asof.date)
+    log.info('Fund cache loaded from file.')
+}
+
+async function saveToFile () {
+    const bundle = { fundCache, quickFilterCache, metadata }
+    await tmp.write(FILE_TMP_CACHE, bundle, REFRESH_INTERVAL.asSeconds())
+    log.info('Fund cache saved to file.')
 }

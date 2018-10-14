@@ -12,7 +12,7 @@ const log = require('../../lib/util/log')
  * @returns {Promise.<void>}
  */
 async function updateCatalog () {
-    const docs = await FundDAO.listFunds({projection: {sedol: 1, asof: 1}})
+    const docs = await FundDAO.listFunds({ projection: { sedol: 1, asof: 1 } })
     const sedolToDoc = _.keyBy(docs, 'sedol')
     const oldSedols = Object.keys(sedolToDoc)
     log.info('%d sedols found in database', oldSedols.length)
@@ -29,7 +29,7 @@ async function updateCatalog () {
     log.info(`To add: %s`, JSON.stringify(toAdd))
 
     // delete old sedols
-    await FundDAO.deleteFunds({query: {sedol: {$in: toRemove}}})
+    await FundDAO.deleteFunds({ query: { sedol: { $in: toRemove } } })
     log.info('Deleted old sedols: %s', JSON.stringify(toRemove))
 
     // insert new sedols with time 1970

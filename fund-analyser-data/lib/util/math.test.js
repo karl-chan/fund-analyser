@@ -44,4 +44,20 @@ describe('math', () => {
             expect(math.minIndex(1)).toBe(-1)
         })
     })
+
+    describe('roughEquals', () => {
+        test('should throw error for invalid input', () => {
+            expect(() => math.roughEquals('a', 'a')).toThrowError()
+        })
+        test('should return true if falls within percent tolerance', () => {
+            expect(math.roughEquals(1, 1.01, 1)).toBeTrue()
+            expect(math.roughEquals(1, 1.001, 0.1)).toBeTrue()
+            expect(math.roughEquals(1, 1.001)).toBeTrue()
+        })
+        test('should return false if difference exceeds percent tolerance', () => {
+            expect(math.roughEquals(1, 1.02, 1)).toBeFalse()
+            expect(math.roughEquals(1, 1.002, 0.1)).toBeFalse()
+            expect(math.roughEquals(1, 1.002)).toBeFalse()
+        })
+    })
 })

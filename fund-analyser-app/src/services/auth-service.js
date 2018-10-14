@@ -14,6 +14,6 @@ export default {
     return apiService.get('/auth/sessions')
   },
   destroySession (encryptedId) {
-    return apiService.delete('/auth/session', { params: {encryptedId} })
+    return apiService.delete('/auth/session', { params: { encryptedId } })
   }
 }

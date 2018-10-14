@@ -13,7 +13,7 @@ describe('Http', () => {
         expect(res.body).toBeString().not.toBeEmpty()
     })
     test('asyncGet with options', async () => {
-        const res = await http.asyncGet('http://www.duckduckgo.com', {qs: {q: 'hello'}})
+        const res = await http.asyncGet('http://www.duckduckgo.com', { qs: { q: 'hello' } })
         expect(res).toHaveProperty('statusCode', 200)
         expect(res.body).toBeString().not.toBeEmpty()
     })

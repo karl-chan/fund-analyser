@@ -4,18 +4,6 @@ const Promise = require('bluebird')
 
 describe('streamWraper', () => {
     const version = 'v2'
-    test('asFilter', (done) => {
-        const isEven = (x, callback) => callback(null, x % 2 === 0)
-        const filterFn = streamWrapper.asFilter(isEven)
-
-        StreamTest[version].fromObjects([1, 2, 3, 4, 5, 6])
-            .pipe(filterFn)
-            .pipe(StreamTest[version].toObjects((err, output) => {
-                expect(err).toBeNull()
-                expect(output).toEqual([2, 4, 6])
-                done()
-            }))
-    })
     test('asReadableAsync', (done) => {
         const source = async (x) => [1, 2, 3, 4, 5]
         const readableStream = streamWrapper.asReadableAsync(source)

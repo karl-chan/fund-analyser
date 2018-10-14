@@ -7,7 +7,7 @@ const router = new Router({
 })
 
 router.get('/list', async ctx => {
-    const {pairs} = ctx.request.query
+    const { pairs } = ctx.request.query
     const currenciesMap = await CurrencyDAO.listCurrencies(pairs.trim().split(','))
     ctx.body = currenciesMap
 })

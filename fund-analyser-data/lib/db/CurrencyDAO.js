@@ -28,7 +28,7 @@ async function listCurrencies (currencyPairs) {
 
     const requiredQuoteCurrencies = _.uniq(_.flatten(baseQuotePairs)).filter(c => c !== HOME_CURRENCY)
     const query = {
-        quote: {$in: requiredQuoteCurrencies}
+        quote: { $in: requiredQuoteCurrencies }
     }
     const currencies = await db.getCurrencies().find(query).toArray()
     const currenciesByQuote = _.keyBy(currencies, c => c.quote)
@@ -69,7 +69,7 @@ async function upsertCurrency (currency) {
         quote: currency.quote
     }
     const doc = fromCurrency(currency)
-    const res = await db.getCurrencies().replaceOne(query, doc, {upsert: true})
+    const res = await db.getCurrencies().replaceOne(query, doc, { upsert: true })
     return res
 }
 

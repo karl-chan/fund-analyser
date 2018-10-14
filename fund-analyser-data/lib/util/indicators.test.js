@@ -67,16 +67,16 @@ describe('indicators', () => {
     describe('calcReturns', () => {
         test('should return nulls if exceeds range', () => {
             expect(indicators.calcReturns([])).toEqual({
-                '5Y': {max: null, min: null},
-                '3Y': {max: null, min: null},
-                '1Y': {max: null, min: null},
-                '6M': {max: null, min: null},
-                '3M': {max: null, min: null},
-                '1M': {max: null, min: null},
-                '2W': {max: null, min: null},
-                '1W': {max: null, min: null},
-                '3D': {max: null, min: null},
-                '1D': {max: null, min: null}
+                '5Y': { max: null, min: null },
+                '3Y': { max: null, min: null },
+                '1Y': { max: null, min: null },
+                '6M': { max: null, min: null },
+                '3M': { max: null, min: null },
+                '1M': { max: null, min: null },
+                '2W': { max: null, min: null },
+                '1W': { max: null, min: null },
+                '3D': { max: null, min: null },
+                '1D': { max: null, min: null }
             })
         })
         test('should calculate correct results', () => {

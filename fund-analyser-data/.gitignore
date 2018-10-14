@@ -4,5 +4,4 @@ coverage
 node_modules
 *.csv
 npm-debug.log*
-switch.bat
 push.bat

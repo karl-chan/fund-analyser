@@ -89,7 +89,7 @@ class FinancialTimes {
 
     async getSummary (isin) {
         const url = `https://markets.ft.com/data/funds/tearsheet/summary?s=${isin}`
-        const {body} = await http.asyncGet(url)
+        const { body } = await http.asyncGet(url)
 
         const $ = cheerio.load(body)
         const name = $(`body > div.o-grid-container.mod-container > div:nth-child(2) > section:nth-child(1) 
@@ -122,7 +122,7 @@ class FinancialTimes {
 
     async getPerformance (isin) {
         const url = `https://markets.ft.com/data/funds/tearsheet/performance?s=${isin}`
-        const {body} = await http.asyncGet(url)
+        const { body } = await http.asyncGet(url)
 
         const $ = cheerio.load(body)
         const returns = $(`body > div.o-grid-container.mod-container > div:nth-child(3) 
@@ -150,7 +150,7 @@ class FinancialTimes {
 
     async getHistoricPrices (isin) {
         let url = `https://markets.ft.com/data/funds/tearsheet/charts?s=${isin}`
-        let {body} = await http.asyncGet(url)
+        let { body } = await http.asyncGet(url)
 
         const $ = cheerio.load(body)
 
@@ -167,7 +167,7 @@ class FinancialTimes {
 
         const url2 = `https://markets.ft.com/data/chartapi/series`
 
-        const {body: body2} = await http.asyncPost(url2, {
+        const { body: body2 } = await http.asyncPost(url2, {
             headers: {
                 'content-type': 'application/json'
             },
@@ -201,7 +201,7 @@ class FinancialTimes {
 
     async getHoldings (isin) {
         const url = `https://markets.ft.com/data/funds/tearsheet/holdings?s=${isin}`
-        const {body} = await http.asyncGet(url)
+        const { body } = await http.asyncGet(url)
 
         const $ = cheerio.load(body)
         const table = $(`body > div.o-grid-container.mod-container > div:nth-child(3) > section 
@@ -223,7 +223,7 @@ class FinancialTimes {
         const getTodaysChange = async holdingTicker => {
             const url = `https://markets.ft.com/data/equities/tearsheet/summary?s=${holdingTicker}`
 
-            const {body} = await http.asyncGet(url)
+            const { body } = await http.asyncGet(url)
             const $ = cheerio.load(body)
             let currency, todaysChange
             try {
@@ -241,12 +241,12 @@ class FinancialTimes {
             } catch (err) {
                 log.warn('Todays change failed for: %s. Cause: %s', holdingTicker, err.stack)
             }
-            return {currency, todaysChange}
+            return { currency, todaysChange }
         }
 
         const enrichedHoldings = await Promise.map(fund.holdings, async h => {
-            const {currency, todaysChange} = h.symbol ? await getTodaysChange(h.symbol) : {currency: null, todaysChange: null}
-            return {name: h.name, ticker: h.symbol, currency, todaysChange, weight: h.weight}
+            const { currency, todaysChange } = h.symbol ? await getTodaysChange(h.symbol) : { currency: null, todaysChange: null }
+            return { name: h.name, ticker: h.symbol, currency, todaysChange, weight: h.weight }
         })
 
         const realTimeDetails = { holdings: enrichedHoldings, lastUpdated: new Date() }
@@ -256,7 +256,7 @@ class FinancialTimes {
     async listCurrencies () {
         const url = 'https://markets.ft.com/data/currencies'
 
-        const {body} = await http.asyncGet(url)
+        const { body } = await http.asyncGet(url)
         const $ = cheerio.load(body)
         const currencyOptions = $('form.mod-currency-selector__controls select:nth-of-type(1)').find('option')
         const currencies = _.sortedUniq(currencyOptions

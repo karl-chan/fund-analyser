@@ -9,7 +9,6 @@ describe('fundCache', () => {
     })
     afterAll(async () => {
         await db.close()
-        fundCache.shutdown()
     })
     describe('before cache is populated', () => {
         test('cache should throw error on access', () => {
@@ -17,18 +16,27 @@ describe('fundCache', () => {
         })
     })
 
-    describe('after cache is populated', () => {
+    describe.each([true, false])('after cache is populated from clean boot: %s', (clean) => {
         beforeAll(async () => {
-            await fundCache.start()
+            await fundCache.start(clean)
+        })
+        afterAll(async () => {
+            fundCache.shutdown()
         })
         test('cache should be loaded after a short moment', () => {
             const funds = fundCache.get()
             expect(funds).toBeArray()
             expect(funds.length).toBeGreaterThan(3000)
         })
+        test('cache should perform isin match', () => {
+            const isin = 'GB0006061963'
+            const funds = fundCache.get([isin])
+            expect(funds).toBeArrayOfSize(1)
+            expect(funds[0]).toHaveProperty('isin', isin)
+        })
         test('cache filter should perform substring match', () => {
             const filterText = 'Baillie Gifford American Fund B'
-            const funds = fundCache.get(undefined, {filterText})
+            const funds = fundCache.get(undefined, { filterText })
             expect(funds)
                 .not.toBeEmpty()
                 .toSatisfyAll(f => f.name.includes(filterText))

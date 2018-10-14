@@ -40,11 +40,10 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-@import '~variables'
-  .dot {
-    height: 10px;
-    width: 10px;
-    border-radius: 50%;
-    display: inline-block;
-  }
+.dot
+  height 10px
+  width 10px
+  border-radius 50%
+  display inline-block
+
 </style>

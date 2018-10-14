@@ -27,7 +27,11 @@ const store = new Vuex.Store({
   strict: process.env.NODE_ENV !== 'production'
 })
 
-export default store
+const init = async () => {
+  await store.dispatch('auth/init')
+  await store.dispatch('account/init')
+}
 
-store.dispatch('auth/init')
-store.dispatch('account/init')
+init()
+
+export default store

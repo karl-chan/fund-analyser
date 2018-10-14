@@ -8,7 +8,7 @@ const defaultMaxParallelConnections = properties.get('http.max.parallel.connecti
 
 const rp = require('request-promise')
 const _ = require('lodash')
-const {default: Semaphore} = require('semaphore-async-await')
+const { default: Semaphore } = require('semaphore-async-await')
 
 class Http {
     constructor (options) {

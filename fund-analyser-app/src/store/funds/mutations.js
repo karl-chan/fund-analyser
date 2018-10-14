@@ -3,7 +3,7 @@ import keyBy from 'lodash/keyBy'
 
 export function addFunds (state, funds) {
   const isinsToFunds = keyBy(funds, f => f.isin)
-  state.loaded = {...state.loaded, ...isinsToFunds}
+  state.loaded = { ...state.loaded, ...isinsToFunds }
 }
 
 export function removeFund (state, isin) {

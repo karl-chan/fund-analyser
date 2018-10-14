@@ -24,35 +24,35 @@ class CharlesStanleyDirectAuth {
         const jar = rp.jar()
 
         // Step 1: User name and password
-        const {csrfToken} = await this._enterUserAndPass(user, pass, {jar})
+        const { csrfToken } = await this._enterUserAndPass(user, pass, { jar })
 
         // Step 2: Memorable word
-        await this._checkMemorableWord(memorableWord, {csrfToken, jar})
+        await this._checkMemorableWord(memorableWord, { csrfToken, jar })
 
         // Step 3: Account login checks
-        await this._accountLoginChecks({jar})
+        await this._accountLoginChecks({ jar })
 
         // Step 4: Get user name
-        const {name} = await this._getMyAccount({jar})
+        const { name } = await this._getMyAccount({ jar })
 
         // Step 4: Return cookies as jar
-        return {jar, name}
+        return { jar, name }
     }
 
     // cost is about 200ms per call
-    async isLoggedIn ({jar}) {
+    async isLoggedIn ({ jar }) {
         if (!jar) throw new Error('Missing jar')
-        const {statusCode} = await http.asyncGet(this.investmentSummaryUrl, {jar, followRedirect: false})
+        const { statusCode } = await http.asyncGet(this.investmentSummaryUrl, { jar, followRedirect: false })
         return statusCode === 200
     }
 
-    async _enterUserAndPass (user, pass, {jar}) {
+    async _enterUserAndPass (user, pass, { jar }) {
         log.debug('Entering user and pass')
-        const {body: b1} = await http.asyncGet(this.accountUrl, {jar})
+        const { body: b1 } = await http.asyncGet(this.accountUrl, { jar })
         const $1 = cheerio.load(b1)
         const csrfToken1 = $1('input[name="__RequestVerificationToken"]').val()
 
-        const {headers: h2} = await http.asyncPost(this.accountUrl,
+        const { headers: h2 } = await http.asyncPost(this.accountUrl,
             {
                 jar,
                 form: {
@@ -66,22 +66,22 @@ class CharlesStanleyDirectAuth {
             throw new Error('Incorrect username or password')
         }
 
-        const {body: b3} = await http.asyncGet(this.checkMemorableWordUrl, {jar})
+        const { body: b3 } = await http.asyncGet(this.checkMemorableWordUrl, { jar })
         const $3 = cheerio.load(b3)
         const csrfToken3 = $3('input[name="__RequestVerificationToken"]').val()
         log.debug('User and pass accepted')
-        return {csrfToken: csrfToken3}
+        return { csrfToken: csrfToken3 }
     }
 
-    async _checkMemorableWord (memorableWord, {csrfToken, jar}) {
+    async _checkMemorableWord (memorableWord, { csrfToken, jar }) {
         log.debug('Checking memorable word')
-        const {body: b1} = await http.asyncGet(this.checkMemorableWordUrl, {jar})
+        const { body: b1 } = await http.asyncGet(this.checkMemorableWordUrl, { jar })
         const $1 = cheerio.load(b1)
         const charIndex1 = parseInt($1('#memorable-word-form > div.field > div > strong:nth-child(1)').text())
         const charIndex2 = parseInt($1('#memorable-word-form > div.field > div > strong:nth-child(3)').text())
         const charIndex3 = parseInt($1('#memorable-word-form > div.field > div > strong:nth-child(5)').text())
 
-        const {headers: h2} = await http.asyncPost(this.checkMemorableWordUrl,
+        const { headers: h2 } = await http.asyncPost(this.checkMemorableWordUrl,
             {
                 jar,
                 form: {
@@ -98,22 +98,22 @@ class CharlesStanleyDirectAuth {
         log.debug('Memorable word accepted')
     }
 
-    async _accountLoginChecks ({jar}) {
+    async _accountLoginChecks ({ jar }) {
         log.debug('Performing account login check')
-        const {headers} = await http.asyncGet(this.accountLoginChecksUrl, {jar, followRedirect: false})
+        const { headers } = await http.asyncGet(this.accountLoginChecksUrl, { jar, followRedirect: false })
         if (!this.myDirectAccountsUrl.includes(headers.location)) {
             throw new Error('Account login checks failed')
         }
         log.debug('Account login check completed')
     }
 
-    async _getMyAccount ({jar}) {
+    async _getMyAccount ({ jar }) {
         log.debug('Getting user name from my account')
-        const {body} = await http.asyncGet(this.myAccountsUrl, {jar})
+        const { body } = await http.asyncGet(this.myAccountsUrl, { jar })
         const $ = cheerio.load(body)
         const accountName = $('body > table > tbody > tr > td:nth-child(1) > a').text()
         const name = accountName.match(/(.+)\(\d+\)/)[1].trim()
-        return {name}
+        return { name }
     }
 }
 

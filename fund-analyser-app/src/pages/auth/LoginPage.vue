@@ -92,8 +92,8 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.login.btn {
-  background: goldenrod;
-  color: white;
-}
+.login.btn
+  background goldenrod
+  color white
+
 </style>

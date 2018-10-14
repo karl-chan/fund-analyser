@@ -19,8 +19,8 @@ function multiplyCurrencies (currency1, currency2) {
     let multipliedRates = []
     let firstPtr = 0; let secondPtr = 0
     while (firstPtr < currency1.historicRates.length && secondPtr < currency2.historicRates.length) {
-        let {date: firstDate, rate: firstRate} = currency1.historicRates[firstPtr]
-        let {date: secondDate, rate: secondRate} = currency2.historicRates[secondPtr]
+        let { date: firstDate, rate: firstRate } = currency1.historicRates[firstPtr]
+        let { date: secondDate, rate: secondRate } = currency2.historicRates[secondPtr]
         if (firstDate.getTime() === secondDate.getTime()) {
             multipliedRates.push(new Currency.HistoricRate(firstDate, firstRate * secondRate))
             firstPtr++

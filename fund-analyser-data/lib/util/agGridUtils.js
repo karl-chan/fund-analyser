@@ -25,7 +25,7 @@ function applyRequest (funds, agGridRequest) {
     const lastRow = funds.length
 
     funds = funds.slice(agGridRequest.startRow, agGridRequest.endRow)
-    return {funds, lastRow}
+    return { funds, lastRow }
 }
 
 function _applySort (funds, sortModel) {
@@ -106,7 +106,7 @@ function addColours (funds) {
 // scoring methods
 // positive greeen, negative red, white zero
 function _colourAroundZero (field, funds) {
-    return _colour(field, funds, ({val, max, min}) => {
+    return _colour(field, funds, ({ val, max, min }) => {
         if (val > 0) {
             return val / max
         }
@@ -118,8 +118,8 @@ function _colourAroundZero (field, funds) {
 }
 
 function _colourAroundMedian (field, funds, clipUpper, clipLower) {
-    const options = {clipUpper, clipLower}
-    return _colour(field, funds, ({val, max, min, median}) => {
+    const options = { clipUpper, clipLower }
+    return _colour(field, funds, ({ val, max, min, median }) => {
         if (val > median) {
             return Math.min(1.5, (val - median) / (max - median))
         }
@@ -131,7 +131,7 @@ function _colourAroundMedian (field, funds, clipUpper, clipLower) {
 }
 
 function _colourNegative (field, funds) {
-    return _colour(field, funds, ({val, max}) => -val / max)
+    return _colour(field, funds, ({ val, max }) => -val / max)
 }
 
 function _colour (field, funds, scoreFn, options) {
@@ -140,7 +140,7 @@ function _colour (field, funds, scoreFn, options) {
     const median = stat.median(funds.map(row => _.get(row, field)))
     funds.forEach(row => {
         const val = _.get(row, field)
-        const score = scoreFn({row, max, min, median, val})
+        const score = scoreFn({ row, max, min, median, val })
         _.set(row, `colours.${field}`, score)
     })
     return funds

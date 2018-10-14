@@ -14,11 +14,11 @@ describe('CharlesStanleyDirectAuth', () => {
         csdAuth = new CharlesStanleyDirectAuth()
     })
     test('login should be successful with valid user, pass and memorable word', async () => {
-        const {jar, name} = await csdAuth.login(user, pass, memorableWord)
+        const { jar, name } = await csdAuth.login(user, pass, memorableWord)
         expect(jar).toBeTruthy()
         expect(name).toBeString().not.toBeEmpty()
 
-        const isLoggedIn = await csdAuth.isLoggedIn({jar})
+        const isLoggedIn = await csdAuth.isLoggedIn({ jar })
         expect(isLoggedIn).toBeTrue()
     })
 

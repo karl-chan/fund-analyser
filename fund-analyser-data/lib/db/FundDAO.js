@@ -70,8 +70,8 @@ async function upsertFunds (funds) {
     // find matching ids in shards
     const searchIds = funds.map(f => f[idField]).filter(val => val)
     const findOptions = {
-        query: {_id: {$in: searchIds}},
-        projection: {_id: 1}
+        query: { _id: { $in: searchIds } },
+        projection: { _id: 1 }
     }
     const shardedDocs = await Promise.map(buildFindQuery(findOptions), query => query.toArray())
     const shardedIds = shardedDocs.map(docs => new Set(docs.map(doc => doc._id)))
@@ -144,9 +144,9 @@ async function exportCsv (headerFields, options) {
 
 async function search (text, projection, limit) {
     const options = {
-        query: {$text: {$search: text}},
-        projection: {...projection, score: {$meta: 'textScore'}},
-        sort: {score: {$meta: 'textScore'}},
+        query: { $text: { $search: text } },
+        projection: { ...projection, score: { $meta: 'textScore' } },
+        sort: { score: { $meta: 'textScore' } },
         limit
     }
     return listFunds(options, true)

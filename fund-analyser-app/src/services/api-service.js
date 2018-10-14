@@ -16,19 +16,19 @@ const handleUnauthorised = (err) => {
 export default {
   get (url, config) {
     return axios
-      .get(url, {...defaults, ...config})
+      .get(url, { ...defaults, ...config })
       .then(res => res.data)
       .catch(handleUnauthorised)
   },
   post (url, data, config) {
     return axios
-      .post(url, data, {...defaults, ...config})
+      .post(url, data, { ...defaults, ...config })
       .then(res => res.data)
       .catch(handleUnauthorised)
   },
   delete (url, config) {
     return axios
-      .delete(url, {...defaults, ...config})
+      .delete(url, { ...defaults, ...config })
       .then(res => res.data)
       .catch(handleUnauthorised)
   }

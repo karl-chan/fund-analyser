@@ -3,6 +3,7 @@ module.exports = {
     calcIndicators,
     calcStats,
     closestRecord,
+    closestRecordBeforeDate,
     enrichRealTimeDetails,
     enrichSummary
 }
@@ -38,9 +39,32 @@ function closestRecord (lookback, historicPrices) {
     return beginRecord
 }
 
+function closestRecordBeforeDate (date, historicPrices) {
+    let low = 0
+    let high = historicPrices.length - 1
+    // binary search
+    while (low < high) {
+        const mid = Math.floor((low + high) / 2)
+        const compareDate = historicPrices[mid].date
+        const diff = compareDate.getTime() - date.getTime()
+        if (diff === 0) {
+            return historicPrices[mid]
+        } else if (diff > 0) {
+            high = mid
+        } else {
+            low = mid
+            if (low + 1 === high) {
+                low = date.getTime() >= historicPrices[high].date.getTime() ? high : low
+                break
+            }
+        }
+    }
+    return historicPrices[low]
+}
+
 function enrichReturns (returns, historicPrices, additionalLookbacks) {
     // Null safe check
-    if (_.isEmpty(returns) || _.isEmpty(historicPrices) || _.isEmpty(additionalLookbacks)) {
+    if (!_.isPlainObject(returns) || _.isEmpty(historicPrices) || _.isEmpty(additionalLookbacks)) {
         return returns
     }
 
@@ -93,7 +117,7 @@ function enrichRealTimeDetails (realTimeDetails, fund) {
     const estPrice = latestPrice * (1 + estChange)
 
     const enrichment = { estChange, estPrice, stdev, ci }
-    return {...enrichment, ...realTimeDetails}
+    return { ...enrichment, ...realTimeDetails }
 }
 
 function enrichSummary (summary) {

@@ -2,6 +2,8 @@ const UserDAO = require('./UserDAO')
 
 const db = require('../util/db')
 
+jest.setTimeout(30000) // 30 seconds
+
 describe('UserDAO', function () {
     let entry, dao, user, meta
     beforeAll(async () => {
@@ -33,7 +35,7 @@ describe('UserDAO', function () {
     })
     test('deserialise', function () {
         const result = UserDAO.deserialise(entry)
-        expect(result).toEqual({user, meta})
+        expect(result).toEqual({ user, meta })
     })
     test('watchlist', async function () {
         await UserDAO.deleteUser(user)

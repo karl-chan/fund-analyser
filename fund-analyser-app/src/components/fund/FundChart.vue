@@ -22,9 +22,28 @@ export default {
   },
   methods: {
     buildChartOptions (fund) {
+      const vm = this
       const opts = {
         chart: {
-          zoomType: 'x'
+          zoomType: 'x',
+          events: {
+            selection (e) {
+              const { min, max } = e.xAxis[0]
+              const { price: startPrice } = vm.$utils.fund.findClosestRecord(min, vm.fund.historicPrices)
+              const { price: endPrice } = vm.$utils.fund.findClosestRecord(max, vm.fund.historicPrices)
+              if (startPrice && endPrice) {
+                const percentReturn = (endPrice - startPrice) / startPrice
+                this.renderer.label(vm.$utils.format.formatPercentage(percentReturn, true), e.target.chartWidth * 0.65, 0)
+                  .css({
+                    color: percentReturn < 0 ? 'red' : 'green',
+                    fontSize: '40px',
+                    fontWeight: 'bold'
+                  })
+                  .add()
+                  .fadeOut(2000)
+              }
+            }
+          }
         },
         rangeSelector: {
           selected: 4, // recent 1 year
@@ -104,8 +123,8 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.container {
-  padding: 10px;
-  border-radius: 10px;
-}
+.container
+  padding 10px
+  border-radius 10px
+
 </style>

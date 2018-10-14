@@ -68,8 +68,8 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.container {
-  padding: 10px;
-  border-radius: 10px;
-}
+.container
+  padding 10px
+  border-radius 10px
+
 </style>

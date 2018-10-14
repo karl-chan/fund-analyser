@@ -34,11 +34,14 @@
         .col-md-4
           fund-holdings(:fund="fund")
       .row.gutter-x-sm.q-mt-sm
-        fund-charges(:fund="fund")
+        .col-md-4
+          fund-charges(:fund="fund")
+        .col-md-8
+          fund-indicators(:fund="fund")
 
       // modal with extra information
       q-modal(v-model="showModal" :content-css="{width: '80vw'}")
-        q-icon.absolute-top-right.z-top(name="cancel" v-close-overlay)
+        q-icon.absolute-top-right(name="cancel" style="{z-index: 1}" v-close-overlay)
         router-view
 
     template(v-else)
@@ -57,18 +60,18 @@ export default {
   beforeRouteEnter (to, from, next) {
     next(async vm => {
       vm.loading = true
-      const fund = await vm.lazyGet(to.params.isin)
+      const funds = await vm.lazyGets([to.params.isin])
       vm.loading = false
-      vm.addToRecentlyViewed({isin: fund.isin, name: fund.name})
+      funds.forEach(fund => vm.addToRecentlyViewed({ isin: fund.isin, name: fund.name }))
     })
   },
   async beforeRouteUpdate (to, from, next) {
     next()
     if (to.params.isin !== from.params.isin) {
       this.loading = true
-      const fund = await this.lazyGet(to.params.isin)
+      const funds = await this.lazyGets([to.params.isin])
       this.loading = false
-      this.addToRecentlyViewed({isin: fund.isin, name: fund.name})
+      funds.forEach(fund => this.addToRecentlyViewed({ isin: fund.isin, name: fund.name }))
     }
   },
   data () {
@@ -93,11 +96,11 @@ export default {
     openURL,
     ...mapActions('account', ['addToRecentlyViewed', 'addToWatchlist']),
     ...mapGetters('account', ['inWatchlist']),
-    ...mapActions('funds', [ 'get', 'lazyGet' ]),
+    ...mapActions('funds', [ 'gets', 'lazyGets' ]),
     ...mapGetters('funds', [ 'lookupFund' ]),
     async refreshFund () {
       this.loading = true
-      await this.get(this.isin)
+      await this.gets([this.isin])
       this.loading = false
     },
     onFavouriteIconHovering (isMouseEnter) {

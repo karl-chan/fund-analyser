@@ -17,8 +17,8 @@ async function updateFunds () {
     const today = moment().utc().startOf('day').toDate()
 
     const fundsToUpdate = await FundDAO.listFunds({
-        query: {$or: [{asof: {$eq: null}}, {asof: {$lt: today}}]},
-        projection: {sedol: 1}
+        query: { $or: [{ asof: { $eq: null } }, { asof: { $lt: today } }] },
+        projection: { sedol: 1 }
     })
     const sedols = _.map(fundsToUpdate, f => f.sedol)
     log.info('Sedols to update: %s', JSON.stringify(sedols))
@@ -44,7 +44,7 @@ async function updateFunds () {
     })
 
     // delete funds with no data
-    await FundDAO.deleteFunds({query: {name: {$eq: null}}})
+    await FundDAO.deleteFunds({ query: { name: { $eq: null } } })
     log.info('Deleted funds without names')
 };
 

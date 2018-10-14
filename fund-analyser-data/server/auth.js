@@ -18,10 +18,10 @@ const SESSION_CONFIG = {
         async get (key, maxAge, { rolling }) {
             const jar = jarCache[key]
             const data = await SessionDAO.findSession(key)
-            return {...data, jar}
+            return { ...data, jar }
         },
         async set (key, sess, maxAge, { rolling, changed }) {
-            const {jar, ...data} = sess
+            const { jar, ...data } = sess
             await SessionDAO.upsertSession(data, key)
             jarCache[key] = jar
         },
@@ -38,20 +38,20 @@ const authorise = async function (ctx, next) {
     const stillLoggedIn = await isLoggedIn(ctx)
     if (!stillLoggedIn) {
         ctx.status = 401
-        ctx.body = {error: 'Not logged in'}
+        ctx.body = { error: 'Not logged in' }
         return
     }
 
     // add information to ctx
-    const {jar} = getSession(ctx)
-    const {user, name} = getUser(ctx)
+    const { jar } = getSession(ctx)
+    const { user, name } = getUser(ctx)
     ctx.jar = jar
     ctx.user = user
     ctx.name = name
     await next()
 }
 
-const createToken = function ({user, pass, memorableWord, name, persist, location, userAgent}) {
+const createToken = function ({ user, pass, memorableWord, name, persist, location, userAgent }) {
     return {
         user: user,
         pass: pass,
@@ -91,7 +91,7 @@ const newExpiry = function (persist) {
     return moment().add(duration)
 }
 
-const saveSession = function (ctx, {token, jar}) {
+const saveSession = function (ctx, { token, jar }) {
     if (token) {
         ctx.session.token = encryptToken(token)
     }
@@ -131,12 +131,12 @@ const destroySessionById = async function (sessionId) {
 }
 
 const getUser = function (ctx) {
-    const {token} = getSession(ctx)
+    const { token } = getSession(ctx)
     if (token) {
-        const {user, name, expiry, location} = token
-        return {user, name, expiry, location}
+        const { user, name, expiry, location } = token
+        return { user, name, expiry, location }
     }
-    return {user: null, name: null, expiry: null, location: {}}
+    return { user: null, name: null, expiry: null, location: {} }
 }
 
 const findSessionsForUser = async function (user) {
@@ -159,17 +159,17 @@ const login = async function (ctx, user, pass, memorableWord, persist) {
     const ip = extractIpAddress(ctx.req)
     log.debug('Extracted ip address: %s', ip)
 
-    const [{jar, name}, location] = await Promise.all([
+    const [{ jar, name }, location] = await Promise.all([
         csdAuth.login(user, pass, memorableWord),
         geolocation.getLocationByIp(ip)
     ])
     location.ip = ip
     const userAgent = ctx.request.header['user-agent']
 
-    const token = createToken({user, pass, memorableWord, name, persist, location, userAgent})
-    saveSession(ctx, {token, jar})
+    const token = createToken({ user, pass, memorableWord, name, persist, location, userAgent })
+    saveSession(ctx, { token, jar })
     saveUser(user)
-    return {token, jar, name}
+    return { token, jar, name }
 }
 
 const logout = async function (ctx) {
@@ -177,7 +177,7 @@ const logout = async function (ctx) {
 }
 
 const isLoggedIn = async function (ctx) {
-    const {token, jar} = getSession(ctx)
+    const { token, jar } = getSession(ctx)
     if (!token && !jar) {
         return false
     }
@@ -188,7 +188,7 @@ const isLoggedIn = async function (ctx) {
         }
     }
     if (jar) {
-        const stillLoggedIn = await csdAuth.isLoggedIn({jar})
+        const stillLoggedIn = await csdAuth.isLoggedIn({ jar })
         if (stillLoggedIn) {
             return true
         }
@@ -198,9 +198,9 @@ const isLoggedIn = async function (ctx) {
 
 const refreshToken = async function (ctx, token) {
     try {
-        const {user, pass, memorableWord} = token
-        const {jar} = await csdAuth.login(user, pass, memorableWord)
-        saveSession(ctx, {jar})
+        const { user, pass, memorableWord } = token
+        const { jar } = await csdAuth.login(user, pass, memorableWord)
+        saveSession(ctx, { jar })
         return true
     } catch (err) {
         // fail to relogin

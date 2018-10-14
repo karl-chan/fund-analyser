@@ -38,7 +38,7 @@ export default {
       this.getActiveSessions()
     },
     extractLocation (session) {
-      const {city, country, region} = session.location
+      const { city, country, region } = session.location
       if (!city && !country && !region) {
         return 'Unknown'
       }
@@ -73,7 +73,7 @@ export default {
       }
     },
     getTooltipText (session) {
-      const {ua, device, browser, os} = session.userAgent
+      const { ua, device, browser, os } = session.userAgent
       let info = []
       if (device.vendor && device.model) {
         info.push(`${device.vendor} ${device.model}`)
@@ -92,11 +92,12 @@ export default {
 
 <style lang="stylus" scoped>
 @import '~variables'
-  .circle-dot {
-    height: 10px;
-    width: 10px;
-    background-color: $green;
-    border-radius: 50%;
-    display: inline-block;
-  }
+
+.circle-dot
+  height 10px
+  width 10px
+  background-color $green
+  border-radius 50%
+  display inline-block
+
 </style>

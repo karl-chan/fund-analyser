@@ -9,7 +9,7 @@ const router = new Router({
 })
 
 router.post('/login', async ctx => {
-    const {user, pass, memorableWord, persist} = ctx.request.body
+    const { user, pass, memorableWord, persist } = ctx.request.body
     log.info('User %s attempting to login', user)
     try {
         const { name } = await auth.login(ctx, user, pass, memorableWord, persist)
@@ -30,13 +30,13 @@ router.post('/logout', async ctx => {
 })
 
 router.get('/', async ctx => {
-    const {name, expiry, location} = auth.getUser(ctx)
+    const { name, expiry, location } = auth.getUser(ctx)
     const isLoggedIn = await auth.isLoggedIn(ctx)
-    ctx.body = {user: name, isLoggedIn, expiry, location}
+    ctx.body = { user: name, isLoggedIn, expiry, location }
 })
 
 router.get('/sessions', async ctx => {
-    const {user} = auth.getUser(ctx)
+    const { user } = auth.getUser(ctx)
     const sessionId = auth.getSessionId(ctx)
     const sessions = await auth.findSessionsForUser(user)
     ctx.body = sessions.map(s => ({
