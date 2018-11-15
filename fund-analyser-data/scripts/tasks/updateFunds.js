@@ -26,7 +26,7 @@ async function updateFunds () {
     const fundStream = new FundFactory().streamFundsFromSedols(sedols)
     const fundValidFilter = streamWrapper.asFilterAsync(isFundValid)
     const upsertFundStream = streamWrapper.asWritableAsync(async fund => {
-        FundDAO.upsertFunds([fund])
+        await FundDAO.upsertFunds([fund])
     })
 
     await new Promise((resolve, reject) => {
@@ -53,5 +53,6 @@ async function isFundValid (fund) {
         log.warn('Fund is not valid: %j. Skipping upsert.', fund)
         return false
     }
+    log.silly('Fund is valid: %s', fund.isin)
     return true
 }

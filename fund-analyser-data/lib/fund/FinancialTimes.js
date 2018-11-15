@@ -47,6 +47,7 @@ class FinancialTimes {
         const entryCharge = isin instanceof Fund ? isin.entryCharge : undefined
         isin = isin instanceof Fund ? isin.isin : isin
 
+        log.silly('Get fund from isin: %s', isin)
         const [summary, performance, historicPrices, holdings] = await Promise.all([
             this.getSummary(isin),
             this.getPerformance(isin),
@@ -74,7 +75,8 @@ class FinancialTimes {
         if (!historicPrices.length) {
             log.warn('No data found for isin: ' + isin)
         } else {
-            log.debug('Got fund from isin %s: %j', isin, fund)
+            log.debug('Got fund from isin %s', isin)
+            log.silly('Isin: %s. Fund: %j', isin, fund)
         }
 
         // try enrich with real time details
@@ -162,6 +164,7 @@ class FinancialTimes {
                 > div.mod-ui-overlay.clearfix.mod-overview-quote-app-overlay > div > div 
                 > section.mod-tearsheet-add-to-watchlist`).attr('data-mod-config')).xid
         } catch (err) {
+            log.warn('Failed to retrieve symbol for historic prices: %s', isin)
             return []
         }
 
@@ -190,6 +193,7 @@ class FinancialTimes {
             })
             return historicPrices
         } catch (err) {
+            log.warn('Failed to retrieve chartapi historic prices for isin: %s', isin)
             return []
         }
     }
@@ -214,6 +218,14 @@ class FinancialTimes {
             const weight = math.pcToFloat($(tr).find('td:nth-child(3)').text())
             return new Fund.Holding(name, symbol, weight)
         }).get()
+
+        // enrich holdings with symbols if necessary
+        await Promise.all(holdings.filter(h => !h.symbol).map(async h => {
+            const symbol = await this.getSymbolFromName(h.name)
+            if (symbol) {
+                h.symbol = symbol
+            }
+        }))
         return holdings
     }
 
@@ -274,6 +286,45 @@ class FinancialTimes {
      */
     streamFundsFromIsins () {
         return streamWrapper.asParallelTransformAsync(this.getFundFromIsin.bind(this))
+    }
+
+    async getSymbolFromName (name) {
+        const dropShareClassSuffix = name => {
+            const chunks = name.split(' ')
+            if (chunks.length > 1 && _.last(chunks) === _.last(chunks).toUpperCase()) {
+                // is share class suffix
+                chunks.pop()
+            }
+            if (chunks.length && _.last(chunks).toLowerCase() === 'class') {
+                chunks.pop()
+            }
+            return chunks.join(' ')
+        }
+
+        const dropThePrefix = name => {
+            const prefix = 'the '
+            if (name.toLowerCase().startsWith(prefix)) {
+                return name.substring(prefix.length)
+            }
+            return name
+        }
+
+        const search = async name => {
+            const url = `https://markets.ft.com/data/searchapi/searchsecurities?query=${name}`
+            const qs = {
+                query: name
+            }
+            const { body } = await http.asyncGet(url, { qs })
+            const { data } = JSON.parse(body)
+            const security = data.security.find(s => s.name.toLowerCase().includes(name.toLowerCase()))
+            return security && security.symbol
+        }
+        const candidates = [name, dropThePrefix(name), dropShareClassSuffix(dropThePrefix(name))]
+        for (let candidate of candidates) {
+            const symbol = await search(candidate)
+            if (symbol) { return symbol }
+        }
+        return undefined
     }
 
     _getShareClass (shareClass, name) {

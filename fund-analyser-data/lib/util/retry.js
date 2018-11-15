@@ -7,6 +7,7 @@ const log = require('./log')
 
 const MAX_ATTEMPTS = 1
 const RETRY_INTERVAL = 0 // in milliseconds
+const SLOW_TASK_WARNING_INTERVAL = 10000 // warn every 10 seconds for slow tasks
 
 async function retry (asyncFn, options) {
     const maxAttempts = _.get(options, 'maxAttempts', MAX_ATTEMPTS)
@@ -14,18 +15,31 @@ async function retry (asyncFn, options) {
     const description = _.get(options, 'description', '')
 
     let attempt = 1
+    let result
+    const start = Date.now()
+
+    const slowTaskWarningMessage = setInterval(() => {
+        const split = Date.now()
+        log.silly(`Task [${description}] still running after ${split - start}ms`)
+    }, SLOW_TASK_WARNING_INTERVAL)
+
     while (true) {
         try {
-            const result = await asyncFn()
-            return result
+            result = await asyncFn()
+            break
         } catch (err) {
             log.warn(`Retrying task [${description}] on failed attempt ${attempt}. Waiting ${retryInterval}ms...\nError: ${err.stack}`)
             attempt++
             if (attempt > maxAttempts) {
                 log.error(`Task [${description}] ran out of ${maxAttempts} retries!\nError: ${err.stack}`)
+                clearInterval(slowTaskWarningMessage)
                 throw err
             }
             await Promise.delay(retryInterval)
         }
     }
+    clearInterval(slowTaskWarningMessage)
+    const end = Date.now()
+    log.silly(`Task [${description}] succeeded on attempt ${attempt} in ${end - start} ms`)
+    return result
 }

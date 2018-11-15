@@ -190,6 +190,22 @@ describe('FinancialTimes', function () {
             expect(currencies).toBeArray()
             expect(currencies).toIncludeAllMembers(['GBP', 'USD', 'CNY', 'EUR', 'BRL'])
         })
+
+        test('getSymbolFromName should return symbol for fund name', async () => {
+            const aia = await financialTimes.getSymbolFromName('AIA Group Ltd')
+            expect(aia).toBe('1299:HKG')
+
+            // drop the prefix
+            const homeDepot = await financialTimes.getSymbolFromName('The Home Depot Inc')
+            expect(homeDepot).toBe('HD:NYQ')
+
+            // drop suffix
+            const alphabet = await financialTimes.getSymbolFromName('Alphabet Inc Class C')
+            expect(alphabet).toBe('GOOGL:NSQ')
+
+            const notFound = await financialTimes.getSymbolFromName('Non existent fund name')
+            expect(notFound).toBeUndefined()
+        })
     })
 
     describe('Stream methods', function () {

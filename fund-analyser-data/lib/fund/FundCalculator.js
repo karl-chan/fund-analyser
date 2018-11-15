@@ -1,6 +1,7 @@
 const fundUtils = require('../util/fundUtils')
 const properties = require('../util/properties')
 const streamWrapper = require('../util/streamWrapper')
+const log = require('../util/log')
 
 class FundCalculator {
     constructor () {
@@ -10,11 +11,12 @@ class FundCalculator {
     async evaluate (fund) {
         fund = await this.enrichReturns(fund)
         fund = await this.calcIndicators(fund)
+        log.silly('Calculated for isin: %s', fund.isin)
         return fund
     }
 
     stream () {
-        return streamWrapper.asParallelTransformAsync(this.evaluate.bind(this))
+        return streamWrapper.asTransformAsync(this.evaluate.bind(this))
     }
 
     enrichReturns (fund) {

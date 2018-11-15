@@ -16,11 +16,13 @@ class Http {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
             },
+            timeout: 30000, // 30 seconds
             simple: false
         })
         this.maxAttempts = _.get(options, 'maxAttempts', defaultMaxAttempts)
         this.retryInterval = _.get(options, 'retryInterval', defaultRetryInterval)
-        this.counter = new Semaphore(_.get(options, 'maxParallelConnections', defaultMaxParallelConnections))
+        this.maxParallelConnections = _.get(options, 'maxParallelConnections', defaultMaxParallelConnections)
+        this.counter = new Semaphore(this.maxParallelConnections)
     }
 
     async asyncGet (url, options) {
@@ -44,16 +46,19 @@ class Http {
             description: `${method} request to ${url}`
         }
 
+        log.silly(`Http counter acquired. Remaining: ${this.counter.getPermits()} of ${this.maxParallelConnections}`)
         await this.counter.acquire()
         let result
         try {
             result = await retry(async () => this.http(requestOptions), retryOptions)
         } catch (err) {
             this.counter.release()
+            log.silly(`Http counter released Remaining: ${this.counter.getPermits()} of ${this.maxParallelConnections}`)
             log.error(`HTTP ${method} request to ${url} failed!`)
             throw err
         }
         this.counter.release()
+        log.silly(`Http counter released. Remaining: ${this.counter.getPermits()} of ${this.maxParallelConnections}`)
         return result
     }
 }
