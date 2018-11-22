@@ -20,7 +20,7 @@ const accountRoutes = require('./routes/account-routes')
 const authRoutes = require('./routes/auth-routes')
 const currencyRoutes = require('./routes/currency-routes')
 const fundsRoutes = require('./routes/funds-routes')
-const miscRoutes = require('./routes/misc-routes')
+const adminRoutes = require('./routes/admin-routes')
 const fundCache = require('./cache/fundCache')
 
 const PORT = process.env.PORT || properties.get('server.default.port')
@@ -43,7 +43,7 @@ app.use(accountRoutes.routes())
 app.use(authRoutes.routes())
 app.use(currencyRoutes.routes())
 app.use(fundsRoutes.routes())
-app.use(miscRoutes.routes())
+app.use(adminRoutes.routes())
 
 const cleanupEvery = (frequency) => {
     const cleanup = () => {

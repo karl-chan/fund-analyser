@@ -2,10 +2,10 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import account from './account'
+import admin from './admin'
 import auth from './auth'
 import funds from './funds'
 import layout from './layout'
-import misc from './misc'
 
 import persist from './plugins/persist'
 import realTimeDetailsPoller from './plugins/real-time-details-poller'
@@ -15,10 +15,10 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   modules: {
     account,
+    admin,
     auth,
     funds,
-    layout,
-    misc
+    layout
   },
   plugins: [
     persist.plugin,

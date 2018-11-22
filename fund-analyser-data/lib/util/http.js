@@ -6,6 +6,7 @@ const defaultMaxAttempts = properties.get('http.max.attempts')
 const defaultRetryInterval = properties.get('http.retry.interval')
 const defaultMaxParallelConnections = properties.get('http.max.parallel.connections')
 
+const request = require('request')
 const rp = require('request-promise')
 const _ = require('lodash')
 const { default: Semaphore } = require('semaphore-async-await')
@@ -60,6 +61,10 @@ class Http {
         this.counter.release()
         log.silly(`Http counter released. Remaining: ${this.counter.getPermits()} of ${this.maxParallelConnections}`)
         return result
+    }
+
+    stream (url) {
+        return request(url)
     }
 }
 module.exports = Http

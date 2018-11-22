@@ -127,7 +127,7 @@ class CharlesStanleyDirect {
     }
 
     /**
-     * Miscellaneous s
+     * Miscellaneous methods
      */
     async healthCheck () {
         const url = `https://www.charles-stanley-direct.co.uk`

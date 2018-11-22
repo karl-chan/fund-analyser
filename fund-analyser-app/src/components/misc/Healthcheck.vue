@@ -20,10 +20,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('misc', ['health'])
+    ...mapState('admin', ['health'])
   },
   methods: {
-    ...mapActions('misc', ['doHealthcheck']),
+    ...mapActions('admin', ['doHealthcheck']),
     getColour (status) {
       if (status === undefined || status === null) {
         return 'bg-orange'

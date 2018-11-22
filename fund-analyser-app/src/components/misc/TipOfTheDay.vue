@@ -25,7 +25,7 @@ export default {
     clearInterval(this.refreshJobId)
   },
   computed: {
-    ...mapState('misc', [
+    ...mapState('admin', [
       'tips'
     ])
   },

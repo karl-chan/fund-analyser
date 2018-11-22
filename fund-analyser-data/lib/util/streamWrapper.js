@@ -14,8 +14,6 @@ const stream = require('stream')
 const ParallelTransform = require('parallel-transform')
 const _ = require('lodash')
 
-const BUFFER_SIZE = 1
-
 function asReadableAsync (asyncFn) {
     let queue
     const readableStream = new stream.Readable({
