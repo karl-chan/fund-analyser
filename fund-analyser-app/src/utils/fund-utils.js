@@ -6,18 +6,21 @@ export default {
     let low = 0
     let high = historicPrices.length - 1
     // binary search
-    while (low < high) {
+    while (low + 1 < high) {
       const mid = Math.floor((low + high) / 2)
       const compareDate = historicPrices[mid].date
       const diff = Date.parse(compareDate) - targetDate
       if (diff === 0) {
         return historicPrices[mid]
       } else if (diff > 0) {
-        high = mid - 1
+        high = mid
       } else {
-        low = mid + 1
+        low = mid
       }
     }
-    return historicPrices[low]
+    return Math.abs(Date.parse(historicPrices[low].date) - targetDate) <
+            Math.abs(Date.parse(historicPrices[high].date) - targetDate)
+      ? historicPrices[low]
+      : historicPrices[high]
   }
 }
