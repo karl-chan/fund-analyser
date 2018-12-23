@@ -16,7 +16,7 @@ const REFRESH_INTERVAL = moment.duration(15, 'minutes')
 const FILE_TMP_CACHE = 'fundCache'
 
 let fundCache = []
-let quickFilterCache = []
+let quickFilterCache = {}
 let metadata = {}
 let refreshTask = null
 
@@ -33,20 +33,14 @@ async function refresh () {
 
 function get (isins, options) {
     checkRunning()
-    let funds = _.clone(
-        isins
-            ? fundCache.filter(f => isins.includes(f.isin))
-            : fundCache)
+    let funds = isins
+        ? fundCache.filter(f => isins.includes(f.isin))
+        : fundCache
 
     if (options) {
         const { filterText } = options
         if (filterText && filterText.trim()) {
-            funds = []
-            for (let [i, cache] of quickFilterCache.entries()) {
-                if (cache.includes(filterText.trim().toLowerCase())) {
-                    funds.push(fundCache[i])
-                }
-            }
+            funds = funds.filter(f => quickFilterCache[f.isin].includes(filterText.trim().toLowerCase()))
         }
     }
 
@@ -79,7 +73,8 @@ function shutdown () {
 }
 
 function buildQuickFilterCache (funds) {
-    return funds.map(f => {
+    const cache = {}
+    funds.forEach(f => {
         let s = ''
         for (let v of Object.values(f)) {
             switch (typeof v) {
@@ -90,8 +85,9 @@ function buildQuickFilterCache (funds) {
                 s += v
             }
         }
-        return s.toLowerCase()
+        cache[f.isin] = s.toLowerCase()
     })
+    return cache
 }
 
 function refreshMetadata () {
