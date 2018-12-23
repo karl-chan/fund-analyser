@@ -18,6 +18,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
+import isEqual from 'lodash/isEqual'
 export default {
   name: 'HomePage',
   computed: {
@@ -42,7 +43,7 @@ export default {
     watchlist: {
       immediate: true,
       handler (newWatchlist, oldWatchlist) {
-        if (newWatchlist && newWatchlist !== oldWatchlist) {
+        if (newWatchlist && !isEqual(newWatchlist, oldWatchlist)) {
           this.lazyGets(newWatchlist)
         }
       }
