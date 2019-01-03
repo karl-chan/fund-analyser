@@ -2,13 +2,15 @@
   q-page(padding)
     .absolute-right
       healthcheck
-    q-tabs
+
+    account-view(:user="user" :balance="balance" :statement="statement")
+
+    q-tabs.q-mt-md
       q-tab(default label="Account View" slot="title" name="account")
       q-tab(label="Summary View" slot="title" name="summary")
 
       // Account View
       q-tab-pane.gutter-y-md(keep-alive name="account")
-        account-view(:user="user" :balance="balance" :statement="statement")
         fund-watch-list(:watchlist="watchlist")
 
       // Summary View
