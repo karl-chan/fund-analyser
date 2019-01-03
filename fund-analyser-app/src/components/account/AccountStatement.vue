@@ -115,7 +115,7 @@ export default {
       let [periodStart, periodEnd] = getPeriodRange(statement.events[j])
       let data = []
       while (i < statement.series.length) {
-        while (Date.parse(statement.series[i].date) <= periodStart) {
+        while (i < statement.series.length && Date.parse(statement.series[i].date) <= periodStart) {
           data.push([Date.parse(statement.series[i].date), statement.series[i].price])
           i++
         }
