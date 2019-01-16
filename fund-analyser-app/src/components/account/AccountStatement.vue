@@ -2,10 +2,6 @@
   .column
     .shadow-5.container
         highstock(v-if="statement.series" :options="chartOptions")
-    .row.gutter-x-sm.q-mt-md
-      div(v-for="(periodReturn, period) in statement.returns" :key="period")
-        div {{period}}
-        .text-weight-bold(:class="$utils.format.colourNumber(periodReturn)") {{ $utils.format.formatPercentage(periodReturn) }}
 </template>
 
 <script>
