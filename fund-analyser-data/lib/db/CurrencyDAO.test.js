@@ -2,6 +2,8 @@ const CurrencyDAO = require('./CurrencyDAO')
 const Currency = require('../currency/Currency')
 const db = require('../util/db')
 
+jest.setTimeout(30000) // 30 seconds
+
 describe('CurrencyDAO', function () {
     beforeAll(async () => {
         await db.init()

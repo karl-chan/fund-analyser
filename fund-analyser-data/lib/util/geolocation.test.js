@@ -1,10 +1,12 @@
 const geolocation = require('./geolocation')
 
+jest.setTimeout(30000) // 30 seconds
+
 describe('geolocation', () => {
     describe('getLocationByIp', () => {
         test('should return geolocation for valid ip', async () => {
             const expected = {
-                city: 'Brentwood',
+                city: 'London',
                 region: 'England',
                 country: 'United Kingdom'
             }

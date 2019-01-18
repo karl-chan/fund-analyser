@@ -5,6 +5,7 @@ module.exports = {
     getCurrencies,
     getSessions,
     getUsers,
+    getHolidays,
     close
 }
 
@@ -51,6 +52,10 @@ function getSessions () {
 
 function getUsers () {
     return _db.collection('users')
+}
+
+function getHolidays () {
+    return _db.collection('holidays')
 }
 
 async function close () {

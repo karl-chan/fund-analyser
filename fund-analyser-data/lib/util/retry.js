@@ -28,13 +28,13 @@ async function retry (asyncFn, options) {
             result = await asyncFn()
             break
         } catch (err) {
-            log.warn(`Retrying task [${description}] on failed attempt ${attempt}. Waiting ${retryInterval}ms...\nError: ${err.stack}`)
             attempt++
             if (attempt > maxAttempts) {
                 log.error(`Task [${description}] ran out of ${maxAttempts} retries!\nError: ${err.stack}`)
                 clearInterval(slowTaskWarningMessage)
                 throw err
             }
+            log.warn(`Retrying task [${description}] on failed attempt ${attempt - 1}. Waiting ${retryInterval}ms...\nError: ${err.stack}`)
             await Promise.delay(retryInterval)
         }
     }

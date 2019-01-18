@@ -11,6 +11,7 @@
     "updateCurrencies": "node scripts/main.js -r updateCurrencies",
     "updateFunds": "node scripts/main.js -r updateFunds",
     "updateCatalog": "node scripts/main.js -r updateCatalog",
+    "updateHolidays": "node scripts/main.js -r updateHolidays",
     "server": "node server/server.js",
     "server.dev": "nodemon --inspect server/server.js",
     "test": "jest --coverage"

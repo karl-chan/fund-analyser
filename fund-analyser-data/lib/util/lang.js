@@ -1,6 +1,8 @@
 module.exports = {
     deepKeys,
     deepKeysSatisfying,
+    deepMap,
+    deepTraverse,
     pairsToDeepObject,
     isOrdered,
     parseNumber
@@ -13,17 +15,66 @@ function deepKeys (object) {
 }
 
 function deepKeysSatisfying (object, predicate) {
-    if (!_.isObjectLike(object) || Array.isArray(object)) {
-        return []
-    }
-    return _.flatMap(Object.entries(object), ([k, v]) => {
-        const innerKeys = deepKeysSatisfying(v, predicate)
-        if (innerKeys.length) {
-            return innerKeys.map(innerKey => `${k}.${innerKey}`)
-        } else {
-            return predicate(k, v) ? [k] : []
+    const res = deepTraverse(object, (ks, v, acc) => {
+        if (predicate(ks, v)) {
+            return [v, acc.concat(ks.join('.'))]
         }
+        return [v, acc]
+    }, [])
+    return res[1]
+}
+
+function deepMap (object, mapper) {
+    const res = deepTraverse(object, (ks, v, acc) => {
+        return [mapper(v), acc]
     })
+    return res[0]
+}
+
+/**
+ * Traverse the supplied object recursively with function f. f should return each new value and accumulated result. Returns the final object and accumulated result. Note that the original object is untouched.
+ * @param {*} object
+ * @param {*} f Should accept (ks, v, acc) = (array of keys, old value, accumulator) and return [v', acc'] = (new value, new accumulator)
+ * @param {*} initialAcc initial accumulator value. Defaults to empty list.
+ */
+function deepTraverse (object, f, initialAcc = []) {
+    const traverse = (ks, v, f, acc) => {
+        const isTerminalNode = !_.isObjectLike(v) || _.isEmpty(v)
+        if (isTerminalNode) {
+            return ks.length ? f(ks, v, acc) : [v, acc]
+        }
+        if (Array.isArray(v)) {
+            // case array
+            let arr = v
+            for (let [i, v] of arr.entries()) {
+                const kss = ks.concat([i])
+                const [v2, acc2] = traverse(kss, v, f, acc)
+                if (v !== v2) {
+                    const arr2 = arr.slice()
+                    arr2[i] = v2
+                    arr = arr2
+                }
+                acc = acc2
+            }
+            v = arr
+        } else {
+            // case object
+            let o = v
+            for (const [k, v] of Object.entries(o)) {
+                const kss = ks.concat([k])
+                const [v2, acc2] = traverse(kss, v, f, acc)
+                if (v !== v2) {
+                    const o2 = Object.assign({}, o)
+                    o2[k] = v2
+                    o = o2
+                }
+                acc = acc2
+            }
+            v = o
+        }
+        return [v, acc]
+    }
+    return traverse([], object, f, initialAcc)
 }
 
 function pairsToDeepObject (pairs) {

@@ -46,9 +46,6 @@ async function getLastActivity (dyno = WORKER_DYNO) {
 
 async function getLogplexUrl (dyno, stream = false) {
     const { appName, herokuClient } = getClient(dyno)
-    switch (dyno) {
-
-    }
     const res = await herokuClient.post(`/apps/${appName}/log-sessions`, {
         body: {
             dyno,

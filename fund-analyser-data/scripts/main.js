@@ -8,6 +8,7 @@ const Stopwatch = require('../lib/util/stopwatch')
 const updateFunds = require('./tasks/updateFunds')
 const updateCatalog = require('./tasks/updateCatalog')
 const updateCurrencies = require('./tasks/updateCurrencies')
+const updateHolidays = require('./tasks/updateHolidays')
 const createIndex = require('./tasks/createIndex')
 const repairDatabase = require('./tasks/repairDatabase')
 const downloadCsv = require('./tasks/downloadCsv')
@@ -18,12 +19,13 @@ function Main () {
 
 Main.tasks = {
     'updateCatalog': updateCatalog,
-    'updateFunds': updateFunds,
     'updateCurrencies': updateCurrencies,
+    'updateFunds': updateFunds,
+    'updateHolidays': updateHolidays,
     'createIndex': createIndex,
-    'repairDatabase': repairDatabase,
     'downloadCsv': downloadCsv,
-    'dynoHealthcheck': dynoHealthcheck
+    'dynoHealthcheck': dynoHealthcheck,
+    'repairDatabase': repairDatabase
 }
 
 if (require.main === module) {
