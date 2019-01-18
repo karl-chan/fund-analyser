@@ -95,7 +95,7 @@ describe('FinancialTimes', function () {
 
         test('getSummary should return summary object', async () => {
             const summary = await financialTimes.getSummary('GB00B80QG615')
-            expect(summary).toHaveProperty('name', 'HSBC American Index Fund Accumulation C')
+            expect(summary).toHaveProperty('name', 'American Index Fund Accumulation C')
             expect(summary).toHaveProperty('type', Fund.types.OEIC)
             expect(summary).toHaveProperty('shareClass', Fund.shareClasses.ACC)
             expect(summary).toHaveProperty('frequency', 'Daily')
@@ -121,39 +121,48 @@ describe('FinancialTimes', function () {
 
         test('getHistoricPrices should return historic prices object', async () => {
             const historicPrices = await financialTimes.getHistoricPrices('GB00B80QG615')
-            expect(historicPrices).toBeArray()
-            expect(historicPrices).toSatisfyAll(hp => hp instanceof Fund.HistoricPrice)
-            expect(historicPrices).not.toBeEmpty()
-            for (let hp of historicPrices) {
-                expect(moment(hp.date).isValid()).toBeTrue()
-                expect(hp.price).toBeNumber().not.toBeNaN()
-            }
+            expect(historicPrices).toBeArray().not.toBeEmpty()
+            expect(historicPrices).toSatisfyAll(hp => {
+                return hp instanceof Fund.HistoricPrice &&
+                        moment(hp.date).isValid() &&
+                        typeof hp.price === 'number' && !isNaN(hp.price)
+            })
         })
 
         test('getHistoricExchangeRates should return historic exchange rates series', async () => {
             const historicRates = await financialTimes.getHistoricExchangeRates('GBP', 'USD')
-            expect(historicRates).toBeArray()
-            expect(historicRates).toSatisfyAll(hr => hr instanceof Currency.HistoricRate)
-            expect(historicRates).not.toBeEmpty()
-            for (let hr of historicRates) {
-                expect(moment(hr.date).isValid()).toBeTrue()
-                expect(hr.rate).not.toBeNaN()
-            }
+            expect(historicRates).toBeArray().not.toBeEmpty()
+            expect(historicRates).toSatisfyAll(hr => {
+                return hr instanceof Currency.HistoricRate &&
+                        moment(hr.date).isValid() &&
+                        typeof hr.rate === 'number' && !isNaN(hr.rate)
+            })
         })
 
-        test('getHoldings should return holdings object', async () => {
-            const holdings = await financialTimes.getHoldings('GB00B80QG615')
-            expect(holdings).toBeArray()
-            expect(holdings).not.toBeEmpty()
+        describe('getHoldings', () => {
+            test('should return holdings object', async () => {
+                const holdings = await financialTimes.getHoldings('GB00B80QG615')
+                expect(holdings).toBeArray().not.toBeEmpty()
+                expect(holdings).toSatisfyAll(h => {
+                    return typeof h.name === 'string' && h.name &&
+                            typeof h.symbol === 'string' && h.symbol &&
+                            typeof h.weight === 'number' && isFinite(h.weight)
+                })
+            })
 
-            for (let h of holdings) {
-                expect(h).toHaveProperty('name')
-                expect(h).toHaveProperty('symbol')
-                expect(h).toHaveProperty('weight')
-                expect(h.name).toBeString().not.toBeEmpty()
-                expect(h.symbol).toBeString().not.toBeEmpty()
-                expect(h.weight).toBeFinite()
-            }
+            test('should return holdings object with fallback', async () => {
+                const fallbackFund = Fund.Builder('GB00B8JYLC77')
+                    .holdings([new Fund.Holding('NIHON M&A CENTER INC', null, 0.07)])
+                    .build()
+
+                const holdings = await financialTimes.getHoldings('GB00B8JYLC77', fallbackFund)
+                expect(holdings).toBeArray().not.toBeEmpty()
+                expect(holdings).toSatisfyAll(h => {
+                    return typeof h.name === 'string' && h.name &&
+                            typeof h.symbol === 'string' && h.symbol &&
+                            typeof h.weight === 'number' && isFinite(h.weight)
+                })
+            })
         })
 
         test('getRealTimeDetails should return real time details object', async () => {
@@ -193,18 +202,22 @@ describe('FinancialTimes', function () {
 
         test('getSymbolFromName should return symbol for fund name', async () => {
             const aia = await financialTimes.getSymbolFromName('AIA Group Ltd')
-            expect(aia).toBe('1299:HKG')
+            expect(aia).toEqual({ symbol: '1299:HKG', name: 'AIA Group Ltd' })
 
             // drop the prefix
             const homeDepot = await financialTimes.getSymbolFromName('The Home Depot Inc')
-            expect(homeDepot).toBe('HD:NYQ')
+            expect(homeDepot).toEqual({ symbol: 'HD:NYQ', name: 'Home Depot Inc' })
 
             // drop suffix
             const alphabet = await financialTimes.getSymbolFromName('Alphabet Inc Class C')
-            expect(alphabet).toBe('GOOGL:NSQ')
+            expect(alphabet).toEqual({ symbol: 'GOOGL:NSQ', name: 'Alphabet Inc' })
+
+            // hypen equivalence
+            const franco = await financialTimes.getSymbolFromName('Franco Nevada Corp')
+            expect(franco).toEqual({ symbol: 'FNV:TOR', name: 'Franco-Nevada Corp' })
 
             const notFound = await financialTimes.getSymbolFromName('Non existent fund name')
-            expect(notFound).toBeUndefined()
+            expect(notFound).toEqual({ symbol: undefined, name: undefined })
         })
     })
 

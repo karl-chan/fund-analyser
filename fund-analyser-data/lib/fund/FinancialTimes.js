@@ -45,17 +45,20 @@ class FinancialTimes {
         const sedol = isin instanceof Fund ? isin.sedol : undefined
         const bidAskSpread = isin instanceof Fund ? isin.bidAskSpread : undefined
         const entryCharge = isin instanceof Fund ? isin.entryCharge : undefined
-        isin = isin instanceof Fund ? isin.isin : isin
+        let fund = isin instanceof Fund ? isin : undefined
+        if (fund) {
+            isin = fund.isin
+        }
 
         log.silly('Get fund from isin: %s', isin)
         const [summary, performance, historicPrices, holdings] = await Promise.all([
             this.getSummary(isin),
             this.getPerformance(isin),
             this.getHistoricPrices(isin),
-            this.getHoldings(isin)
+            this.getHoldings(isin, fund)
         ])
 
-        const fund = Fund.Builder(isin)
+        fund = Fund.Builder(isin)
             .sedol(sedol)
             .name(summary.name)
             .type(summary.type)
@@ -203,7 +206,7 @@ class FinancialTimes {
         return entries.map(entry => new Currency.HistoricRate(entry.date, entry.price))
     }
 
-    async getHoldings (isin) {
+    async getHoldings (isin, fallbackFund) {
         const url = `https://markets.ft.com/data/funds/tearsheet/holdings?s=${isin}`
         const { body } = await http.asyncGet(url)
 
@@ -211,7 +214,7 @@ class FinancialTimes {
         const table = $(`body > div.o-grid-container.mod-container > div:nth-child(3) > section 
                 > div:nth-child(3) > div > div > table`)
         const tbody = $('body').html('<tbody></tbody>').append(table.children().not('thead, tfoot'))
-        const holdings = tbody.find('tr').map((i, tr) => {
+        let holdings = tbody.find('tr').map((i, tr) => {
             const company = $(tr).find('td:nth-child(1)')
             const name = company.has('a').length ? company.find('a').text() : company.text()
             const symbol = company.find('span').text()
@@ -219,11 +222,19 @@ class FinancialTimes {
             return new Fund.Holding(name, symbol, weight)
         }).get()
 
+        // in case FT fails, read from fallback fund
+        if (_.isEmpty(holdings) && !_.isEmpty(fallbackFund.holdings)) {
+            holdings = fallbackFund.holdings
+        }
+
         // enrich holdings with symbols if necessary
         await Promise.all(holdings.filter(h => !h.symbol).map(async h => {
-            const symbol = await this.getSymbolFromName(h.name)
+            const { symbol, name } = await this.getSymbolFromName(h.name)
             if (symbol) {
                 h.symbol = symbol
+            }
+            if (name) {
+                h.name = name
             }
         }))
         return holdings
@@ -310,21 +321,21 @@ class FinancialTimes {
         }
 
         const search = async name => {
-            const url = `https://markets.ft.com/data/searchapi/searchsecurities?query=${name}`
+            const url = 'https://markets.ft.com/data/searchapi/searchsecurities'
             const qs = {
                 query: name
             }
             const { body } = await http.asyncGet(url, { qs })
             const { data } = JSON.parse(body)
-            const security = data.security.find(s => s.name.toLowerCase().includes(name.toLowerCase()))
-            return security && security.symbol
+            const security = data.security.find(s => s.name.toLowerCase().replace(/-/g, ' ').includes(name.toLowerCase().replace(/-/g, ' ')))
+            return { symbol: security && security.symbol, name: security && security.name }
         }
         const candidates = [name, dropThePrefix(name), dropShareClassSuffix(dropThePrefix(name))]
         for (let candidate of candidates) {
-            const symbol = await search(candidate)
-            if (symbol) { return symbol }
+            const { symbol, name } = await search(candidate)
+            if (symbol) { return { symbol, name } }
         }
-        return undefined
+        return { symbol: undefined, name: undefined }
     }
 
     _getShareClass (shareClass, name) {

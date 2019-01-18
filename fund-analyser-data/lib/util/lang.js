@@ -1,9 +1,12 @@
 module.exports = {
+    // objects
     deepKeys,
     deepKeysSatisfying,
     deepMap,
     deepTraverse,
     pairsToDeepObject,
+
+    // numbers
     isOrdered,
     parseNumber
 }

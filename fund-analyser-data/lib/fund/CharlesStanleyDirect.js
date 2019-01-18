@@ -1,5 +1,6 @@
 const Fund = require('./Fund')
 const Http = require('../util/http')
+const lang = require('../util/lang')
 const math = require('../util/math')
 const properties = require('../util/properties')
 const log = require('../util/log')
@@ -91,10 +92,21 @@ class CharlesStanleyDirect {
         // initial charge
         const entryCharge = math.pcToFloat($('#main div.panel--light-grey  div:nth-child(6) tr:nth-child(2) > td:nth-child(2)').text())
 
+        // holdings
+        const dataCompositionHoldingsRegex = /var dataCompositionHoldings = (.*)/
+        const dataCompositionHoldings = JSON.parse(body.match(dataCompositionHoldingsRegex)[1])
+        const holdings = dataCompositionHoldings.map(e => {
+            const name = e.tooltip.split('(')[0].trim()
+            const symbol = null // charles stanley does not have symbol, need to fetch this from FT
+            const weight = math.pcToFloat(e.amount)
+            return new Fund.Holding(name, symbol, weight)
+        })
+
         const partialFund = Fund.Builder(isin)
             .sedol(sedol)
             .bidAskSpread(bidAskSpread)
             .entryCharge(entryCharge)
+            .holdings(holdings)
             .build()
         log.debug('Isin: %s found for sedol: %s - bid ask spread: %d, entry charge: %d', isin, sedol, bidAskSpread, entryCharge)
         return partialFund

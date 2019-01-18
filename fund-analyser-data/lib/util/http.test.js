@@ -21,9 +21,9 @@ describe('Http', () => {
         const rs = await Promise.all(new Array(20).fill('http://www.duckduckgo.com')
             .map(url => http.asyncGet(url)))
         expect(rs).toBeArrayOfSize(20)
-        for (let res of rs) {
-            expect(res).toHaveProperty('statusCode', 200)
-            expect(res.body).toBeString().not.toBeEmpty()
-        }
+        expect(rs).toSatisfyAll(res => {
+            return res.statusCode === 200 &&
+                    typeof res.body === 'string' && res.body
+        })
     })
 })

@@ -70,8 +70,13 @@ describe('CharlesStanleyDirect', () => {
             expect(partialFund).toHaveProperty('isin', 'GB00B8N44B34')
             expect(partialFund).toHaveProperty('bidAskSpread')
             expect(partialFund).toHaveProperty('entryCharge')
+            expect(partialFund).toHaveProperty('holdings')
             expect(partialFund.bidAskSpread).toBeNumber()
             expect(partialFund.entryCharge).toBeNumber()
+            expect(partialFund.holdings).toBeArrayOfSize(10).toSatisfyAll(holding => {
+                return typeof holding.name === 'string' && holding.name &&
+                       typeof holding.weight === 'number' && holding.weight > 0
+            })
         })
 
         test('getPageRange should return array of consecutive ints', async () => {
