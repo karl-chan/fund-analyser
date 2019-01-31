@@ -330,6 +330,13 @@ class FinancialTimes {
             const security = data.security.find(s => s.name.toLowerCase().replace(/-/g, ' ').includes(name.toLowerCase().replace(/-/g, ' ')))
             return { symbol: security && security.symbol, name: security && security.name }
         }
+
+        // replace charles stanley keywords with financial times before search
+        const replacements = { 'HLDGS': 'Holdings' }
+        for (let [from, to] of Object.entries(replacements)) {
+            name = name.replace(new RegExp(from, 'g'), to)
+        }
+
         const candidates = [name, dropThePrefix(name), dropShareClassSuffix(dropThePrefix(name))]
         for (let candidate of candidates) {
             const { symbol, name } = await search(candidate)
