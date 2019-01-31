@@ -59,4 +59,26 @@ describe('UserDAO', function () {
 
         await UserDAO.deleteUser(user)
     })
+    test('currencies', async function () {
+        await UserDAO.deleteUser(user)
+
+        await UserDAO.createUserIfNotExists(user)
+        let currencies = await UserDAO.getCurrencies(user)
+        expect(currencies).toEqual([])
+
+        await UserDAO.addToCurrencies(user, 'GBPUSD')
+        await UserDAO.addToCurrencies(user, 'EURHKD')
+        currencies = await UserDAO.getCurrencies(user)
+        expect(currencies).toEqual(['GBPUSD', 'EURHKD'])
+
+        await UserDAO.removeFromCurrencies(user, 'GBPUSD')
+        currencies = await UserDAO.getCurrencies(user)
+        expect(currencies).toEqual(['EURHKD'])
+
+        await UserDAO.removeFromCurrencies(user, 'EURHKD')
+        currencies = await UserDAO.getCurrencies(user)
+        expect(currencies).toEqual([])
+
+        await UserDAO.deleteUser(user)
+    })
 })

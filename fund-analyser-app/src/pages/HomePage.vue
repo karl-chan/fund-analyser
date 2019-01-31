@@ -8,14 +8,19 @@
     q-tabs.q-mt-md
       q-tab(default label="Account View" slot="title" name="account")
       q-tab(label="Summary View" slot="title" name="summary")
+      q-tab(label="Currency View" slot="title" name="currency")
 
       // Account View
-      q-tab-pane.gutter-y-md(keep-alive name="account")
+      q-tab-pane(keep-alive name="account")
         fund-watch-list(:watchlist="watchlist")
 
       // Summary View
       q-tab-pane(keep-alive name="summary")
         funds-summary
+
+      // Currency View
+      q-tab-pane(keep alive name="currency")
+        currency-dashboard
 </template>
 
 <script>

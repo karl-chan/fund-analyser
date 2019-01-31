@@ -21,5 +21,11 @@ export default {
   },
   clearWatchlist () {
     return apiService.delete('/account/watchlist')
+  },
+  addToCurrencies (currency) {
+    return apiService.post('/account/currency/add', { currency })
+  },
+  removeFromCurrencies (currency) {
+    return apiService.post('/account/currency/remove', { currency })
   }
 }

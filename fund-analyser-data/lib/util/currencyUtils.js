@@ -1,9 +1,11 @@
 module.exports = {
     invertCurrency,
-    multiplyCurrencies
+    multiplyCurrencies,
+    calculateReturns
 }
 
 const Currency = require('../currency/Currency')
+const fundUtils = require('../util/fundUtils')
 const _ = require('lodash')
 
 function invertCurrency (currency) {
@@ -48,4 +50,24 @@ function multiplyCurrencies (currency1, currency2) {
     }
     multipliedRates = multipliedRates.concat(tail)
     return new Currency(currency1.base, currency2.quote, multipliedRates)
+}
+
+function calculateReturns (currency, lookbacks) {
+    // Null safe check
+    const returns = {}
+    if (!currency || _.isEmpty(currency.historicRates) || _.isEmpty(lookbacks)) {
+        return returns
+    }
+
+    const latestRate = _.last(currency.historicRates).rate
+    _.forEach(lookbacks, (lookback) => {
+        const beginRecord = fundUtils.closestRecord(lookback, currency.historicRates)
+        if (_.isNil(beginRecord)) {
+            returns[lookback] = null
+        } else {
+            const beginRate = beginRecord.rate
+            returns[lookback] = (latestRate - beginRate) / beginRate
+        }
+    })
+    return returns
 }

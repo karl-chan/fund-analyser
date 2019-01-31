@@ -15,6 +15,8 @@ import FundsTable from 'components/fund/FundsTable'
 import FundsSummary from 'components/fund/FundsSummary'
 import FundWatchList from 'components/fund/FundWatchList'
 
+import CurrencyChart from 'components/currency/CurrencyChart'
+import CurrencyDashboard from 'components/currency/CurrencyDashboard'
 import CurrencyExposure from 'components/currency/CurrencyExposure'
 
 import Healthcheck from 'components/misc/Healthcheck'
@@ -41,6 +43,8 @@ export default ({ Vue }) => {
   Vue.component('funds-summary', FundsSummary)
   Vue.component('fund-watch-list', FundWatchList)
 
+  Vue.component('currency-chart', CurrencyChart)
+  Vue.component('currency-dashboard', CurrencyDashboard)
   Vue.component('currency-exposure', CurrencyExposure)
 
   Vue.component('healthcheck', Healthcheck)

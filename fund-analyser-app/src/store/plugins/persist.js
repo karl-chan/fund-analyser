@@ -5,7 +5,8 @@ export default new VuexPersistence({
   reducer: state => ({
     account: {
       watchlist: state.account.watchlist,
-      recentlyViewed: state.account.recentlyViewed
+      recentlyViewed: state.account.recentlyViewed,
+      currencies: state.account.currencies
     }
   })
 })

@@ -2,21 +2,28 @@ import moment from 'moment-business-days'
 
 export default {
   startOfDay (date = new Date()) {
-    return moment(date).startOf('day')
+    const mdate = this.verifyDate(date)
+    return mdate && mdate.startOf('day')
   },
   isAfterNow (date) {
-    if (!date) {
-      return false
-    }
-    return moment(date).isAfter()
+    const mdate = this.verifyDate(date)
+    return mdate && mdate.isAfter()
   },
   isBeforeToday (date) {
-    if (!date) {
-      return false
-    }
-    return moment(date).isBefore(this.startOfDay())
+    const mdate = this.verifyDate(date)
+    return mdate && mdate.isBefore(this.startOfDay())
   },
   diffBusinessDays (a, b) {
     return this.startOfDay(a).businessDiff(this.startOfDay(b))
+  },
+  verifyDate (date) {
+    if (!date) {
+      return false
+    }
+    const mdate = moment(date)
+    if (!mdate.isValid()) {
+      return false
+    }
+    return mdate
   }
 }

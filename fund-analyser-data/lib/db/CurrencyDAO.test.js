@@ -20,4 +20,11 @@ describe('CurrencyDAO', function () {
         expect(currencyMap['GBP']['BRL'].historicRates).toBeArray().not.toBeEmpty()
         expect(currencyMap['HKD']['CNY'].historicRates).toBeArray().not.toBeEmpty()
     })
+    test('listSupportedCurrencies should return array of currenciess', async () => {
+        const currencyPairs = await CurrencyDAO.listSupportedCurrencies()
+        expect(currencyPairs).toBeArray().not.toBeEmpty()
+        expect(currencyPairs).toSatisfyAll(currency => typeof currency === 'string' &&
+                                                            currency.length === 3 &&
+                                                            currency === currency.toUpperCase())
+    })
 })

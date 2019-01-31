@@ -9,15 +9,10 @@ const HOME_CURRENCY = 'GBP'
 /**
  * List all currencies in baseQuotePairs
  * @param currencyPairs array of <base><quote> strings, e.g. ["GBPUSD", "GBPBRL", "HKDCNY", ...]
- * @return js object, e.g. {
- *      "GBP": {
- *          "USD": [...],
- *          "BRL": [...]
- *      },
- *      "HKD": {
- *          "CNY": [...]
- *      }
- *  }
+ * @returns array of currencies, e.g. [
+ *      {base: "GBP", quote: "USD", historicRates: [...]},
+ *      {base: "GBP", quote: "BRL", historicRates: [...]}
+ * ]
  */
 async function listCurrencies (currencyPairs) {
     const baseQuotePairs = currencyPairs.map(pair => {
@@ -30,12 +25,12 @@ async function listCurrencies (currencyPairs) {
     const query = {
         quote: { $in: requiredQuoteCurrencies }
     }
-    const currencies = await db.getCurrencies().find(query).toArray()
-    const currenciesByQuote = _.keyBy(currencies, c => c.quote)
+    const projection = { _id: 0 }
+    const rawCurrencies = await db.getCurrencies().find(query, { projection }).toArray()
+    const currenciesByQuote = _.keyBy(rawCurrencies, c => c.quote)
 
-    const currencyMap = {}
+    const currencies = []
     baseQuotePairs.forEach(([base, quote]) => {
-        const path = `${base}.${quote}`
         let currency
         if (base === quote) {
             return
@@ -58,9 +53,9 @@ async function listCurrencies (currencyPairs) {
                 currenciesByQuote[quote]
             )
         }
-        _.set(currencyMap, path, toCurrency(currency))
+        currencies.push(currency)
     })
-    return currencyMap
+    return currencies
 }
 
 async function upsertCurrency (currency) {
@@ -73,20 +68,23 @@ async function upsertCurrency (currency) {
     return res
 }
 
+/**
+ * Returns supported currencies.
+ * @returns [string] e.g. ['GBP', 'USD', ...]
+ */
+async function listSupportedCurrencies () {
+    const projection = { base: 1, quote: 1 }
+    const baseQuotes = await db.getCurrencies().find({}, { projection }).toArray()
+    return _.uniq(_.flatten(baseQuotes.map(pair => [pair.base, pair.quote])))
+}
+
 function fromCurrency (currency) {
     return _.toPlainObject(currency)
 }
 
-function toCurrency (entry) {
-    return new Currency(
-        entry.base,
-        entry.quote,
-        entry.historicRates.map(hr => new Currency.HistoricRate(hr.date, hr.rate))
-    )
-}
-
 module.exports = {
     listCurrencies,
+    listSupportedCurrencies,
     upsertCurrency,
     HOME_CURRENCY
 }

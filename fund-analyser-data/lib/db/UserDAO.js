@@ -73,4 +73,27 @@ UserDAO.clearWatchlist = async function (user) {
     log.debug(`Cleared [${user}]'s watchlist`)
 }
 
+UserDAO.getCurrencies = async function (user) {
+    const { meta: { currencies = [] } } = await db.getUsers().findOne({ user }, { projection: { 'meta.currencies': 1 } })
+    return currencies
+}
+
+UserDAO.addToCurrencies = async function (user, currency) {
+    const oldCurrencies = await this.getCurrencies(user)
+    if (oldCurrencies.includes(currency)) {
+        return false // no action required if already in saved currencies
+    }
+
+    await db.getUsers().update({ user }, { $push: { 'meta.currencies': currency } })
+    log.debug(`Added [${currency}] to [${user}]'s saved currencies.`)
+    return true
+}
+
+UserDAO.removeFromCurrencies = async function (user, currency) {
+    const res = await db.getUsers().findOneAndUpdate({ user }, { $pull: { 'meta.currencies': currency } })
+    log.debug(`Removed [${currency}] from [${user}]'s saved currencies.`)
+
+    return res.value.meta.currencies
+}
+
 module.exports = UserDAO

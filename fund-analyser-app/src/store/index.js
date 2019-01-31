@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import account from './account'
 import admin from './admin'
 import auth from './auth'
+import currency from './currency'
 import funds from './funds'
 import layout from './layout'
 
@@ -17,6 +18,7 @@ const store = new Vuex.Store({
     account,
     admin,
     auth,
+    currency,
     funds,
     layout
   },
@@ -30,6 +32,7 @@ const store = new Vuex.Store({
 const init = async () => {
   await store.dispatch('auth/init')
   await store.dispatch('account/init')
+  await store.dispatch('currency/init')
 }
 
 init()

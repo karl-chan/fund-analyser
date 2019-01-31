@@ -2,10 +2,11 @@ import accountService from './../../services/account-service'
 
 export async function init ({ commit }) {
   try {
-    const { balance, statement, watchlist } = await accountService.get()
+    const { balance, statement, watchlist, currencies } = await accountService.get()
     commit('saveBalance', balance)
     commit('saveStatement', statement)
     commit('setWatchlist', watchlist)
+    commit('setCurrencies', currencies)
   } catch (ignored) {
     // user not signed in
   }
@@ -75,4 +76,26 @@ export async function removeFromRecentlyViewed ({ commit, state, getters }, isin
 
 export async function clearRecentlyViewed ({ commit }) {
   commit('setRecentlyViewed', [])
+}
+
+export async function addToCurrencies ({ commit, state }, symbol) {
+  if (!state.currencies.includes(symbol)) {
+    commit('setCurrencies', state.currencies.concat([symbol]))
+  }
+  try {
+    await accountService.addToCurrencies(symbol)
+  } catch (ignored) {
+    // user not logged in
+  }
+}
+
+export async function removeFromCurrencies ({ commit, state }, symbol) {
+  if (state.currencies.includes(symbol)) {
+    commit('setCurrencies', state.currencies.filter(c => c !== symbol))
+  }
+  try {
+    await accountService.removeFromCurrencies(symbol)
+  } catch (ignored) {
+    // user not logged in
+  }
 }

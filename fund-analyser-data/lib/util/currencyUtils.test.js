@@ -47,4 +47,9 @@ describe('currencyUtils', () => {
             ])
         })
     })
+
+    test('calculateReturns', () => {
+        const returns = currencyUtils.calculateReturns(currency, ['1D'])
+        expect(returns['1D']).toBeCloseTo(0.0079, 4)
+    })
 })

@@ -13,8 +13,8 @@ router.use(auth.authorise)
 router.get('/', async ctx => {
     const { jar, user } = ctx
     const csdAccount = new CharlesStanleyDirectAccount(jar)
-    const [balance, statement, watchlist] = await Promise.all([csdAccount.getBalance(), csdAccount.getStatement(), UserDAO.getWatchlist(user)])
-    ctx.body = { balance, statement, watchlist }
+    const [balance, statement, watchlist, currencies] = await Promise.all([csdAccount.getBalance(), csdAccount.getStatement(), UserDAO.getWatchlist(user), UserDAO.getCurrencies(user)])
+    ctx.body = { balance, statement, watchlist, currencies }
 })
 
 router.get('/balance', async ctx => {
@@ -55,6 +55,20 @@ router.delete('/watchlist', async ctx => {
     const user = ctx.user
     await UserDAO.clearWatchlist(user)
     ctx.status = 200
+})
+
+router.post('/currency/add', async ctx => {
+    const user = ctx.user
+    const { currency } = ctx.request.body
+    await UserDAO.addToCurrencies(user, currency)
+    ctx.status = 200
+})
+
+router.post('/currency/remove', async ctx => {
+    const user = ctx.user
+    const { currency } = ctx.request.body
+    const currencies = await UserDAO.removeFromCurrencies(user, currency)
+    ctx.body = { currencies }
 })
 
 module.exports = router
