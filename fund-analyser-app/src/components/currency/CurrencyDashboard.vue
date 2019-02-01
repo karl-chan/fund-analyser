@@ -1,10 +1,11 @@
 <template lang="pug">
     .column.gutter-y-sm
       .q-headline Currency Dashboard
-        .row.justify-between.items-center.gutter-x-md
+        .row.justify-start.items-center
           // user search bar
-          q-search.shadow-2(v-model="currenciesFilter" placeholder="Filter currency (e.g. GBPUSD)" color="grey-2" inverted-light clearable upper-case)
+          q-search.shadow-2(v-model="currenciesFilter" placeholder="Add currency (e.g. GBPUSD)" color="grey-2" inverted-light clearable upper-case)
             q-autocomplete(@search="search" @selected="onSelectCurrency")
+          q-spinner-dots.q-ml-md(color="primary" v-if="loading")
 
       // grid of currencies
       .row(v-for="y in rows")
@@ -28,7 +29,8 @@ export default {
   data: function () {
     return {
       currenciesFilter: '',
-      cols: 3
+      cols: 3,
+      loading: false
     }
   },
   computed: {
@@ -55,6 +57,7 @@ export default {
     onSelectCurrency ({ value }) {
       this.currenciesFilter = value
       // watch below - skip lazyGets
+      this.loading = true
       this.addToCurrencies(value)
     },
     search (terms, done) {
@@ -89,9 +92,10 @@ export default {
   watch: {
     currencies: {
       immediate: true,
-      handler (newCurrencies, oldCurrencies) {
+      async handler (newCurrencies, oldCurrencies) {
         if (newCurrencies && !isEqual(newCurrencies, oldCurrencies)) {
-          this.lazyGets(newCurrencies)
+          await this.lazyGets(newCurrencies)
+          this.loading = false
         }
       }
     }

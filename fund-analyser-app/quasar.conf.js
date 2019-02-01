@@ -102,6 +102,7 @@ module.exports = function (ctx) {
         'QTree',
         'QSpinner',
         'QSpinnerFacebook',
+        'QSpinnerDots',
         'QSlideTransition',
         'QAjaxBar'
       ],
