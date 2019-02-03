@@ -7,6 +7,7 @@ const cors = require('@koa/cors')
 const session = require('koa-session')
 const bodyParser = require('koa-bodyparser')
 const serve = require('koa-static')
+const { default: sslify, xForwardedProtoResolver } = require('koa-sslify');
 const moment = require('moment')
 
 const properties = require('../lib/util/properties')
@@ -30,6 +31,7 @@ app.keys = [properties.get('secret.key')]
 
 if (process.env.NODE_ENV === 'production') {
     app.use(helmet())
+    app.use(sslify({ resolver: xForwardedProtoResolver }));
 }
 
 app.use(compress())
