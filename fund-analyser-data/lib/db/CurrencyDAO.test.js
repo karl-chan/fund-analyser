@@ -12,13 +12,9 @@ describe('CurrencyDAO', function () {
         await db.close()
     })
     test('listCurrencies should return object map of currencies', async () => {
-        const currencyMap = await CurrencyDAO.listCurrencies(['GBPUSD', 'GBPBRL', 'HKDCNY'])
-        expect(currencyMap['GBP']['USD']).toBeInstanceOf(Currency)
-        expect(currencyMap['GBP']['BRL']).toBeInstanceOf(Currency)
-        expect(currencyMap['HKD']['CNY']).toBeInstanceOf(Currency)
-        expect(currencyMap['GBP']['USD'].historicRates).toBeArray().not.toBeEmpty()
-        expect(currencyMap['GBP']['BRL'].historicRates).toBeArray().not.toBeEmpty()
-        expect(currencyMap['HKD']['CNY'].historicRates).toBeArray().not.toBeEmpty()
+        const currencies = await CurrencyDAO.listCurrencies(['GBPUSD', 'GBPBRL', 'HKDCNY'])
+        expect(currencies).toBeArrayOfSize(3).toSatisfyAll(c => c.historicRates.length > 0)
+        expect(currencies.map(c => c.base + c.quote)).toIncludeSameMembers(['GBPUSD', 'GBPBRL', 'HKDCNY'])
     })
     test('listSupportedCurrencies should return array of currenciess', async () => {
         const currencyPairs = await CurrencyDAO.listSupportedCurrencies()

@@ -1,8 +1,9 @@
 class Currency {
-    constructor (base, quote, historicRates) {
+    constructor (base, quote, historicRates, returns) {
         this.base = base
         this.quote = quote
         this.historicRates = historicRates
+        this.returns = returns
     }
 }
 

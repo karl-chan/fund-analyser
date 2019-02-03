@@ -7,11 +7,13 @@ describe('currencyUtils', () => {
     beforeEach(() => {
         base = 'GBP'
         quote = 'USD'
-        currency = new Currency(base, quote, [
+        const historicRates = [
             new Currency.HistoricRate(new Date(2001, 0, 1), 1.26),
             new Currency.HistoricRate(new Date(2001, 0, 2), 1.27),
             new Currency.HistoricRate(new Date(2001, 0, 3), 1.28)
-        ])
+        ]
+        const returns = currencyUtils.calculateReturns(historicRates)
+        currency = new Currency(base, quote, historicRates, returns)
     })
     test('invertCurrency should invert currency pair', () => {
         const inverted = currencyUtils.invertCurrency(currency)
@@ -27,7 +29,7 @@ describe('currencyUtils', () => {
 
     describe('multiplyCurrency', () => {
         test('multiplyCurrency should refuse to multiply for invalid pairs', () => {
-            const currency2 = new Currency('GBP', 'HKD', []) // currency1.quote !== currency2.base
+            const currency2 = new Currency('GBP', 'HKD', [], {}) // currency1.quote !== currency2.base
             expect(() => currencyUtils.multiplyCurrencies(currency, currency2)).toThrowError()
         })
         test('multiplyCurrency should multiply and forward fill currency pairs', () => {
@@ -36,7 +38,7 @@ describe('currencyUtils', () => {
                 new Currency.HistoricRate(new Date(2000, 11, 31), 7.75),
                 new Currency.HistoricRate(new Date(2001, 0, 2), 7.85),
                 new Currency.HistoricRate(new Date(2001, 0, 4), 7.8)
-            ])
+            ], {})
             const multiplied = currencyUtils.multiplyCurrencies(currency, currency2)
             expect(multiplied).toHaveProperty('historicRates', [
                 new Currency.HistoricRate(new Date(2000, 11, 31), 9.765),
@@ -49,7 +51,6 @@ describe('currencyUtils', () => {
     })
 
     test('calculateReturns', () => {
-        const returns = currencyUtils.calculateReturns(currency, ['1D'])
-        expect(returns['1D']).toBeCloseTo(0.0079, 4)
+        expect(currency.returns['1D']).toBeCloseTo(0.0079, 4)
     })
 })

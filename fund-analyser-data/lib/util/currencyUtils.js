@@ -6,11 +6,15 @@ module.exports = {
 
 const Currency = require('../currency/Currency')
 const fundUtils = require('../util/fundUtils')
+const properties = require('../util/properties')
 const _ = require('lodash')
+
+const lookbacks = properties.get('fund.lookbacks')
 
 function invertCurrency (currency) {
     const invertedRates = currency.historicRates.map(hr => new Currency.HistoricRate(hr.date, 1 / hr.rate))
-    return new Currency(currency.quote, currency.base, invertedRates)
+    const returns = calculateReturns(invertedRates, lookbacks)
+    return new Currency(currency.quote, currency.base, invertedRates, returns)
 }
 
 function multiplyCurrencies (currency1, currency2) {
@@ -49,19 +53,20 @@ function multiplyCurrencies (currency1, currency2) {
             .map(hr => new Currency.HistoricRate(hr.date, _.last(currency1.historicRates).rate * hr.rate))
     }
     multipliedRates = multipliedRates.concat(tail)
-    return new Currency(currency1.base, currency2.quote, multipliedRates)
+    const returns = calculateReturns(multipliedRates, lookbacks)
+    return new Currency(currency1.base, currency2.quote, multipliedRates, returns)
 }
 
-function calculateReturns (currency, lookbacks) {
+function calculateReturns (historicRates) {
     // Null safe check
     const returns = {}
-    if (!currency || _.isEmpty(currency.historicRates) || _.isEmpty(lookbacks)) {
+    if (_.isEmpty(historicRates) || _.isEmpty(lookbacks)) {
         return returns
     }
 
-    const latestRate = _.last(currency.historicRates).rate
+    const latestRate = _.last(historicRates).rate
     _.forEach(lookbacks, (lookback) => {
-        const beginRecord = fundUtils.closestRecord(lookback, currency.historicRates)
+        const beginRecord = fundUtils.closestRecord(lookback, historicRates)
         if (_.isNil(beginRecord)) {
             returns[lookback] = null
         } else {

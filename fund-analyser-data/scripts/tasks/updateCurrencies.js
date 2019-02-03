@@ -19,11 +19,6 @@ async function updateCurrencies () {
     const allCurrencies = await financialTimes.listCurrencies()
     log.info('Updating %d currencies: %j', allCurrencies.length, allCurrencies)
 
-    // add returns
-    for (let currency of allCurrencies) {
-        currency.returns = currencyUtils.calculateReturns(currency, lookbacks)
-    }
-
     const base = CurrencyDAO.HOME_CURRENCY
     const quoteCurrencies = allCurrencies.filter(c => c !== base)
 
@@ -31,7 +26,8 @@ async function updateCurrencies () {
         quoteCurrencies,
         async quote => {
             const historicRates = await financialTimes.getHistoricExchangeRates(base, quote)
-            const currency = new Currency(base, quote, historicRates)
+            const returns = currencyUtils.calculateReturns(historicRates)
+            const currency = new Currency(base, quote, historicRates, returns)
             await CurrencyDAO.upsertCurrency(currency)
             log.info(`Upserted currency pair ${base}${quote}`)
         }

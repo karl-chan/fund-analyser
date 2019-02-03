@@ -12,6 +12,11 @@
         .col.relative-position(v-for="x in cols")
           div(v-show="withinBounds(x, y)")
             currency-chart.chart(:currency="getCurrencyAt(x, y)")
+            .row.items-center.gutter-xs
+              div(v-for="(periodReturn, period) in getCurrencyAt(x, y).returns" :key="period")
+                | {{period}}:
+                |
+                .text-weight-bold(:class="colour(periodReturn)") {{ formatPercentage(periodReturn) }}
             q-btn.close-btn(round push icon="close" size="lg" color="secondary" @click="removeCurrency(x, y)")
       template(v-if="!rows")
         .row.justify-center
@@ -40,10 +45,11 @@ export default {
       return Math.ceil(this.loadedCurrencies.length / this.cols)
     },
     supportedCurrencyPairs () {
-      return flatten(this.supportedCurrencies
-        .map(c1 =>
+      return flatten(
+        this.supportedCurrencies.map(c1 =>
           this.supportedCurrencies.map(c2 => ({ base: c1, quote: c2 }))
-        ))
+        )
+      )
         .filter(pair => pair.base !== pair.quote)
         .map(pair => pair.base + pair.quote)
     },
@@ -87,6 +93,12 @@ export default {
         const symbol = `${currency.base}${currency.quote}`
         this.removeFromCurrencies(symbol)
       }
+    },
+    colour (num) {
+      return this.$utils.format.colourNumber(num)
+    },
+    formatPercentage (num) {
+      return this.$utils.format.formatPercentage(num, true)
     }
   },
   watch: {
@@ -104,9 +116,10 @@ export default {
 </script>
 
 <style lang="stylus">
-.close-btn
-  position absolute
-  top -20px
-  right -20px
-  z-index 1
+.close-btn {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  z-index: 1;
+}
 </style>
