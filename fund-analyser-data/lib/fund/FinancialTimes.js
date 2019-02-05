@@ -223,7 +223,7 @@ class FinancialTimes {
         }).get()
 
         // in case FT fails, read from fallback fund
-        if (_.isEmpty(holdings) && !_.isEmpty(fallbackFund.holdings)) {
+        if (_.isEmpty(holdings) && fallbackFund && !_.isEmpty(fallbackFund.holdings)) {
             holdings = fallbackFund.holdings
         }
 
@@ -249,12 +249,20 @@ class FinancialTimes {
             const { body } = await http.asyncGet(url)
             const $ = cheerio.load(body)
             let currency, todaysChange
-            try {
-                const cell = $('.mod-tearsheet-overview__quote > ul > li:nth-child(1) > span.mod-ui-data-list__label').text().trim()
-                const groups = cell.match(/Price \((.*)\)/)
+
+            const price = $('.mod-tearsheet-overview__quote > ul > li:nth-child(1) > span.mod-ui-data-list__label').text().trim()
+            let groups = price.match(/Price \((.*)\)/)
+            if (groups) {
                 currency = groups[1]
-            } catch (err) {
-                log.warn('Currency failed for: %s. Cause: %s', holdingTicker, err.stack)
+            }
+            // override by market cap if present (e.g. GBX => GBP)
+            const marketCap = $(`.mod-tearsheet-key-stats__data th:contains('Market cap') + td`).text().trim()
+            groups = marketCap.match(/[A-Z]{3}$/)
+            if (groups) {
+                currency = groups[0]
+            }
+            if (!currency) {
+                log.warn('Currency failed for: %s', holdingTicker)
             }
 
             try {
