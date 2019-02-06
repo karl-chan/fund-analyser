@@ -12,11 +12,7 @@
         .col.relative-position(v-for="x in cols")
           div(v-show="withinBounds(x, y)")
             currency-chart.chart(:currency="getCurrencyAt(x, y)")
-            .row.items-center.gutter-xs
-              div(v-for="(periodReturn, period) in getCurrencyAt(x, y).returns" :key="period")
-                | {{period}}:
-                |
-                .text-weight-bold(:class="colour(periodReturn)") {{ formatPercentage(periodReturn) }}
+            currency-returns(:currency="getCurrencyAt(x, y)")
             q-btn.close-btn(round push icon="close" size="lg" color="secondary" @click="removeCurrency(x, y)")
       template(v-if="!rows")
         .row.justify-center
@@ -93,12 +89,6 @@ export default {
         const symbol = `${currency.base}${currency.quote}`
         this.removeFromCurrencies(symbol)
       }
-    },
-    colour (num) {
-      return this.$utils.format.colourNumber(num)
-    },
-    formatPercentage (num) {
-      return this.$utils.format.formatPercentage(num, true)
     }
   },
   watch: {

@@ -34,8 +34,9 @@
         .col-md-4
           fund-holdings(:fund="fund")
       .row.gutter-x-sm.q-mt-sm
-        .col-md-4
-          fund-charges(:fund="fund")
+        .col-md-4.gutter-y-md
+            fund-charges(:fund="fund")
+            fund-currency-view(:fund="fund")
         .col-md-8
           fund-indicators(:fund="fund")
 
