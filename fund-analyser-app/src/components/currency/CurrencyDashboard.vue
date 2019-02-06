@@ -11,7 +11,7 @@
       .row(v-for="y in rows")
         .col.relative-position(v-for="x in cols")
           div(v-show="withinBounds(x, y)")
-            currency-chart.chart(:currency="getCurrencyAt(x, y)")
+            currency-chart(:currency="getCurrencyAt(x, y)")
             currency-returns(:currency="getCurrencyAt(x, y)")
             q-btn.close-btn(round push icon="close" size="lg" color="secondary" @click="removeCurrency(x, y)")
       template(v-if="!rows")

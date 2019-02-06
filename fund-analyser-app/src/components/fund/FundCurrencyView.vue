@@ -2,7 +2,8 @@
   .col.gutter-y-sm
     currency-pie(:holdings="holdings")
     q-card(v-for="pair in currencyPairs" v-if="lookupCurrency()(pair)")
-      q-card-title {{pair}}
+      q-card-media
+        currency-chart(:currency="lookupCurrency()(pair)")
       q-card-main
         currency-returns(:currency="lookupCurrency()(pair)")
 </template>

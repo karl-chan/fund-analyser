@@ -94,6 +94,7 @@ module.exports = function (ctx) {
         'QCard',
         'QCardTitle',
         'QCardMain',
+        'QCardMedia',
         'QTable',
         'QTh',
         'QTr',
