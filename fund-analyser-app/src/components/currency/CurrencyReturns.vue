@@ -1,6 +1,6 @@
 <template lang="pug">
   .row.items-center.gutter-xs(v-if="currency")
-    div(v-for="(periodReturn, period) in currency.returns")
+    div(v-for="(periodReturn, period) in currency.returns" :key="period")
       | {{period}}:
       |
       .text-weight-bold(:class="colour(periodReturn)") {{ formatPercentage(periodReturn) }}

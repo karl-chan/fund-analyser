@@ -1,7 +1,7 @@
 <template lang="pug">
   .col.gutter-y-sm
     currency-pie(:holdings="holdings")
-    q-card(v-for="pair in currencyPairs" v-if="lookupCurrency()(pair)")
+    q-card(v-for="pair in currencyPairs" v-if="lookupCurrency()(pair)" :key="pair")
       q-card-media
         currency-chart(:currency="lookupCurrency()(pair)")
       q-card-main

@@ -1,7 +1,7 @@
 <template lang="pug">
   div
-    .row(v-if="funds" v-for="y in rows")
-      .col(v-for="x in cols")
+    .row(v-if="funds" v-for="y in rows" :key="y")
+      .col(v-for="x in cols" :key="x")
         fund-chart.chart(v-show="withinBounds(x, y)" :fund="getFundAt(x, y)"
                    :class="{selected: isSelected(x, y)}"
                    @click.native="selectFundAt(x, y)"

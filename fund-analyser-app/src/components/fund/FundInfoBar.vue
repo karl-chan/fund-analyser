@@ -17,7 +17,7 @@
 
       // historic returns summary
       .row.items-center.gutter-xs
-        div(v-for="(periodReturn, period) in fund.returns")
+        div(v-for="(periodReturn, period) in fund.returns" :key="period")
           | {{period}}:
           |
           span(:class="colour(periodReturn)") {{ formatPercentage(periodReturn) }}

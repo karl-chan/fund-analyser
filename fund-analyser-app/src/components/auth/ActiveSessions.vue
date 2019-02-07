@@ -2,7 +2,7 @@
   q-modal(v-model="modalOpen" position="top" @show="onOpen")
     q-list
       q-list-header Active Sessions
-      q-item(v-for="session in activeSessions")
+      q-item(v-for="session in activeSessions" :key="session.encryptedId")
         q-item-side.text-center
           .circle-dot(v-if="session.current")
           q-icon(v-else :name="getDeviceIcon(session)")

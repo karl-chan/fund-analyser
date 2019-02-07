@@ -4,7 +4,7 @@
       // Recently Viewed List
       q-collapsible(v-if="recentlyViewedIsins.length" label="Recently Viewed" :opened="true" :separator="true")
         q-list(no-border)
-          q-item(v-for="entry in recentlyViewed" :to="{name: 'fund', params: {isin: entry.isin}}")
+          q-item(v-for="entry in recentlyViewed" :to="{name: 'fund', params: {isin: entry.isin}}" :key="entry.isin")
             q-item-main(:label="entry.name" :sublabel="entry.isin")
             q-item-side(right)
               q-btn(flat round dense icon="close" @click.stop="removeFromRecentlyViewed(entry.isin)")

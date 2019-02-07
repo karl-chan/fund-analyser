@@ -6,8 +6,8 @@ const logger = require('koa-logger')
 const cors = require('@koa/cors')
 const session = require('koa-session')
 const bodyParser = require('koa-bodyparser')
-const serve = require('koa-static')
-const { default: sslify, xForwardedProtoResolver } = require('koa-sslify');
+const serve = require('koa-static-cache')
+const { default: sslify, xForwardedProtoResolver } = require('koa-sslify')
 const moment = require('moment')
 
 const properties = require('../lib/util/properties')
@@ -29,9 +29,18 @@ const PORT = process.env.PORT || properties.get('server.default.port')
 const app = new Koa()
 app.keys = [properties.get('secret.key')]
 
+// redirect / to index.html
+app.use(async (ctx, next) => {
+    if (ctx.request.url === '/') {
+        ctx.redirect('/index.html')
+        return
+    }
+    await next()
+})
+
 if (process.env.NODE_ENV === 'production') {
     app.use(helmet())
-    app.use(sslify({ resolver: xForwardedProtoResolver }));
+    app.use(sslify({ resolver: xForwardedProtoResolver }))
 }
 
 app.use(compress())
@@ -39,7 +48,12 @@ app.use(logger())
 app.use(cors())
 app.use(session(auth.SESSION_CONFIG, app))
 app.use(bodyParser())
-app.use(serve(path.resolve(__dirname, '../../fund-analyser-app/dist/spa-mat')))
+app.use(serve(path.resolve(__dirname, '../../fund-analyser-app/dist/spa-mat'), {
+    maxAge: 365 * 24 * 60 * 60,
+    buffer: true,
+    gzip: true,
+    usePrecompiledGzip: true
+}))
 
 app.use(accountRoutes.routes())
 app.use(authRoutes.routes())

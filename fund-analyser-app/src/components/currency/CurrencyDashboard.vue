@@ -8,8 +8,8 @@
           q-spinner-dots.q-ml-md(color="primary" v-if="loading")
 
       // grid of currencies
-      .row(v-for="y in rows")
-        .col.relative-position(v-for="x in cols")
+      .row(v-for="y in rows" :key="y")
+        .col.relative-position(v-for="x in cols" :key="x")
           div(v-show="withinBounds(x, y)")
             currency-chart(:currency="getCurrencyAt(x, y)")
             currency-returns(:currency="getCurrencyAt(x, y)")
