@@ -1,5 +1,5 @@
 <template lang="pug">
-  div.container.shadow-5(v-if="holdings")
+  div.container.shadow-5(v-if="groupedHoldings.length")
     highcharts(:options="chartOptions" ref="highcharts")
 </template>
 
@@ -15,16 +15,15 @@ export default {
     chartOptions: function () {
       return this.buildChartOptions(this.holdings)
     },
-    // returns, e.g. [{currency: "GBP", ratio: 0.5}, {currency: "USD", ratio: 0.2}, ... ]
-    currencyRatios: function () {
-      if (!this.holdings) {
-        return []
-      }
-      const entries = Object.entries(
+    groupedHoldings: function () {
+      return Object.entries(
         groupBy(this.holdings, h => h.currency)
       ).filter(([currency, hs]) => currency !== 'null')
-      const total = sumBy(flatten(entries.map(([currency, hs]) => hs)), 'weight')
-      const ratios = entries.map(([currency, hs]) => {
+    },
+    // returns, e.g. [{currency: "GBP", ratio: 0.5}, {currency: "USD", ratio: 0.2}, ... ]
+    currencyRatios: function () {
+      const total = sumBy(flatten(this.groupedHoldings.map(([currency, hs]) => hs)), 'weight')
+      const ratios = this.groupedHoldings.map(([currency, hs]) => {
         const currencySubtotal = sumBy(hs, 'weight')
         return {
           currency,
