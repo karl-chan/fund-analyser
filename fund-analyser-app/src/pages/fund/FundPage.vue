@@ -21,11 +21,6 @@
                 @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false"
                 @click="addToWatchlist(fund.isin)")
 
-        div
-          q-fab(flat color="tertiary" icon="more_vert" direction="down")
-            q-fab-action(color="pink" icon="fas fa-yen-sign" @click="$router.push({name: 'currency'})")
-              q-tooltip(anchor="center left" self="center right" :offset="[20, 0]") Currency View
-
       // middle section
       fund-info-bar(:fund="fund")
       .row.gutter-x-sm.q-mt-xl
