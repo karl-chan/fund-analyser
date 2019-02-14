@@ -42,12 +42,9 @@ class FinancialTimes {
             return new Fund()
         }
         /* Overload to accept partial fund case from Charles Stanley */
-        const sedol = isin instanceof Fund ? isin.sedol : undefined
-        const bidAskSpread = isin instanceof Fund ? isin.bidAskSpread : undefined
-        const entryCharge = isin instanceof Fund ? isin.entryCharge : undefined
-        let fund = isin instanceof Fund ? isin : undefined
-        if (fund) {
-            isin = fund.isin
+        const csdFund = isin instanceof Fund ? isin : undefined
+        if (csdFund) {
+            isin = csdFund.isin
         }
 
         log.silly('Get fund from isin: %s', isin)
@@ -55,27 +52,28 @@ class FinancialTimes {
             this.getSummary(isin),
             this.getPerformance(isin),
             this.getHistoricPrices(isin),
-            this.getHoldings(isin, fund)
+            this.getHoldings(isin, csdFund)
         ])
 
-        fund = Fund.Builder(isin)
-            .sedol(sedol)
+        const ftFund = Fund.Builder(isin)
             .name(summary.name)
             .type(summary.type)
             .shareClass(summary.shareClass)
             .frequency(summary.frequency)
             .ocf(summary.ocf)
             .amc(summary.amc)
-            .entryCharge(entryCharge)
+            .entryCharge(summary.entryCharge)
             .exitCharge(summary.exitCharge)
-            .bidAskSpread(bidAskSpread)
             .holdings(holdings)
             .historicPrices(historicPrices)
             .returns(performance)
             .asof(_.isEmpty(historicPrices) ? undefined : _.last(historicPrices).date)
             .build()
 
-        if (!historicPrices.length) {
+        // csd fund takes precedence where conflicts (bidAskSpread / entryCharge / amc / ocf ...)
+        const fund = _.defaults(new Fund(), csdFund, ftFund)
+
+        if (!fund.isValid()) {
             log.warn('No data found for isin: ' + isin)
         } else {
             log.debug('Got fund from isin %s', isin)

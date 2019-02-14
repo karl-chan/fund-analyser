@@ -1,6 +1,5 @@
 const Fund = require('./Fund')
 const Http = require('../util/http')
-const lang = require('../util/lang')
 const math = require('../util/math')
 const properties = require('../util/properties')
 const log = require('../util/log')
@@ -83,14 +82,17 @@ class CharlesStanleyDirect {
         }
 
         // bid ask
-        const floatRegex = /[0-9,.\s]+/
-        const bidPrice = parseFloat($('.fund-summary ul li:nth-child(1)').text().match(floatRegex)[0].replace(/[,\s]/g, ''))
-        const askPrice = parseFloat($('.fund-summary ul li:nth-child(2)').text().match(floatRegex)[0].replace(/[,\s]/g, ''))
+        const floatRegex = /[0-9,.]+/
+        const bidPrice = parseFloat($('.fund-summary ul li:nth-child(1)').text().match(floatRegex)[0].replace(/[,]/g, ''))
+        const askPrice = parseFloat($('.fund-summary ul li:nth-child(2)').text().match(floatRegex)[0].replace(/[,]/g, ''))
         const midPrice = (bidPrice + askPrice) / 2
         const bidAskSpread = (bidPrice - askPrice) / midPrice
 
-        // initial charge
-        const entryCharge = math.pcToFloat($('#main div.panel--light-grey  div:nth-child(6) tr:nth-child(2) > td:nth-child(2)').text())
+        // initial charge / amc / ocf
+        const chargesTable = $(`p:contains('Charges')`).eq(0).next('table')
+        const entryCharge = math.pcToFloat(chargesTable.find(`td:contains('Initial Charge') + td`).text().trim())
+        const amc = math.pcToFloat(chargesTable.find(`td:contains('AMC') + td`).text().trim())
+        const ocf = math.pcToFloat(chargesTable.find(`td:contains('Total Ongoing Charges') + td`).text().trim())
 
         // holdings
         const dataCompositionHoldingsRegex = /var dataCompositionHoldings = (.*)/
@@ -106,9 +108,11 @@ class CharlesStanleyDirect {
             .sedol(sedol)
             .bidAskSpread(bidAskSpread)
             .entryCharge(entryCharge)
+            .amc(amc)
+            .ocf(ocf)
             .holdings(holdings)
             .build()
-        log.debug('Isin: %s found for sedol: %s - bid ask spread: %d, entry charge: %d', isin, sedol, bidAskSpread, entryCharge)
+        log.debug('Isin: %s found for sedol: %s - bid ask spread: %d, entry charge: %d, amc: %d, ocf: %d', isin, sedol, bidAskSpread, entryCharge, amc, ocf)
         return partialFund
     }
 

@@ -65,14 +65,14 @@ describe('CharlesStanleyDirect', () => {
         })
 
         test('getFundFromSedol should return partial fund', async () => {
-            const sedol = 'B8N44B3'
+            const sedol = 'B39RMM8'
             const partialFund = await charlesStanleyDirect.getFundFromSedol(sedol)
-            expect(partialFund).toHaveProperty('isin', 'GB00B8N44B34')
-            expect(partialFund).toHaveProperty('bidAskSpread')
-            expect(partialFund).toHaveProperty('entryCharge')
+            expect(partialFund).toHaveProperty('isin', 'GB00B39RMM81')
+            expect(partialFund).toHaveProperty('bidAskSpread', 0)
+            expect(partialFund).toHaveProperty('entryCharge', 0)
+            expect(partialFund).toHaveProperty('amc', 0.0072)
+            expect(partialFund).toHaveProperty('ocf', 0.008822)
             expect(partialFund).toHaveProperty('holdings')
-            expect(partialFund.bidAskSpread).toBeNumber()
-            expect(partialFund.entryCharge).toBeNumber()
             expect(partialFund.holdings).toBeArrayOfSize(10).toSatisfyAll(holding => {
                 return typeof holding.name === 'string' && holding.name &&
                        typeof holding.weight === 'number' && holding.weight > 0

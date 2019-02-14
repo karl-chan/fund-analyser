@@ -95,7 +95,7 @@ describe('FinancialTimes', function () {
 
         test('getSummary should return summary object', async () => {
             const summary = await financialTimes.getSummary('GB00B80QG615')
-            expect(summary).toHaveProperty('name', 'American Index Fund Accumulation C')
+            expect(summary).toHaveProperty('name', 'HSBC American Index Fund Accumulation C')
             expect(summary).toHaveProperty('type', Fund.types.OEIC)
             expect(summary).toHaveProperty('shareClass', Fund.shareClasses.ACC)
             expect(summary).toHaveProperty('frequency', 'Daily')
