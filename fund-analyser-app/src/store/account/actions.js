@@ -1,3 +1,4 @@
+import { Dialog, Notify } from 'quasar'
 import accountService from './../../services/account-service'
 
 export async function init ({ commit }) {
@@ -42,7 +43,11 @@ export async function addToWatchlist ({ commit, state }, isin) {
   }
 }
 
-export async function removeFromWatchlist ({ commit, state }, isin) {
+export async function removeFromWatchlist ({ commit, dispatch, state }, isin) {
+  const confirm = await promptClearWatchlist(false)
+  if (!confirm) {
+    return
+  }
   if (state.watchlist.includes(isin)) {
     commit('setWatchlist', state.watchlist.filter(i => i !== isin))
   }
@@ -53,7 +58,11 @@ export async function removeFromWatchlist ({ commit, state }, isin) {
   }
 }
 
-export async function clearWatchlist ({ commit }) {
+export async function clearWatchlist ({ commit, dispatch }) {
+  const confirm = await promptClearWatchlist(true)
+  if (!confirm) {
+    return
+  }
   commit('setWatchlist', [])
   try {
     await accountService.clearWatchlist()
@@ -97,5 +106,27 @@ export async function removeFromCurrencies ({ commit, state }, symbol) {
     await accountService.removeFromCurrencies(symbol)
   } catch (ignored) {
     // user not logged in
+  }
+}
+
+async function promptClearWatchlist (all) {
+  try {
+    await Dialog.create({
+      title: all ? 'Clear watchlist?' : 'Remove from watchlist?',
+      message: 'This will remove the watchlist associated with your account. This action is irreversible!',
+      ok: {
+        color: 'negative',
+        label: 'Proceed'
+      },
+      cancel: {
+        color: 'positive',
+        label: 'Cancel'
+      }
+    })
+    return true
+  } catch (ignored) {
+    // user cancelled operation
+    await Notify.create({ message: 'Action cancelled', type: 'positive' })
+    return false
   }
 }

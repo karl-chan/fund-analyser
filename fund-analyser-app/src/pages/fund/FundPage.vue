@@ -16,10 +16,10 @@
         div
           q-btn(color="indigo-7" icon="open_in_new" label="Open in CSD" @click="openURL('https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=' + fund.sedol)")
         div
-          q-icon.q-ml-md(v-if="isFavourite" color="amber" name="star" size="40px")
-          q-btn(v-else flat round color="amber" size="xl" :icon="favouriteIcon"
+          q-btn(flat round color="amber" size="xl" :icon="favouriteIcon"
                 @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false"
-                @click="addToWatchlist(fund.isin)")
+                @click="toggleWatchlist(fund.isin)")
+            q-tooltip {{ isFavourite? 'Remove from watch list' : 'Add to watch list' }}
 
       // middle section
       fund-info-bar(:fund="fund")
@@ -85,12 +85,12 @@ export default {
       return this.inWatchlist()(this.isin)
     },
     favouriteIcon: function () {
-      return this.isFavourite || this.hoveringFavouriteIcon ? 'star' : 'star_outline'
+      return this.isFavourite ^ this.hoveringFavouriteIcon ? 'star' : 'star_outline'
     }
   },
   methods: {
     openURL,
-    ...mapActions('account', ['addToRecentlyViewed', 'addToWatchlist']),
+    ...mapActions('account', ['addToRecentlyViewed', 'addToWatchlist', 'removeFromWatchlist']),
     ...mapGetters('account', ['inWatchlist']),
     ...mapActions('funds', [ 'gets', 'lazyGets' ]),
     ...mapGetters('funds', [ 'lookupFund' ]),
@@ -101,6 +101,9 @@ export default {
     },
     onFavouriteIconHovering (isMouseEnter) {
       this.hoveringFavouriteIcon = isMouseEnter
+    },
+    toggleWatchlist (isin) {
+      this.isFavourite ? this.removeFromWatchlist(isin) : this.addToWatchlist(isin)
     }
   }
 }

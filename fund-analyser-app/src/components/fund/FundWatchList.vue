@@ -6,7 +6,7 @@
       template(slot="title")
         .row.justify-between.items-center
           .q-headline Watch List
-          q-btn.q-ml-xl(outline color="red" @click="clearWatchlistPrompt") Remove all
+          q-btn.q-ml-xl(outline color="red" @click="clearWatchlist") Remove all
       template(slot="empty-view")
         q-tooltip
           .row.items-center
@@ -45,24 +45,6 @@ export default {
     },
     onChartSelected (fund) {
       this.selectedIsin = fund && fund.isin
-    },
-    clearWatchlistPrompt () {
-      this.$q.dialog({
-        title: 'Clear watchlist?',
-        message: 'This will remove the watchlist associated with your account. This action is irreversible!',
-        ok: {
-          color: 'negative',
-          label: 'Proceed'
-        },
-        cancel: {
-          color: 'positive',
-          label: 'Cancel'
-        }
-      }).then(() => {
-        this.clearWatchlist()
-      }).catch(() => {
-        this.$q.notify({ message: 'Action cancelled', type: 'positive' })
-      })
     }
   }
 }

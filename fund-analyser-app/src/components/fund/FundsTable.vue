@@ -195,24 +195,21 @@ export default {
         // row is fund
         const isin = params.node.data.isin
         const isFavourite = this.watchlist.includes(isin)
-        const fundContextMenuItems = [
-          {
-            name: 'Add to watch list',
-            icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
-            action: () => {
-              params.context.addToWatchlist(isin)
-            },
-            disabled: isFavourite
-          },
-          {
+        const fundContextMenuItems = isFavourite
+          ? [ {
             name: 'Remove from watch list',
             icon: '<i class="q-icon material-icons text-dark" style="font-size:15px" aria-hidden="true">star_border</i>',
             action: () => {
               params.context.removeFromWatchlist(isin)
-            },
-            disabled: !isFavourite
-          }
-        ]
+            }
+          } ]
+          : [ {
+            name: 'Add to watch list',
+            icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
+            action: () => {
+              params.context.addToWatchlist(isin)
+            }
+          } ]
         contextMenu = [...fundContextMenuItems, 'separator', ...contextMenu]
       }
       return contextMenu
