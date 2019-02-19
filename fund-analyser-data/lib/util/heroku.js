@@ -24,8 +24,8 @@ const clients = {
     }
 }
 
-async function getLogs (dyno = WORKER_DYNO) {
-    const url = await getLogplexUrl(dyno)
+async function getLogs (dyno = WORKER_DYNO, lines) {
+    const url = await getLogplexUrl(dyno, false, lines)
     const { body } = await http.asyncGet(url)
     return body
 }
@@ -33,7 +33,7 @@ async function getLogs (dyno = WORKER_DYNO) {
 async function getLastActivity (dyno = WORKER_DYNO) {
     const logs = await getLogs(dyno)
     try {
-        const lines = logs.split(/\n/)
+        const lines = logs.split('\n')
         const lastLine = _.findLast(lines, line => {
             return !_.isEmpty(line) && moment(line.split(' ')[0]).isValid()
         })
@@ -44,12 +44,12 @@ async function getLastActivity (dyno = WORKER_DYNO) {
     }
 }
 
-async function getLogplexUrl (dyno, stream = false) {
+async function getLogplexUrl (dyno, stream = false, lines = 1500) {
     const { appName, herokuClient } = getClient(dyno)
     const res = await herokuClient.post(`/apps/${appName}/log-sessions`, {
         body: {
             dyno,
-            lines: 1500,
+            lines,
             tail: stream
         }
     })
@@ -59,8 +59,7 @@ async function getLogplexUrl (dyno, stream = false) {
 async function streamLogs (dyno = WORKER_DYNO) {
     const url = await getLogplexUrl(dyno, true)
     const bufferToStringStream = streamWrapper.asTransformAsync(buf => buf.toString('utf-8'))
-    http.stream(url).pipe(bufferToStringStream)
-    return bufferToStringStream
+    return http.stream(url).pipe(bufferToStringStream)
 }
 
 async function restart (dyno = WORKER_DYNO) {

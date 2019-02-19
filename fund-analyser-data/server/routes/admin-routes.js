@@ -10,9 +10,9 @@ const router = new Router({
 })
 
 router.get('/logs/:dyno', async ctx => {
-    const dyno = ctx.params.dyno
-    const logStream = await heroku.streamLogs(dyno)
-    ctx.body = logStream
+    const { dyno } = ctx.params
+    const { lines } = ctx.query
+    ctx.body = await heroku.getLogs(dyno, lines)
 })
 
 router.get('/healthcheck', async ctx => {

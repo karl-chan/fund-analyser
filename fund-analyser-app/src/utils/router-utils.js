@@ -13,6 +13,9 @@ export default {
   },
   redirectToFund (isin, opts) {
     redirect({ name: 'fund', params: { isin } }, opts)
+  },
+  redirectToLogs (opts) {
+    redirect({ name: 'logs' }, opts)
   }
 }
 const redirect = ({ name, params }, opts) => {

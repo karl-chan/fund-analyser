@@ -9,8 +9,13 @@
       fund-search.absolute-center(placeholder="Start typing a fund name" @select="onFundSelect")
       q-btn.q-mr-lg(v-if="isLoggedIn" flat dense size="lg" icon="perm_device_information" @click="activeSessionsOpen = true")
         active-sessions(:open.sync="activeSessionsOpen")
+        q-tooltip Active Sessions
       q-btn(flat dense size="lg" :icon="authIcon" @click="authClick")
+        q-tooltip {{ isLoggedIn ? 'Logout': 'Login'}}
+      q-btn(flat dense size="lg" icon="insert_chart" @click="$utils.router.redirectToLogs")
+        q-tooltip Logs
       q-btn(flat dense size="lg" icon="home" @click="$utils.router.redirectToHome")
+        q-tooltip Home
 </template>
 
 <script>

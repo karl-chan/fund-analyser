@@ -23,9 +23,8 @@ describe('heroku', () => {
         await Promise.delay(duration)
         logStream.unpipe(sink)
 
+        const timestampRegex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
         expect(spy.mock.calls.length).toBeGreaterThan(0)
-        expect(spy.mock.calls).toSatisfyAll(call => {
-            return typeof call[0] === 'string' && call[0]
-        })
+        expect(spy.mock.calls[0][0]).toMatch(timestampRegex)
     })
 })

@@ -104,6 +104,7 @@ module.exports = function (ctx) {
         'QSpinnerFacebook',
         'QSpinnerDots',
         'QSlideTransition',
+        'QInfiniteScroll',
         'QAjaxBar'
       ],
       directives: [
