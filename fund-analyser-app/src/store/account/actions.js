@@ -3,8 +3,9 @@ import accountService from './../../services/account-service'
 
 export async function init ({ commit }) {
   try {
-    const { balance, statement, watchlist, currencies } = await accountService.get()
+    const { balance, orders, statement, watchlist, currencies } = await accountService.get()
     commit('saveBalance', balance)
+    commit('saveOrders', orders)
     commit('saveStatement', statement)
     commit('setWatchlist', watchlist)
     commit('setCurrencies', currencies)
@@ -16,6 +17,11 @@ export async function init ({ commit }) {
 export async function getBalance ({ commit }) {
   const { balance } = await accountService.getBalance()
   commit('saveBalance', balance)
+}
+
+export async function getOrders ({ commit }) {
+  const { orders } = await accountService.getOrders()
+  commit('saveOrders', orders)
 }
 
 export async function getStatement ({ commit }) {

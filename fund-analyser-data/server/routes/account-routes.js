@@ -13,19 +13,26 @@ router.use(auth.authorise)
 router.get('/', async ctx => {
     const { jar, user } = ctx
     const csdAccount = new CharlesStanleyDirectAccount(jar)
-    const [balance, statement, watchlist, currencies] = await Promise.all([csdAccount.getBalance(), csdAccount.getStatement(), UserDAO.getWatchlist(user), UserDAO.getCurrencies(user)])
-    ctx.body = { balance, statement, watchlist, currencies }
+    const [balance, orders, statement, watchlist, currencies] = await Promise.all([csdAccount.getBalance(), csdAccount.getOrders(), csdAccount.getStatement(), UserDAO.getWatchlist(user), UserDAO.getCurrencies(user)])
+    ctx.body = { balance, orders, statement, watchlist, currencies }
 })
 
 router.get('/balance', async ctx => {
-    const jar = ctx.jar
+    const { jar } = ctx
     const csdAccount = new CharlesStanleyDirectAccount(jar)
     const balance = await csdAccount.getBalance()
     ctx.body = { balance }
 })
 
+router.get('/orders', async ctx => {
+    const { jar } = ctx
+    const csdAccount = new CharlesStanleyDirectAccount(jar)
+    const orders = await csdAccount.getOrders()
+    ctx.body = { orders }
+})
+
 router.get('/statement', async ctx => {
-    const jar = ctx.jar
+    const { jar } = ctx
     const csdAccount = new CharlesStanleyDirectAccount(jar)
     const statement = await csdAccount.getStatement()
     ctx.body = { statement }

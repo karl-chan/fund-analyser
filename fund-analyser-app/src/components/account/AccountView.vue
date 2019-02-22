@@ -22,6 +22,11 @@
               q-btn(color="tertiary" :icon="showStatement ? 'expand_less' : 'expand_more'" @click="toggleShowStatement")
                 q-tooltip {{ showStatement ? 'Hide' : 'Show' }} statement
 
+    // Account orders
+    .col.q-mt-xs.gutter-y-xs(v-if="orders.length")
+      .q-headline Pending Orders
+      account-orders(:orders="orders")
+
     // Account statement
     q-slide-transition
       div(v-if="showStatement")
@@ -33,7 +38,7 @@
 import { openURL } from 'quasar'
 export default {
   name: 'AccountView',
-  props: ['user', 'balance', 'statement'],
+  props: ['user', 'balance', 'orders', 'statement'],
   data () {
     return {
       showStatement: false

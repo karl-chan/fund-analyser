@@ -20,6 +20,7 @@ class CharlesStanleyDirectAccount {
         }
         this.jar = jar
         this.portfolioValuationUrl = 'https://www.charles-stanley-direct.co.uk/My_Dashboard/My_Direct_Accounts/Portfolio_Valuation'
+        this.orderListUrl = 'https://www.charles-stanley-direct.co.uk/My_Dashboard/My_Direct_Accounts/Portfolio_Valuation/Order_List'
         this.statementUrl = 'https://www.charles-stanley-direct.co.uk/My_Dashboard/My_Direct_Accounts/Portfolio_Valuation/Statement'
 
         this.lookbacks = properties.get('fund.lookbacks')
@@ -35,6 +36,41 @@ class CharlesStanleyDirectAccount {
         const matches = body.match(/CS\.portStreamingData = (.*);/)
         const holdings = matches ? JSON.parse(matches[1]) : []
         return { portfolio, cash, totalValue, holdings }
+    }
+
+    async getOrders () {
+        const { body } = await http.asyncGet(this.orderListUrl, { jar: this.jar })
+        const $ = cheerio.load(body)
+        const rows = $('#ordl-results > tbody > tr').get()
+        const orders = _.chunk(rows, 2)
+            .map(([summaryRow, orderDetails]) => {
+                const [orderRef, side, sedol, name, status] =
+                    $(summaryRow)
+                        .children('td')
+                        .map((i, td) => $(td).text().trim())
+                        .get()
+                const [,, settlementDate, orderDate,, price, quantity, consideration, fundDealingFee, other, estimatedProceeds] =
+                    $(orderDetails)
+                        .find('.ordl-subtable > tbody > tr > td')
+                        .map((i, e) => $(e).text().trim())
+                        .get()
+                return {
+                    orderRef,
+                    side,
+                    sedol,
+                    name,
+                    quantity: lang.parseNumber(quantity),
+                    status,
+                    settlementDate: moment(settlementDate, 'DD MMM YYYY'),
+                    orderDate: moment(orderDate, 'DD MMM YYYY'),
+                    price,
+                    consideration,
+                    fundDealingFee: lang.parseNumber(fundDealingFee.replace(/£/g, '')),
+                    other,
+                    estimatedProceeds: lang.parseNumber(estimatedProceeds.replace(/£/g, ''))
+                }
+            })
+        return orders
     }
 
     /**

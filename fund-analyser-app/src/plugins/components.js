@@ -1,4 +1,5 @@
 import AccountBalance from 'components/account/AccountBalance'
+import AccountOrders from 'components/account/AccountOrders'
 import AccountStatement from 'components/account/AccountStatement'
 import AccountView from 'components/account/AccountView'
 
@@ -29,6 +30,7 @@ import AppHeader from 'layouts/AppHeader'
 
 export default ({ Vue }) => {
   Vue.component('account-balance', AccountBalance)
+  Vue.component('account-orders', AccountOrders)
   Vue.component('account-statement', AccountStatement)
   Vue.component('account-view', AccountView)
 

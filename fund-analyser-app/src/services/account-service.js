@@ -7,6 +7,9 @@ export default {
   getBalance () {
     return apiService.get('/account/balance')
   },
+  getOrders () {
+    return apiService.get('/account/orders')
+  },
   getStatement () {
     return apiService.get('/account/statement')
   },

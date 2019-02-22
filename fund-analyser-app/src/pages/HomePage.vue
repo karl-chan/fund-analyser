@@ -3,7 +3,7 @@
     .absolute-right
       healthcheck
 
-    account-view(:user="user" :balance="balance" :statement="statement")
+    account-view(:user="user" :balance="balance" :orders="orders" :statement="statement")
 
     q-tabs.q-mt-md
       q-tab(default label="Account View" slot="title" name="account")
@@ -29,7 +29,7 @@ import isEqual from 'lodash/isEqual'
 export default {
   name: 'HomePage',
   computed: {
-    ...mapState('account', ['balance', 'statement', 'watchlist']),
+    ...mapState('account', ['balance', 'orders', 'statement', 'watchlist']),
     ...mapState('auth', ['user']),
     ...mapState('funds', ['favouriteIsins']),
     watchedFunds: function () {
