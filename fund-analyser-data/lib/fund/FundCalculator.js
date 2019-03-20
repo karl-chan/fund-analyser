@@ -20,8 +20,8 @@ class FundCalculator {
     }
 
     enrichReturns (fund) {
-        const extraLookbacks = this.lookbacks.filter(lookback => !(lookback in fund.returns))
-        fund.returns = fundUtils.enrichReturns(fund.returns, fund.historicPrices, extraLookbacks)
+        // calculate all lookbacks from scratch, FT is unreliable
+        fund.returns = fundUtils.enrichReturns(fund.returns, fund.historicPrices, this.lookbacks)
         return fund
     }
     calcIndicators (fund) {
