@@ -145,6 +145,19 @@ describe('lang', () => {
             })
         })
     })
+    describe('assignIfDefined', () => {
+        test('should handle base case', () => {
+            expect(lang.assignIfDefined(null)).toEqual(null)
+            expect(lang.assignIfDefined(2, 3, null)).toEqual(2)
+        })
+        test('should assign only defined keys', () => {
+            expect(lang.assignIfDefined(
+                {},
+                { a: undefined, b: 2, c: 3 },
+                { a: 1, b: undefined, c: 4 })
+            ).toEqual({ a: 1, b: 2, c: 4 })
+        })
+    })
     describe('parseNumber', () => {
         test('should pass through numbers', () => {
             expect(lang.parseNumber(-1.23)).toBe(-1.23)

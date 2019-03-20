@@ -1,6 +1,7 @@
 const Fund = require('./Fund')
 const Currency = require('../currency/Currency')
 const math = require('../util/math')
+const lang = require('../util/lang')
 const fundUtils = require('../util/fundUtils')
 const Http = require('../util/http')
 const log = require('../util/log')
@@ -71,7 +72,7 @@ class FinancialTimes {
             .build()
 
         // csd fund takes precedence where conflicts (bidAskSpread / entryCharge / amc / ocf ...)
-        const fund = _.defaults(new Fund(), csdFund, ftFund)
+        const fund = lang.assignIfDefined(new Fund(), csdFund, ftFund)
 
         if (!fund.isValid()) {
             log.warn('No data found for isin: ' + isin)

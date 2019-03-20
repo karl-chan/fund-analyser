@@ -5,6 +5,7 @@ module.exports = {
     deepMap,
     deepTraverse,
     pairsToDeepObject,
+    assignIfDefined,
 
     // numbers
     isOrdered,
@@ -89,6 +90,24 @@ function pairsToDeepObject (pairs) {
         _.set(object, k, v)
     }
     return object
+}
+
+/**
+ * Like Object.assign(...), but skips undefined keys in sources
+ * @param {*} object
+ * @param  {...any} sources
+ */
+function assignIfDefined (dest, ...sources) {
+    for (const source of sources) {
+        if (typeof source === 'object') {
+            for (const [k, v] of Object.entries(source)) {
+                if (k !== undefined && v !== undefined) {
+                    dest[k] = v
+                }
+            }
+        }
+    }
+    return dest
 }
 
 function isOrdered (value) {
