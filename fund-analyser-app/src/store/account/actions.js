@@ -8,7 +8,7 @@ export async function init ({ commit }) {
     commit('saveOrders', orders)
     commit('saveStatement', statement)
     commit('setWatchlist', watchlist)
-    commit('setCurrencies', currencies)
+    commit('setFavouriteCurrencies', currencies)
   } catch (ignored) {
     // user not signed in
   }
@@ -93,9 +93,9 @@ export async function clearRecentlyViewed ({ commit }) {
   commit('setRecentlyViewed', [])
 }
 
-export async function addToCurrencies ({ commit, state }, symbol) {
-  if (!state.currencies.includes(symbol)) {
-    commit('setCurrencies', state.currencies.concat([symbol]))
+export async function addToFavouriteCurrencies ({ commit, state }, symbol) {
+  if (!state.favouriteCurrencies.includes(symbol)) {
+    commit('setFavouriteCurrencies', state.favouriteCurrencies.concat([symbol]))
   }
   try {
     await accountService.addToCurrencies(symbol)
@@ -104,9 +104,9 @@ export async function addToCurrencies ({ commit, state }, symbol) {
   }
 }
 
-export async function removeFromCurrencies ({ commit, state }, symbol) {
-  if (state.currencies.includes(symbol)) {
-    commit('setCurrencies', state.currencies.filter(c => c !== symbol))
+export async function removeFromFavouriteCurrencies ({ commit, state }, symbol) {
+  if (state.favouriteCurrencies.includes(symbol)) {
+    commit('setFavouriteCurrencies', state.favouriteCurrencies.filter(c => c !== symbol))
   }
   try {
     await accountService.removeFromCurrencies(symbol)

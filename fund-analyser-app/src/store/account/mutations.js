@@ -18,8 +18,8 @@ export function setRecentlyViewed (state, recentlyViewed) {
   state.recentlyViewed = recentlyViewed
 }
 
-export function setCurrencies (state, currencies) {
-  state.currencies = currencies
+export function setFavouriteCurrencies (state, favouriteCurrencies) {
+  state.favouriteCurrencies = favouriteCurrencies
 }
 
 export function reset (state) {

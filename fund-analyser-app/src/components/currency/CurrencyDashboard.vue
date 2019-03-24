@@ -4,12 +4,6 @@
       // currency table
       currency-table(height="500px" :currencies="summary.currencies" :stats="summary.stats")
 
-      .row.justify-start.items-center
-        // user search bar
-        q-search.shadow-2(v-model="currenciesFilter" placeholder="Add currency (e.g. GBPUSD)" color="grey-2" inverted-light clearable upper-case)
-          q-autocomplete(@search="search" @selected="onSelectCurrency")
-        q-spinner-dots.q-ml-md(color="primary" v-if="loading")
-
       // grid of currencies
       .row(v-for="y in rows" :key="y")
         .col.relative-position(v-for="x in cols" :key="x")
@@ -17,65 +11,32 @@
             currency-chart(:currency="getCurrencyAt(x, y)")
             currency-returns(:currency="getCurrencyAt(x, y)")
             q-btn.close-btn(round push icon="close" size="lg" color="secondary" @click="removeCurrency(x, y)")
-      template(v-if="!rows")
-        .row.justify-center
-          div Start by searching a currency
-
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import flatten from 'lodash/flatten'
 import isEqual from 'lodash/isEqual'
 import at from 'lodash/at'
 export default {
   name: 'CurrencyDashboard',
   data: function () {
     return {
-      currenciesFilter: '',
-      cols: 3,
-      loading: false
+      cols: 3
     }
   },
   computed: {
-    ...mapState('currency', ['supportedCurrencies', 'loaded', 'summary']),
-    ...mapState('account', ['currencies']),
+    ...mapState('currency', ['loaded', 'summary']),
+    ...mapState('account', ['favouriteCurrencies']),
     rows: function () {
       return Math.ceil(this.loadedCurrencies.length / this.cols)
     },
-    supportedCurrencyPairs () {
-      return flatten(
-        this.supportedCurrencies.map(c1 =>
-          this.supportedCurrencies.map(c2 => ({ base: c1, quote: c2 }))
-        )
-      )
-        .filter(pair => pair.base !== pair.quote)
-        .map(pair => pair.base + pair.quote)
-    },
     loadedCurrencies () {
-      return at(this.loaded, this.currencies).filter(c => c) // remove undefined's
+      return at(this.loaded, this.favouriteCurrencies).filter(c => c) // remove undefined's
     }
   },
   methods: {
     ...mapActions('currency', ['lazyGets']),
-    ...mapActions('account', ['addToCurrencies', 'removeFromCurrencies']),
-    onSelectCurrency ({ value }) {
-      this.currenciesFilter = value
-      // watch below - skip lazyGets
-      this.loading = true
-      this.addToCurrencies(value)
-    },
-    search (terms, done) {
-      const matches = this.supportedCurrencyPairs
-        .filter(pair => pair.includes(terms))
-        .map(pair => {
-          return {
-            value: pair,
-            label: pair.split(terms).join(`<b style="color:green">${terms}</b>`)
-          }
-        })
-      done(matches)
-    },
+    ...mapActions('account', ['addToFavouriteCurrencies', 'removeFromFavouriteCurrencies']),
     // x, y start from 1, not 0
     indexAt (x, y) {
       return (y - 1) * this.cols + (x - 1)
@@ -90,17 +51,16 @@ export default {
       const currency = this.getCurrencyAt(x, y)
       if (currency) {
         const symbol = `${currency.base}${currency.quote}`
-        this.removeFromCurrencies(symbol)
+        this.removeFromFavouriteCurrencies(symbol)
       }
     }
   },
   watch: {
-    currencies: {
+    favouriteCurrencies: {
       immediate: true,
       async handler (newCurrencies, oldCurrencies) {
         if (newCurrencies && !isEqual(newCurrencies, oldCurrencies)) {
           await this.lazyGets(newCurrencies)
-          this.loading = false
         }
       }
     }

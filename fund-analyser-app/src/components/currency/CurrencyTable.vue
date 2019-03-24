@@ -17,6 +17,7 @@
       ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs"
                   :rowData="displayedCurrencies"
                   :gridReady="onGridReady" :gridOptions="gridOptions"
+                  :getContextMenuItems="getContextMenuItems"
                   :style="{height}" :gridAutoHeight="!height")
 
       .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
@@ -26,7 +27,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import get from 'lodash/get'
 
 const periods = ['5Y', '3Y', '1Y', '6M', '3M', '1M', '2W', '1W', '3D', '1D']
@@ -43,16 +44,18 @@ export default {
       showStatMode: 0, // hidden
       filterText: '',
       columnDefs: [
+        { headerName: '', cellRendererFramework: 'FavouritesComponent', width: 60, valueGetter: this.isFavourite, pinned: 'left', sort: 'desc' },
         { headerName: 'Base', field: 'base', width: 80, pinned: 'left' },
         { headerName: 'Quote', field: 'quote', width: 80, pinned: 'left' },
         { headerName: 'Returns',
           marryChildren: true,
           children: periods.map(period => ({
-            headerName: period, field: `returns.${period}`, width: 65, sort: period === '1D' && 'desc'
+            headerName: period, field: `returns.${period}`, width: 100, sort: period === '1D' && 'desc'
           }))
         }
       ],
       gridOptions: {
+        context: this,
         enableColResize: true,
         enableFilter: true,
         enableSorting: true,
@@ -96,7 +99,13 @@ export default {
       }
     }
   },
+  components: {
+    FavouritesComponent: {
+      template: `<q-icon v-if="params.value" class="text-amber" name="star" size="18px"/>`
+    }
+  },
   computed: {
+    ...mapState('account', ['favouriteCurrencies']),
     displayedCurrencies () {
       return this.currencies.filter(c => {
         const name = `${c.base}${c.quote}`
@@ -108,9 +117,55 @@ export default {
     }
   },
   methods: {
+    ...mapActions('account', ['addToFavouriteCurrencies', 'removeFromFavouriteCurrencies']),
     ...mapActions('currency', ['getSummary']),
     onGridReady (params) {
       this.updateColDefs(params)
+    },
+    isFavourite (params) {
+      const base = params.node.data.base
+      const quote = params.node.data.quote
+      const symbol = `${base}${quote}`
+      return this.favouriteCurrencies.includes(symbol)
+    },
+    getContextMenuItems (params) {
+      let contextMenu = params.defaultItems
+
+      const filterContextMenuItems = [
+        {
+          name: 'Reset all Filters',
+          action: () => {
+            params.context.resetFilters()
+          }
+        }
+      ]
+      contextMenu = [...filterContextMenuItems, 'separator', ...contextMenu]
+
+      if (!this.isRowPinned(params)) {
+        // row is currency
+        const base = params.node.data.base
+        const quote = params.node.data.quote
+        const symbol = `${base}${quote}`
+        const currencyContextMenuItems = this.isFavourite(params)
+          ? [ {
+            name: 'Remove from favourites',
+            icon: '<i class="q-icon material-icons text-dark" style="font-size:15px" aria-hidden="true">star_border</i>',
+            action: async () => {
+              await params.context.removeFromFavouriteCurrencies(symbol)
+              params.api.redrawRows()
+            }
+          } ]
+          : [ {
+            name: 'Add to favourites',
+            icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
+            action: async () => {
+              await params.context.addToFavouriteCurrencies(symbol)
+              params.api.redrawRows()
+            }
+          } ]
+        contextMenu = [...currencyContextMenuItems, 'separator', ...contextMenu]
+      }
+      return contextMenu
     },
     updateColDefs (params) {
       const colourFields = new Set(
@@ -118,7 +173,8 @@ export default {
       const percentFields = new Set(
         periods.map(period => `returns.${period}`))
 
-      const updateColDef = colDef => {
+      const updateColDef = col => {
+        const colDef = col.getColDef()
         if (colourFields.has(colDef.field)) {
           colDef.cellStyle = this.colourCellStyler
           colDef.filter = 'agNumberColumnFilter'
@@ -131,9 +187,11 @@ export default {
           colDef.filterParams = { newRowsAction: 'keep', apply: true }
         }
         colDef.headerTooltip = colDef.headerName
+        return colDef
       }
 
-      params.columnApi.getAllColumns().forEach(col => updateColDef(col.getColDef()))
+      const newColDefs = params.columnApi.getAllColumns().map(col => updateColDef(col))
+      params.api.setColumnDefs(newColDefs)
     },
     percentFormatter (params, fallbackValue) {
       return this.$utils.format.formatPercentage(params.value, true, fallbackValue)
@@ -158,18 +216,18 @@ export default {
         switch (this.showStatMode) {
           case 1:
             pinnedRows = [
-              { isin: 'Max', ...max },
-              { isin: 'Median', ...median },
-              { isin: 'Min', ...min }
+              { base: 'Max', ...max },
+              { base: 'Median', ...median },
+              { base: 'Min', ...min }
             ]
             break
           case 2:
             pinnedRows = [
-              { isin: 'Max', ...max },
-              { isin: 'Q3', ...q3 },
-              { isin: 'Median', ...median },
-              { isin: 'Q1', ...q1 },
-              { isin: 'Min', ...min }
+              { base: 'Max', ...max },
+              { base: 'Q3', ...q3 },
+              { base: 'Median', ...median },
+              { base: 'Q1', ...q1 },
+              { base: 'Min', ...min }
             ]
             break
         }

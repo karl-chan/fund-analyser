@@ -4,5 +4,5 @@ export default {
   statement: null, // {series: [Fund.HistoricPrice], events: [Event]}
   watchlist: [], // [isin: string]
   recentlyViewed: [], // [isin: string]
-  currencies: [] // [currencies: string (e.g. 'GBPUSD')]
+  favouriteCurrencies: [] // [favouriteCurrencies: string (e.g. 'GBPUSD')]
 }

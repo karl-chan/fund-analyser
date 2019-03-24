@@ -18,8 +18,11 @@ const lookbacks = properties.get('fund.lookbacks')
 
 function invertCurrency (currency) {
     const invertedRates = currency.historicRates.map(hr => new Currency.HistoricRate(hr.date, 1 / hr.rate))
-    const returns = calcReturns(invertedRates, lookbacks)
-    return new Currency(currency.quote, currency.base, invertedRates, returns)
+    const invertedReturns = {}
+    for (const [k, v] of Object.entries(currency.returns)) {
+        invertedReturns[k] = 1 / (v + 1) - 1
+    }
+    return new Currency(currency.quote, currency.base, invertedRates, invertedReturns)
 }
 
 function multiplyCurrencies (currency1, currency2) {

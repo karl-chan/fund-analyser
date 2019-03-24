@@ -1,4 +1,4 @@
-
+const Currency = require('../currency/Currency')
 const db = require('../util/db')
 const currencyUtils = require('../util/currencyUtils')
 const _ = require('lodash')
@@ -30,7 +30,8 @@ async function listCurrencies (currencyPairs) {
     }
     const projection = { _id: 0 }
     const rawCurrencies = await db.getCurrencies().find(query, { projection }).toArray()
-    const currenciesByQuote = _.keyBy(rawCurrencies, c => c.quote)
+    const parsedCurrencies = rawCurrencies.map(({ base, quote, historicRates, returns }) => new Currency(base, quote, historicRates, returns))
+    const currenciesByQuote = _.keyBy(parsedCurrencies, c => c.quote)
 
     const currencies = []
     baseQuotePairs.forEach(([base, quote]) => {
@@ -81,9 +82,11 @@ async function listSupportedCurrencies () {
     return _.uniq(_.flatten(baseQuotes.map(pair => [pair.base, pair.quote])))
 }
 
-async function listSupportedReturns () {
+async function listSummary () {
+    const defaultHistoricRates = [] // fill with empty array
     const projection = { _id: 0, base: 1, quote: 1, returns: 1 }
-    return db.getCurrencies().find({}, { projection }).toArray()
+    const rawCurrencies = await db.getCurrencies().find({}, { projection }).toArray()
+    return rawCurrencies.map(({ base, quote, returns }) => new Currency(base, quote, defaultHistoricRates, returns))
 }
 
 function fromCurrency (currency) {
@@ -93,7 +96,7 @@ function fromCurrency (currency) {
 module.exports = {
     listCurrencies,
     listSupportedCurrencies,
-    listSupportedReturns,
+    listSummary,
     upsertCurrency,
     HOME_CURRENCY
 }

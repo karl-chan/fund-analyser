@@ -18,12 +18,17 @@ router.get('/get', async ctx => {
 })
 
 router.get('/summary', async ctx => {
-    let currencies = await CurrencyDAO.listSupportedReturns()
+    const { invert } = ctx.request.query
+    let currencies = await CurrencyDAO.listSummary()
+    if (invert) {
+        // make GBP quote currency
+        currencies = currencies.map(c => currencyUtils.invertCurrency(c))
+    }
     currencies = currencyUtils.enrichSummary(currencies)
     const stats = currencyUtils.calcStats(currencies)
     ctx.body = {
         currencies,
-        metadata: { stats }
+        stats
     }
 })
 
