@@ -21,6 +21,7 @@ import CurrencyChart from 'components/currency/CurrencyChart'
 import CurrencyDashboard from 'components/currency/CurrencyDashboard'
 import CurrencyPie from 'components/currency/CurrencyPie'
 import CurrencyReturns from 'components/currency/CurrencyReturns'
+import CurrencyTable from 'components/currency/CurrencyTable'
 
 import Healthcheck from 'components/misc/Healthcheck'
 import TipOfTheDay from 'components/misc/TipOfTheDay'
@@ -52,6 +53,7 @@ export default ({ Vue }) => {
   Vue.component('currency-dashboard', CurrencyDashboard)
   Vue.component('currency-pie', CurrencyPie)
   Vue.component('currency-returns', CurrencyReturns)
+  Vue.component('currency-table', CurrencyTable)
 
   Vue.component('healthcheck', Healthcheck)
   Vue.component('tip-of-the-day', TipOfTheDay)

@@ -129,6 +129,16 @@ function enrichSummary (summary) {
         })
 
     // add colours to returns
-    summary = agGridUtils.addColours(summary)
+    const { colourAroundZero, colourAroundMedian, colourNegative } = agGridUtils
+    const colourOptions = {
+        'returns.$lookback': [colourAroundZero],
+        'returns.+1D': [colourAroundZero], // include +1D
+        'indicators.stability': [colourAroundMedian, 10],
+        'indicators.macd': [colourAroundZero],
+        'indicators.mdd': [colourNegative],
+        'indicators.returns.$lookback.max': [colourAroundZero],
+        'indicators.returns.$lookback.min': [colourAroundZero]
+    }
+    summary = agGridUtils.addColours(summary, colourOptions)
     return summary
 }

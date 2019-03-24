@@ -1,6 +1,10 @@
 module.exports = {
     applyRequest,
-    addColours
+    addColours,
+    // colour funcs
+    colourAroundMedian,
+    colourAroundZero,
+    colourNegative
 }
 
 const _ = require('lodash')
@@ -9,7 +13,6 @@ const stat = require('./stat')
 const properties = require('./properties')
 
 const lookbacks = properties.get('fund.lookbacks')
-const extendedLookbacks = lookbacks.concat(['+1D'])
 
 /**
  * Applies ag-grid Server Side Model request params on the incoming list of funds
@@ -85,27 +88,27 @@ function _applyFilter (funds, filterModel) {
     return funds
 }
 
-function addColours (funds) {
-    // returns
-    for (let period of extendedLookbacks) {
-        funds = _colourAroundZero(`returns.${period}`, funds)
-    }
+function addColours (iterables, colourOptions) {
+    // expand template variables
+    const expandedOptions = Object.entries(colourOptions)
+        .flatMap(([k, v]) => {
+            if (k.includes('$lookback')) {
+                return lookbacks.map(lookback => [k.replace(/\$lookback/g, lookback), v])
+            } else {
+                return [[k, v]]
+            }
+        })
 
-    // indicators
-    funds = _colourAroundMedian('indicators.stability', funds, 10) // clip upper at stability = 10
-    funds = _colourAroundZero('indicators.macd', funds)
-    funds = _colourNegative('indicators.mdd', funds)
-    for (let period of lookbacks) {
-        funds = _colourAroundZero(`indicators.returns.${period}.max`, funds)
-        funds = _colourAroundZero(`indicators.returns.${period}.min`, funds)
+    for (const [field, colourFuncArgs] of expandedOptions) {
+        const [colourFunc, ...args] = colourFuncArgs
+        iterables = colourFunc(field, iterables, ...args)
     }
-
-    return funds
+    return iterables
 }
 
 // scoring methods
-// positive greeen, negative red, white zero
-function _colourAroundZero (field, funds) {
+// (inf, 0, -inf) = (green, 0, red)
+function colourAroundZero (field, funds) {
     return _colour(field, funds, ({ val, max, min }) => {
         if (val > 0) {
             return val / max
@@ -117,7 +120,8 @@ function _colourAroundZero (field, funds) {
     })
 }
 
-function _colourAroundMedian (field, funds, clipUpper, clipLower) {
+// (inf, clipUpper, median, clipLower, -inf) = (green, green, white, red, red)
+function colourAroundMedian (field, funds, clipUpper, clipLower) {
     const options = { clipUpper, clipLower }
     return _colour(field, funds, ({ val, max, min, median }) => {
         if (val > median) {
@@ -130,7 +134,8 @@ function _colourAroundMedian (field, funds, clipUpper, clipLower) {
     }, options)
 }
 
-function _colourNegative (field, funds) {
+// (inf, 0, -inf) = (white, white, red)
+function colourNegative (field, funds) {
     return _colour(field, funds, ({ val, max }) => -val / max)
 }
 

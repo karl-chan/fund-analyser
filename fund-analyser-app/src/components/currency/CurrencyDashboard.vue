@@ -1,11 +1,14 @@
 <template lang="pug">
     .column.gutter-y-sm
       .q-headline Currency Dashboard
-        .row.justify-start.items-center
-          // user search bar
-          q-search.shadow-2(v-model="currenciesFilter" placeholder="Add currency (e.g. GBPUSD)" color="grey-2" inverted-light clearable upper-case)
-            q-autocomplete(@search="search" @selected="onSelectCurrency")
-          q-spinner-dots.q-ml-md(color="primary" v-if="loading")
+      // currency table
+      currency-table(height="500px" :currencies="summary.currencies" :stats="summary.stats")
+
+      .row.justify-start.items-center
+        // user search bar
+        q-search.shadow-2(v-model="currenciesFilter" placeholder="Add currency (e.g. GBPUSD)" color="grey-2" inverted-light clearable upper-case)
+          q-autocomplete(@search="search" @selected="onSelectCurrency")
+        q-spinner-dots.q-ml-md(color="primary" v-if="loading")
 
       // grid of currencies
       .row(v-for="y in rows" :key="y")
@@ -35,7 +38,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('currency', ['supportedCurrencies', 'loaded']),
+    ...mapState('currency', ['supportedCurrencies', 'loaded', 'summary']),
     ...mapState('account', ['currencies']),
     rows: function () {
       return Math.ceil(this.loadedCurrencies.length / this.cols)

@@ -12,7 +12,7 @@ describe('currencyUtils', () => {
             new Currency.HistoricRate(new Date(2001, 0, 2), 1.27),
             new Currency.HistoricRate(new Date(2001, 0, 3), 1.28)
         ]
-        const returns = currencyUtils.calculateReturns(historicRates)
+        const returns = currencyUtils.calcReturns(historicRates)
         currency = new Currency(base, quote, historicRates, returns)
     })
     test('invertCurrency should invert currency pair', () => {
@@ -50,7 +50,7 @@ describe('currencyUtils', () => {
         })
     })
 
-    test('calculateReturns', () => {
+    test('calcReturns', () => {
         expect(currency.returns['1D']).toBeCloseTo(0.0079, 4)
     })
 })

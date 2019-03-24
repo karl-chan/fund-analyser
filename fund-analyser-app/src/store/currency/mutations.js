@@ -8,3 +8,7 @@ export function addCurrencies (state, currencies) {
     state.loaded = { ...state.loaded, [key]: currency }
   }
 }
+
+export function setSummary (state, summary) {
+  state.summary = summary
+}

@@ -4,6 +4,7 @@ import dateUtils from './../../utils/date-utils'
 
 export async function init ({ dispatch }) {
   dispatch('getSupportedCurrencies')
+  dispatch('getSummary')
 }
 
 export async function getSupportedCurrencies ({ commit }) {
@@ -23,4 +24,10 @@ export async function lazyGets ({ state, commit }, currencyPairs) {
 
   const currencies = await currencyService.list(outdatedPairs)
   commit('addCurrencies', currencies)
+}
+
+export async function getSummary ({ commit }) {
+  const summary = await currencyService.getSummary()
+  commit('setSummary', summary)
+  return summary
 }

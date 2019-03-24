@@ -2,9 +2,12 @@ import apiService from './api-service'
 
 export default {
   getSupportedCurrencies () {
-    return apiService.get('/currency/list/supported')
+    return apiService.get('/currency/supported')
+  },
+  getSummary () {
+    return apiService.get('/currency/summary')
   },
   list (currencyPairs) {
-    return apiService.get('currency/list', { params: { pairs: currencyPairs.join(',') } })
+    return apiService.get('/currency/get', { params: { pairs: currencyPairs.join(',') } })
   }
 }

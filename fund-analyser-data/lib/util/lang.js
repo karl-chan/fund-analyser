@@ -18,6 +18,11 @@ function deepKeys (object) {
     return deepKeysSatisfying(object, x => x)
 }
 
+/**
+ * Returns keys (as . separated strings) matching predicate.
+ * @param {*} object
+ * @param {*} predicate (ks, value) => boolean. ks is array of path to current value.
+ */
 function deepKeysSatisfying (object, predicate) {
     const res = deepTraverse(object, (ks, v, acc) => {
         if (predicate(ks, v)) {

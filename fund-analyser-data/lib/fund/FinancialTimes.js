@@ -295,7 +295,7 @@ class FinancialTimes {
             })
             .get()
             .filter(text => text.length) // filter out empty string
-        )
+            .sort())
         return currencies
     }
 

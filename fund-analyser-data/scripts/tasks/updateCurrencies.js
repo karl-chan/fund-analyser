@@ -5,10 +5,7 @@ const Currency = require('../../lib/currency/Currency')
 const CurrencyDAO = require('../../lib/db/CurrencyDAO')
 const currencyUtils = require('../../lib/util/currencyUtils')
 const log = require('../../lib/util/log')
-const properties = require('../../lib/util/properties')
 const Promise = require('bluebird')
-
-const lookbacks = properties.get('fund.lookbacks')
 
 /**
  * Update currency exchange rates
@@ -26,7 +23,7 @@ async function updateCurrencies () {
         quoteCurrencies,
         async quote => {
             const historicRates = await financialTimes.getHistoricExchangeRates(base, quote)
-            const returns = currencyUtils.calculateReturns(historicRates)
+            const returns = currencyUtils.calcReturns(historicRates)
             const currency = new Currency(base, quote, historicRates, returns)
             await CurrencyDAO.upsertCurrency(currency)
             log.info(`Upserted currency pair ${base}${quote}`)

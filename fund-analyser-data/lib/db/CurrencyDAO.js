@@ -1,6 +1,5 @@
 
 const db = require('../util/db')
-const Currency = require('../currency/Currency')
 const currencyUtils = require('../util/currencyUtils')
 const _ = require('lodash')
 
@@ -15,6 +14,10 @@ const HOME_CURRENCY = 'GBP'
  * ]
  */
 async function listCurrencies (currencyPairs) {
+    if (!currencyPairs || !currencyPairs.length) {
+        return []
+    }
+
     const baseQuotePairs = currencyPairs.map(pair => {
         const base = pair.substring(0, 3)
         const quote = pair.substring(3, 6)
@@ -73,9 +76,14 @@ async function upsertCurrency (currency) {
  * @returns [string] e.g. ['GBP', 'USD', ...]
  */
 async function listSupportedCurrencies () {
-    const projection = { base: 1, quote: 1 }
+    const projection = { _id: 0, base: 1, quote: 1 }
     const baseQuotes = await db.getCurrencies().find({}, { projection }).toArray()
     return _.uniq(_.flatten(baseQuotes.map(pair => [pair.base, pair.quote])))
+}
+
+async function listSupportedReturns () {
+    const projection = { _id: 0, base: 1, quote: 1, returns: 1 }
+    return db.getCurrencies().find({}, { projection }).toArray()
 }
 
 function fromCurrency (currency) {
@@ -85,6 +93,7 @@ function fromCurrency (currency) {
 module.exports = {
     listCurrencies,
     listSupportedCurrencies,
+    listSupportedReturns,
     upsertCurrency,
     HOME_CURRENCY
 }

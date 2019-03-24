@@ -14,4 +14,22 @@ Currency.HistoricRate = class {
     }
 }
 
+Currency.schema = {
+    base: 'string',
+    quote: 'string',
+    historicRates: 'Array',
+    returns: {
+        '5Y': 'number',
+        '3Y': 'number',
+        '1Y': 'number',
+        '6M': 'number',
+        '3M': 'number',
+        '1M': 'number',
+        '2W': 'number',
+        '1W': 'number',
+        '3D': 'number',
+        '1D': 'number'
+    }
+}
+
 module.exports = Currency

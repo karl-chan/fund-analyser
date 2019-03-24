@@ -62,7 +62,7 @@ export default {
       columnDefs: [
         { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated, pinned: 'left' },
         { headerName: 'ISIN', field: 'isin', width: 120, pinned: 'left' },
-        { headerName: 'Name', field: 'name', width: 180, tooltipField: 'name', pinned: 'left' },
+        { headerName: 'Name', field: 'name', width: 180, pinned: 'left' },
         { headerName: 'Returns',
           marryChildren: true,
           children: extendedPeriods.map(period => ({
@@ -382,7 +382,7 @@ export default {
     stats: function () {
       this.togglePinnedRows()
     },
-    filterText: function (text) {
+    filterText: function () {
       this.initDataSource()
     },
     highlightIsin: function (isin) {
