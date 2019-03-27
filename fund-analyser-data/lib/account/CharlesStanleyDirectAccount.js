@@ -44,12 +44,12 @@ class CharlesStanleyDirectAccount {
         const rows = $('#ordl-results > tbody > tr').get()
         const orders = _.chunk(rows, 2)
             .map(([summaryRow, orderDetails]) => {
-                const [orderRef, side, sedol, name, status] =
+                const [orderRef, side, sedol, name, quantity, status] =
                     $(summaryRow)
                         .children('td')
                         .map((i, td) => $(td).text().trim())
                         .get()
-                const [,, settlementDate, orderDate,, price, quantity, consideration, fundDealingFee, other, estimatedProceeds] =
+                const [,, settlementDate, orderDate,, price,, consideration, fundDealingFee, other, estimatedProceeds] =
                     $(orderDetails)
                         .find('.ordl-subtable > tbody > tr > td')
                         .map((i, e) => $(e).text().trim())
