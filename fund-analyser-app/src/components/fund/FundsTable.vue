@@ -62,7 +62,7 @@ export default {
       columnDefs: [
         { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated, pinned: 'left' },
         { headerName: 'ISIN', field: 'isin', width: 120, pinned: 'left' },
-        { headerName: 'Name', field: 'name', width: 180, pinned: 'left' },
+        { headerName: 'Name', field: 'name', width: 180, pinned: 'left', tooltip: params => params.value },
         { headerName: 'Returns',
           marryChildren: true,
           children: extendedPeriods.map(period => ({

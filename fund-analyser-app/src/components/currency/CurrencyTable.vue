@@ -60,8 +60,6 @@ export default {
         enableFilter: true,
         enableSorting: true,
         enableRangeSelection: true,
-        suppressLoadingOverlay: true,
-        suppressNoRowsOverlay: true,
         sideBar: {
           toolPanels: [
             {
