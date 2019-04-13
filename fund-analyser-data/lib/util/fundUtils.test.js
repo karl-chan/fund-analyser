@@ -98,23 +98,23 @@ describe('fundUtils', () => {
                 .ocf(0.07)
                 .entryCharge(0.02)
                 .returns({ '5Y': 0.3 })
-                .indicators({ stability: 1 })
+                .indicators({ stability: { value: 1 } })
                 .asof(new Date(2001, 0, 1))
                 .build(),
             Fund.Builder('Fund2')
                 .amc(0.04)
                 .entryCharge(0.02)
                 .returns({ '5Y': 0.1 })
-                .indicators({ stability: 2 })
+                .indicators({ stability: { value: 2 } })
                 .asof(new Date(2001, 0, 2))
                 .build()
         ]
         test('should calc correct stats', () => {
             const { max, min, median } = fundUtils.calcStats(funds)
             expect(max).not.toHaveProperty('isin')
-            expect(max).toMatchObject({ 'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': undefined, 'returns': { '5Y': 0.3 }, 'indicators': { 'stability': 2 }, 'asof': new Date(2001, 0, 2) })
-            expect(min).toMatchObject({ 'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': undefined, 'returns': { '5Y': 0.1 }, 'indicators': { 'stability': 1 }, 'asof': new Date(2001, 0, 1) })
-            expect(median).toMatchObject({ 'ocf': 0.07, 'amc': 0.04, 'entryCharge': 0.02, 'exitCharge': NaN, 'returns': { '5Y': 0.2 }, 'indicators': { 'stability': 1.5 }, 'asof': NaN })
+            expect(max).toMatchObject({ ocf: 0.07, amc: 0.04, entryCharge: 0.02, exitCharge: undefined, returns: { '5Y': 0.3 }, indicators: { stability: { value: 2 } }, asof: new Date(2001, 0, 2) })
+            expect(min).toMatchObject({ ocf: 0.07, amc: 0.04, entryCharge: 0.02, exitCharge: undefined, returns: { '5Y': 0.1 }, indicators: { stability: { value: 1 } }, asof: new Date(2001, 0, 1) })
+            expect(median).toMatchObject({ ocf: 0.07, amc: 0.04, entryCharge: 0.02, exitCharge: NaN, returns: { '5Y': 0.2 }, indicators: { stability: { value: 1.5 } }, asof: NaN })
         })
     })
 
@@ -124,10 +124,10 @@ describe('fundUtils', () => {
             new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
             new Fund.HistoricPrice(new Date(2017, 3, 12), 482.0)
         ]
-        test('should return a collection of indicators', () => {
-            const indicators = fundUtils.calcIndicators(historicPrices)
+        test('should return a collection of indicators', async () => {
+            const indicators = await fundUtils.calcIndicators(historicPrices)
             expect(indicators).toHaveProperty('stability')
-            expect(indicators.stability).toBeNumber()
+            expect(indicators.stability.value).toBeNumber()
         })
     })
 })

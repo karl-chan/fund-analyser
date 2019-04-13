@@ -1,3 +1,13 @@
 {
-    "eslint.enable": true
+    "eslint.enable": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.pythonPath": "C:\\Users\\karl\\.virtualenvs\\fund-analyser-compute-4K7o04Ov\\scripts\\python.exe",
+    "python.unitTest.pyTestArgs": [
+        "fund-analyser-compute"
+    ],
+    "python.unitTest.unittestEnabled": false,
+    "python.unitTest.nosetestsEnabled": false,
+    "python.unitTest.pyTestEnabled": true,
+    "python.linting.mypyEnabled": true,
 }

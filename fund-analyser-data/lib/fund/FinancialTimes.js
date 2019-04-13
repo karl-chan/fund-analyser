@@ -276,7 +276,7 @@ class FinancialTimes {
 
         const enrichedHoldings = await Promise.map(fund.holdings, async h => {
             const { currency, todaysChange } = h.symbol ? await getTodaysChange(h.symbol) : { currency: null, todaysChange: null }
-            return { name: h.name, ticker: h.symbol, currency, todaysChange, weight: h.weight }
+            return { name: h.name, symbol: h.symbol, currency, todaysChange, weight: h.weight }
         })
 
         const realTimeDetails = { holdings: enrichedHoldings, lastUpdated: new Date() }

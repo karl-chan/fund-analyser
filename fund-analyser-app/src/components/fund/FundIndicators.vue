@@ -5,48 +5,47 @@
       div
         q-input(v-model="filter" float-label="Filter by property" inverted color="tertiary"
               :before="[{icon: 'fas fa-filter', handler () {}}]")
-    .q-mt-lg
-      q-tree(:nodes="indicatorNodes" color="tertiary" text-color="white" default-expand-all
-           :filter="filter" :filter-method="filterMethod" node-key="key" :no-results-label="noMatchLabel")
+    .q-mt-lg.table-container
+      q-table(:data="rows" :columns="columns" :filter="filter" row-key="key"
+              dark dense :no-results-label="noMatchLabel"
+              :pagination.sync="pagination")
 </template>
 
 <script>
-import isPlainObject from 'lodash/isPlainObject'
+import { mapState } from 'vuex'
 export default {
   name: 'FundIndicators',
   props: ['fund'],
   data: function () {
     return {
-      filter: ''
+      filter: '',
+      columns: [
+        { field: 'name', label: 'Name', align: 'left' },
+        { field: 'value', label: 'Value' }
+      ],
+      pagination: {
+        page: 1,
+        rowsPerPage: 0
+      }
     }
   },
   computed: {
-    indicatorNodes: function () {
-      return this.toNodes(this.fund.indicators)
+    ...mapState('funds', ['indicatorSchema']),
+    rows: function () {
+      return Object.entries(this.fund.indicators).map(([key, { value, metadata }]) => {
+        const { name, format } = this.indicatorSchema[key]
+        switch (format) {
+          case 'percent':
+            value = this.$utils.format.formatPercentage(value, true)
+            break
+          default:
+            value = this.$utils.format.formatNumber(value, true)
+        }
+        return { key, name, value }
+      })
     },
     noMatchLabel: function () {
       return 'No indicators matching: ' + this.filter
-    }
-  },
-  methods: {
-    toNodes (indicators) {
-      const nodes = []
-      for (let [k, v] of Object.entries(indicators)) {
-        if (isPlainObject(v)) {
-          const innerNodes = this.toNodes(v)
-            .map(node => ({ ...node, key: `${k}.${node.key}` }))
-          nodes.push({ key: k, label: this.sentenceCase(k), children: innerNodes })
-        } else {
-          nodes.push({ key: k, label: `${this.sentenceCase(k)}: ${this.$utils.format.formatNumber(v)}` })
-        }
-      }
-      return nodes
-    },
-    filterMethod (node, filter) {
-      return node.key.toLowerCase().includes(filter.toLowerCase())
-    },
-    sentenceCase (str) {
-      return str.charAt(0).toUpperCase() + str.slice(1)
     }
   }
 }
@@ -61,4 +60,7 @@ export default {
   background-color goldenrod
   color white
 
+.table-container
+  background-color rgba(0, 0, 0, 0.1)
+  font-size: 40px
 </style>

@@ -21,8 +21,8 @@ let _fundClients, _fundDbs
 
 async function init () {
     [_client, _fundClients] = await Promise.all([
-        MongoClient.connect(uri),
-        Promise.map(fundUris, MongoClient.connect)
+        MongoClient.connect(uri, { useNewUrlParser: true }),
+        Promise.map(fundUris, fundUri => MongoClient.connect(fundUri, { useNewUrlParser: true }))
     ])
 
     _db = _client.db()

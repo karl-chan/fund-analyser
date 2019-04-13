@@ -17,7 +17,9 @@ describe('csv', () => {
                 .historicPrices([new Fund.HistoricPrice(new Date(2017, 3, 23), 457.0)])
                 .returns({ '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2, '2W': -0.1, '1W': -0.05, '3D': -0.05, '1D': -0.05 })
                 .indicators({
-                    stability: -3
+                    stability: {
+                        value: -3
+                    }
                 })
                 .asof(new Date(2018, 0, 1))
                 .build()

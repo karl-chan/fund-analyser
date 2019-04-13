@@ -1,29 +1,46 @@
 module.exports = {
-    exec
+    get,
+    post
 }
 
 const properties = require('../lib/util/properties')
+const env = require('../lib/util/env')
 const Http = require('../lib/util/http')
 
-const DEV_HOST = properties.get('client.compute.host.dev')
-const PROD_HOST = properties.get('client.compute.host.prod')
+const COMPUTE_HOST = env.isProduction()
+    ? properties.get('client.compute.prod')
+    : properties.get('client.compute.dev')
 
 const http = new Http()
 
-async function exec (operation, payload, envOverride) {
-    const host = selectHost(envOverride)
+async function get (endpoint, params) {
+    const options = { json: true }
+    if (params) {
+        options.qs = params
+    }
+    if (endpoint.startsWith('/')) {
+        endpoint = endpoint.substring(1)
+    }
+    const { body } = await http.asyncGet(`${COMPUTE_HOST}/${endpoint}`, options)
+    return tryParseJSON(body)
+}
+
+async function post (endpoint, payload) {
     const options = { json: true }
     if (payload) {
         options.body = payload
     }
-    const { body } = await http.asyncPost(`${host}/api/${operation}`, options)
+    if (endpoint.startsWith('/')) {
+        endpoint = endpoint.substring(1)
+    }
+    const { body } = await http.asyncPost(`${COMPUTE_HOST}/${endpoint}`, options)
+    return tryParseJSON(body)
+}
+
+function tryParseJSON (body) {
     try {
         return JSON.parse(body)
     } catch (ignored) {
         return body
     }
-}
-
-function selectHost (env = process.env.NODE_ENV) {
-    return env === 'production' ? PROD_HOST : DEV_HOST
 }

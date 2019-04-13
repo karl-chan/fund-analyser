@@ -7,6 +7,9 @@ export default new VuexPersistence({
       watchlist: state.account.watchlist,
       recentlyViewed: state.account.recentlyViewed,
       currencies: state.account.currencies
+    },
+    funds: {
+      indicatorSchema: state.funds.indicatorSchema
     }
   })
 })

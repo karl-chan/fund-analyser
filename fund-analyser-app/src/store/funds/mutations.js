@@ -1,5 +1,5 @@
-import Vue from 'vue'
 import keyBy from 'lodash/keyBy'
+import Vue from 'vue'
 
 export function addFunds (state, funds) {
   const isinsToFunds = keyBy(funds, f => f.isin)
@@ -24,4 +24,8 @@ export function setRealTimeDetails (state, realTimeDetailsPairs) {
 
 export function setSummary (state, fundsSummary) {
   state.summary = fundsSummary
+}
+
+export function setIndicatorSchema (state, indicatorSchema) {
+  state.indicatorSchema = indicatorSchema
 }

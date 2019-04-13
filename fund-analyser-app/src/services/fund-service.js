@@ -15,5 +15,8 @@ export default {
   },
   list (isins, params) {
     return apiService.post('/funds/list', { isins, params })
+  },
+  getIndicatorSchema () {
+    return apiService.get('/funds/indicators')
   }
 }

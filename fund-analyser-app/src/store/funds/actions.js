@@ -1,7 +1,12 @@
+import partition from 'lodash/partition'
+import router from './../../router'
 import fundService from './../../services/fund-service'
 import dateUtils from './../../utils/date-utils'
-import router from './../../router'
-import partition from 'lodash/partition'
+
+export async function init ({ commit }) {
+  const indicatorSchema = await fundService.getIndicatorSchema()
+  commit('setIndicatorSchema', indicatorSchema)
+}
 
 export async function gets ({ dispatch, commit }, isins) {
   if (!isins || !isins.length) {

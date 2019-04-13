@@ -32,14 +32,14 @@ export default {
     }
   },
   computed: {
+    ...mapGetters('funds', ['lookupFund']),
     funds: function () {
-      return this.watchlist.map(isin => this.lookupFund()(isin))
+      return this.watchlist.map(isin => this.lookupFund(isin))
         .filter(f => f) // remove undefined entries in case fund not ready
     }
   },
   methods: {
     ...mapActions('account', ['clearWatchlist']),
-    ...mapGetters('funds', ['lookupFund']),
     onRowSelected (params) {
       this.selectedIsin = params.data.isin
     },

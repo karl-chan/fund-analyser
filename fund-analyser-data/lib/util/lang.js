@@ -104,7 +104,7 @@ function pairsToDeepObject (pairs) {
  */
 function assignIfDefined (dest, ...sources) {
     for (const source of sources) {
-        if (typeof source === 'object') {
+        if (source && typeof source === 'object') {
             for (const [k, v] of Object.entries(source)) {
                 if (k !== undefined && v !== undefined) {
                     dest[k] = v

@@ -12,6 +12,7 @@ const moment = require('moment')
 
 const properties = require('../lib/util/properties')
 const db = require('../lib/util/db')
+const env = require('../lib/util/env')
 const log = require('../lib/util/log')
 const SessionDAO = require('../lib/db/SessionDAO')
 const Stopwatch = require('../lib/util/stopwatch')
@@ -38,7 +39,7 @@ app.use(async (ctx, next) => {
     await next()
 })
 
-if (process.env.NODE_ENV === 'production') {
+if (env.isProduction()) {
     app.use(helmet())
     app.use(sslify({ resolver: xForwardedProtoResolver }))
 }

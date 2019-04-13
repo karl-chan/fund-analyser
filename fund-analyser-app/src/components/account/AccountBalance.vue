@@ -63,12 +63,13 @@ export default {
     }
   },
   computed: {
+    ...mapGetters('funds', ['lookupFund']),
     holdings: function () {
       if (!this.balance || !this.balance.holdings) {
         return []
       }
       return this.balance.holdings.map(h => {
-        const fund = this.lookupFund()(h.ISIN)
+        const fund = this.lookupFund(h.ISIN)
         if (fund) {
           h.realTimeEstPct = fund.realTimeDetails.estChange
           h.realTimeEst = h.MktValue * h.realTimeEstPct
@@ -78,7 +79,6 @@ export default {
     }
   },
   methods: {
-    ...mapGetters('funds', ['lookupFund']),
     onGridReady (params) {
       this.updateColDefs(params)
     },

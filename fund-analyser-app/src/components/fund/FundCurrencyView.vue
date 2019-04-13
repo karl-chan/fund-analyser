@@ -1,11 +1,11 @@
 <template lang="pug">
   .col.gutter-y-sm
     currency-pie(:holdings="holdings")
-    q-card(v-for="pair in currencyPairs" v-if="lookupCurrency()(pair)" :key="pair")
+    q-card(v-for="pair in currencyPairs" v-if="lookupCurrency(pair)" :key="pair")
       q-card-media
-        currency-chart(:currency="lookupCurrency()(pair)")
+        currency-chart(:currency="lookupCurrency(pair)")
       q-card-main
-        currency-returns(:currency="lookupCurrency()(pair)")
+        currency-returns(:currency="lookupCurrency(pair)")
 </template>
 
 <script>
@@ -21,6 +21,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters('currency', ['lookupCurrency']),
     holdings: function () {
       return get(this.fund, 'realTimeDetails.holdings', [])
     },
@@ -30,8 +31,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('currency', ['lazyGets']),
-    ...mapGetters('currency', ['lookupCurrency'])
+    ...mapActions('currency', ['lazyGets'])
   },
   watch: {
     currencyPairs: {

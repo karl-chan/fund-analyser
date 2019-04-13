@@ -99,7 +99,6 @@ module.exports = function (ctx) {
         'QTabs',
         'QTab',
         'QTabPane',
-        'QTree',
         'QSpinner',
         'QSpinnerFacebook',
         'QSpinnerDots',

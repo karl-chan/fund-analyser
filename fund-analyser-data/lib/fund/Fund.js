@@ -68,23 +68,7 @@ Fund.schema = {
         '+1D': 'number'
     },
     asof: 'Date',
-    indicators: {
-        stability: 'number',
-        macd: 'number',
-        mdd: 'number',
-        returns: {
-            '5Y': { max: 'number', min: 'number' },
-            '3Y': { max: 'number', min: 'number' },
-            '1Y': { max: 'number', min: 'number' },
-            '6M': { max: 'number', min: 'number' },
-            '3M': { max: 'number', min: 'number' },
-            '1M': { max: 'number', min: 'number' },
-            '2W': { max: 'number', min: 'number' },
-            '1W': { max: 'number', min: 'number' },
-            '3D': { max: 'number', min: 'number' },
-            '1D': { max: 'number', min: 'number' }
-        }
-    },
+    indicators: 'object',
     realTimeDetails: {
         estChange: 'number',
         estPrice: 'number',

@@ -34,7 +34,7 @@ async function downloadCsv () {
             'returns.1W': 1,
             'returns.3D': 1,
             'returns.1D': 1,
-            'indicators.stability': 1,
+            'indicators.stability.value': 1,
             'holdings': 1,
             'asof': 1
         },
@@ -46,7 +46,7 @@ async function downloadCsv () {
     const headerFields = ['isin', 'name', 'type', 'shareClass', 'frequency',
         'ocf', 'amc', 'entryCharge', 'exitCharge', 'bidAskSpread', 'returns.5Y', 'returns.3Y',
         'returns.1Y', 'returns.6M', 'returns.3M', 'returns.1M', 'returns.2W',
-        'returns.1W', 'returns.3D', 'returns.1D', 'indicators.stability', 'holdings', 'asof']
+        'returns.1W', 'returns.3D', 'returns.1D', 'indicators.stability.value', 'holdings', 'asof']
     const csvFile = await FundDAO.exportCsv(headerFields, options)
     fs.writeFileSync(savePath, csvFile)
     log.info('Saved csv file to %s', savePath)

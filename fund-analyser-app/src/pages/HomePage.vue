@@ -31,10 +31,7 @@ export default {
   computed: {
     ...mapState('account', ['balance', 'orders', 'statement', 'watchlist']),
     ...mapState('auth', ['user']),
-    ...mapState('funds', ['favouriteIsins']),
-    watchedFunds: function () {
-      return this.watchlist.map(isin => this.lookupFund()(isin))
-    }
+    ...mapState('funds', ['favouriteIsins'])
   },
   methods: {
     ...mapActions('funds', ['lazyGets'])

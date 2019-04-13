@@ -95,14 +95,20 @@ class CharlesStanleyDirect {
         const ocf = math.pcToFloat(chargesTable.find(`td:contains('Total Ongoing Charges') + td`).text().trim())
 
         // holdings
-        const dataCompositionHoldingsRegex = /var dataCompositionHoldings = (.*)/
-        const dataCompositionHoldings = JSON.parse(body.match(dataCompositionHoldingsRegex)[1])
-        const holdings = dataCompositionHoldings.map(e => {
-            const name = e.tooltip.split('(')[0].trim()
-            const symbol = null // charles stanley does not have symbol, need to fetch this from FT
-            const weight = math.pcToFloat(e.amount)
-            return new Fund.Holding(name, symbol, weight)
-        })
+        let holdings = []
+        try {
+            const dataCompositionHoldingsRegex = /var dataCompositionHoldings = (.*)/
+            const dataCompositionHoldings = JSON.parse(body.match(dataCompositionHoldingsRegex)[1])
+            holdings = dataCompositionHoldings.map(e => {
+                const name = e.tooltip.split('(')[0].trim()
+                const symbol = null // charles stanley does not have symbol, need to fetch this from FT
+                const weight = math.pcToFloat(e.amount)
+                return new Fund.Holding(name, symbol, weight)
+            })
+        } catch (err) {
+            log.error('Missing holdings for sedol on Charles Stanley: %s', sedol)
+            return undefined // return undefined so that it will continue all the way to FundDAO and get rejected
+        }
 
         const partialFund = Fund.Builder(isin)
             .sedol(sedol)

@@ -36,7 +36,6 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import get from 'lodash/get'
-import startCase from 'lodash/startCase'
 
 const periods = ['5Y', '3Y', '1Y', '6M', '3M', '1M', '2W', '1W', '3D', '1D']
 const extendedPeriods = periods.concat('+1D')
@@ -59,41 +58,6 @@ export default {
       numUpToDate: 0,
       totalFunds: 0,
       showStatMode: 0, // hidden
-      columnDefs: [
-        { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated, pinned: 'left' },
-        { headerName: 'ISIN', field: 'isin', width: 120, pinned: 'left' },
-        { headerName: 'Name', field: 'name', width: 180, pinned: 'left', tooltip: params => params.value },
-        { headerName: 'Returns',
-          marryChildren: true,
-          children: extendedPeriods.map(period => ({
-            headerName: period, field: `returns.${period}`, width: 65, sort: period === '1D' && 'desc'
-          }))
-        },
-        { headerName: 'Indicators',
-          marryChildren: true,
-          children: [
-            { headerName: 'Stability', field: 'indicators.stability', width: 75 },
-            { headerName: 'MACD', field: 'indicators.macd', width: 75 },
-            { headerName: 'MDD', field: 'indicators.mdd', width: 75 }
-          ].concat(
-            ['max', 'min'].flatMap(type => {
-              return periods.map(period => {
-                return { headerName: `${startCase(type)} ${period}`, field: `indicators.returns.${period}.${type}`, width: 90 }
-              })
-            })
-          )
-        },
-        { headerName: 'Type', field: 'type', width: 70 },
-        { headerName: 'Share Class', field: 'shareClass', width: 60 },
-        { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 70 },
-        { headerName: 'Freq', field: 'frequency', width: 80 },
-        { headerName: 'OCF', field: 'ocf', width: 70 },
-        { headerName: 'AMC', field: 'amc', width: 70 },
-        { headerName: 'Entry Charge', field: 'entryCharge', width: 80 },
-        { headerName: 'Exit Charge', field: 'exitCharge', width: 80 },
-        { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter, tooltip: this.jsonFormatter },
-        { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
-      ],
       gridOptions: {
         context: this,
         enableColResize: true,
@@ -141,7 +105,9 @@ export default {
           }
           return classes
         }
-      }
+      },
+      gridApi: undefined,
+      columnApi: undefined
     }
   },
   components: {
@@ -151,14 +117,93 @@ export default {
   },
   computed: {
     ...mapState('account', ['watchlist']),
+    ...mapState('funds', ['indicatorSchema']),
     pctUpToDate: function () {
       return this.$utils.format.formatPercentage(this.numUpToDate / this.totalFunds, '0%')
+    },
+    columnDefs: function () {
+      const colDefs = [
+        { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated, pinned: 'left' },
+        { headerName: 'ISIN', field: 'isin', width: 120, pinned: 'left' },
+        { headerName: 'Name', field: 'name', width: 180, pinned: 'left', tooltip: params => params.value },
+        { headerName: 'Returns',
+          marryChildren: true,
+          children: extendedPeriods.map(period => ({
+            headerName: period, field: `returns.${period}`, width: 65, sort: period === '1D' && 'desc'
+          }))
+        },
+        { headerName: 'Indicators',
+          marryChildren: true,
+          children: Object.entries(this.indicatorSchema).map(([key, { name }]) => {
+            return {
+              headerName: name,
+              field: `indicators.${key}.value`,
+              width: 75
+            }
+          })
+        },
+        { headerName: 'Type', field: 'type', width: 70 },
+        { headerName: 'Share Class', field: 'shareClass', width: 60 },
+        { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 70 },
+        { headerName: 'Freq', field: 'frequency', width: 80 },
+        { headerName: 'OCF', field: 'ocf', width: 70 },
+        { headerName: 'AMC', field: 'amc', width: 70 },
+        { headerName: 'Entry Charge', field: 'entryCharge', width: 80 },
+        { headerName: 'Exit Charge', field: 'exitCharge', width: 80 },
+        { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter, tooltip: this.jsonFormatter },
+        { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
+      ]
+
+      const colourFields = new Set(
+        extendedPeriods.map(period => `returns.${period}`)
+          .concat(this.getIndicatorKeys()))
+      const percentFields = new Set(
+        ['bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge']
+          .concat(extendedPeriods.map(period => `returns.${period}`))
+          .concat(this.getIndicatorKeys('percent')))
+      const numberFields = new Set(this.getIndicatorKeys('default'))
+      const dateFields = new Set(['asof'])
+
+      const updateColDef = colDef => {
+        const apply = colDef => {
+          if (colourFields.has(colDef.field)) {
+            colDef.cellStyle = this.colourCellStyler
+            colDef.filter = 'agNumberColumnFilter'
+            colDef.filterParams = { newRowsAction: 'keep', apply: true }
+          }
+          if (percentFields.has(colDef.field)) {
+            colDef.valueFormatter = this.percentFormatter
+            colDef.comparator = this.numberComparator
+            colDef.filter = 'agNumberColumnFilter'
+            colDef.filterParams = { newRowsAction: 'keep', apply: true }
+          }
+          if (numberFields.has(colDef.field)) {
+            colDef.valueFormatter = this.numberFormatter
+            colDef.comparator = this.numberComparator
+            colDef.filter = 'agNumberColumnFilter'
+            colDef.filterParams = { newRowsAction: 'keep', apply: true }
+          }
+          if (dateFields.has(colDef.field)) {
+            colDef.filter = 'agDateColumnFilter'
+            colDef.filterParams = { newRowsAction: 'keep', apply: true }
+          }
+          colDef.headerTooltip = colDef.headerName
+        }
+        // recursively apply to children
+        apply(colDef)
+        if (colDef.children) {
+          colDef.children.forEach(apply)
+        }
+      }
+      colDefs.forEach(updateColDef)
+      return colDefs
     }
   },
   methods: {
     ...mapActions('account', ['addToWatchlist', 'removeFromWatchlist']),
     onGridReady (params) {
-      this.updateColDefs(params)
+      this.gridApi = params.api
+      this.columnApi = params.columnApi
       this.initDataSource()
     },
     onRowsChanged (metadata) {
@@ -213,46 +258,6 @@ export default {
         contextMenu = [...fundContextMenuItems, 'separator', ...contextMenu]
       }
       return contextMenu
-    },
-    updateColDefs (params) {
-      const colourFields = new Set(
-        extendedPeriods.map(period => `returns.${period}`)
-          .concat(['indicators.stability', 'indicators.macd', 'indicators.mdd'])
-          .concat(['max', 'min'].flatMap(type => periods.map(period => `indicators.returns.${period}.${type}`))))
-      const percentFields = new Set(
-        ['bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge']
-          .concat(extendedPeriods.map(period => `returns.${period}`))
-          .concat(['indicators.mdd'])
-          .concat(['max', 'min'].flatMap(type => periods.map(period => `indicators.returns.${period}.${type}`))))
-      const numberFields = new Set(['indicators.stability'])
-      const dateFields = new Set(['asof'])
-
-      const updateColDef = colDef => {
-        if (colourFields.has(colDef.field)) {
-          colDef.cellStyle = this.colourCellStyler
-          colDef.filter = 'agNumberColumnFilter'
-          colDef.filterParams = { newRowsAction: 'keep', apply: true }
-        }
-        if (percentFields.has(colDef.field)) {
-          colDef.valueFormatter = this.percentFormatter
-          colDef.comparator = this.numberComparator
-          colDef.filter = 'agNumberColumnFilter'
-          colDef.filterParams = { newRowsAction: 'keep', apply: true }
-        }
-        if (numberFields.has(colDef.field)) {
-          colDef.valueFormatter = this.numberFormatter
-          colDef.comparator = this.numberComparator
-          colDef.filter = 'agNumberColumnFilter'
-          colDef.filterParams = { newRowsAction: 'keep', apply: true }
-        }
-        if (dateFields.has(colDef.field)) {
-          colDef.filter = 'agDateColumnFilter'
-          colDef.filterParams = { newRowsAction: 'keep', apply: true }
-        }
-        colDef.headerTooltip = colDef.headerName
-      }
-
-      params.columnApi.getAllColumns().forEach(col => updateColDef(col.getColDef()))
     },
     numberFormatter (params) {
       return this.$utils.format.formatNumber(params.value)
@@ -370,6 +375,13 @@ export default {
     },
     toggleStatMode () {
       this.showStatMode = (this.showStatMode + 1) % 3
+    },
+    getIndicatorKeys (format) {
+      let keys = Object.keys(this.indicatorSchema)
+      if (format) {
+        keys = keys.filter(key => this.indicatorSchema[key].format === format)
+      }
+      return keys.map(key => `indicators.${key}.value`)
     }
   },
   watch: {

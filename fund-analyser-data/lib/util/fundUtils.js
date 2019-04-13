@@ -82,7 +82,7 @@ function enrichReturns (returns, historicPrices, additionalLookbacks) {
     return newReturns
 }
 
-function calcIndicators (historicPrices) {
+async function calcIndicators (historicPrices) {
     return indicators.calcIndicators(historicPrices)
 }
 
@@ -91,7 +91,10 @@ function calcStats (funds) {
         return undefined
     }
 
-    const columns = lang.deepKeysSatisfying(Fund.schema, (k, v) => v === 'number' || v === 'Date')
+    const columns = [
+        ...lang.deepKeysSatisfying(Fund.schema, (k, v) => v === 'number' || v === 'Date'),
+        ...Object.keys(funds[0].indicators).map(name => `indicators.${name}.value`)
+    ]
     const colToValues = _.fromPairs(columns.map(col => {
         return [col, funds.map(f => _.get(f, col))]
     }))
@@ -129,16 +132,17 @@ function enrichSummary (summary) {
         })
 
     // add colours to returns
-    const { colourAroundZero, colourAroundMedian, colourNegative } = agGridUtils
-    const colourOptions = {
-        'returns.$lookback': [colourAroundZero],
-        'returns.+1D': [colourAroundZero], // include +1D
-        'indicators.stability': [colourAroundMedian, 10],
-        'indicators.macd': [colourAroundZero],
-        'indicators.mdd': [colourNegative],
-        'indicators.returns.$lookback.max': [colourAroundZero],
-        'indicators.returns.$lookback.min': [colourAroundZero]
+    if (summary.length) {
+        const { colourAroundZero, colourAroundMedian, colourNegative } = agGridUtils
+        const colourOptions = {
+            // RHS is array of func args
+            'returns.$lookback': [colourAroundZero],
+            'returns.+1D': [colourAroundZero] // include +1D
+        }
+        for (const name of Object.keys(summary[0].indicators)) {
+            colourOptions[`indicators.${name}.value`] = [colourAroundZero]
+        }
+        summary = agGridUtils.addColours(summary, colourOptions)
     }
-    summary = agGridUtils.addColours(summary, colourOptions)
     return summary
 }

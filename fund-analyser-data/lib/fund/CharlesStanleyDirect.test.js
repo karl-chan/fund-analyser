@@ -71,7 +71,7 @@ describe('CharlesStanleyDirect', () => {
             expect(partialFund).toHaveProperty('bidAskSpread', 0)
             expect(partialFund).toHaveProperty('entryCharge', 0)
             expect(partialFund).toHaveProperty('amc', 0.0072)
-            expect(partialFund).toHaveProperty('ocf', 0.008822)
+            expect(partialFund).toHaveProperty('ocf', 0.008883)
             expect(partialFund).toHaveProperty('holdings')
             expect(partialFund.holdings).toBeArrayOfSize(10).toSatisfyAll(holding => {
                 return typeof holding.name === 'string' && holding.name &&

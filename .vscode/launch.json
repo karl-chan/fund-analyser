@@ -52,6 +52,16 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Update Holidays",
+            "program": "${workspaceFolder}/fund-analyser-data/scripts/main.js",
+            "args": [
+                "-r",
+                "updateHolidays"
+            ]
+        },      
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Dyno Healthcheck",
             "program": "${workspaceFolder}/fund-analyser-data/scripts/main.js",
             "args": [
@@ -112,6 +122,20 @@
             "windows": {
               "program": "${workspaceFolder}/fund-analyser-data/node_modules/jest/bin/jest",
             }
-          }
+          },
+            {
+            "name": "Flask",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config:python.pythonPath}",
+            "program": "${workspaceRoot}/fund-analyser-compute/server/server.py",
+            "env": {
+                "FLASK_APP": "${workspaceRoot}/fund-analyser-compute/server/server.py",
+            },
+            "args": [
+                "run"
+            ],
+        }
     ]
 }

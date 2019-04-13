@@ -70,7 +70,7 @@ const fieldMapping = {
     indicators: {
         stability: {
             label: 'Stability',
-            value: 'indicators.stability'
+            value: 'indicators.stability.value'
         }
     }
 }

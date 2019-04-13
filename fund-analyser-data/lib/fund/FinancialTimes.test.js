@@ -145,7 +145,7 @@ describe('FinancialTimes', function () {
                 expect(holdings).toBeArray().not.toBeEmpty()
                 expect(holdings).toSatisfyAll(h => {
                     return typeof h.name === 'string' && h.name &&
-                            typeof h.symbol === 'string' && h.symbol &&
+                            typeof h.symbol === 'string' &&
                             typeof h.weight === 'number' && isFinite(h.weight)
                 })
             })

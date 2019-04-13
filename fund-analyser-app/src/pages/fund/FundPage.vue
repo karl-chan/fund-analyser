@@ -78,11 +78,13 @@ export default {
     }
   },
   computed: {
+    ...mapGetters('account', ['inWatchlist']),
+    ...mapGetters('funds', [ 'lookupFund' ]),
     fund: function () {
-      return this.lookupFund()(this.isin)
+      return this.lookupFund(this.isin)
     },
     isFavourite: function () {
-      return this.inWatchlist()(this.isin)
+      return this.inWatchlist(this.isin)
     },
     favouriteIcon: function () {
       return this.isFavourite ^ this.hoveringFavouriteIcon ? 'star' : 'star_outline'
@@ -91,9 +93,7 @@ export default {
   methods: {
     openURL,
     ...mapActions('account', ['addToRecentlyViewed', 'addToWatchlist', 'removeFromWatchlist']),
-    ...mapGetters('account', ['inWatchlist']),
     ...mapActions('funds', [ 'gets', 'lazyGets' ]),
-    ...mapGetters('funds', [ 'lookupFund' ]),
     async refreshFund () {
       this.loading = true
       await this.gets([this.isin])

@@ -43,90 +43,15 @@ describe('indicators', () => {
         ]
     })
 
-    describe('calcMacd', () => {
-        test('should return nan for invalid or too few input', () => {
-            expect(indicators.calcMacd(null)).toBeNaN()
-            expect(indicators.calcMacd([])).toBeNaN()
-            expect(indicators.calcMacd(historicPrices.slice(0, 33))).toBeNaN()
-        })
-        test('should return correct MACD', () => {
-            expect(indicators.calcMacd(historicPrices)).toBeCloseTo(1.69)
-        })
-    })
-
-    describe('calcMdd', () => {
-        test('should return nan for invalid input', () => {
-            expect(indicators.calcMdd(null)).toBeNaN()
-            expect(indicators.calcMdd([])).toBeNaN()
-        })
-        test('should return correct MDD', () => {
-            expect(indicators.calcMdd(historicPrices)).toBeCloseTo(0.04)
-        })
-    })
-
-    describe('calcReturns', () => {
-        test('should return nulls if exceeds range', () => {
-            expect(indicators.calcReturns([])).toEqual({
-                '5Y': { max: null, min: null },
-                '3Y': { max: null, min: null },
-                '1Y': { max: null, min: null },
-                '6M': { max: null, min: null },
-                '3M': { max: null, min: null },
-                '1M': { max: null, min: null },
-                '2W': { max: null, min: null },
-                '1W': { max: null, min: null },
-                '3D': { max: null, min: null },
-                '1D': { max: null, min: null }
-            })
-        })
-        test('should calculate correct results', () => {
-            const actual = indicators.calcReturns(historicPrices)
-            expect(actual['5Y']['max']).toBeNull()
-            expect(actual['5Y']['min']).toBeNull()
-            expect(actual['3Y']['max']).toBeNull()
-            expect(actual['3Y']['min']).toBeNull()
-            expect(actual['1Y']['max']).toBeNull()
-            expect(actual['1Y']['min']).toBeNull()
-            expect(actual['6M']['max']).toBeNull()
-            expect(actual['6M']['min']).toBeNull()
-            expect(actual['3M']['max']).toBeNull()
-            expect(actual['3M']['min']).toBeNull()
-            expect(actual['1M']['max']).toBeCloseTo(0.02)
-            expect(actual['1M']['min']).toBeCloseTo(-0.02)
-            expect(actual['2W']['max']).toBeCloseTo(0.04)
-            expect(actual['2W']['min']).toBeCloseTo(-0.02)
-            expect(actual['1W']['max']).toBeCloseTo(0.03)
-            expect(actual['1W']['min']).toBeCloseTo(-0.04)
-            expect(actual['3D']['max']).toBeCloseTo(0.02)
-            expect(actual['3D']['min']).toBeCloseTo(-0.03)
-            expect(actual['1D']['max']).toBeCloseTo(0.01)
-            expect(actual['1D']['min']).toBeCloseTo(-0.02)
-        })
-    })
-
-    describe('calcStability', () => {
-        test('should return nan for invalid input', () => {
-            expect(indicators.calcStability(null)).toBeNaN()
-            expect(indicators.calcStability([])).toBeNaN()
-            expect(indicators.calcStability([
-                new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0) // requires at least two datapoints
-            ])).toBeNaN()
-        })
-        test('should calculate correct stability', () => {
-            const stability = indicators.calcStability(historicPrices)
-            expect(stability).toBe(2.5)
-        })
-    })
-
     describe('calcIndicators', () => {
-        test('should return combined indicators', () => {
-            const actual = indicators.calcIndicators(historicPrices)
+        test('should return combined indicators', async () => {
+            const actual = await indicators.calcIndicators(historicPrices)
             expect(actual).toBeObject()
-                .toContainAllKeys(['stability', 'macd', 'mdd', 'returns'])
-            expect(actual.stability).toBeFinite()
-            expect(actual.macd).toBeFinite()
-            expect(actual.mdd).toBeFinite()
-            expect(actual.returns).toBeObject()
+                .toContainKeys(['stability', 'macd', 'mdd', 'returns_5Y_max'])
+            expect(actual.stability.value).toBeFinite()
+            expect(actual.macd.value).toBeFinite()
+            expect(actual.mdd.value).toBeFinite()
+            expect(actual.returns_5Y_max.value).toBeFinite()
         })
     })
 })

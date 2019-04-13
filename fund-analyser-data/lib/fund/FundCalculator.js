@@ -24,8 +24,8 @@ class FundCalculator {
         fund.returns = fundUtils.enrichReturns(fund.returns, fund.historicPrices, this.lookbacks)
         return fund
     }
-    calcIndicators (fund) {
-        fund.indicators = fundUtils.calcIndicators(fund.historicPrices)
+    async calcIndicators (fund) {
+        fund.indicators = await fundUtils.calcIndicators(fund.historicPrices)
         return fund
     }
 }
