@@ -16,9 +16,9 @@
     .relative-position
       ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs"
                   :rowData="displayedCurrencies"
-                  :gridReady="onGridReady" :gridOptions="gridOptions"
+                  @grid-ready="onGridReady" :gridOptions="gridOptions"
                   :getContextMenuItems="getContextMenuItems"
-                  :style="{height}" :gridAutoHeight="!height")
+                  :style="{height}" :domLayout="height ? 'normal': 'autoHeight'")
 
       .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
         // transclude empty view here
@@ -56,9 +56,11 @@ export default {
       ],
       gridOptions: {
         context: this,
-        enableColResize: true,
-        enableFilter: true,
-        enableSorting: true,
+        defaultColDef: {
+          filter: true,
+          resizable: true,
+          sortable: true
+        },
         enableRangeSelection: true,
         sideBar: {
           toolPanels: [
@@ -75,13 +77,7 @@ export default {
                 suppressPivotMode: true
               }
             },
-            {
-              id: 'filters',
-              labelDefault: 'Filters',
-              labelKey: 'filters',
-              iconKey: 'filter',
-              toolPanel: 'agFiltersToolPanel'
-            }
+            'filters'
           ]
         },
         rowSelection: 'multiple',

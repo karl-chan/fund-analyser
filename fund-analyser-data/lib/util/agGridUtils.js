@@ -38,10 +38,11 @@ function _applySort (funds, sortModel) {
 
     // Move NaN rows to bottom always
     const [nanRows, validFunds] = _.partition(funds, f => {
-        const cell = _.get(f, sortModel[0].colId)
+        const columnName = parseColId(sortModel[0].colId)
+        const cell = _.get(f, columnName)
         return !cell && cell !== 0
     })
-    const cols = sortModel.map(sm => sm.colId)
+    const cols = sortModel.map(sm => parseColId(sm.colId))
     const orders = sortModel.map(sm => sm.sort)
     return _.orderBy(validFunds, cols, orders).concat(nanRows)
 }
@@ -81,11 +82,16 @@ function _applyFilter (funds, filterModel) {
     }
 
     for (let [colId, fm] of Object.entries(filterModel)) {
+        const columnName = parseColId(colId)
         const [lowerValue, upperValue] = parseValues(fm)
         const predicate = buildPredicate(fm, lowerValue, upperValue)
-        funds = funds.filter(f => predicate(_.get(f, colId)))
+        funds = funds.filter(f => predicate(_.get(f, columnName)))
     }
     return funds
+}
+
+function parseColId (colId) {
+    return colId.replace(/_\d+$/g, '')
 }
 
 function addColours (iterables, colourOptions) {

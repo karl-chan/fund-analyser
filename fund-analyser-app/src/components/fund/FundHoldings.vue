@@ -4,7 +4,7 @@
     q-tr(slot="body" slot-scope="props" :props="props")
       q-td(key="name" :props="props" style="max-width: 75px; overflow: hidden; text-overflow: ellipsis")
         |  {{ props.row.name }}
-        <q-tooltip>{{ props.row.name }}</q-tooltip>
+        q-tooltip {{ props.row.name }}
       q-td(key="todaysChange" :props="props" :class="{'text-green': props.row.todaysChange > 0, 'text-red': props.row.todaysChange < 0}")
         | {{ $utils.format.formatPercentage(props.row.todaysChange) }}
         q-btn(v-if="props.row.symbol" icon="info" @click="openURL('https://markets.ft.com/data/equities/tearsheet/summary?s=' + props.row.symbol)" color="primary" flat rounded dense)

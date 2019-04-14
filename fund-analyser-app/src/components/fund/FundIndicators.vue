@@ -9,6 +9,13 @@
       q-table(:data="rows" :columns="columns" :filter="filter" row-key="key"
               dark dense :no-results-label="noMatchLabel"
               :pagination.sync="pagination")
+        q-tr(slot="body" slot-scope="props" :props="props")
+          q-td(key="name" :props="props")
+            |  {{ props.row.name }}
+          q-td(key="value" :props="props")
+            | {{ props.row.value }}
+          q-td(key="metadata" :props="props")
+            pre {{ props.row.metadata }}
 </template>
 
 <script>
@@ -20,8 +27,9 @@ export default {
     return {
       filter: '',
       columns: [
-        { field: 'name', label: 'Name', align: 'left' },
-        { field: 'value', label: 'Value' }
+        { name: 'name', label: 'Name', field: 'name', align: 'left' },
+        { name: 'value', label: 'Value', field: 'value', align: 'left' },
+        { name: 'metadata', label: 'Metadata', field: 'metadata', align: 'left' }
       ],
       pagination: {
         page: 1,
@@ -41,7 +49,7 @@ export default {
           default:
             value = this.$utils.format.formatNumber(value, true)
         }
-        return { key, name, value }
+        return { key, name, value, metadata: JSON.stringify(metadata, null, 4) }
       })
     },
     noMatchLabel: function () {

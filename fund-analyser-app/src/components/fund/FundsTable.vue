@@ -22,9 +22,9 @@
 
     .relative-position
       ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs"
-                  :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked"
+                  @grid-ready="onGridReady" @rowDoubleClicked="onRowDoubleClicked" @rowClicked="onRowSelected"
                   :getContextMenuItems="getContextMenuItems" :gridOptions="gridOptions"
-                  :style="{height}" :gridAutoHeight="!height" :rowClicked="onRowSelected"
+                  :style="{height}" :domLayout="height ? 'normal': 'autoHeight'"
                   :cacheBlockSize="window")
 
       .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
@@ -60,10 +60,11 @@ export default {
       showStatMode: 0, // hidden
       gridOptions: {
         context: this,
-        enableColResize: true,
-        enableFilter: true,
-        enableServerSideSorting: true,
-        enableServerSideFiltering: true,
+        defaultColDef: {
+          filter: true,
+          resizable: true,
+          sortable: true
+        },
         enableRangeSelection: true,
         suppressLoadingOverlay: true,
         suppressNoRowsOverlay: true,
@@ -82,13 +83,7 @@ export default {
                 suppressPivotMode: true
               }
             },
-            {
-              id: 'filters',
-              labelDefault: 'Filters',
-              labelKey: 'filters',
-              iconKey: 'filter',
-              toolPanel: 'agFiltersToolPanel'
-            }
+            'filters'
           ]
         },
         rowSelection: 'multiple',
@@ -125,7 +120,7 @@ export default {
       const colDefs = [
         { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated, pinned: 'left' },
         { headerName: 'ISIN', field: 'isin', width: 120, pinned: 'left' },
-        { headerName: 'Name', field: 'name', width: 180, pinned: 'left', tooltip: params => params.value },
+        { headerName: 'Name', field: 'name', width: 180, pinned: 'left', tooltipValueGetter: params => params.value },
         { headerName: 'Returns',
           marryChildren: true,
           children: extendedPeriods.map(period => ({
@@ -138,7 +133,8 @@ export default {
             return {
               headerName: name,
               field: `indicators.${key}.value`,
-              width: 75
+              width: 75,
+              tooltipValueGetter: params => this.indicatorMetadataFormatter(params, key)
             }
           })
         },
@@ -150,7 +146,7 @@ export default {
         { headerName: 'AMC', field: 'amc', width: 70 },
         { headerName: 'Entry Charge', field: 'entryCharge', width: 80 },
         { headerName: 'Exit Charge', field: 'exitCharge', width: 80 },
-        { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter, tooltip: this.jsonFormatter },
+        { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter, tooltipValueGetter: this.jsonFormatter },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ]
 
@@ -270,6 +266,10 @@ export default {
     },
     jsonFormatter (params) {
       return JSON.stringify(params.value)
+    },
+    indicatorMetadataFormatter (params, key) {
+      const metadata = params.data.indicators[key].metadata
+      return metadata ? JSON.stringify(metadata) : undefined
     },
     colourNumberStyler (params) {
       return this.$utils.format.colourNumber(params.value)

@@ -11,7 +11,7 @@
 
     .relative-position
       ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="holdings || []"
-                :gridReady="onGridReady" :rowDoubleClicked="onRowDoubleClicked" :gridOptions="gridOptions")
+                @grid-ready="onGridReady" @rowDoubleClicked="onRowDoubleClicked" :gridOptions="gridOptions")
       .absolute-top-left.light-dimmed.fit(v-if="!holdings || !holdings.length")
         q-chip.absolute-center.shadow-5(square detail icon="info" color="secondary") Nothing to show
 
@@ -47,15 +47,16 @@ export default {
         { headerName: 'Asset Class', field: 'AssetClass', width: 150 }
       ],
       gridOptions: {
-        enableColResize: true,
-        enableFilter: true,
+        defaultColDef: {
+          filter: true,
+          resizable: true,
+          sortable: true
+        },
         enableRangeSelection: true,
-        enableSorting: true,
         domLayout: 'autoHeight',
         popupParent: document.body,
         suppressLoadingOverlay: true,
         suppressNoRowsOverlay: true,
-        toolPanelSuppressSideButtons: true,
         rowStyle: {
           cursor: 'pointer'
         }

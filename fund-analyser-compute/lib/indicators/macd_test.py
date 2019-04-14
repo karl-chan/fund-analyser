@@ -53,4 +53,9 @@ def test_macd_short_returns_nan():
 
 
 def test_macd():
-    assert MACD().calc(SAMPLE_HISTORIC_PRICES).value == pytest.approx(1.0762, rel=0.01)
+    actual = MACD().calc(SAMPLE_HISTORIC_PRICES)
+    assert actual.value == pytest.approx(1.0762, rel=0.01)
+    assert actual.metadata == {
+        'macd': pytest.approx(1.5720, rel=0.01),
+        'macd_signal': pytest.approx(0.4959, rel=0.01)
+    }

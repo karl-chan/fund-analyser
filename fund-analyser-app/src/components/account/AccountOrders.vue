@@ -1,6 +1,6 @@
 <template lang="pug">
   ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="orders || []"
-            :gridReady="onGridReady" :gridOptions="gridOptions")
+            @grid-ready="onGridReady" :gridOptions="gridOptions")
 </template>
 
 <script>
@@ -26,15 +26,16 @@ export default {
 
       ],
       gridOptions: {
-        enableColResize: true,
-        enableFilter: true,
+        defaultColDef: {
+          filter: true,
+          resizable: true,
+          sortable: true
+        },
         enableRangeSelection: true,
-        enableSorting: true,
         domLayout: 'autoHeight',
         popupParent: document.body,
         suppressLoadingOverlay: true,
         suppressNoRowsOverlay: true,
-        toolPanelSuppressSideButtons: true,
         rowStyle: {
           cursor: 'pointer'
         }
