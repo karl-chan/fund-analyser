@@ -14,6 +14,14 @@ const router = new Router({
 
 const financialTimes = new FinancialTimes()
 
+router.get('/isins', async ctx => {
+    const options = {
+        projection: { _id: 0, isin: 1 }
+    }
+    const funds = await FundDAO.listFunds(options)
+    ctx.body = funds.map(f => f.isin)
+})
+
 router.get('/isins/:isins', async ctx => {
     const isins = ctx.params.isins.split(',')
     const options = {
