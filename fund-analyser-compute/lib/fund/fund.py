@@ -6,8 +6,8 @@ from typing import Dict, List, NamedTuple, Optional, Tuple
 import pandas as pd
 from overrides import overrides
 
-from lib.types.enum import StrEnum
 from lib.util.date import parse_date
+from lib.util.enum import StrEnum
 from lib.util.math import replace_nan
 
 
@@ -105,7 +105,7 @@ class Fund(NamedTuple):
         from lib.util.pandas import pd_historic_prices_from_json
         temp = dict(d)
         temp["type"] = FundType.from_str(d["type"])
-        temp["shareClass"] = FundShareClass.from_str(d["shareClass"])
+        temp["shareClass"] = FundShareClass.from_str(d.get("shareClass", None))
         temp["holdings"] = [FundHolding.from_dict(e) for e in d["holdings"]]
         temp["historicPrices"] = pd_historic_prices_from_json(d["historicPrices"])
         temp["asof"] = parse_date(d["asof"])

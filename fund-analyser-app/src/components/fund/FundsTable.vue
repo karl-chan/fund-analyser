@@ -268,7 +268,7 @@ export default {
       return JSON.stringify(params.value)
     },
     indicatorMetadataFormatter (params, key) {
-      const metadata = params.data.indicators[key].metadata
+      const metadata = get(params.data, `indicators.${key}.metadata`)
       return metadata ? JSON.stringify(metadata) : undefined
     },
     colourNumberStyler (params) {
@@ -288,7 +288,7 @@ export default {
       return !this.isRowPinned(params) && this.$utils.date.diffBusinessDays(new Date(), params.data.asof)
     },
     resetFilters () {
-      this.gridOptions.api.setFilterModel(null)
+      this.gridApi.setFilterModel(null)
     },
     togglePinnedRows () {
       let pinnedRows = []
@@ -313,14 +313,14 @@ export default {
             break
         }
       }
-      this.gridOptions.api.setPinnedTopRowData(pinnedRows)
+      setTimeout(() => this.gridApi.setPinnedTopRowData(pinnedRows), 0)
     },
     isRowPinned (params) {
       return params.node.rowPinned
     },
     initDataSource () {
       const self = this
-      this.gridOptions.api.setServerSideDatasource({
+      this.gridApi.setServerSideDatasource({
         getRows: async params => {
           try {
             const { funds, metadata } = await self.$services.fund.list(this.isins, {
@@ -371,7 +371,7 @@ export default {
         },
         shouldRowBeSkipped: this.isRowPinned
       }
-      this.gridOptions.api.exportDataAsCsv(params)
+      this.gridApi.exportDataAsCsv(params)
     },
     toggleStatMode () {
       this.showStatMode = (this.showStatMode + 1) % 3
@@ -398,7 +398,7 @@ export default {
       this.initDataSource()
     },
     highlightIsin: function (isin) {
-      this.gridOptions.api.forEachNode(node => {
+      this.gridApi.forEachNode(node => {
         node.setSelected(node.data.isin === isin)
       })
     }
