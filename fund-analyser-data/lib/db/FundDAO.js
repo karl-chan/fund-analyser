@@ -3,6 +3,7 @@ module.exports = {
     toFund,
     upsertFunds,
     listFunds,
+    streamFunds,
     deleteFunds,
     exportCsv,
     search
@@ -16,6 +17,7 @@ const Fund = require('../fund/Fund')
 
 const _ = require('lodash')
 const Promise = require('bluebird')
+const stream = require('stream')
 
 const idField = 'sedol'
 
@@ -126,6 +128,25 @@ async function listFunds (options, toPlainObject) {
         docs = docs.slice(0, options.limit)
     }
     return docs.map(toPlainObject ? _.toPlainObject : toFund)
+}
+
+function streamFunds (options, toPlainObject) {
+    const res = stream.PassThrough({
+        objectMode: true
+    })
+    Promise.each(buildFindQuery(options), async query => {
+        const fundDbStream = query.transformStream({
+            transform: toPlainObject ? _.toPlainObject : toFund
+        })
+        fundDbStream.pipe(res, { end: false })
+        return new Promise((resolve, reject) => {
+            fundDbStream.on('end', resolve)
+            fundDbStream.on('error', reject)
+        })
+    }).then(() => {
+        res.end()
+    })
+    return res
 }
 
 async function deleteFunds (options) {

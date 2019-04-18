@@ -2,6 +2,7 @@ const FundDAO = require('./FundDAO')
 const Fund = require('../fund/Fund')
 
 const _ = require('lodash')
+const StreamTest = require('streamtest')
 const db = require('../util/db')
 
 jest.setTimeout(30000) // 30 seconds
@@ -85,6 +86,17 @@ describe('FundDAO', function () {
         const sedols = await FundDAO.listFunds({ query: { isin: fund.isin }, projection: { _id: 0, sedol: 1 } }, true)
         expect(sedols).toBeArrayOfSize(1)
         expect(sedols[0]).toContainAllKeys(['sedol']) // only 'sedol' and not other keys
+    })
+    test('streamFunds', async (done) => {
+        const version = 'v2'
+        await FundDAO.upsertFunds([fund])
+
+        FundDAO.streamFunds({ query: { isin: fund.isin } })
+            .pipe(StreamTest[version].toObjects((err, actual) => {
+                expect(actual).toBeArrayOfSize(1)
+                expect(actual[0]).toEqual(fund)
+                done(err)
+            }))
     })
     test('upsertFunds', async () => {
         // insert fund

@@ -1,6 +1,7 @@
 const Router = require('koa-router')
 const moment = require('moment')
 const Promise = require('bluebird')
+const JSONStream = require('JSONStream')
 const compute = require('../../client/compute')
 const agGridUtils = require('../../lib/util/agGridUtils')
 const fundCache = require('../cache/fundCache')
@@ -24,12 +25,24 @@ router.get('/isins', async ctx => {
 
 router.get('/isins/:isins', async ctx => {
     const isins = ctx.params.isins.split(',')
+    const { stream } = ctx.query
     const options = {
         query: { isin: { $in: isins } },
         projection: { _id: 0 }
     }
-    const funds = await FundDAO.listFunds(options)
-    ctx.body = funds
+    if (stream) {
+        // support "all" only in stream mode to be memory friendly
+        if (ctx.params.isins === 'all') {
+            options.query = {}
+        }
+        ctx.type = 'json'
+        ctx.body = FundDAO.streamFunds(options)
+            .on('error', ctx.onerror)
+            .pipe(JSONStream.stringify())
+    } else {
+        const funds = await FundDAO.listFunds(options)
+        ctx.body = funds
+    }
 })
 
 router.get('/real-time-details/:isins', async ctx => {
