@@ -29,6 +29,7 @@
     "jest": "24.7.1",
     "jest-chain": "1.1.2",
     "jest-extended": "0.11.1",
+    "jest-html-reporter": "2.5.0",
     "nodemon": "1.18.11"
   },
   "dependencies": {
@@ -72,6 +73,13 @@
     "coverageReporters": [
       "json",
       "html"
+    ],
+    "reporters": [
+      "default",
+      ["./node_modules/jest-html-reporter", {
+        "pageTitle": "Test Report",
+        "includeFailureMsg": true
+      }]
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/jest.setup.js"

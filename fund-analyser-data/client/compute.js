@@ -4,12 +4,9 @@ module.exports = {
 }
 
 const properties = require('../lib/util/properties')
-const env = require('../lib/util/env')
 const Http = require('../lib/util/http')
 
-const COMPUTE_HOST = env.isProduction()
-    ? properties.get('client.compute.prod')
-    : properties.get('client.compute.dev')
+const COMPUTE_HOST = properties.get('client.compute')
 
 const http = new Http()
 

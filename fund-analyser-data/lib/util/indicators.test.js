@@ -47,11 +47,8 @@ describe('indicators', () => {
         test('should return combined indicators', async () => {
             const actual = await indicators.calcIndicators(historicPrices)
             expect(actual).toBeObject()
-                .toContainKeys(['stability', 'macd', 'mdd', 'returns_5Y_max'])
+                .toContainKeys(['stability'])
             expect(actual.stability.value).toBeFinite()
-            expect(actual.macd.value).toBeFinite()
-            expect(actual.mdd.value).toBeFinite()
-            expect(actual.returns_5Y_max.value).toBeFinite()
         })
     })
 })
