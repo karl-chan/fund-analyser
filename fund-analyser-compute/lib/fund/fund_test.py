@@ -69,7 +69,7 @@ def test_from_dict():
                 symbol="MSFT:NSQ",
                 weight=0.0364
             )],
-        historicPrices=pd.Series(1.276, index=[datetime(2009, 4, 9, tzinfo=timezone.utc)]),
+        historicPrices=pd.Series(1.276, index=[datetime(2009, 4, 9)]),
         returns={
             "5Y": 1.096
         },

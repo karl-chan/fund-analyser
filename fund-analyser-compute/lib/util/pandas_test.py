@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import List, Dict
 
 import pandas as pd
@@ -15,8 +15,8 @@ from lib.util.pandas import pd_historic_prices_from_json, pd_offset_from_lookbac
                                   {"date": "2019-01-02T00:00:00Z", "price": 200},
                                   {"date": "2019-01-03T00:00:00Z", "price": 300}
                               ], pd.Series([100, 200, 300],
-                                           index=pd.date_range(start=datetime(2019, 1, 1, tzinfo=timezone.utc),
-                                                               end=datetime(2019, 1, 3, tzinfo=timezone.utc)))
+                                           index=pd.date_range(start=datetime(2019, 1, 1),
+                                                               end=datetime(2019, 1, 3)))
                              )
                          ])
 def test_pd_series_from_historic_prices(historic_prices: List[Dict], expected: pd.Series):

@@ -51,4 +51,4 @@ def test_mdd_empty_returns_nan():
 def test_mdd():
     actual = MDD().calc(SAMPLE_HISTORIC_PRICES)
     assert actual.value == pytest.approx((464 - 486) / 486)
-    assert actual.metadata == {"date": "2017-04-18T00:00:00Z"}
+    assert actual.metadata == {"date": "2017-04-18T00:00:00"}

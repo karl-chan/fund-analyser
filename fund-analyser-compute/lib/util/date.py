@@ -8,4 +8,4 @@ def parse_date(s: str) -> datetime:
 
 
 def format_date(d: datetime) -> str:
-    return d.isoformat().replace('+00:00', 'Z')
+    return d.isoformat().replace("+00:00", "Z")

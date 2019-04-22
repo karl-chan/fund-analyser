@@ -7,6 +7,8 @@ verify_ssl = true
 ciso8601 = "*"
 falcon = "*"
 ffn = "*"
+matplotlib = "*"
+more-itertools = "*"
 numpy = "*"
 overrides = "*"
 pandas = "*"
@@ -14,10 +16,11 @@ pytest = "*"
 pytest-profiling = "*"
 requests = "*"
 sklearn = "*"
-ta = "*"
 ujson = "*"
 waitress = "*"
-more-itertools = "*"
+
+[dev-packages]
+ta-lib = {path = "./TA_Lib-0.4.17-cp37-cp37m-win32.whl"}
 
 [requires]
 python_version = "3.7"

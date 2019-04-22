@@ -2,6 +2,7 @@ from overrides import overrides
 
 from lib.fund.fund import FundHistoricPrices, FundIndicator
 from lib.indicators.indicator import Indicator
+from lib.util.math import format_float
 
 
 class Stability(Indicator):
@@ -19,7 +20,7 @@ class Stability(Indicator):
         consecutive_days = labelled_consecutive_groups.groupby(labelled_consecutive_groups).count()
         return FundIndicator(consecutive_days.mean(),
                              metadata={
-                                 "max": f"{consecutive_days.max():.2f}",
-                                 "min": f"{consecutive_days.min():.2f}",
-                                 "median": f"{consecutive_days.median():.2f}"
+                                 "max": format_float(consecutive_days.max()),
+                                 "min": format_float(consecutive_days.min()),
+                                 "median": format_float(consecutive_days.median())
                              })

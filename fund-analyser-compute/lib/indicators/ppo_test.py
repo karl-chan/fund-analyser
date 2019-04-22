@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from lib.indicators.macd import MACD
+from lib.indicators.ppo import PPO
 from lib.util.pandas import pd_historic_prices_from_json
 
 SAMPLE_HISTORIC_PRICES = pd_historic_prices_from_json([
@@ -44,18 +44,14 @@ SAMPLE_HISTORIC_PRICES = pd_historic_prices_from_json([
 ])
 
 
-def test_macd_empty_returns_nan():
-    assert np.isnan(MACD().calc(pd.Series()).value)
+def test_ppo_empty_returns_nan():
+    assert np.isnan(PPO().calc(pd.Series()).value)
 
 
-def test_macd_short_returns_nan():
-    assert np.isnan(MACD().calc(SAMPLE_HISTORIC_PRICES[:10]).value)
+def test_ppo_short_returns_nan():
+    assert np.isnan(PPO().calc(SAMPLE_HISTORIC_PRICES[:10]).value)
 
 
-def test_macd():
-    actual = MACD().calc(SAMPLE_HISTORIC_PRICES)
-    assert actual.value == pytest.approx(1.0762, rel=0.01)
-    assert actual.metadata == {
-        'macd': pytest.approx(1.5720, rel=0.01),
-        'macd_signal': pytest.approx(0.4959, rel=0.01)
-    }
+def test_ppo():
+    actual = PPO().calc(SAMPLE_HISTORIC_PRICES)
+    assert actual.value == pytest.approx(0.104, rel=0.01)

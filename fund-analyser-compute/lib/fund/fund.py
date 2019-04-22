@@ -104,7 +104,7 @@ class Fund(NamedTuple):
     def from_dict(cls, d: Dict) -> Fund:
         from lib.util.pandas import pd_historic_prices_from_json
         temp = dict(d)
-        temp["type"] = FundType.from_str(d["type"])
+        temp["type"] = FundType.from_str(d.get("type", None))
         temp["shareClass"] = FundShareClass.from_str(d.get("shareClass", None))
         temp["holdings"] = [FundHolding.from_dict(e) for e in d["holdings"]]
         temp["historicPrices"] = pd_historic_prices_from_json(d["historicPrices"])

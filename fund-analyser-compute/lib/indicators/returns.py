@@ -16,7 +16,7 @@ def _reduce_returns(historic_prices_series: FundHistoricPrices, offset: pd.DateO
     try:
         shifted_series = drop_duplicate_index(
             historic_prices_series.shift(freq=offset)) \
-            .reindex(index=historic_prices_series.index, method='ffill')
+            .reindex(index=historic_prices_series.index, method="ffill")
         returns_series = (historic_prices_series - shifted_series) / shifted_series
         date = agg_func(returns_series)
         return FundIndicator(returns_series[date], metadata={"date": format_date(date)})

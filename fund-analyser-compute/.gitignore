@@ -1,7 +1,11 @@
 .idea/
 *.iml
+*.whl
 push.bat
 prof/
 __pycache__/
 .pytest_cache/
 .mypy_cache/
+
+fund_cache.pickle
+img/

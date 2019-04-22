@@ -54,4 +54,4 @@ def test_rsi_short_returns_nan():
 
 def test_rsi():
     actual = RSI().calc(SAMPLE_HISTORIC_PRICES)
-    assert actual.value == pytest.approx(68.1, rel=0.01)
+    assert actual.value == pytest.approx(56.0, rel=0.01)
