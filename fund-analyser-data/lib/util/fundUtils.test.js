@@ -62,6 +62,40 @@ describe('fundUtils', () => {
         })
     })
 
+    describe('dropWhileGaps', () => {
+        const historicPrices = [
+            new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 12), 482.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 13), 479.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 18), 475.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 19), 467.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 20), 468.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 21), 472.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 24), 469.0)
+        ]
+        test('should pass through historic prices without gaps', () => {
+            expect(fundUtils.dropWhileGaps([])).toEqual([])
+            expect(fundUtils.dropWhileGaps(historicPrices.slice(0, 4))).toEqual(historicPrices.slice(0, 4))
+            expect(fundUtils.dropWhileGaps(historicPrices)).toEqual(historicPrices)
+        })
+        const historicPricesWithGap = [
+            new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
+            new Fund.HistoricPrice(new Date(2017, 4, 1), 482.0),
+            // should drop before here
+            new Fund.HistoricPrice(new Date(2017, 4, 25), 479.0),
+            new Fund.HistoricPrice(new Date(2017, 5, 1), 475.0),
+            new Fund.HistoricPrice(new Date(2017, 5, 2), 467.0),
+            new Fund.HistoricPrice(new Date(2017, 5, 3), 468.0),
+            new Fund.HistoricPrice(new Date(2017, 5, 4), 472.0),
+            new Fund.HistoricPrice(new Date(2017, 5, 5), 469.0)
+        ]
+        test('should drop head of historic prices until no gaps', () => {
+            expect(fundUtils.dropWhileGaps(historicPricesWithGap)).toEqual(historicPricesWithGap.slice(3))
+        })
+    })
+
     describe('enrichReturns', () => {
         const additionalLookbacks = ['2W', '1W', '3D', '1D']
         const returns = { '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2 }

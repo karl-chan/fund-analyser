@@ -193,7 +193,7 @@ class FinancialTimes {
                 const date = moment(dateString).toDate()
                 return new Fund.HistoricPrice(date, price)
             })
-            return historicPrices
+            return fundUtils.dropWhileGaps(historicPrices)
         } catch (err) {
             log.warn('Failed to retrieve chartapi historic prices for isin: %s', isin)
             return []

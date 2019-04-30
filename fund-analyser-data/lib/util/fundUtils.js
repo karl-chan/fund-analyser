@@ -4,6 +4,7 @@ module.exports = {
     calcStats,
     closestRecord,
     closestRecordBeforeDate,
+    dropWhileGaps,
     enrichRealTimeDetails,
     enrichSummary
 }
@@ -60,6 +61,21 @@ function closestRecordBeforeDate (date, historicPrices) {
         }
     }
     return historicPrices[low]
+}
+
+// drop while gaps in series if there is a large gap (e.g. 1 year) in the middle
+function dropWhileGaps (historicPrices) {
+    const multiplier = 10
+    const sampleLastN = 5
+    if (historicPrices.length < sampleLastN) {
+        return historicPrices
+    }
+
+    const zippedHistoricPrices = _.zip(historicPrices, _.tail(historicPrices))
+    const averageGap = _.mean(_.map(_.takeRight(_.dropRight(zippedHistoricPrices, 1), sampleLastN - 1), ([hp1, hp2]) => hp2.date - hp1.date))
+
+    const thresholdGap = multiplier * averageGap
+    return _.unzip(_.takeRightWhile(zippedHistoricPrices, ([hp1, hp2]) => hp2 === undefined || hp2.date - hp1.date < thresholdGap))[0]
 }
 
 function enrichReturns (returns, historicPrices, additionalLookbacks) {
