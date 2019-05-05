@@ -1,31 +1,33 @@
 import logging
 import os
 import pickle
+import tempfile
 from datetime import timedelta, datetime
-from typing import Iterable
+from typing import Iterable, Set, Dict
 
 from client.funds import stream_funds
+from lib.fund.fund import Fund
 
-FILE_TMP_CACHE = os.path.join(os.path.dirname(__file__), "fund_cache.pickle")
+FILE_TMP_CACHE = os.path.join(tempfile.gettempdir(), "fund_cache.pickle")
 EXPIRY = timedelta(days=1)
 
-fund_cache = []
+fund_cache: Dict[str, Fund] = dict()
 
 
 def refresh():
     global fund_cache
     logging.info("Refreshing fund cache...")
-    fund_cache = []
+    fund_cache = dict()
     counter = 0
     for fund in stream_funds():
         counter += 1
         logging.debug(f"Fund {counter} {fund.isin} received.")
-        fund_cache.append(fund)
+        fund_cache[fund.isin] = fund
     save_to_file()
     logging.info("Fund cache refreshed.")
 
 
-def get(isins: Iterable[str] = None):
+def get(isins: Iterable[str] = None, constraints=True):
     try:
         load_from_file()
         logging.debug("Successfully loaded from pickle file.")
@@ -35,9 +37,28 @@ def get(isins: Iterable[str] = None):
 
     if isins:
         isin_set = set(isins)
-        return [fund for fund in fund_cache if fund.isin in isin_set]
     else:
-        return fund_cache
+        isin_set = fund_cache.keys()
+
+    if constraints:
+        isin_set = filter_isins(isin_set)
+
+    return [fund_cache[isin] for isin in isin_set]
+
+
+def filter_isins(isins_set: Set[str]) -> Set[str]:
+    def no_entry_charge(isin: str) -> bool:
+        return not fund_cache[isin].entryCharge
+
+    def daily_frequency(isin: str) -> bool:
+        return fund_cache[isin].frequency == "Daily"
+
+    funcs = [no_entry_charge, daily_frequency]
+    result = isins_set
+    
+    for func in funcs:
+        result = filter(func, result)
+    return result
 
 
 def load_from_file():

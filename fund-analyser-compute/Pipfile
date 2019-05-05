@@ -15,12 +15,15 @@ pandas = "*"
 pytest = "*"
 pytest-profiling = "*"
 requests = "*"
-sklearn = "*"
+scikit-learn = "*"
+tensorflow-win32 = {file = "https://github.com/fo40225/tensorflow-windows-wheel/raw/master/1.13.1/py37/CPU/avx2/tensorflow-1.13.1-cp37-cp37m-win_amd64.whl",sys_platform = "== 'win32'"}
+tensorflow = {version = "*",sys_platform = "!= 'win32'"}
 ujson = "*"
 waitress = "*"
+lz4 = "*"
 
 [dev-packages]
-ta-lib = {path = "./TA_Lib-0.4.17-cp37-cp37m-win32.whl"}
+ta-lib = {file = "bin/TA_Lib-0.4.17-cp37-cp37m-win_amd64.whl",sys_platform = "== 'win32'"}
 
 [requires]
 python_version = "3.7"

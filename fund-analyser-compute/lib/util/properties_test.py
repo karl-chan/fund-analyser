@@ -16,5 +16,6 @@ def test_get_from_file():
 
 
 def test_parse_json():
+    assert properties.get("fund.fees.platform.charge") == 0.0035
     assert properties.get("fund.lookbacks") == [
         "5Y", "3Y", "1Y", "6M", "3M", "1M", "2W", "1W", "3D", "1D"]

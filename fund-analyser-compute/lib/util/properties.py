@@ -1,5 +1,6 @@
 import configparser
 import os
+from typing import Any
 
 import ujson
 
@@ -11,7 +12,7 @@ OVERRIDE_ME = "override_me"
 _config = configparser.ConfigParser()
 
 
-def get(path: str) -> object:
+def get(path: str) -> Any:
     return _try_parse(
         path,
         _get_from_environment(path)
