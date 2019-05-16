@@ -7,6 +7,9 @@ module.exports = {
     pairsToDeepObject,
     assignIfDefined,
 
+    // arrays
+    setDifference,
+
     // numbers
     isOrdered,
     parseNumber
@@ -113,6 +116,15 @@ function assignIfDefined (dest, ...sources) {
         }
     }
     return dest
+}
+
+/** Returns set difference of two arrays. */
+function setDifference (arr1, arr2) {
+    if (!Array.isArray(arr1) || !Array.isArray(arr2)) {
+        return undefined
+    }
+    const s2 = new Set(arr2)
+    return arr1.filter(e1 => !s2.has(e1))
 }
 
 function isOrdered (value) {

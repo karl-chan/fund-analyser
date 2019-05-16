@@ -5,6 +5,7 @@ const _ = require('lodash')
 const moment = require('moment')
 const FundDAO = require('../../lib/db/FundDAO')
 const Fund = require('../../lib/fund/Fund')
+const lang = require('../../lib/util/lang')
 const log = require('../../lib/util/log')
 
 /**
@@ -22,9 +23,8 @@ async function updateCatalog () {
         throw new Error('No sedols found')
     }
 
-    const toRemove = _.difference(oldSedols, newSedols)
-        .filter(sedol => moment().diff(sedolToDoc[sedol].asof, 'weeks') >= 2) // remove only if two weeks old
-    const toAdd = _.difference(newSedols, oldSedols)
+    const toRemove = lang.setDifference(oldSedols, newSedols)
+    const toAdd = lang.setDifference(newSedols, oldSedols)
     log.info(`To remove: %s`, JSON.stringify(toRemove))
     log.info(`To add: %s`, JSON.stringify(toAdd))
 

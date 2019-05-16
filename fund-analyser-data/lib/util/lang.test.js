@@ -158,6 +158,16 @@ describe('lang', () => {
             ).toEqual({ a: 1, b: 2, c: 4 })
         })
     })
+    describe('setDifference', () => {
+        test('should return undefined for non-arrays', () => {
+            expect(lang.setDifference(null, null)).toBeUndefined()
+            expect(lang.setDifference(1, [])).toBeUndefined()
+        })
+        test('should return set difference as array', () => {
+            expect(lang.setDifference([2, 1], [2, 3])).toEqual([1])
+            expect(lang.setDifference([1, 2, 3], [4, 5, 6])).toEqual([1, 2, 3])
+        })
+    })
     describe('parseNumber', () => {
         test('should pass through numbers', () => {
             expect(lang.parseNumber(-1.23)).toBe(-1.23)
