@@ -65,7 +65,7 @@ function closestRecordBeforeDate (date, historicPrices) {
 
 // drop while gaps in series if there is a large gap (e.g. 1 year) in the middle
 function dropWhileGaps (historicPrices) {
-    const multiplier = 10
+    const multiplier = 30
     const sampleLastN = 5
     if (historicPrices.length < sampleLastN) {
         return historicPrices
