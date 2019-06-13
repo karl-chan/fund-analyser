@@ -26,7 +26,7 @@ class Fund {
     }
 
     isValid () {
-        return !_.isEmpty(this.name)
+        return !_.isEmpty(this.name) && !_.isEmpty(this.historicPrices)
     }
 }
 

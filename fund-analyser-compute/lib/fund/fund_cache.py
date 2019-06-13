@@ -50,12 +50,18 @@ def filter_isins(isins_set: Set[str]) -> Set[str]:
     def no_entry_charge(isin: str) -> bool:
         return not fund_cache[isin].entryCharge
 
+    def no_bid_ask_spread(isin: str) -> bool:
+        return not fund_cache[isin].bidAskSpread
+
     def daily_frequency(isin: str) -> bool:
         return fund_cache[isin].frequency == "Daily"
 
-    funcs = [no_entry_charge, daily_frequency]
+    def long_history(isin: str) -> bool:
+        return len(fund_cache[isin].historicPrices) >= 30
+
+    funcs = [no_entry_charge, no_bid_ask_spread, daily_frequency, long_history]
     result = isins_set
-    
+
     for func in funcs:
         result = filter(func, result)
     return result

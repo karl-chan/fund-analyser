@@ -23,7 +23,9 @@ waitress = "*"
 lz4 = "*"
 
 [dev-packages]
+openpyxl = "*"
 ta-lib = {file = "bin/TA_Lib-0.4.17-cp37-cp37m-win_amd64.whl",sys_platform = "== 'win32'"}
+
 
 [requires]
 python_version = "3.7"

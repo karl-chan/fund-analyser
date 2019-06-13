@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.DEBUG)
 NUM_PORTFOLIO = 5
 
 peek_interval = pd.DateOffset(months=6)
-hold_interval = pd.DateOffset(weeks=2)
+hold_interval = pd.DateOffset(weeks=1)
 compare_returns = pd.DateOffset(months=1)
 start_date = datetime(2013, 1, 1)
 today = datetime.now()
@@ -27,7 +27,7 @@ funds_lookup = {fund.isin: fund for fund in funds}
 merged_historic_prices = merge_funds_historic_prices(funds)
 fees_df = calc_fees(funds)
 
-smoothed_prices = merged_historic_prices.rolling(3).mean()
+smoothed_prices = merged_historic_prices.rolling(2).mean()
 global_gradient = smoothed_prices.pct_change()
 global_convexity = global_gradient.diff()
 
@@ -92,6 +92,7 @@ def simulate_run(start_date: datetime):
 
 if __name__ == "__main__":
     results = []
+    # for run_begin_date in [datetime(2013, 1, 14)]:
     for run_begin_date in pd.date_range(datetime(2013, 1, 1), datetime(2013, 1, 14), freq='B'):
         account = simulate_run(run_begin_date)
         pd.set_option('display.max_colwidth', 10000)
