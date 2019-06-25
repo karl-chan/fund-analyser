@@ -15,6 +15,11 @@ router.get('/logs/:dyno', async ctx => {
     ctx.body = await heroku.getLogs(dyno, lines)
 })
 
+router.post('/restart/:dyno', async ctx => {
+    const { dyno } = ctx.params
+    ctx.body = await heroku.restart(dyno)
+})
+
 router.get('/healthcheck', async ctx => {
     const isUp = await csd.healthCheck()
     ctx.body = { charlesStanleyDirect: isUp }

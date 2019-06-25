@@ -6,5 +6,8 @@ export default {
   },
   getLogs (dyno) {
     return apiService.get(`/admin/logs/${dyno}`)
+  },
+  restartDyno (dyno) {
+    return apiService.post(`/admin/restart/${dyno}`)
   }
 }

@@ -7,6 +7,8 @@
         q-tab(default label="Worker Logs" slot="title" name="worker" icon="settings" color="purple")
       q-search(v-model="filter" dark inverted-light color="teal-1" icon="filter_list" placeholder="Filter logs"
               style="margin-left: 100px;" clearable)
+      q-btn(flat icon="sync" @click="restartDyno")
+        q-tooltip Restart dyno
     // Logs display
     q-infinite-scroll.bg-dark.round-borders.text-blue-grey-1.shadow-4.q-pa-md(
                       :handler="loadMore" inline style="height: 70vh; overflow-x: hidden; overflow-y: auto")
@@ -50,6 +52,9 @@ export default {
     async loadMore (index, done) {
       await this.refresh()
       done()
+    },
+    async restartDyno () {
+      return this.$services.admin.restartDyno(this.dyno)
     }
   },
   watch: {
