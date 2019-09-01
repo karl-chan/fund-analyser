@@ -2,8 +2,10 @@ import logging
 import os
 import pickle
 import tempfile
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 from typing import Iterable, Set, Dict
+
+import numpy as np
 
 from client.funds import stream_funds
 from lib.fund.fund import Fund
@@ -59,7 +61,12 @@ def filter_isins(isins_set: Set[str]) -> Set[str]:
     def long_history(isin: str) -> bool:
         return len(fund_cache[isin].historicPrices) >= 30
 
-    funcs = [no_entry_charge, no_bid_ask_spread, daily_frequency, long_history]
+    TODAY = date.today()
+
+    def up_to_date(isin: str) -> bool:
+        return np.busday_count(fund_cache[isin].historicPrices.last_valid_index().date(), TODAY) <= 5
+
+    funcs = [no_entry_charge, no_bid_ask_spread, daily_frequency, long_history, up_to_date]
     result = isins_set
 
     for func in funcs:

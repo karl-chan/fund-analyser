@@ -9,7 +9,8 @@ import talib
 from ffn import calc_max_drawdown, calc_risk_return_ratio
 
 from lib.fund import fund_cache
-from lib.fund.fund_utils import merge_funds_historic_prices, calc_fees, calc_returns, price_channels
+from lib.fund.fund_utils import merge_funds_historic_prices, calc_fees, calc_returns
+from lib.indicators.indicator_utils import price_channels
 
 logging.basicConfig(level=logging.DEBUG)
 pd.set_option('display.max_colwidth', 10000)

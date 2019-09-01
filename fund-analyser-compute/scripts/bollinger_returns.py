@@ -8,7 +8,8 @@ import pandas as pd
 from ffn import calc_max_drawdown, calc_risk_return_ratio
 
 from lib.fund import fund_cache
-from lib.fund.fund_utils import merge_funds_historic_prices, calc_fees, calc_returns, bollinger_bands
+from lib.fund.fund_utils import merge_funds_historic_prices, calc_fees, calc_returns, calc_hold_interval
+from lib.indicators.indicator_utils import bollinger_bands
 
 logging.basicConfig(level=logging.DEBUG)
 pd.set_option('display.max_colwidth', 10000)
@@ -23,9 +24,23 @@ buy_sell_gap = BDAY
 # start_date = date(2013, 5, 8)
 # end_date = date(2019, 5, 8)
 start_date = (date.today() - pd.DateOffset(years=5)).date()
-end_date = (date.today() - pd.DateOffset(days=7)).date()
+end_date = (date.today() - pd.DateOffset(days=5)).date()
 
-funds = fund_cache.get()
+funds = fund_cache.get(
+    [
+        "GB00B1XFGM25",
+        "GB00B4TZHH95",
+        "GB00B8JYLC77",
+        "GB00B39RMM81",
+        "GB00B80QG615",
+        "GB00B99C0657",
+        # "GB00BH57C751",
+        "GB0006061963",
+        # "IE00B4WL8048",
+        "IE00B90P3080",
+        "LU0827884411",
+    ]
+)
 funds_lookup = {fund.isin: fund for fund in funds}
 
 merged_historic_prices = merge_funds_historic_prices(funds)
@@ -39,10 +54,13 @@ rising = daily_returns.gt(0)
 # global_gradient = smoothed_prices.pct_change()
 # global_convexity = global_gradient.diff()
 
-upper_band, middle_band, lower_band = bollinger_bands(merged_historic_prices, stdev=1.5)
+upper_band, middle_band, lower_band = bollinger_bands(merged_historic_prices, stdev=1)
 middle_band_grad = middle_band.pct_change()
 middle_band_convexity = middle_band_grad.diff()
 middle_band_falling = middle_band_convexity.lt(0)
+
+slow_upper_band, slow_middle_band, slow_lower_band = bollinger_bands(merged_historic_prices, timeperiod=60, stdev=1)
+slow_middle_band_rising = slow_middle_band.pct_change().gt(0)
 
 
 # sr = support_resistance(merged_historic_prices)
@@ -121,6 +139,11 @@ def simulate_run(start_date: date):
             isins = up.index[up]
             return ytd_isins.intersection(isins)
 
+        def slow_bb_rising() -> List[str]:
+            up = slow_middle_band_rising.loc[dt, :]
+            isins = up.index[up]
+            return isins
+
         def only_low_rsi() -> List[str]:
             ytd = dt - BDAY
             ytd_low = low_rsis.loc[ytd, :]
@@ -170,10 +193,8 @@ def simulate_run(start_date: date):
         #                                                                           np.inf)).nlargest(50).index
         #     return isins
 
-        # funcs = [require_positive_returns, avoid_downtrend]
-        funcs = [avoid_bollinger_top]
-        # funcs = [mom_cross_up]
-        # funcs = [require_positive_returns]
+        # funcs = [avoid_bollinger_top]
+        funcs = [avoid_bollinger_top_t_1]
         restricted_isins = set(prices_df.columns)
         for f in funcs:
             restricted_isins &= set(f())
@@ -197,15 +218,19 @@ def simulate_run(start_date: date):
 
     dt = start_date
     while dt < end_date:
-        allowed_isins = restrict_isins(merged_historic_prices, dt)
-        max_isins = tiebreak_isins(allowed_isins, dt)
+        trunc_date = dt - BDAY
+        allowed_isins = restrict_isins(merged_historic_prices, trunc_date)
+        max_isins = tiebreak_isins(allowed_isins, trunc_date)
+
+        # curr_hold_interval = hold_interval
+        curr_hold_interval = calc_hold_interval(merged_historic_prices, dt, max_isins, hold_interval)
 
         if len(max_isins):
-            next_dt = (dt + hold_interval).date()
+            next_dt = (dt + curr_hold_interval).date()
             max_funds = [funds_lookup[max_isin] for max_isin in max_isins]
             max_names = [f.name for f in max_funds]
 
-            next_1m_return = calc_returns(merge_funds_historic_prices(max_funds), next_dt, hold_interval,
+            next_1m_return = calc_returns(merge_funds_historic_prices(max_funds), next_dt, curr_hold_interval,
                                           fees_df).mean()
             account.loc[next_dt, :] = [account.iloc[-1, :]["value"] * (1 + next_1m_return), ",".join(max_isins),
                                        max_names]
@@ -220,7 +245,7 @@ def simulate_run(start_date: date):
 
 if __name__ == "__main__":
     results = []
-    for run_begin_date in [datetime(2014, 5, 22)]:
+    for run_begin_date in [datetime(2014, 8, 21)]:
         # for run_begin_date in pd.date_range(start_date, start_date + hold_interval, freq='B'):
         account = simulate_run(run_begin_date.date())
         print(account.to_string())
