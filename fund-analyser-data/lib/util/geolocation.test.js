@@ -6,7 +6,7 @@ describe('geolocation', () => {
     describe('getLocationByIp', () => {
         test('should return geolocation for valid ip', async () => {
             const expected = {
-                city: 'London',
+                city: 'Brentwood',
                 region: 'England',
                 country: 'United Kingdom'
             }

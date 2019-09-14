@@ -79,8 +79,6 @@ describe('FinancialTimes', function () {
                 .type(Fund.types.UNIT)
                 .shareClass(Fund.shareClasses.ACC)
                 .frequency('Daily')
-                .ocf(0.0007)
-                .amc(0.0004)
                 .exitCharge(0)
                 .holdings(holdings)
                 .historicPrices(historicPrices)
@@ -120,7 +118,7 @@ describe('FinancialTimes', function () {
         })
 
         test('getHistoricPrices should return historic prices object', async () => {
-            const historicPrices = await financialTimes.getHistoricPrices('GB00B80QG615')
+            const historicPrices = await financialTimes.getHistoricPrices('GB00B3K7SR40')
             expect(historicPrices).toBeArray().not.toBeEmpty()
             expect(historicPrices).toSatisfyAll(hp => {
                 return hp instanceof Fund.HistoricPrice &&
@@ -141,7 +139,7 @@ describe('FinancialTimes', function () {
 
         describe('getHoldings', () => {
             test('should return holdings object', async () => {
-                const holdings = await financialTimes.getHoldings('GB00B80QG615')
+                const holdings = await financialTimes.getHoldings('GB00B2NWD414')
                 expect(holdings).toBeArray().not.toBeEmpty()
                 expect(holdings).toSatisfyAll(h => {
                     return typeof h.name === 'string' && h.name &&

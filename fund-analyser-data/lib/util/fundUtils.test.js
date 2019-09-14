@@ -82,7 +82,7 @@ describe('fundUtils', () => {
         const historicPricesWithGap = [
             new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
             new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
-            new Fund.HistoricPrice(new Date(2017, 4, 1), 482.0),
+            new Fund.HistoricPrice(new Date(2017, 3, 12), 482.0),
             // should drop before here
             new Fund.HistoricPrice(new Date(2017, 4, 25), 479.0),
             new Fund.HistoricPrice(new Date(2017, 5, 1), 475.0),
