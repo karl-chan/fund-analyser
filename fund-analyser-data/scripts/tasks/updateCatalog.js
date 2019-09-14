@@ -18,7 +18,11 @@ async function updateCatalog () {
     const oldSedols = Object.keys(sedolToDoc)
     log.info('%d sedols found in database', oldSedols.length)
 
-    const newSedols = await new CharlesStanleyDirect().getSedols()
+    const csdSedols = await new CharlesStanleyDirect().getSedols()
+    // For some reason these are still available but no longer listed on CSD
+    const pinnedSedols = ['B3K7SR4']
+    log.info('Pinned sedols: %s', JSON.stringify(pinnedSedols))
+    const newSedols = [...new Set([...csdSedols, ...pinnedSedols])]
     if (!newSedols || !newSedols.length) {
         throw new Error('No sedols found')
     }
