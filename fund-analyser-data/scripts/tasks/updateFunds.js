@@ -7,7 +7,6 @@ const streamWrapper = require('../../lib/util/streamWrapper')
 const log = require('../../lib/util/log')
 
 const moment = require('moment')
-const _ = require('lodash')
 const Promise = require('bluebird')
 
 /**
@@ -18,11 +17,15 @@ async function updateFunds () {
     const today = moment().utc().startOf('day').toDate()
 
     const fundsToUpdate = await FundDAO.listFunds({
-        query: { $or: [{ asof: { $eq: null } }, { asof: { $lt: today } }] },
+        query: { $or: [
+            { asof: { $eq: null } },
+            { asof: { $lt: today } },
+            { indicators: { $not: { $type: 'object' } } } // happens when fund-analyzer-compute is temporarily down
+        ] },
         projection: { sedol: 1 }
     })
-    const sedols = _.map(fundsToUpdate, f => f.sedol)
-    log.info('Sedols to update: %s', JSON.stringify(sedols))
+    const sedols = fundsToUpdate.map(f => f.sedol).sort()
+    log.info('Sedols to update: %s (%d)', JSON.stringify(sedols), sedols.length)
 
     const fundStream = new FundFactory().streamFundsFromSedols(sedols)
     const fundValidFilter = streamWrapper.asFilterAsync(isFundValid)
