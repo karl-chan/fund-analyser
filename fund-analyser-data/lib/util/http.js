@@ -51,7 +51,7 @@ class Http {
         await this.counter.acquire()
         let result
         try {
-            result = await retry(async () => this.http(requestOptions), retryOptions)
+            result = await retry(async () => this.checkError(await this.http(requestOptions), url), retryOptions)
         } catch (err) {
             this.counter.release()
             log.silly(`Http counter released Remaining: ${this.counter.getPermits()} of ${this.maxParallelConnections}`)
@@ -61,6 +61,13 @@ class Http {
         this.counter.release()
         log.silly(`Http counter released. Remaining: ${this.counter.getPermits()} of ${this.maxParallelConnections}`)
         return result
+    }
+
+    checkError (response, url) {
+        if (response.statusCode >= 400) {
+            throw new Error(`Url: ${url} returned status code: ${response.statusCode}!`)
+        }
+        return response
     }
 
     stream (url) {
