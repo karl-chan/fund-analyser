@@ -17,11 +17,7 @@ async function updateFunds () {
     const today = moment().utc().startOf('day').toDate()
 
     const fundsToUpdate = await FundDAO.listFunds({
-        query: { $or: [
-            { asof: { $eq: null } },
-            { asof: { $lt: today } },
-            { indicators: { $not: { $type: 'object' } } } // happens when fund-analyzer-compute is temporarily down
-        ] },
+        query: { $or: [{ asof: { $eq: null } }, { asof: { $lt: today } }] },
         projection: { sedol: 1 }
     })
     const sedols = fundsToUpdate.map(f => f.sedol).sort()
