@@ -20,10 +20,11 @@ let _client, _db
 let _fundClients, _fundDbs
 
 async function init () {
-    [_client, _fundClients] = await Promise.all([
-        MongoClient.connect(uri, { useNewUrlParser: true }),
-        Promise.map(fundUris, fundUri => MongoClient.connect(fundUri, { useNewUrlParser: true }))
-    ])
+    const opts = { useNewUrlParser: true, useUnifiedTopology: true }
+    ;([_client, _fundClients] = await Promise.all([
+        MongoClient.connect(uri, opts),
+        Promise.map(fundUris, fundUri => MongoClient.connect(fundUri, opts))
+    ]))
 
     _db = _client.db()
     _fundDbs = _fundClients.map(client => client.db())
