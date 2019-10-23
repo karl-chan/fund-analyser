@@ -36,4 +36,7 @@ const init = async () => {
 
 init()
 
+// auto-reload when internet connectivity is back up
+window.addEventListener('online', init, false)
+
 export default store
