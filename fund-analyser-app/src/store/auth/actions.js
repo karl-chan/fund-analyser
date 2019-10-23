@@ -22,6 +22,7 @@ export async function login ({ commit, dispatch }, { user, pass, memorableWord, 
 export async function logout ({ dispatch, commit }) {
   await authService.logout()
   commit('account/reset', null, { root: true })
+  dispatch('removeUser')
 }
 
 export async function getAuth ({ commit }) {
