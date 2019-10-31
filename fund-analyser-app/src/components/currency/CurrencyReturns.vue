@@ -1,5 +1,5 @@
 <template lang="pug">
-  .row.items-center.gutter-xs(v-if="currency")
+  .row.items-center.q-gutter-xs(v-if="currency")
     div(v-for="(periodReturn, period) in currency.returns" :key="period")
       | {{period}}:
       |

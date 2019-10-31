@@ -4,8 +4,11 @@ export default {
   healthcheck () {
     return apiService.get('/admin/healthcheck')
   },
-  getLogs (dyno) {
-    return apiService.get(`/admin/logs/${dyno}`)
+  getLogs (dyno, lines) {
+    return apiService.get(
+      lines
+        ? `/admin/logs/${dyno}?lines=${lines}`
+        : `/admin/logs/${dyno}`)
   },
   restartDyno (dyno) {
     return apiService.post(`/admin/restart/${dyno}`)

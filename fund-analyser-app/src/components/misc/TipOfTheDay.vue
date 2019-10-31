@@ -1,7 +1,14 @@
 <template lang="pug">
   transition(leave-active-class="animated fadeOutUp")
-    q-alert(v-if="visible" :actions="[{ icon: 'close', handler: () => { visible = false } }]"
-            icon="lightbulb_outline" color="amber" :message="randomTip" detail="Tip of the day")
+    q-banner.bg-amber.text-white.q-pa-xs(v-if="visible" inline-actions)
+      template(v-slot:avatar)
+        q-icon(name="lightbulb_outline" size="md")
+      q-item
+        q-item-section
+          q-item-label.text-subtitle1 {{ randomTip }}
+          q-item-label(caption) Tip of the day
+      template(v-slot:action)
+        q-btn(flat icon="close" @click="closeTipOfTheDay")
 </template>
 
 <script>
@@ -34,6 +41,9 @@ export default {
       if (this.tips.length) {
         this.randomTip = this.tips[++this.currentTipIndex % this.tips.length]
       }
+    },
+    closeTipOfTheDay () {
+      this.visible = false
     }
   }
 }

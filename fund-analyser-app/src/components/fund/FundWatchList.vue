@@ -1,11 +1,11 @@
 <template lang="pug">
-  .column.gutter-y-sm
+  .column.q-gutter-y-sm
     // table
     funds-table(:isins="watchlist" :highlightIsin="selectedIsin"
                 @rowSelected="onRowSelected")
       template(slot="title")
         .row.justify-between.items-center
-          .q-headline Watch List
+          .text-h5 Watch List
           q-btn.q-ml-xl(outline color="red" @click="clearWatchlist") Remove all
       template(slot="empty-view")
         q-tooltip

@@ -1,38 +1,49 @@
 <template lang="pug">
   q-page(padding)
-    q-toolbar(color="teal")
+    q-toolbar.bg-teal.q-pa-xs
       // Selection tabs (web / worker)
-      q-tabs(v-model="dyno" inverted)
-        q-tab(label="Web Logs" slot="title" name="web" icon="public" color="green-9")
-        q-tab(default label="Worker Logs" slot="title" name="worker" icon="settings" color="purple")
-      q-search(v-model="filter" dark inverted-light color="teal-1" icon="filter_list" placeholder="Filter logs"
-              style="margin-left: 100px;" clearable)
-      q-btn(flat icon="sync" @click="restartDyno")
+      q-tabs.bg-white(v-model="dyno")
+        q-tab.text-green-9(label="Web Logs" name="web" icon="public")
+        q-tab.text-purple(label="Worker Logs" name="worker" icon="settings")
+      q-input(v-model="filter" filled dark label="Filter logs" color="teal-1"
+              style="margin-left: 150px;" clearable)
+        template(v-slot:prepend)
+         q-icon(name="filter_list")
+      q-btn(flat color="white" icon="sync" @click="restartDyno")
         q-tooltip Restart dyno
     // Logs display
-    q-infinite-scroll.bg-dark.round-borders.text-blue-grey-1.shadow-4.q-pa-md(
-                      :handler="loadMore" inline style="height: 70vh; overflow-x: hidden; overflow-y: auto")
-      code(v-html="logsHtml")
-      .row.justify-center
-        q-spinner-dots(slot='message' :size='40')
+    .bg-accent.text-blue-grey-1(v-if="loading & !logs" style="height: 70vh")
+      q-spinner-dots.absolute-center(size="xl")
+    q-virtual-scroll.round-borders.bg-accent.text-blue-grey-1.shadow-4.q-pa-md(
+              v-else :items="filteredLogs"
+              style="height: 70vh;")
+      template(v-slot="{item, index}")
+        q-item(:key="index" dense)
+          code(v-html="item")
 </template>
 
 <script>
 export default {
   name: 'LogsPage',
+  created () {
+    this.refresh()
+    this.poller = setInterval(this.refresh, 30000) // 30 seconds
+  },
   data () {
     return {
-      dyno: undefined,
+      loading: false,
+      dyno: 'web',
       logs: '',
-      filter: ''
+      filter: '',
+      poller: null
     }
   },
   computed: {
-    logsHtml: function () {
+    filteredLogs: function () {
       const lines = this.logs.split('\n')
-      const filtered = lines.filter(line => line.toLowerCase().includes(this.filter.toLowerCase()))
+      const filtered = lines.filter(line => line && line.toLowerCase().includes(this.filter.toLowerCase()))
       const regex = /^(.*) (.*\[.*\]:) (.*)$/
-      const html = filtered
+      return filtered
         .map(line => {
           const matches = line.match(regex)
           return matches
@@ -41,17 +52,16 @@ export default {
                 `<span class="text-weight-thin">${matches[3]}</span>`
             : line
         })
-        .join('<br>')
-      return html
     }
   },
   methods: {
-    async refresh () {
+    async refresh (clearScreen = false) {
+      this.loading = true
+      if (clearScreen) {
+        this.logs = ''
+      }
       this.logs = await this.$services.admin.getLogs(this.dyno)
-    },
-    async loadMore (index, done) {
-      await this.refresh()
-      done()
+      this.loading = false
     },
     async restartDyno () {
       return this.$services.admin.restartDyno(this.dyno)
@@ -60,8 +70,13 @@ export default {
   watch: {
     dyno: {
       handler () {
-        this.refresh()
+        this.refresh(true)
       }
+    }
+  },
+  beforeDestroy () {
+    if (this.poller) {
+      clearInterval(this.poller)
     }
   }
 }

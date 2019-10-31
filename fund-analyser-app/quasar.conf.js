@@ -3,8 +3,8 @@ const webpack = require('webpack')
 
 module.exports = function (ctx) {
   return {
-    // app plugins (/src/plugins)
-    plugins: [
+    // app boot (/src/boot)
+    boot: [
       'axios',
       'components',
       'services',
@@ -17,11 +17,11 @@ module.exports = function (ctx) {
       '../../node_modules/ag-grid-community/dist/styles/ag-theme-balham.css'
     ],
     extras: [
-      ctx.theme.mat ? 'roboto-font' : null,
+      'roboto-font',
       'material-icons',
-      // 'ionicons',
-      // 'mdi',
-      'fontawesome'
+      // 'ionicons-v4',
+      // 'mdi-v3',
+      'fontawesome-v5'
     ],
     supportIE: true,
     build: {
@@ -63,52 +63,48 @@ module.exports = function (ctx) {
     framework: {
       components: [
         'QLayout',
-        'QLayoutHeader',
-        'QLayoutDrawer',
+        'QHeader',
+        'QDrawer',
         'QPageContainer',
         'QPage',
         'QToolbar',
         'QToolbarTitle',
         'QBtn',
         'QBtnGroup',
-        'QCollapsible',
+        'QExpansionItem',
         'QChip',
         'QDialog',
-        'QModal',
         'QTooltip',
         'QIcon',
         'QList',
-        'QListHeader',
         'QItem',
-        'QItemMain',
-        'QItemSide',
-        'QItemSeparator',
-        'QItemTile',
-        'QAutocomplete',
+        'QItemLabel',
+        'QItemSection',
+        'QSelect',
         'QInput',
-        'QSearch',
         'QCheckbox',
-        'QAlert',
+        'QBanner',
         'QCard',
-        'QCardTitle',
-        'QCardMain',
-        'QCardMedia',
+        'QCardSection',
+        'QCardActions',
         'QTable',
         'QTr',
         'QTd',
         'QTabs',
         'QTab',
-        'QTabPane',
+        'QTabPanels',
+        'QTabPanel',
         'QSpinner',
         'QSpinnerFacebook',
         'QSpinnerDots',
         'QSlideTransition',
-        'QInfiniteScroll',
-        'QAjaxBar'
+        'QVirtualScroll',
+        'QAjaxBar',
+        'QAvatar'
       ],
       directives: [
-        'Ripple',
-        'CloseOverlay'
+        'ClosePopup',
+        'Ripple'
       ],
       plugins: [
         'Dialog',

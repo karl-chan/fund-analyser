@@ -1,13 +1,13 @@
 <template lang="pug">
-  .column.gutter-y-xs
-    .q-display-1.text-grey
+  .column.q-gutter-y-xs
+    .text-h4.text-grey
       template(v-if="user") Hello {{user}}
       template(v-else) Hello guest, you are not logged in!
 
     // Account balance
     account-balance(v-if="balance" :balance="balance")
       template(slot="toolbar")
-        .row.gutter-x-lg
+        .row.q-gutter-x-lg
           table.bg-grey-2(style="border-spacing: 20px 0").border-radius
             tr
               td(v-for="(periodReturn, period) in statement.returns" :key="period")
@@ -17,14 +17,14 @@
                 .text-weight-bold(:class="$utils.format.colourNumber(periodReturn)") {{ $utils.format.formatPercentage(periodReturn) }}
           div
             q-btn-group
-              q-btn(color="tertiary" icon="open_in_new" @click="openURL('https://www.charles-stanley-direct.co.uk/My_Dashboard/My_Direct_Accounts/Portfolio_Valuation')")
+              q-btn(color="accent" icon="open_in_new" @click="openURL('https://www.charles-stanley-direct.co.uk/My_Dashboard/My_Direct_Accounts/Portfolio_Valuation')")
                 q-tooltip Open in Charles Stanley Direct
-              q-btn(color="tertiary" :icon="showStatement ? 'expand_less' : 'expand_more'" @click="toggleShowStatement")
+              q-btn(color="accent" :icon="showStatement ? 'expand_less' : 'expand_more'" @click="toggleShowStatement")
                 q-tooltip {{ showStatement ? 'Hide' : 'Show' }} statement
 
     // Account orders
-    .col.q-mt-xs.gutter-y-xs(v-if="orders.length")
-      .q-headline Pending Orders
+    .col.q-mt-xs.q-gutter-y-xs(v-if="orders.length")
+      .text-h5 Pending Orders
       account-orders(:orders="orders")
 
     // Account statement

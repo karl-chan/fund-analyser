@@ -2,30 +2,26 @@ import AccountBalance from 'components/account/AccountBalance'
 import AccountOrders from 'components/account/AccountOrders'
 import AccountStatement from 'components/account/AccountStatement'
 import AccountView from 'components/account/AccountView'
-
 import ActiveSessions from 'components/auth/ActiveSessions'
-
-import FundSearch from 'components/fund/FundSearch'
-import FundInfoBar from 'components/fund/FundInfoBar'
-import FundIndicators from 'components/fund/FundIndicators'
-import FundChart from 'components/fund/FundChart'
-import FundChartGrid from 'components/fund/FundChartGrid'
-import FundCharges from 'components/fund/FundCharges'
-import FundCurrencyView from 'components/fund/FundCurrencyView'
-import FundHoldings from 'components/fund/FundHoldings'
-import FundsTable from 'components/fund/FundsTable'
-import FundsSummary from 'components/fund/FundsSummary'
-import FundWatchList from 'components/fund/FundWatchList'
-
+import PasswordField from 'components/auth/PasswordField'
 import CurrencyChart from 'components/currency/CurrencyChart'
 import CurrencyDashboard from 'components/currency/CurrencyDashboard'
 import CurrencyPie from 'components/currency/CurrencyPie'
 import CurrencyReturns from 'components/currency/CurrencyReturns'
 import CurrencyTable from 'components/currency/CurrencyTable'
-
+import FundCharges from 'components/fund/FundCharges'
+import FundChart from 'components/fund/FundChart'
+import FundChartGrid from 'components/fund/FundChartGrid'
+import FundCurrencyView from 'components/fund/FundCurrencyView'
+import FundHoldings from 'components/fund/FundHoldings'
+import FundIndicators from 'components/fund/FundIndicators'
+import FundInfoBar from 'components/fund/FundInfoBar'
+import FundSearch from 'components/fund/FundSearch'
+import FundsSummary from 'components/fund/FundsSummary'
+import FundsTable from 'components/fund/FundsTable'
+import FundWatchList from 'components/fund/FundWatchList'
 import Healthcheck from 'components/misc/Healthcheck'
 import TipOfTheDay from 'components/misc/TipOfTheDay'
-
 import AppDrawer from 'layouts/AppDrawer'
 import AppHeader from 'layouts/AppHeader'
 
@@ -36,6 +32,7 @@ export default ({ Vue }) => {
   Vue.component('account-view', AccountView)
 
   Vue.component('active-sessions', ActiveSessions)
+  Vue.component('password-field', PasswordField)
 
   Vue.component('fund-search', FundSearch)
   Vue.component('fund-info-bar', FundInfoBar)

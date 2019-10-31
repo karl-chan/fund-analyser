@@ -1,17 +1,21 @@
 <template lang="pug">
-  q-modal(v-model="modalOpen" position="top" @show="onOpen")
-    q-list
-      q-list-header Active Sessions
-      q-item(v-for="session in activeSessions" :key="session.encryptedId")
-        q-item-side.text-center
-          .circle-dot(v-if="session.current")
-          q-icon(v-else :name="getDeviceIcon(session)")
-          q-tooltip {{ getTooltipText(session) }}
-        q-item-main(:label="session.location.ip" :sublabel="'Location - ' + extractLocation(session)")
-        q-item-side(right)
-          q-item-tile(stamp) Expires {{$utils.format.formatFromNow(session.expiry)}}
-          q-chip(v-if="session.current" square color="secondary" class="shadow-2") Current
-          q-btn(v-else dense rounded icon="delete" @click="destroySession(session.encryptedId)")
+  q-dialog(v-model="modalOpen" position="top" @show="onOpen")
+    q-card
+      q-card-section
+        .text-subtitle2 Active Sessions
+      q-list(v-for="session in activeSessions" :key="session.encryptedId")
+        q-item
+          q-item-section(avatar)
+            .circle-dot(v-if="session.current")
+            q-icon(v-else :name="getDeviceIcon(session)")
+            q-tooltip {{ getTooltipText(session) }}
+          q-item-section
+            q-item-label {{session.location.ip}}
+            q-item-label(caption) Location - {{extractLocation(session)}}
+          q-item-section(side)
+            q-item-label(caption) Expires {{$utils.format.formatFromNow(session.expiry)}}
+            q-chip.shadow-2(v-if="session.current" square color="secondary" text-color="white") Current
+            q-btn(v-else dense rounded icon="delete" @click="destroySession(session.encryptedId)")
 
 </template>
 
@@ -91,11 +95,10 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-@import '~variables'
-
 .circle-dot
   height 10px
   width 10px
+  margin-left 7px
   background-color $green
   border-radius 50%
   display inline-block

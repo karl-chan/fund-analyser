@@ -1,19 +1,20 @@
 <template lang="pug">
-  .column.gutter-y-xs
+  .column.q-gutter-y-xs
     // transclude title on the left
-    .row.justify-between.items-end.gutter-x-md
-      q-search.shadow-2(v-model="filterText" placeholder="Filter table" color="grey-2" inverted-light clearable)
+    .row.justify-between.items-end.q-gutter-x-md
+      q-input.shadow-2(v-model="filterText" label="Filter table"
+                       bg-color="grey-2" color="accent" filled clearable dense)
 
       // mini-toolbar (num up to date / refresh / csv export / statistics)
       .row.items-center
         div Total currencies: {{ currencies.length }}
         q-btn-group.q-ml-md
-          q-btn(color="tertiary" icon="refresh" @click="refresh")
+          q-btn(color="accent" icon="refresh" @click="refresh")
             q-tooltip Refresh data
-          q-btn(color="tertiary" :icon="showStatMode <= 1 ? 'expand_more' : 'expand_less'" @click="toggleStatMode")
+          q-btn(color="accent" :icon="showStatMode <= 1 ? 'expand_more' : 'expand_less'" @click="toggleStatMode")
             q-tooltip {{ showStatMode <= 1 ? 'Show' : 'Hide' }} statistics
 
-    .relative-position
+    .relative-position.q-mt-sm
       ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs"
                   :rowData="displayedCurrencies"
                   @grid-ready="onGridReady" :gridOptions="gridOptions"
@@ -50,7 +51,7 @@ export default {
         { headerName: 'Returns',
           marryChildren: true,
           children: periods.map(period => ({
-            headerName: period, field: `returns.${period}`, width: 100, sort: period === '1D' && 'desc'
+            headerName: period, field: `returns.${period}`, width: 75, sort: period === '1D' && 'desc'
           }))
         }
       ],

@@ -5,21 +5,22 @@
 
     account-view(:user="user" :balance="balance" :orders="orders" :statement="statement")
 
-    q-tabs.q-mt-md
-      q-tab(default label="Account View" slot="title" name="account")
-      q-tab(label="Summary View" slot="title" name="summary")
-      q-tab(label="Currency View" slot="title" name="currency")
+    q-tabs.q-mt-md.bg-primary.text-white(v-model="tab" align="left")
+      q-tab(default label="Account View" name="account")
+      q-tab(label="Summary View" name="summary")
+      q-tab(label="Currency View" name="currency")
 
+    q-tab-panels(v-model="tab")
       // Account View
-      q-tab-pane(keep-alive name="account")
+      q-tab-panel(keep-alive name="account")
         fund-watch-list(:watchlist="watchlist")
 
       // Summary View
-      q-tab-pane(keep-alive name="summary")
+      q-tab-panel(keep-alive name="summary")
         funds-summary
 
       // Currency View
-      q-tab-pane(keep alive name="currency")
+      q-tab-panel(keep-alive name="currency")
         currency-dashboard
 </template>
 
@@ -28,6 +29,11 @@ import { mapState, mapActions } from 'vuex'
 import isEqual from 'lodash/isEqual'
 export default {
   name: 'HomePage',
+  data () {
+    return {
+      tab: 'account'
+    }
+  },
   computed: {
     ...mapState('account', ['balance', 'orders', 'statement', 'watchlist']),
     ...mapState('auth', ['user']),

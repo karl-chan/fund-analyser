@@ -1,14 +1,14 @@
 <template lang="pug">
   q-page(padding)
     template(v-if="loading")
-      .absolute-center.row.items-center.text-purple.gutter-x-lg
+      .absolute-center.row.items-center.text-purple.q-gutter-x-lg
         q-spinner-facebook(size="72px" color="purple")
-        .q-display-3 Loading
+        .text-h3 Loading
 
     template(v-else-if="fund")
       // header
-      .row.items-center.gutter-sm.q-mb-md
-        .q-headline {{fund.name}}
+      .row.items-center.q-gutter-sm.q-mb-md
+        .text-h5 {{fund.name}}
         div
           q-btn(icon="autorenew" label="Renew" @click="refreshFund" color="secondary" rounded glossy)
         div
@@ -23,27 +23,22 @@
 
       // middle section
       fund-info-bar(:fund="fund")
-      .row.gutter-x-sm.q-mt-xl
+      .row.q-col-gutter-x-sm.q-mt-xl
         .col-md-8
           fund-chart(:fund="fund")
         .col-md-4
           fund-holdings(:fund="fund")
-      .row.gutter-x-sm.q-mt-sm
-        .col-md-4.gutter-y-md
+      .row.q-col-gutter-x-sm.q-mt-sm
+        .col-md-5.q-gutter-y-md
             fund-charges(:fund="fund")
             fund-currency-view(:fund="fund")
-        .col-md-8
+        .col-md-7
           fund-indicators(:fund="fund")
 
-      // modal with extra information
-      q-modal(v-model="showModal" :content-css="{width: '80vw'}")
-        q-icon.absolute-top-right(name="cancel" style="{z-index: 1}" v-close-overlay)
-        router-view
-
     template(v-else)
-      .absolute-center.row.items-center.gutter-x-sm.text-red
+      .absolute-center.row.items-center.q-gutter-x-sm.text-red
         q-icon(name="error" color="error" size="144px")
-        .q-display-4 Sorry! Error loading fund
+        .text-h2 Sorry! Error loading fund
 </template>
 
 <script>
@@ -73,8 +68,7 @@ export default {
   data () {
     return {
       loading: true,
-      hoveringFavouriteIcon: false,
-      showModal: false
+      hoveringFavouriteIcon: false
     }
   },
   computed: {

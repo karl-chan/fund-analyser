@@ -1,11 +1,13 @@
 <template lang="pug">
-  q-layout-header
-    q-toolbar(color="green")
+  q-header
+    q-toolbar.bg-green.shadow-2
       q-btn(flat dense round @click="toggleDrawer")
         q-icon(name="menu")
       q-toolbar-title
-        | Fund Analyser
-        div(slot="subtitle") Your mutual funds toolkit
+        q-item
+          q-item-section
+            q-item-label.text-weight-medium Fund Analyser
+            q-item-label(caption).text-white Your mutual funds toolkit
       fund-search.absolute-center(placeholder="Start typing a fund name" @select="onFundSelect")
       q-btn.q-mr-lg(v-if="isLoggedIn" flat dense size="lg" icon="perm_device_information" @click="activeSessionsOpen = true")
         active-sessions(:open.sync="activeSessionsOpen")

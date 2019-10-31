@@ -1,6 +1,6 @@
 <template lang="pug">
-    .column.gutter-y-sm
-      .q-headline Currency Dashboard
+    .column.q-gutter-y-sm
+      .text-h5 Currency Dashboard
       // currency table
       currency-table(height="500px" :currencies="summary.currencies" :stats="summary.stats")
 

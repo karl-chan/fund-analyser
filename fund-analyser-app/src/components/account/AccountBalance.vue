@@ -1,8 +1,8 @@
 <template lang="pug">
-  .column.gutter-y-xs
+  .column.q-gutter-y-xs
     .row.justify-between
       .column
-        .row.gutter-lg
+        .row.q-gutter-lg
           div Portfolio: £{{balance.portfolio}}
           div Cash: £{{balance.cash}}
           div Total Value: £{{balance.totalValue}}

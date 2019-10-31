@@ -1,11 +1,13 @@
 <template lang="pug">
   q-page(padding)
-    q-dialog(:value="true" prevent-close)
-      span(slot="title") Logging out
-      .row.justify-center.items-center.gutter-x-sm(slot="body")
-        q-spinner-facebook(size="28px" color="secondary")
-        .q-subheading Just a moment
-      template(slot="buttons" slot-scope="props")
+    q-dialog(:value="true" persistent)
+      q-card
+        q-card-section
+          .text-h6 Logging out
+        q-card-section
+          .row.justify-center.items-center.q-gutter-x-sm
+            q-spinner-facebook(size="28px" color="secondary")
+            .q-subheading Just a moment
 </template>
 
 <script>

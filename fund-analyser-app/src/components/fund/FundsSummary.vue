@@ -2,9 +2,9 @@
 
   funds-table(:filterText="filterText" height="500px" ref="fundsTable")
     template(slot="title")
-      .column.gutter-y-sm
-        .q-headline Summary
-        .row.justify-between.items-center.gutter-x-md
+      .column.q-gutter-y-sm
+        .text-h5 Summary
+        .row.justify-between.items-center.q-gutter-x-md
           div
             fund-search(placeholder="Filter table" @input="filter" @select="filterFund")
     template(slot="empty-view")
