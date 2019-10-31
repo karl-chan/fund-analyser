@@ -49,7 +49,7 @@ app.use(logger())
 app.use(cors())
 app.use(session(auth.SESSION_CONFIG, app))
 app.use(bodyParser())
-app.use(serve(path.resolve(__dirname, '../../fund-analyser-app/dist/spa-mat'), {
+app.use(serve(path.resolve(__dirname, '../../fund-analyser-app/dist/spa'), {
     maxAge: 365 * 24 * 60 * 60,
     buffer: true,
     gzip: true,
