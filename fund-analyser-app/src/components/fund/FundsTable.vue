@@ -95,7 +95,7 @@ export default {
         getRowClass: function (params) {
           let classes = []
           if (params.node.rowPinned) {
-            const pinnedClasses = ['text-bold', 'bg-dark', 'text-white']
+            const pinnedClasses = ['text-bold', 'bg-accent', 'text-white']
             classes = [...classes, ...pinnedClasses]
           }
           return classes
@@ -239,7 +239,7 @@ export default {
         const fundContextMenuItems = isFavourite
           ? [ {
             name: 'Remove from watch list',
-            icon: '<i class="q-icon material-icons text-dark" style="font-size:15px" aria-hidden="true">star_border</i>',
+            icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
             action: () => {
               params.context.removeFromWatchlist(isin)
             }
