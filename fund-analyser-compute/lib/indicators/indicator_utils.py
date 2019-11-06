@@ -32,8 +32,7 @@ def adx(prices_df: pd.DataFrame, timeperiod=14) -> Tuple[pd.DataFrame, pd.DataFr
     return tuple(map(lambda s: pd.concat(s, axis=1), (adxs, plus_dis, minus_dis)))
 
 
-def ppo(prices_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    fast, slow, signal = 12, 26, 9
+def ppo(prices_df: pd.DataFrame, fast=12, slow=26, signal=9) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     ppos, pposignals, ppohists = [], [], []
     for (isin, series) in prices_df.items():
         ppo = talib.PPO(series, fastperiod=fast, slowperiod=slow, matype=MA_Type.EMA)
@@ -51,7 +50,7 @@ def ppo(prices_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
 
 def support_resistance(prices_df: pd.DataFrame) -> pd.DataFrame:
     # 1 = support, 0 = none, -1 = resistance
-    signs = np.sign(prices_df.diff().replace(0, np.nan).ffill(axis=0).bfill(axis=0))
+    signs = np.sign(prices_df.diff().replace(0, np.nan)).ffill(axis=0).bfill(axis=0)
     return np.sign(signs.diff().shift(-1)).fillna(0).astype("int")
 
 

@@ -1,6 +1,9 @@
 from datetime import datetime
 
 import ciso8601
+import pandas as pd
+
+BDAY = pd.tseries.offsets.BusinessDay(n=1)
 
 
 def parse_date(s: str) -> datetime:

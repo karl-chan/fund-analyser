@@ -15,11 +15,11 @@ from tensorflow.python.keras.utils import Sequence
 
 from lib.fund import fund_cache
 from lib.fund.fund_utils import merge_funds_historic_prices
+from lib.util.date import BDAY
 
 logging.basicConfig(level=logging.DEBUG)
 pd.set_option('display.max_colwidth', 10000)
 
-BDAY = pd.tseries.offsets.BusinessDay(n=1)
 peek_interval_days = 126
 peek_interval = peek_interval_days * BDAY  # roughly 6 months
 hold_interval_days = 5

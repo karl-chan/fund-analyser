@@ -2,6 +2,7 @@ from datetime import datetime, date
 from typing import List, Optional
 
 import pandas as pd
+from ffn import calc_sharpe
 from pandas.tseries.frequencies import to_offset
 
 from lib.fund.fund import Fund
@@ -37,7 +38,7 @@ def calc_fees(funds: List[Fund]) -> pd.DataFrame:
 
 def calc_hold_interval(prices_df: pd.DataFrame, dt: date, isins: List[str],
                        default_hold_interval: pd.DateOffset) -> pd.DateOffset:
-    funcs = []  # min_recovery_date]  # , until_peak_date]
+    funcs = []  # min_recovery_date]
 
     next_dt = (dt + default_hold_interval).date()
     for f in funcs:
@@ -47,21 +48,18 @@ def calc_hold_interval(prices_df: pd.DataFrame, dt: date, isins: List[str],
     return to_offset(next_dt - dt)
 
 
+def calc_sharpe_ratio(prices_series: pd.Series, risk_free_rate=0.0) -> float:
+    avg_interval_days = prices_series.index.to_series().diff().mean().days
+    return calc_sharpe(prices_series.pct_change(),
+                       rf=risk_free_rate,
+                       nperiods=252 / avg_interval_days)
+
+
 def min_recovery_date(prices_df: pd.DataFrame, dt: date, isins: List[str]) -> Optional[date]:
     prices = prices_df.loc[dt:, isins]
     series = prices.mean(axis=1)
     start_price = series.loc[dt]
     try:
         return series[(series.index > pd.to_datetime(dt)) & (series >= start_price)].index[0].date()
-    except IndexError:
-        return None
-
-
-def until_peak_date(prices_df: pd.DataFrame, dt: date, isins: List[str]) -> Optional[date]:
-    prices = prices_df.loc[dt:, isins]
-    series = prices.mean(axis=1)
-    falling = series.diff().lt(0)
-    try:
-        return falling[falling].index[0].date()
     except IndexError:
         return None
