@@ -4,7 +4,7 @@ from lib.indicators.indicators import get_all_indicators
 from lib.util.pandas import pd_historic_prices_from_json
 
 
-class Indicators:
+class IndicatorsRoutes:
     def on_get(self, req: falcon.Request, resp: falcon.Response):
         resp.media = {
             indicator.get_key(): {
@@ -19,4 +19,4 @@ class Indicators:
                       get_all_indicators()}
 
 
-indicators_route = Indicators()
+indicators_routes = IndicatorsRoutes()

@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from typing import List, Optional
+from typing import List, Optional, Iterable
 
 import pandas as pd
 from ffn import calc_sharpe
@@ -9,7 +9,7 @@ from lib.fund.fund import Fund
 from lib.util import properties
 
 
-def merge_funds_historic_prices(funds: List[Fund], start=None, end=None) -> pd.DataFrame:
+def merge_funds_historic_prices(funds: Iterable[Fund], start=None, end=None) -> pd.DataFrame:
     all_prices = []
     for fund in funds:
         prices = fund.historicPrices.copy(deep=False)
@@ -18,7 +18,7 @@ def merge_funds_historic_prices(funds: List[Fund], start=None, end=None) -> pd.D
     return pd.concat(all_prices, axis=1).resample("B").asfreq().fillna(method="ffill").truncate(before=start, after=end)
 
 
-def calc_returns(prices_df: pd.DataFrame, dt: datetime, duration: pd.DateOffset, fees_df: pd.DataFrame) -> pd.DataFrame:
+def calc_returns(prices_df: pd.DataFrame, dt: datetime, duration: pd.DateOffset, fees_df: pd.DataFrame) -> pd.Series:
     window = prices_df[dt - duration: dt]
     returns_before_fees = (window.iloc[-1] - window.iloc[0]) / window.iloc[0]
     returns_after_fees = returns_before_fees * (1 - fees_df["total"])

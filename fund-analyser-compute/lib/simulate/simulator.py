@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from datetime import date
-from typing import Iterable, NamedTuple, List
+from typing import Iterable, NamedTuple, List, Optional
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -11,7 +11,7 @@ from ffn import calc_max_drawdown
 
 from lib.fund import fund_cache
 from lib.fund.fund import Fund
-from lib.fund.fund_utils import merge_funds_historic_prices, calc_fees, calc_returns, calc_sharpe_ratio
+from lib.fund.fund_utils import calc_fees, calc_returns, calc_sharpe_ratio
 from lib.simulate.strategy.strategy import Strategy
 from lib.simulate.tiebreaker.tie_breaker import TieBreaker
 from lib.util.date import BDAY
@@ -39,8 +39,8 @@ class Simulator:
 
     def __init__(self,
                  strategy: Strategy,
-                 tie_breaker: TieBreaker = None,
-                 isins: Iterable[str] = None,
+                 tie_breaker: Optional[TieBreaker] = None,
+                 isins: Optional[Iterable[str]] = None,
                  num_portfolio: int = 1,
                  hold_interval=5 * BDAY,
                  buy_sell_gap=BDAY):
@@ -56,7 +56,8 @@ class Simulator:
         self._buy_sell_gap = buy_sell_gap
 
         # computed properties
-        self._prices_df = merge_funds_historic_prices(funds)
+        self._prices_df = fund_cache.get_prices(isins)
+
         self._fees_df = calc_fees(funds)
 
         self._broadcast_data(Simulator.Data(
@@ -81,7 +82,7 @@ class Simulator:
             trunc_date = dt - self._buy_sell_gap
             prediction = self.predict(trunc_date)
             max_funds = prediction.funds
-            max_isins = [f.isin for f in max_funds]
+            max_isins = [fund.isin for fund in max_funds]
 
             curr_hold_interval = self._hold_interval
             # curr_hold_interval = calc_hold_interval(self._prices_df, dt, max_isins, self._hold_interval)
@@ -115,11 +116,11 @@ class Simulator:
             end_date=end_date
         )
 
-    def predict(self, date: date) -> Prediction:
-        allowed_isins = self._strategy.run(date, self._prices_df, self._fees_df)
+    def predict(self, dt: date) -> Prediction:
+        allowed_isins = self._strategy.run(dt, self._prices_df, self._fees_df)
         max_isins = self._tie_breaker.run(allowed_isins,
                                           self._num_portfolio,
-                                          date,
+                                          dt,
                                           self._prices_df,
                                           self._fees_df)
         return Simulator.Prediction(funds=fund_cache.get(max_isins))

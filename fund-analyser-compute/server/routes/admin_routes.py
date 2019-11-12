@@ -1,7 +1,7 @@
 import falcon
 
 
-class Healthcheck:
+class HealthcheckRoutes:
     def on_get(self, req: falcon.Request, resp: falcon.Response):
         resp.body = "OK"
 
@@ -9,4 +9,4 @@ class Healthcheck:
         resp.body = "OK"
 
 
-healthcheck_route = Healthcheck()
+healthcheck_routes = HealthcheckRoutes()

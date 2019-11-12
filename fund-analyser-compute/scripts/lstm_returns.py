@@ -14,7 +14,6 @@ from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.utils import Sequence
 
 from lib.fund import fund_cache
-from lib.fund.fund_utils import merge_funds_historic_prices
 from lib.util.date import BDAY
 
 logging.basicConfig(level=logging.DEBUG)
@@ -32,13 +31,9 @@ kernel_size_first_layer = 3  # approx 1 month
 kernel_size_second_layer = 3
 kernel_size_third_layer = 3
 
-all_funds = fund_cache.get()
-funds = all_funds
-funds_lookup = {fund.isin: fund for fund in funds}
-
-merged_historic_prices = merge_funds_historic_prices(funds)
-pct_changes = merged_historic_prices.pct_change()
-future_returns = merged_historic_prices.pct_change(periods=hold_interval_days).shift(
+prices_df = fund_cache.get_prices()
+pct_changes = prices_df.pct_change()
+future_returns = prices_df.pct_change(periods=hold_interval_days).shift(
     periods=-hold_interval_days)
 
 

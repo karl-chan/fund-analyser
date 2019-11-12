@@ -13,6 +13,7 @@ from lib.util.date import BDAY
 
 
 class AdxReturns(Strategy):
+
     def _max_adx(self, dt: date) -> List[str]:
         period = 3 * BDAY
 

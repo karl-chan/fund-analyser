@@ -7,9 +7,7 @@ verify_ssl = true
 ciso8601 = "*"
 falcon = "*"
 ffn = "*"
-lz4 = "*"
 matplotlib = "*"
-more-itertools = "*"
 numpy = "*"
 overrides = "*"
 pandas = "*"
@@ -17,14 +15,12 @@ pytest = "*"
 pytest-profiling = "*"
 requests = "*"
 scikit-learn = "*"
+ta-lib = {version = "*",sys_platform = "!= 'win32'"}
+ta-lib-win32 = {file = "bin/TA_Lib-0.4.17-cp37-cp37m-win_amd64.whl",sys_platform = "== 'win32'"}
 tensorflow = {version = "*",sys_platform = "!= 'win32'"}
 tensorflow-win32 = {file = "https://github.com/fo40225/tensorflow-windows-wheel/raw/master/1.13.1/py37/CPU/avx2/tensorflow-1.13.1-cp37-cp37m-win_amd64.whl",sys_platform = "== 'win32'"}
 ujson = "*"
 waitress = "*"
-
-[dev-packages]
-openpyxl = "*"
-ta-lib = {file = "bin/TA_Lib-0.4.17-cp37-cp37m-win_amd64.whl",sys_platform = "== 'win32'"}
 
 [requires]
 python_version = "3.7"

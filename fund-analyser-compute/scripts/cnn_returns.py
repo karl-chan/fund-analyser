@@ -15,7 +15,6 @@ from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.utils import Sequence
 
 from lib.fund import fund_cache
-from lib.fund.fund_utils import merge_funds_historic_prices
 from lib.util.date import BDAY
 
 logging.basicConfig(level=logging.DEBUG)
@@ -34,13 +33,9 @@ kernel_size_second_layer = 3
 kernel_size_third_layer = 3
 batch_size = 10000
 
-all_funds = fund_cache.get()
-funds = all_funds
-funds_lookup = {fund.isin: fund for fund in funds}
-
-merged_historic_prices = merge_funds_historic_prices(funds).rolling(3).mean()
-pct_changes = merged_historic_prices.pct_change()
-future_returns = merged_historic_prices.pct_change(periods=hold_interval_days).shift(
+prices_df = fund_cache.get_prices().rolling(3).mean()
+pct_changes = prices_df.pct_change()
+future_returns = prices_df.pct_change(periods=hold_interval_days).shift(
     periods=-hold_interval_days)
 
 
@@ -50,7 +45,7 @@ class DataGenerator(Sequence):
                  end: date = end_date,
                  batch_size: int = 1) -> None:
         super().__init__()
-        self.num_funds = len(merged_historic_prices.columns)
+        self.num_funds = len(prices_df.columns)
         self.batch_size = batch_size
         self.dt_range = pd.date_range(start, end, freq="B")
 

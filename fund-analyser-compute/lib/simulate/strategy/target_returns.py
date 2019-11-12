@@ -14,7 +14,7 @@ from lib.simulate.tiebreaker.max_upside_tie_breaker import MaxUpsideTieBreaker
 
 class TargetReturns(Strategy):
 
-    def __init__(self, target_returns) -> None:
+    def __init__(self, target_returns=0.02) -> None:
         super().__init__()
         self._target_returns = target_returns
 
@@ -48,9 +48,8 @@ class TargetReturns(Strategy):
 
 
 if __name__ == "__main__":
-    target_returns = 0.02
     simulator = Simulator(
-        strategy=TargetReturns(target_returns=target_returns),
+        strategy=TargetReturns(),
         tie_breaker=MaxUpsideTieBreaker()
     )
     result = simulator.run()
