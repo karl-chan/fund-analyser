@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Dict
+from typing import Dict, Optional
 
 from lib.simulate.strategy.strategy import Strategy
 
@@ -23,3 +23,7 @@ def get_all_strategies() -> Dict[str, Strategy]:
         TargetReturns(),
     ]
     return {strategy.__class__.__name__: strategy for strategy in all_strategies}
+
+
+def from_name(s: str) -> Optional[Strategy]:
+    return get_all_strategies().get(s)

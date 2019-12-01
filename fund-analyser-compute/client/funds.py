@@ -1,17 +1,20 @@
-from typing import List, Iterator
+from typing import Iterator, NamedTuple, Optional, Iterable
 
 from client import data
-from lib.fund.fund import Fund
+from lib.fund.fund import Fund, FundHistoricPrices
+from lib.util.pandas import pd_historic_prices_from_json
 
 
-def get_all_isins() -> List[str]:
-    return list(data.get("/funds/isins"))
+class FundStreamEntry(NamedTuple):
+    fund: Fund
+    historic_prices: FundHistoricPrices
 
 
-def get_funds(isins: List[str]) -> List[Fund]:
-    return list(map(Fund.from_dict, data.get(f"/funds/isins/{','.join(isins)}")))
-
-
-def stream_funds(isins: List[str] = ["all"]) -> Iterator[Fund]:
+def stream_funds(isins: Optional[Iterable[str]] = None) -> Iterator[FundStreamEntry]:
     params = {"stream": "true"}
-    return map(Fund.from_dict, data.stream(f"/funds/isins/{','.join(isins)}", params))
+    return map(
+        lambda d: FundStreamEntry(
+            fund=Fund.from_dict(d),
+            historic_prices=pd_historic_prices_from_json(d["historicPrices"]).rename(d["isin"])
+        ),
+        data.stream(f"/funds/isins/{','.join(isins) if isins is not None else 'all'}", params))

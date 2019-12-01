@@ -15,8 +15,7 @@ pytest = "*"
 pytest-profiling = "*"
 requests = "*"
 scikit-learn = "*"
-ta-lib = {version = "*",sys_platform = "!= 'win32'"}
-ta-lib-win32 = {file = "bin/TA_Lib-0.4.17-cp37-cp37m-win_amd64.whl",sys_platform = "== 'win32'"}
+ta-lib-win32 = {file = "https://download.lfd.uci.edu/pythonlibs/t7epjj8p/TA_Lib-0.4.17-cp37-cp37m-win_amd64.whl",sys_platform = "== 'win32'"}
 tensorflow = {version = "*",sys_platform = "!= 'win32'"}
 tensorflow-win32 = {file = "https://github.com/fo40225/tensorflow-windows-wheel/raw/master/1.13.1/py37/CPU/avx2/tensorflow-1.13.1-cp37-cp37m-win_amd64.whl",sys_platform = "== 'win32'"}
 ujson = "*"

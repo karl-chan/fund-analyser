@@ -1,4 +1,4 @@
-from lib.util.enum import StrEnum
+from lib.util.enums import StrEnum
 
 
 class TestEnum(StrEnum):

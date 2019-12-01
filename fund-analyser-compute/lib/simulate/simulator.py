@@ -27,6 +27,7 @@ class Simulator:
         hold_interval: pd.DateOffset
 
     class Prediction(NamedTuple):
+        date: date
         funds: List[Fund]
 
     class Result(NamedTuple):
@@ -37,18 +38,30 @@ class Simulator:
         start_date: date
         end_date: date
 
+    DEFAULT_NUM_PORTFOLIO = 1
+    DEFAULT_HOLD_INTERVAL = 5 * BDAY
+    DEFAULT_BUY_SELL_GAP = BDAY
+
     def __init__(self,
                  strategy: Strategy,
                  tie_breaker: Optional[TieBreaker] = None,
                  isins: Optional[Iterable[str]] = None,
-                 num_portfolio: int = 1,
-                 hold_interval=5 * BDAY,
-                 buy_sell_gap=BDAY):
+                 num_portfolio: Optional[int] = None,
+                 hold_interval=None,
+                 buy_sell_gap=None):
+
+        # apply default values
+        if tie_breaker is None:
+            from lib.simulate.tiebreaker.max_returns_tie_breaker import MaxReturnsTieBreaker
+            tie_breaker = MaxReturnsTieBreaker()
+        num_portfolio = num_portfolio or self.DEFAULT_NUM_PORTFOLIO
+        hold_interval = hold_interval or self.DEFAULT_HOLD_INTERVAL
+        buy_sell_gap = buy_sell_gap or self.DEFAULT_BUY_SELL_GAP
+
         funds = fund_cache.get(isins)
 
         self._strategy = strategy
-        from lib.simulate.tiebreaker.max_returns_tie_breaker import MaxReturnsTieBreaker
-        self._tie_breaker = tie_breaker or MaxReturnsTieBreaker()
+        self._tie_breaker = tie_breaker
 
         self._funds_lookup = {fund.isin: fund for fund in funds}
         self._num_portfolio = num_portfolio
@@ -57,8 +70,8 @@ class Simulator:
 
         # computed properties
         self._prices_df = fund_cache.get_prices(isins)
-
         self._fees_df = calc_fees(funds)
+        self._last_valid_date = self._prices_df.last_valid_index().date()
 
         self._broadcast_data(Simulator.Data(
             prices_df=self._prices_df,
@@ -73,6 +86,12 @@ class Simulator:
     def run(self,
             start_date: date = (date.today() - pd.DateOffset(years=5)).date(),
             end_date: date = date.today()) -> Simulator.Result:
+        """
+        Runs simulation between a pair of dates.
+        :param start_date:
+        :param end_date:
+        :return:
+        """
         account = pd.DataFrame(data=[[100, "", ""]],
                                index=[start_date],
                                columns=["value", "isin", "name"])
@@ -116,17 +135,24 @@ class Simulator:
             end_date=end_date
         )
 
-    def predict(self, dt: date) -> Prediction:
+    def predict(self, dt: Optional[date] = None) -> Prediction:
+        """
+        Generates prediction at given date, or the last valid date if not supplied.
+        :param dt: Date of prediction. Defaults to last valid date.
+        :return:
+        """
+        if not dt:
+            dt = self._last_valid_date
         allowed_isins = self._strategy.run(dt, self._prices_df, self._fees_df)
         max_isins = self._tie_breaker.run(allowed_isins,
                                           self._num_portfolio,
                                           dt,
                                           self._prices_df,
                                           self._fees_df)
-        return Simulator.Prediction(funds=fund_cache.get(max_isins))
+        return Simulator.Prediction(date=dt, funds=fund_cache.get(max_isins))
 
-    @staticmethod
-    def describe_and_plot(results: Iterable[Simulator.Result]) -> None:
+    @classmethod
+    def describe_and_plot(cls, results: Iterable[Simulator.Result]) -> None:
         sorted_by_returns = sorted(results, key=lambda r: r.returns)
         min_returns, max_returns = sorted_by_returns[0], sorted_by_returns[-1]
         print(f"Min returns: {min_returns.returns} Begin date: {min_returns.start_date}")

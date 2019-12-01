@@ -50,7 +50,7 @@ class TargetReturns(Strategy):
 if __name__ == "__main__":
     simulator = Simulator(
         strategy=TargetReturns(),
-        tie_breaker=MaxUpsideTieBreaker()
+        tie_breaker=MaxUpsideTieBreaker(),
     )
     result = simulator.run()
     Simulator.describe_and_plot([result])

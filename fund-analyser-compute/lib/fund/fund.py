@@ -7,7 +7,7 @@ import pandas as pd
 from overrides import overrides
 
 from lib.util.date import parse_date
-from lib.util.enum import StrEnum
+from lib.util.enums import StrEnum
 from lib.util.math import replace_nan
 
 
@@ -94,7 +94,6 @@ class Fund(NamedTuple):
     exitCharge: float
     bidAskSpread: float
     holdings: List[FundHolding]
-    historicPrices: FundHistoricPrices
     returns: Dict[str, float]
     asof: datetime
     indicators: FundIndicators
@@ -102,23 +101,19 @@ class Fund(NamedTuple):
 
     @classmethod
     def from_dict(cls, d: Dict) -> Fund:
-        from lib.util.pandas import pd_historic_prices_from_json
         temp = dict(d)
-        temp["type"] = FundType.from_str(d.get("type", None))
-        temp["shareClass"] = FundShareClass.from_str(d.get("shareClass", None))
+        temp["type"] = FundType.from_str(d.get("type"))
+        temp["shareClass"] = FundShareClass.from_str(d.get("shareClass"))
         temp["holdings"] = [FundHolding.from_dict(e) for e in d["holdings"]]
-        temp["historicPrices"] = pd_historic_prices_from_json(d["historicPrices"])
         temp["asof"] = parse_date(d["asof"])
         temp["indicators"] = {k: FundIndicator.from_dict(v) for k, v in d["indicators"].items()}
         temp["realTimeDetails"] = FundRealTimeDetails.from_dict(d["realTimeDetails"])
+        del temp["historicPrices"]
         return Fund(**temp)
 
     @overrides
     def __eq__(self, other: Fund) -> bool:
         res = True
         for k, v in self._asdict().items():
-            if k == "historicPrices":
-                res &= v.equals(other.historicPrices)
-            else:
-                res &= v == getattr(other, k)
+            res &= v == getattr(other, k)
         return res

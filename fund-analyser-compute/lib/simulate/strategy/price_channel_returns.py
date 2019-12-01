@@ -66,7 +66,7 @@ class PriceChannelReturns(Strategy):
 
 if __name__ == "__main__":
     simulator = Simulator(
-        strategy=PriceChannelReturns()
+        strategy=PriceChannelReturns(),
     )
     result = simulator.run()
     Simulator.describe_and_plot([result])

@@ -6,17 +6,19 @@ import talib
 from talib._ta_lib import MA_Type
 
 
-def bollinger_bands(prices_df: pd.DataFrame, timeperiod=5, stdev=1) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    upper_bands, middle_bands, lower_bands = [], [], []
-    for (isin, series) in prices_df.items():
-        upper_band, middle_band, lower_band = talib.BBANDS(series, timeperiod=timeperiod, nbdevup=stdev, nbdevdn=stdev,
-                                                           matype=MA_Type.SMA)
-        upper_band.name, middle_band.name, lower_band.name = (isin,) * 3
-        upper_bands.append(upper_band)
-        middle_bands.append(middle_band)
-        lower_bands.append(lower_band)
+def upper_bollinger_bands(prices_df: pd.DataFrame, timeperiod=5, stdev=1) -> pd.DataFrame:
+    return prices_df.apply(lambda p: talib.BBANDS(p, timeperiod=timeperiod, nbdevup=stdev, nbdevdn=stdev,
+                                                  matype=MA_Type.SMA)[0])
 
-    return tuple(map(lambda s: pd.concat(s, axis=1), (upper_bands, middle_bands, lower_bands)))
+
+def middle_bollinger_bands(prices_df: pd.DataFrame, timeperiod=5, stdev=1) -> pd.DataFrame:
+    return prices_df.apply(lambda p: talib.BBANDS(p, timeperiod=timeperiod, nbdevup=stdev, nbdevdn=stdev,
+                                                  matype=MA_Type.SMA)[1])
+
+
+def lower_bollinger_bands(prices_df: pd.DataFrame, timeperiod=5, stdev=1) -> pd.DataFrame:
+    return prices_df.apply(lambda p: talib.BBANDS(p, timeperiod=timeperiod, nbdevup=stdev, nbdevdn=stdev,
+                                                  matype=MA_Type.SMA)[2])
 
 
 def adx(prices_df: pd.DataFrame, timeperiod=14) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:

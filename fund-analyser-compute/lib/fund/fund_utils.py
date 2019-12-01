@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from typing import List, Optional, Iterable
+from typing import List, Optional
 
 import pandas as pd
 from ffn import calc_sharpe
@@ -7,15 +7,6 @@ from pandas.tseries.frequencies import to_offset
 
 from lib.fund.fund import Fund
 from lib.util import properties
-
-
-def merge_funds_historic_prices(funds: Iterable[Fund], start=None, end=None) -> pd.DataFrame:
-    all_prices = []
-    for fund in funds:
-        prices = fund.historicPrices.copy(deep=False)
-        prices.name = fund.isin
-        all_prices.append(prices)
-    return pd.concat(all_prices, axis=1).resample("B").asfreq().fillna(method="ffill").truncate(before=start, after=end)
 
 
 def calc_returns(prices_df: pd.DataFrame, dt: datetime, duration: pd.DateOffset, fees_df: pd.DataFrame) -> pd.Series:
