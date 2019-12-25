@@ -15,7 +15,7 @@ from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.utils import Sequence
 
 from lib.fund import fund_cache
-from lib.util.date import BDAY
+from lib.util.dates import BDAY
 
 logging.basicConfig(level=logging.DEBUG)
 pd.set_option('display.max_colwidth', 10000)

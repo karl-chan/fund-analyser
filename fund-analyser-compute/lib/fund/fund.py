@@ -6,7 +6,7 @@ from typing import Dict, List, NamedTuple, Optional, Tuple
 import pandas as pd
 from overrides import overrides
 
-from lib.util.date import parse_date
+from lib.util.dates import parse_date
 from lib.util.enums import StrEnum
 from lib.util.math import replace_nan
 

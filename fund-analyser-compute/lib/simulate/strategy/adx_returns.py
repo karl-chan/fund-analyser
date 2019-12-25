@@ -9,7 +9,7 @@ from overrides import overrides
 from lib.indicators.indicator_utils import adx
 from lib.simulate.simulator import Simulator
 from lib.simulate.strategy.strategy import Strategy
-from lib.util.date import BDAY
+from lib.util.dates import BDAY
 
 
 class AdxReturns(Strategy):

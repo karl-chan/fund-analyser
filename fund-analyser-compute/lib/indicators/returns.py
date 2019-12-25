@@ -7,7 +7,7 @@ from overrides import overrides
 
 from lib.fund.fund import FundHistoricPrices, FundIndicator
 from lib.indicators.indicator import DisplayFormat, Indicator
-from lib.util.date import format_date
+from lib.util.dates import format_date
 from lib.util.pandas import drop_duplicate_index, pd_offset_from_lookback
 
 

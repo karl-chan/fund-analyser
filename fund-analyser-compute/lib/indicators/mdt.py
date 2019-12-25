@@ -4,7 +4,7 @@ from pandas import DatetimeIndex
 
 from lib.fund.fund import FundIndicator, FundHistoricPrices
 from lib.indicators.indicator import Indicator, DisplayFormat
-from lib.util.date import format_date
+from lib.util.dates import format_date
 
 
 # Max downtime

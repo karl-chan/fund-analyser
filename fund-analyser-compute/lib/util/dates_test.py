@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from lib.util.date import parse_date, format_date
+from lib.util.dates import parse_date, format_date
 
 
 def test_parse_date():

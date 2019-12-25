@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+from datetime import date
 from typing import Dict, List, NamedTuple, Optional
 
 import falcon
-import pandas as pd
 
 from lib.simulate.simulator import Simulator
 from lib.simulate.strategy import strategies
 from lib.simulate.strategy.strategies import get_all_strategies
 from lib.simulate.strategy.strategy import Strategy
-from lib.util.date import format_date, parse_date
+from lib.util.dates import format_date, parse_date, BDAY
+from server.model.account_statement import AccountStatement
 
 
 class SimulateRoutes:
@@ -42,19 +43,13 @@ class SimulateRoutes:
 
         def as_dict(self) -> Dict:
             return {
-                "account": self._account_as_list(self.result.account),
+                "statement": AccountStatement.from_account(self.result.account).as_dict(),
                 "returns": self.result.returns,
-                "drawdown": self.result.drawdown,
-                "sharpe_ratio": self.result.sharpe_ratio,
-                "start_date": format_date(self.result.start_date),
-                "end_date": format_date(self.result.end_date)
+                "maxDrawdown": self.result.max_drawdown,
+                "sharpeRatio": self.result.sharpe_ratio,
+                "startDate": format_date(self.result.start_date),
+                "endDate": format_date(self.result.end_date)
             }
-
-        @classmethod
-        def _account_as_list(cls, account: pd.DataFrame) -> List[Dict[str, any]]:
-            account = account.copy(deep=False)
-            account.insert(loc=0, column="date", value=account.index.map(format_date))
-            return account.to_dict(orient="records")
 
     def on_post(self, req: falcon.Request, resp: falcon.Response):
         param = SimulateRoutes.SimulateParam.from_dict(req.media)
@@ -85,11 +80,18 @@ class SimulateRoutes:
 
     def on_post_predict(self, req: falcon.Request, resp: falcon.Response):
         params = SimulateRoutes.PredictParam.from_dict(req.media)
+        predict_date = BDAY.rollback(params.date) if params.date else None
         simulator = self._build_simulator(params.simulate_param)
-        result = simulator.predict(params.date)
+        result = simulator.predict(predict_date)
         resp.media = {
             "date": format_date(result.date),
-            "isins": [fund.isin for fund in result.funds]
+            "funds": [
+                {
+                    "isin": fund.isin,
+                    "name": fund.name
+                }
+                for fund in result.funds
+            ]
         }
 
     def on_get_strategies(self, req: falcon.Request, resp: falcon.Response):

@@ -1,7 +1,7 @@
 from lib.simulate.simulator import Simulator
 from lib.simulate.strategy.strategy import SelectAll
 from lib.simulate.tiebreaker.no_op_tie_breaker import NoOpTieBreaker
-from lib.util.date import BDAY
+from lib.util.dates import BDAY
 
 if __name__ == "__main__":
     simulator = Simulator(

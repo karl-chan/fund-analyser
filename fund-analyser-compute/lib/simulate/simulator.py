@@ -14,7 +14,7 @@ from lib.fund.fund import Fund
 from lib.fund.fund_utils import calc_fees, calc_returns, calc_sharpe_ratio
 from lib.simulate.strategy.strategy import Strategy
 from lib.simulate.tiebreaker.tie_breaker import TieBreaker
-from lib.util.date import BDAY
+from lib.util.dates import BDAY
 
 logging.basicConfig(level=logging.DEBUG)
 pd.set_option('display.max_colwidth', 1000)
@@ -33,7 +33,7 @@ class Simulator:
     class Result(NamedTuple):
         account: pd.DataFrame
         returns: float
-        drawdown: float
+        max_drawdown: float
         sharpe_ratio: float
         start_date: date
         end_date: date
@@ -94,8 +94,10 @@ class Simulator:
         """
         account = pd.DataFrame(data=[[100, "", ""]],
                                index=[start_date],
-                               columns=["value", "isin", "name"])
-        dt = start_date
+                               columns=["value", "isins", "names"])
+
+        # jump start to first data point if not available
+        dt = max(start_date, self._prices_df.first_valid_index() + self._buy_sell_gap)
 
         while dt < end_date:
             trunc_date = dt - self._buy_sell_gap
@@ -115,7 +117,7 @@ class Simulator:
                                            curr_hold_interval,
                                            self._fees_df).mean()
                 account.loc[next_dt, :] = [account.iloc[-1, :]["value"] * (1 + next_return),
-                                           ",".join(max_isins),
+                                           max_isins,
                                            max_names]
                 dt = (next_dt + self._buy_sell_gap).date()
             else:
@@ -129,7 +131,7 @@ class Simulator:
             account=account,
             returns=(account.iloc[-1, :].loc["value"] - account.iloc[0, :].loc["value"])
                     / account.iloc[0, :].loc["value"],
-            drawdown=calc_max_drawdown(account["value"]),
+            max_drawdown=calc_max_drawdown(account["value"]),
             sharpe_ratio=calc_sharpe_ratio(account["value"]),
             start_date=start_date,
             end_date=end_date
@@ -158,9 +160,9 @@ class Simulator:
         print(f"Min returns: {min_returns.returns} Begin date: {min_returns.start_date}")
         print(f"Max returns: {max_returns.returns} Begin date: {max_returns.start_date}")
 
-        sorted_by_drawdowns = sorted(results, key=lambda r: r.drawdown)
+        sorted_by_drawdowns = sorted(results, key=lambda r: r.max_drawdown)
         max_drawdown = sorted_by_drawdowns[0]
-        print(f"Max drawdown: {max_drawdown.drawdown} Begin date: {max_drawdown.start_date}")
+        print(f"Max drawdown: {max_drawdown.max_drawdown} Begin date: {max_drawdown.start_date}")
 
         sorted_by_sharpe_ratios = sorted(results, key=lambda r: r.sharpe_ratio)
         min_sharpe_ratio = sorted_by_sharpe_ratios[0]

@@ -9,7 +9,7 @@ from overrides import overrides
 from lib.indicators.indicator_utils import lower_bollinger_bands
 from lib.simulate.simulator import Simulator
 from lib.simulate.strategy.strategy import Strategy
-from lib.util.date import BDAY
+from lib.util.dates import BDAY
 
 
 class BollingerReturns(Strategy):
@@ -46,12 +46,12 @@ if __name__ == "__main__":
             "GB00B1XFGM25",
             "GB00B4TZHH95",
             "GB00B8JYLC77",
-            "GB00B39RMM81",
+            # "GB00B39RMM81",
             "GB00B80QG615",
             "GB00B99C0657",
             # "GB00BH57C751",
             "GB0006061963",
-            "IE00B4WL8048",  #
+            # "IE00B4WL8048",
             "IE00B90P3080",
             "LU0827884411",
         ]
