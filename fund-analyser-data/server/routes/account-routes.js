@@ -13,8 +13,15 @@ router.use(auth.authorise)
 router.get('/', async ctx => {
     const { jar, user } = ctx
     const csdAccount = new CharlesStanleyDirectAccount(jar)
-    const [balance, orders, statement, watchlist, currencies] = await Promise.all([csdAccount.getBalance(), csdAccount.getOrders(), csdAccount.getStatement(), UserDAO.getWatchlist(user), UserDAO.getCurrencies(user)])
-    ctx.body = { balance, orders, statement, watchlist, currencies }
+    const [balance, orders, statement, watchlist, currencies, simulateParams] = await Promise.all([
+        csdAccount.getBalance(),
+        csdAccount.getOrders(),
+        csdAccount.getStatement(),
+        UserDAO.getWatchlist(user),
+        UserDAO.getCurrencies(user),
+        UserDAO.getSimulateParams(user)
+    ])
+    ctx.body = { balance, orders, statement, watchlist, currencies, simulateParams }
 })
 
 router.get('/balance', async ctx => {
@@ -76,6 +83,26 @@ router.post('/currency/remove', async ctx => {
     const { currency } = ctx.request.body
     const currencies = await UserDAO.removeFromCurrencies(user, currency)
     ctx.body = { currencies }
+})
+
+router.get('/simulate-params', async ctx => {
+    const user = ctx.user
+    const simulateParams = await UserDAO.getSimulateParams(user)
+    ctx.body = { simulateParams }
+})
+
+router.post('/simulate-params/add', async ctx => {
+    const user = ctx.user
+    const { simulateParam } = ctx.request.body
+    await UserDAO.addToSimulateParams(user, simulateParam)
+    ctx.status = 200
+})
+
+router.post('/simulate-params/remove', async ctx => {
+    const user = ctx.user
+    const { simulateParam } = ctx.request.body
+    const simulateParams = await UserDAO.removeFromSimulateParams(user, simulateParam)
+    ctx.body = simulateParams
 })
 
 module.exports = router

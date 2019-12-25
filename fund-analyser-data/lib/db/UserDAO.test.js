@@ -81,4 +81,31 @@ describe('UserDAO', function () {
 
         await UserDAO.deleteUser(user)
     })
+    test('simulateParams', async function () {
+        await UserDAO.deleteUser(user)
+
+        await UserDAO.createUserIfNotExists(user)
+        let simulateParams = await UserDAO.getSimulateParams(user)
+        expect(simulateParams).toEqual([])
+
+        await UserDAO.addToSimulateParams(user, { strategy: 'BollingerReturns', num_portfolio: 1 })
+        await UserDAO.addToSimulateParams(user, { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] })
+        simulateParams = await UserDAO.getSimulateParams(user)
+        expect(simulateParams).toEqual([
+            { strategy: 'BollingerReturns', num_portfolio: 1 },
+            { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] }
+        ])
+
+        await UserDAO.removeFromSimulateParams(user, { strategy: 'BollingerReturns', num_portfolio: 1 })
+        simulateParams = await UserDAO.getSimulateParams(user)
+        expect(simulateParams).toEqual([
+            { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] }
+        ] )
+
+        await UserDAO.removeFromSimulateParams(user, { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] })
+        simulateParams = await UserDAO.getSimulateParams(user)
+        expect(simulateParams).toEqual([])
+
+        await UserDAO.deleteUser(user)
+    })
 })

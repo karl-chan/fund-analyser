@@ -2,12 +2,19 @@ const db = require('../util/db')
 const log = require('../util/log')
 const _ = require('lodash')
 
+// property keys
+const WATCHLIST = 'watchlist'
+const CURRENCIES = 'currencies'
+const SIMULATE_PARAMS = 'simulateParams'
+
 /**
  * A UserDAO entry is represented by
  * {
  *  user: string,
  *  meta: {
- *    watchlist: [string]
+ *    watchlist: [string],
+ *    currencies: [string],
+ *    simulateParams: [SimulateParam]
  *  }
  * }
  */
@@ -16,7 +23,7 @@ function UserDAO (entry) {
     _.assign(this, entry)
 
     if (!this.meta) {
-        this.meta = { watchlist: [] }
+        this.meta = { [WATCHLIST]: [], [CURRENCIES]: [], simulateParams: [] }
     }
 }
 
@@ -46,54 +53,71 @@ UserDAO.deleteUser = async function (user) {
 }
 
 UserDAO.getWatchlist = async function (user) {
-    const { meta: { watchlist = [] } } = await db.getUsers().findOne({ user }, { projection: { 'meta.watchlist': 1 } })
-    return watchlist
+    return getProperty(user, WATCHLIST)
 }
 
 UserDAO.addToWatchlist = async function (user, isin) {
-    const oldWatchlist = await this.getWatchlist(user)
-    if (oldWatchlist.includes(isin)) {
-        return false // no action required if already in watchlist
-    }
-
-    await db.getUsers().update({ user }, { $push: { 'meta.watchlist': isin } })
-    log.debug(`Added [${isin}] to [${user}]'s watchlist`)
-    return true
+    return addToProperty(user, WATCHLIST, isin)
 }
 
 UserDAO.removeFromWatchlist = async function (user, isin) {
-    const res = await db.getUsers().findOneAndUpdate({ user }, { $pull: { 'meta.watchlist': isin } })
-    log.debug(`Removed [${isin}] from [${user}]'s watchlist`)
-
-    return res.value.meta.watchlist
+    return removeFromProperty(user, WATCHLIST, isin)
 }
 
 UserDAO.clearWatchlist = async function (user) {
-    await db.getUsers().update({ user }, { $set: { 'meta.watchlist': [] } })
-    log.debug(`Cleared [${user}]'s watchlist`)
+    return clearProperty(user, WATCHLIST)
 }
 
 UserDAO.getCurrencies = async function (user) {
-    const { meta: { currencies = [] } } = await db.getUsers().findOne({ user }, { projection: { 'meta.currencies': 1 } })
-    return currencies
+    return getProperty(user, CURRENCIES)
 }
 
 UserDAO.addToCurrencies = async function (user, currency) {
-    const oldCurrencies = await this.getCurrencies(user)
-    if (oldCurrencies.includes(currency)) {
-        return false // no action required if already in saved currencies
-    }
-
-    await db.getUsers().update({ user }, { $push: { 'meta.currencies': currency } })
-    log.debug(`Added [${currency}] to [${user}]'s saved currencies.`)
-    return true
+    return addToProperty(user, CURRENCIES, currency)
 }
 
 UserDAO.removeFromCurrencies = async function (user, currency) {
-    const res = await db.getUsers().findOneAndUpdate({ user }, { $pull: { 'meta.currencies': currency } })
-    log.debug(`Removed [${currency}] from [${user}]'s saved currencies.`)
+    return removeFromProperty(user, CURRENCIES, currency)
+}
 
-    return res.value.meta.currencies
+UserDAO.getSimulateParams = async function (user) {
+    return getProperty(user, SIMULATE_PARAMS)
+}
+
+UserDAO.addToSimulateParams = async function (user, simulateParam) {
+    return addToProperty(user, SIMULATE_PARAMS, simulateParam)
+}
+
+UserDAO.removeFromSimulateParams = async function (user, simulateParam) {
+    return removeFromProperty(user, SIMULATE_PARAMS, simulateParam)
+}
+
+async function getProperty (user, property, fallbackValue = []) {
+    const { meta } = await db.getUsers().findOne({ user }, { projection: { [`meta.${property}`]: 1 } })
+    return meta[property] || fallbackValue
+}
+
+async function addToProperty (user, property, value) {
+    const oldValues = await getProperty(user, property)
+    if (oldValues.some(v => _.isEqual(v, value))) {
+        return false // no action required if already present
+    }
+
+    await db.getUsers().update({ user }, { $push: { [`meta.${property}`]: value } })
+    log.debug(`Added [${JSON.stringify(value)}] to [${user}]'s ${property}`)
+    return true
+}
+
+async function removeFromProperty (user, property, value) {
+    const res = await db.getUsers().findOneAndUpdate({ user }, { $pull: { [`meta.${property}`]: value } })
+    log.debug(`Removed [${value}] from [${user}]'s ${property}`)
+
+    return res.value.meta[property]
+}
+
+async function clearProperty (user, property) {
+    await db.getUsers().update({ user }, { $set: { [`meta.${property}`]: [] } })
+    log.debug(`Cleared [${user}]'s ${property}`)
 }
 
 module.exports = UserDAO

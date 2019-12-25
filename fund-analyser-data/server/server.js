@@ -19,10 +19,11 @@ const Stopwatch = require('../lib/util/stopwatch')
 
 const auth = require('./auth')
 const accountRoutes = require('./routes/account-routes')
+const adminRoutes = require('./routes/admin-routes')
 const authRoutes = require('./routes/auth-routes')
 const currencyRoutes = require('./routes/currency-routes')
 const fundsRoutes = require('./routes/funds-routes')
-const adminRoutes = require('./routes/admin-routes')
+const simulateRoutes = require('./routes/simulate-routes')
 const fundCache = require('./cache/fundCache')
 
 const PORT = process.env.PORT || properties.get('server.default.port')
@@ -57,10 +58,11 @@ app.use(serve(path.resolve(__dirname, '../../fund-analyser-app/dist/spa'), {
 }))
 
 app.use(accountRoutes.routes())
+app.use(adminRoutes.routes())
 app.use(authRoutes.routes())
 app.use(currencyRoutes.routes())
 app.use(fundsRoutes.routes())
-app.use(adminRoutes.routes())
+app.use(simulateRoutes.routes())
 
 const cleanupEvery = (frequency) => {
     const cleanup = () => {

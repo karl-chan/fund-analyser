@@ -2,7 +2,6 @@ module.exports = updateCatalog
 
 const CharlesStanleyDirect = require('../../lib/fund/CharlesStanleyDirect')
 const _ = require('lodash')
-const moment = require('moment')
 const FundDAO = require('../../lib/db/FundDAO')
 const Fund = require('../../lib/fund/Fund')
 const lang = require('../../lib/util/lang')
