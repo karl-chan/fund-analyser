@@ -4,7 +4,7 @@
       .text-h4 Indicators
       div
         q-input(v-model="filter" label="Filter by property"
-                color="accent" bg-color="grey-2" outlined)
+                color="accent" bg-color="grey-2" outlined clearable)
           template(v-slot:prepend)
               q-icon(name="fas fa-filter")
     q-table.q-mt-lg(:data="rows" :columns="columns" :filter="filter" row-key="key"

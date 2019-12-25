@@ -25,11 +25,11 @@
           span(:class="colour(periodReturn)") {{ formatPercentage(periodReturn) }}
       .row.items-center.q-gutter-lg
         div Last price:
-          .q-title {{ lastHistoricPrice.price }}
+          .text-h6 {{ lastHistoricPrice.price }}
         div Historic prices as of:
-          .q-title {{ $utils.format.formatDateLong(lastHistoricPrice.date) }}
+          .text-h6 {{ $utils.format.formatDateLong(lastHistoricPrice.date) }}
         div(v-if="fund.realTimeDetails") Real time estimate as of:
-          .q-title {{ $utils.format.formatFromNow(fund.realTimeDetails.lastUpdated) }}
+          .text-h6 {{ $utils.format.formatFromNow(fund.realTimeDetails.lastUpdated) }}
     div(v-else)
       q-icon(name="info") No information available
 </template>

@@ -2,6 +2,9 @@ import router from './../router'
 
 // opts = {newTab: boolean}
 export default {
+  redirectToFund (isin, opts) {
+    redirect({ name: 'fund', params: { isin } }, opts)
+  },
   redirectToHome (opts) {
     redirect({ name: 'home' }, opts)
   },
@@ -11,11 +14,11 @@ export default {
   redirectToLogout (opts) {
     redirect({ name: 'logout' }, opts)
   },
-  redirectToFund (isin, opts) {
-    redirect({ name: 'fund', params: { isin } }, opts)
-  },
   redirectToLogs (opts) {
     redirect({ name: 'logs' }, opts)
+  },
+  redirectToSimulate (opts) {
+    redirect({ name: 'simulate' }, opts)
   }
 }
 const redirect = ({ name, params }, opts) => {

@@ -1,6 +1,6 @@
 <template lang="pug">
   div.container.shadow-5(v-if="groupedHoldings.length")
-    highcharts(:options="chartOptions" ref="highcharts")
+    highcharts(:options="chartOptions")
 </template>
 
 <script>

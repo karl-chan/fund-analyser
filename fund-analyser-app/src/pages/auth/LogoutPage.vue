@@ -7,7 +7,7 @@
         q-card-section
           .row.justify-center.items-center.q-gutter-x-sm
             q-spinner-facebook(size="28px" color="secondary")
-            .q-subheading Just a moment
+            .text-subtitle1 Just a moment
 </template>
 
 <script>

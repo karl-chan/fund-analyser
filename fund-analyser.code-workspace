@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "fund-analyser-app"
+		},
+		{
+			"path": "fund-analyser-data"
+		},
+		{
+			"path": "fund-analyser-compute"
+		}
+	]
+}

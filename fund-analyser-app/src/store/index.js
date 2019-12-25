@@ -8,6 +8,7 @@ import funds from './funds'
 import layout from './layout'
 import persist from './plugins/persist'
 import realTimeDetailsPoller from './plugins/real-time-details-poller'
+import simulate from './simulate'
 
 Vue.use(Vuex)
 
@@ -18,7 +19,8 @@ const store = new Vuex.Store({
     auth,
     currency,
     funds,
-    layout
+    layout,
+    simulate
   },
   plugins: [
     persist.plugin,
@@ -32,6 +34,7 @@ const init = async () => {
   await store.dispatch('account/init')
   await store.dispatch('currency/init')
   await store.dispatch('funds/init')
+  await store.dispatch('simulate/init')
 }
 
 init()

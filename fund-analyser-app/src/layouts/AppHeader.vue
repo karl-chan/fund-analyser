@@ -8,12 +8,14 @@
           q-item-section
             q-item-label.text-weight-medium Fund Analyser
             q-item-label(caption).text-white Your mutual funds toolkit
-      fund-search.absolute-center(placeholder="Start typing a fund name" @select="onFundSelect")
+      fund-search.absolute-center(placeholder="Start typing a fund name" @input="onFundSelect")
       q-btn.q-mr-lg(v-if="isLoggedIn" flat dense size="lg" icon="perm_device_information" @click="activeSessionsOpen = true")
         active-sessions(:open.sync="activeSessionsOpen")
         q-tooltip Active Sessions
       q-btn(flat dense size="lg" :icon="authIcon" @click="authClick")
         q-tooltip {{ isLoggedIn ? 'Logout': 'Login'}}
+      q-btn(flat dense size="lg" icon="fas fa-flask" @click="$utils.router.redirectToSimulate")
+        q-tooltip Simulate
       q-btn(flat dense size="lg" icon="insert_chart" @click="$utils.router.redirectToLogs")
         q-tooltip Logs
       q-btn(flat dense size="lg" icon="home" @click="$utils.router.redirectToHome")
@@ -46,8 +48,10 @@ export default {
         this.$utils.router.redirectToLogin()
       }
     },
-    onFundSelect (fund) {
-      this.$utils.router.redirectToFund(fund.isin)
+    onFundSelect (isin) {
+      if (isin) {
+        this.$utils.router.redirectToFund(isin)
+      }
     }
   }
 }

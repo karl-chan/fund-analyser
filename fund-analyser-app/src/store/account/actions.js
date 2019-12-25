@@ -1,14 +1,16 @@
+import isEqual from 'lodash/isEqual'
 import { Dialog, Notify } from 'quasar'
 import accountService from './../../services/account-service'
 
 export async function init ({ commit }) {
   try {
-    const { balance, orders, statement, watchlist, currencies } = await accountService.get()
+    const { balance, orders, statement, watchlist, currencies, simulateParams } = await accountService.get()
     commit('saveBalance', balance)
     commit('saveOrders', orders)
     commit('saveStatement', statement)
     commit('setWatchlist', watchlist)
     commit('setFavouriteCurrencies', currencies)
+    commit('setFavouriteSimulateParams', simulateParams)
   } catch (ignored) {
     // user not signed in
   }
@@ -98,7 +100,7 @@ export async function addToFavouriteCurrencies ({ commit, state }, symbol) {
     commit('setFavouriteCurrencies', state.favouriteCurrencies.concat([symbol]))
   }
   try {
-    await accountService.addToCurrencies(symbol)
+    await accountService.addToFavouriteCurrencies(symbol)
   } catch (ignored) {
     // user not logged in
   }
@@ -109,17 +111,56 @@ export async function removeFromFavouriteCurrencies ({ commit, state }, symbol) 
     commit('setFavouriteCurrencies', state.favouriteCurrencies.filter(c => c !== symbol))
   }
   try {
-    await accountService.removeFromCurrencies(symbol)
+    await accountService.removeFromFavouriteCurrencies(symbol)
+  } catch (ignored) {
+    // user not logged in
+  }
+}
+
+export async function addToFavouriteSimulateParams ({ commit, state, getters }, simulateParam) {
+  if (!getters.inFavouriteSimulateParams(simulateParam)) {
+    commit('setFavouriteSimulateParams', state.favouriteSimulateParams.concat([simulateParam]))
+  }
+  try {
+    await accountService.addToFavouriteSimulateParams(simulateParam)
+  } catch (ignored) {
+    // user not logged in
+  }
+}
+
+export async function removeFromFavouriteSimulateParams ({ commit, state, getters }, simulateParam) {
+  const confirm = await promptClearFavouriteSimulateParams(false)
+  if (!confirm) {
+    return
+  }
+  if (getters.inFavouriteSimulateParams(simulateParam)) {
+    commit('setFavouriteSimulateParams', state.favouriteSimulateParams.filter(param => !isEqual(param, simulateParam)))
+  }
+  try {
+    await accountService.removeFromFavouriteSimulateParams(simulateParam)
   } catch (ignored) {
     // user not logged in
   }
 }
 
 async function promptClearWatchlist (all) {
-  try {
-    await Dialog.create({
-      title: all ? 'Clear watchlist?' : 'Remove from watchlist?',
-      message: 'This will remove the watchlist associated with your account. This action is irreversible!',
+  const title = all ? 'Clear watchlist?' : 'Remove from watchlist?'
+  const message = 'This will remove the watchlist associated with your account. This action is irreversible!'
+  return promptClear({ title, message })
+}
+
+async function promptClearFavouriteSimulateParams (all) {
+  const title = all ? 'Clear simulations?' : 'Remove simulation?'
+  const message = 'This will remove the simulation associated with your account. This action is irreversible!'
+  return promptClear({ title, message })
+}
+
+async function promptClear ({ title, message }) {
+  return new Promise((resolve) => {
+    Dialog.create({
+      title,
+      message,
+      persistent: true,
       ok: {
         color: 'negative',
         label: 'Proceed'
@@ -129,10 +170,10 @@ async function promptClearWatchlist (all) {
         label: 'Cancel'
       }
     })
-    return true
-  } catch (ignored) {
-    // user cancelled operation
-    await Notify.create({ message: 'Action cancelled', type: 'positive' })
-    return false
-  }
+      .onOk(() => resolve(true))
+      .onCancel(() => {
+        Notify.create('Action cancelled')
+        resolve(false)
+      })
+  })
 }

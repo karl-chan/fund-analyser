@@ -20,7 +20,8 @@ export default {
     if (!date) {
       return false
     }
-    const mdate = moment(date)
+    const acceptedFormats = ['YYYY-MM-DD', 'YYYY/MM/DD', moment.ISO_8601]
+    const mdate = moment(date, acceptedFormats, true)
     if (!mdate.isValid()) {
       return false
     }

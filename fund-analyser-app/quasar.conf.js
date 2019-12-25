@@ -23,7 +23,37 @@ module.exports = function (ctx) {
       // 'mdi-v3',
       'fontawesome-v5'
     ],
-    supportIE: true,
+
+    // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
+    framework: {
+      iconSet: 'material-icons', // Quasar icon set
+      lang: 'en-us', // Quasar language pack
+
+      // Possible values for "all":
+      // * 'auto' - Auto-import needed Quasar components & directives
+      //            (slightly higher compile time; next to minimum bundle size; most convenient)
+      // * false  - Manually specify what to import
+      //            (fastest compile time; minimum bundle size; most tedious)
+      // * true   - Import everything from Quasar
+      //            (not treeshaking Quasar; biggest bundle size; convenient)
+      all: 'auto',
+
+      components: [
+        'QIcon' // needed by reflection in ag-grid
+      ],
+      directives: [],
+
+      // Quasar plugins
+      plugins: [
+        'Dialog',
+        'Notify'
+      ]
+    },
+
+    // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie
+    supportIE: false,
+
+    // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
       scopeHoisting: true,
       vueRouterMode: 'hash',
@@ -58,58 +88,6 @@ module.exports = function (ctx) {
           changeOrigin: true
         }
       }
-    },
-    // framework: 'all' --- includes everything; for dev only!
-    framework: {
-      components: [
-        'QLayout',
-        'QHeader',
-        'QDrawer',
-        'QPageContainer',
-        'QPage',
-        'QToolbar',
-        'QToolbarTitle',
-        'QBtn',
-        'QBtnGroup',
-        'QExpansionItem',
-        'QChip',
-        'QDialog',
-        'QTooltip',
-        'QIcon',
-        'QList',
-        'QItem',
-        'QItemLabel',
-        'QItemSection',
-        'QSelect',
-        'QInput',
-        'QCheckbox',
-        'QBanner',
-        'QCard',
-        'QCardSection',
-        'QCardActions',
-        'QTable',
-        'QTr',
-        'QTd',
-        'QTabs',
-        'QTab',
-        'QTabPanels',
-        'QTabPanel',
-        'QSpinner',
-        'QSpinnerFacebook',
-        'QSpinnerDots',
-        'QSlideTransition',
-        'QVirtualScroll',
-        'QAjaxBar',
-        'QAvatar'
-      ],
-      directives: [
-        'ClosePopup',
-        'Ripple'
-      ],
-      plugins: [
-        'Dialog',
-        'Notify'
-      ]
     },
     // animations: 'all' --- includes all animations
     animations: [

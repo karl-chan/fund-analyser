@@ -30,7 +30,7 @@ export default {
     rows: function () {
       return Math.ceil(this.loadedCurrencies.length / this.cols)
     },
-    loadedCurrencies () {
+    loadedCurrencies: function () {
       return at(this.loaded, this.favouriteCurrencies).filter(c => c) // remove undefined's
     }
   },

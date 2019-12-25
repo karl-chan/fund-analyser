@@ -25,10 +25,19 @@ export default {
   clearWatchlist () {
     return apiService.delete('/account/watchlist')
   },
-  addToCurrencies (currency) {
+  addToFavouriteCurrencies (currency) {
     return apiService.post('/account/currency/add', { currency })
   },
-  removeFromCurrencies (currency) {
+  removeFromFavouriteCurrencies (currency) {
     return apiService.post('/account/currency/remove', { currency })
+  },
+  getFavouriteSimulateParams () {
+    return apiService.get('/account/simulate-params')
+  },
+  addToFavouriteSimulateParams (simulateParam) {
+    return apiService.post('/account/simulate-params/add', { simulateParam })
+  },
+  removeFromFavouriteSimulateParams (simulateParam) {
+    return apiService.post('/account/simulate-params/remove', { simulateParam })
   }
 }

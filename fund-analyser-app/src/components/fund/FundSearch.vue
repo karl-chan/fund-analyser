@@ -1,7 +1,9 @@
 <template lang="pug">
-  q-select.shadow-2(v-model="userInput" :label="placeholder" use-input
+  q-select.shadow-2(v-model="selected" :label="placeholder" use-input
+                    :use-chips="useChips" :multiple="multiple"
                     bg-color="grey-2" color="accent" filled clearable dense
-                    :options="options" @filter="search" @input="selected" :input-debounce="150")
+                    :options="options" @filter="search" @input="onSelect" @clear="onClear"
+                    :input-debounce="150")
     template(v-slot:prepend)
       q-icon(name="search")
     template(v-slot:option="scope")
@@ -12,19 +14,21 @@
 </template>
 
 <script>
+import isEqual from 'lodash/isEqual'
+
 export default {
   name: 'FundSearch',
-  props: ['placeholder'],
+  props: ['placeholder', 'multiple', 'use-chips', 'value'],
   data () {
     return {
-      userInput: '',
+      selected: null,
       options: null
     }
   },
   methods: {
     async search (term, done) {
       if (!term) {
-        this.clear()
+        this.input('')
         return
       }
       this.input(term)
@@ -34,14 +38,42 @@ export default {
         this.options = results
       })
     },
-    selected (item) {
-      this.$emit('select', item.fund)
+    onSelect (item) {
+      if (Array.isArray(item)) {
+        this.$emit('input', item.map(e => e.fund.isin)) // multiple mode
+      } else {
+        this.$emit('input', item && item.fund.isin) // single mode
+      }
     },
-    clear () {
-      this.input('')
+    onClear () {
+      this.$emit('input', null)
     },
     input (text) {
-      this.$emit('input', text)
+      this.$emit('keystroke', text)
+    }
+  },
+  watch: {
+    value: {
+      immediate: true,
+      async handler (newValue, oldValue) {
+        if (isEqual(newValue, oldValue)) {
+          return
+        }
+        if (!newValue) {
+          this.selected = null
+        }
+        if (Array.isArray(newValue)) {
+          const isins = newValue
+          const response = await this.$services.fund.list(isins)
+          this.selected = response.funds.map(fund => ({ label: fund.name, sublabel: fund.isin, value: fund.name, fund }))
+        } else if (newValue) {
+          const isin = newValue
+          const response = await this.$services.fund.list([isin])
+          this.selected = response.funds.map(fund => ({ label: fund.name, sublabel: fund.isin, value: fund.name, fund }))[0]
+        } else {
+          this.selected = null
+        }
+      }
     }
   }
 }

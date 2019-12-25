@@ -8,13 +8,7 @@
     account-balance(v-if="balance" :balance="balance")
       template(slot="toolbar")
         .row.q-gutter-x-lg
-          table.bg-grey-2(style="border-spacing: 20px 0").border-radius
-            tr
-              td(v-for="(periodReturn, period) in statement.returns" :key="period")
-                div {{period}}
-            tr
-              td(v-for="(periodReturn, period) in statement.returns" :key="period")
-                .text-weight-bold(:class="$utils.format.colourNumber(periodReturn)") {{ $utils.format.formatPercentage(periodReturn) }}
+          account-returns-bar(:statement="statement")
           div
             q-btn-group
               q-btn(color="accent" icon="open_in_new" @click="openURL('https://www.charles-stanley-direct.co.uk/My_Dashboard/My_Direct_Accounts/Portfolio_Valuation')")

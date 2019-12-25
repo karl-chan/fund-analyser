@@ -1,5 +1,4 @@
-push.bat
-switch.bat
-ROADMAP.txt
+/push.bat
+/*.txt
 fund-analyser-compute-r/
 fund-analyser-compute-scala/

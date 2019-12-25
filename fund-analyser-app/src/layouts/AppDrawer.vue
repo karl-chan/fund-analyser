@@ -12,6 +12,15 @@
               q-btn(flat round dense icon="close" @click.stop="removeFromRecentlyViewed(entry.isin)")
         .row.justify-end
           q-btn.q-mr-sm.q-mb-sm(label="Clear all" color="pink-10" :rounded="true" @click="clearRecentlyViewed")
+      // Simulate
+      q-expansion-item(v-if="favouriteSimulateParams.length" label="Simulations" :default-opened="true" expand-separator)
+        q-list
+          q-item(v-for="simulateParam in favouriteSimulateParams" :to="{name: 'simulate', params: {simulateParam: JSON.stringify(simulateParam)}}" :key="JSON.stringify(simulateParam)")
+            q-item-section
+              q-item-label {{simulateParam.strategy}}
+              q-item-label(caption) Top {{simulateParam.numPortfolio}} - {{simulateParam.isins.join(',')}}
+            q-item-section(side)
+              q-btn(flat round dense icon="close" @click.stop="removeFromFavouriteSimulateParams(simulateParam)")
       // Links
       q-expansion-item(label="Links" :default-opened="true" expand-separator)
         q-list
@@ -34,7 +43,7 @@ import { openURL } from 'quasar'
 export default {
   name: 'AppDrawer',
   computed: {
-    ...mapState('account', ['recentlyViewed', 'watchlist']),
+    ...mapState('account', ['favouriteSimulateParams', 'recentlyViewed', 'watchlist']),
     ...mapGetters('account', ['recentlyViewedIsins']),
     drawerOpen: {
       get () {
@@ -47,7 +56,7 @@ export default {
   },
   methods: {
     openURL,
-    ...mapActions('account', ['removeFromRecentlyViewed', 'clearRecentlyViewed'])
+    ...mapActions('account', ['removeFromRecentlyViewed', 'removeFromFavouriteSimulateParams', 'clearRecentlyViewed'])
   }
 }
 </script>

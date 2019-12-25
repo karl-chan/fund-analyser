@@ -22,10 +22,16 @@ export function setFavouriteCurrencies (state, favouriteCurrencies) {
   state.favouriteCurrencies = favouriteCurrencies
 }
 
+export function setFavouriteSimulateParams (state, simulateParams) {
+  state.favouriteSimulateParams = simulateParams
+}
+
 export function reset (state) {
   state.balance = null
   state.orders = []
   state.statement = null
   state.watchlist = []
   state.recentlyViewed = []
+  state.favouriteCurrencies = []
+  state.favouriteSimulateParams = []
 }
