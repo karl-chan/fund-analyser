@@ -46,7 +46,7 @@ async function updateFunds () {
     // delete funds with no data
     await FundDAO.deleteFunds({ query: { name: { $eq: null } } })
     log.info('Deleted funds without names')
-};
+}
 
 async function isFundValid (fund) {
     if (!fund.isValid()) {

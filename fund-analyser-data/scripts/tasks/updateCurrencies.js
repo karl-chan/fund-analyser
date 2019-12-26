@@ -29,4 +29,4 @@ async function updateCurrencies () {
             log.info(`Upserted currency pair ${base}${quote}`)
         }
     )
-};
+}

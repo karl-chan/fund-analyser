@@ -37,6 +37,16 @@ describe('UserDAO', function () {
         const result = UserDAO.deserialise(entry)
         expect(result).toEqual({ user, meta })
     })
+    test('listUsers', async function () {
+        await UserDAO.deleteUser(user)
+
+        await UserDAO.createUserIfNotExists(user)
+        const result = await UserDAO.listUsers()
+        expect(result).toBeArray().not.toBeEmpty()
+        expect(result).toSatisfyAll(user => user.user && user.meta)
+
+        await UserDAO.deleteUser(user)
+    })
     test('watchlist', async function () {
         await UserDAO.deleteUser(user)
 
@@ -100,7 +110,7 @@ describe('UserDAO', function () {
         simulateParams = await UserDAO.getSimulateParams(user)
         expect(simulateParams).toEqual([
             { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] }
-        ] )
+        ])
 
         await UserDAO.removeFromSimulateParams(user, { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] })
         simulateParams = await UserDAO.getSimulateParams(user)

@@ -48,6 +48,12 @@ UserDAO.createUserIfNotExists = async function (user) {
     return false
 }
 
+UserDAO.listUsers = async function () {
+    const docs = await db.getUsers().find().toArray()
+    const users = docs.map(UserDAO.deserialise)
+    return users
+}
+
 UserDAO.deleteUser = async function (user) {
     await db.getUsers().deleteOne({ user })
 }

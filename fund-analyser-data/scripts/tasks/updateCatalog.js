@@ -45,4 +45,4 @@ async function updateCatalog () {
     })
     await FundDAO.upsertFunds(funds)
     log.info('Inserted new sedols: %s', JSON.stringify(toAdd))
-};
+}

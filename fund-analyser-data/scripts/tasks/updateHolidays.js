@@ -20,4 +20,4 @@ async function updateHolidays () {
     }))
     await HolidayDAO.upsertHolidays(holidaysMap)
     log.info('Upserted holidays for exchanges: %s', JSON.stringify(Object.keys(holidaysMap)))
-};
+}
