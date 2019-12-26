@@ -55,13 +55,10 @@ module.exports = function (ctx) {
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
-      scopeHoisting: true,
       vueRouterMode: 'hash',
       vueCompiler: true,
       gzip: true,
       // analyze: true,
-      // extractCSS: false,
-      // useNotifier: false,
       extendWebpack (cfg) {
         cfg.module.rules.push({
           enforce: 'pre',
