@@ -116,6 +116,7 @@ export default {
           i++
         }
         i--
+        i = Math.max(i, 0) // in case series starts after periodStart
         if (data.length) {
           series.push({ name: 'Cash', data, color: toRGB(this.colourMap['Cash']) })
         }
