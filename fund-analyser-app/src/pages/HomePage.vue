@@ -10,17 +10,17 @@
       q-tab(label="Summary View" name="summary")
       q-tab(label="Currency View" name="currency")
 
-    q-tab-panels(v-model="tab")
+    q-tab-panels(v-model="tab" keep-alive )
       // Account View
-      q-tab-panel(keep-alive name="account")
+      q-tab-panel(name="account")
         fund-watch-list(:watchlist="watchlist")
 
       // Summary View
-      q-tab-panel(keep-alive name="summary")
+      q-tab-panel(name="summary")
         funds-summary
 
       // Currency View
-      q-tab-panel(keep-alive name="currency")
+      q-tab-panel(name="currency")
         currency-dashboard
 </template>
 
