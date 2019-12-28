@@ -6,6 +6,7 @@ from typing import Iterable, NamedTuple, List, Optional
 
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from ffn import calc_max_drawdown
 
@@ -155,6 +156,11 @@ class Simulator:
 
     @classmethod
     def describe_and_plot(cls, results: Iterable[Simulator.Result]) -> None:
+        holding_returns = pd.concat(
+            [r.account["value"].pct_change().replace(0, np.nan).dropna() for r in results],
+            axis=0)
+        print(f"Holding returns distribution:\n{holding_returns.describe()}")
+
         sorted_by_returns = sorted(results, key=lambda r: r.returns)
         min_returns, max_returns = sorted_by_returns[0], sorted_by_returns[-1]
         print(f"Min returns: {min_returns.returns} Begin date: {min_returns.start_date}")
@@ -172,12 +178,17 @@ class Simulator:
         matplotlib.use("tkagg", warn=False)
         logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
 
-        # returns histogram
+        # total returns histogram
         returns_hist = pd.DataFrame([r.returns for r in sorted_by_returns],
                                     index=[r.start_date for r in sorted_by_returns])
-        returns_hist.hist()
+        returns_hist.plot(kind="hist", title="Total returns distribution")
+        plt.figure()
+
+        # holding returns histogram
+        holding_returns.plot(kind="hist", title="Holding returns distribution", bins=100)
+        plt.figure()
 
         # account line series
-        min_returns.account.loc[:, ["value"]].plot()
-        max_returns.account.loc[:, ["value"]].plot()
+        min_returns.account.loc[:, ["value"]].plot(title=f"Min returns series. Begin date: {min_returns.start_date}")
+        max_returns.account.loc[:, ["value"]].plot(title=f"Max returns series. Begin date: {max_returns.start_date}")
         plt.show()
