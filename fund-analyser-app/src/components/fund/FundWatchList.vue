@@ -15,7 +15,7 @@
             | >
             q-icon.q-mx-xs(name="star" color="amber")
             | Add to watch list
-        q-chip.absolute-center.shadow-5(square detail icon="warning" color="secondary" style="{z-index: 1}") Your watchlist is empty
+        q-chip.absolute-center.shadow-5(square detail icon="warning" color="secondary" text-color="white" style="{z-index: 1}") Your watchlist is empty
 
     // charts
     fund-chart-grid(:funds="funds" :cols="3" :selectedIsin="selectedIsin" @chartSelected="onChartSelected")

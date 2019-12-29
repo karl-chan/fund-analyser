@@ -8,7 +8,7 @@
           div
             fund-search(placeholder="Filter table" @keystroke="filter" @input="filterFund")
     template(slot="empty-view")
-      q-chip.absolute-center.shadow-5(square detail icon="error" color="negative" style="{z-index: 1}") Sorry, there are no matching funds
+      q-chip.absolute-center.shadow-5(square detail icon="error" color="negative" text-color="white" style="{z-index: 1}") Sorry, there are no matching funds
 </template>
 
 <script>
