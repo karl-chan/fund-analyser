@@ -13,7 +13,7 @@ export function removeUser ({ commit }) {
 }
 
 export async function login ({ commit, dispatch }, { user, pass, memorableWord, persist }) {
-  const { user: name } = await authService.login(user, pass, memorableWord, persist)
+  const { user: name } = await authService.login(user, pass, memorableWord, persist, window.pushSubscription)
   commit('setUser', name)
   dispatch('getActiveSessions')
   dispatch('account/init', null, { root: true })

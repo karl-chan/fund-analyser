@@ -11,7 +11,7 @@
             q-item-section(side)
               q-btn(flat round dense icon="close" @click.stop="removeFromRecentlyViewed(entry.isin)")
         .row.justify-end
-          q-btn.q-mr-sm.q-mb-sm(label="Clear all" color="pink-10" :rounded="true" @click="clearRecentlyViewed")
+          q-btn.q-mr-sm.q-mb-sm(rounded label="Clear all" color="pink-10" @click="clearRecentlyViewed")
       // Simulate
       q-expansion-item(v-if="favouriteSimulateParams.length" label="Simulations" :default-opened="true" expand-separator)
         q-list
@@ -21,6 +21,9 @@
               q-item-label(caption) Top {{simulateParam.numPortfolio}} - {{simulateParam.isins.join(',')}}
             q-item-section(side)
               q-btn(flat round dense icon="close" @click.stop="removeFromFavouriteSimulateParams(simulateParam)")
+        .row.justify-end(v-if="isLoggedIn")
+          q-btn.q-mr-sm.q-mb-sm(push icon="notifications" color="red-10" @click="pushNotifications")
+            q-tooltip Push notifications
       // Links
       q-expansion-item(label="Links" :default-opened="true" expand-separator)
         q-list
@@ -45,6 +48,7 @@ export default {
   computed: {
     ...mapState('account', ['favouriteSimulateParams', 'recentlyViewed', 'watchlist']),
     ...mapGetters('account', ['recentlyViewedIsins']),
+    ...mapGetters('auth', ['isLoggedIn']),
     drawerOpen: {
       get () {
         return this.$store.state.layout.drawerOpen
@@ -56,7 +60,10 @@ export default {
   },
   methods: {
     openURL,
-    ...mapActions('account', ['removeFromRecentlyViewed', 'removeFromFavouriteSimulateParams', 'clearRecentlyViewed'])
+    ...mapActions('account', ['removeFromRecentlyViewed', 'removeFromFavouriteSimulateParams', 'clearRecentlyViewed']),
+    async pushNotifications () {
+      await this.$services.auth.pushNotifications()
+    }
   }
 }
 </script>

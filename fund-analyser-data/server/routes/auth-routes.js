@@ -1,5 +1,8 @@
 const Router = require('koa-router')
+const UserDAO = require('../../lib/db/UserDAO')
+const simulate = require('../../lib/simulate/simulate')
 const log = require('../../lib/util/log')
+const properties = require('../../lib/util/properties')
 const security = require('../../lib/util/security')
 const auth = require('../auth')
 
@@ -8,11 +11,13 @@ const router = new Router({
     prefix: AUTH_URL_PREFIX
 })
 
+const VAPID_PUBLIC_KEY = properties.get('vapid.key.public')
+
 router.post('/login', async ctx => {
-    const { user, pass, memorableWord, persist } = ctx.request.body
+    const { user, pass, memorableWord, persist, pushSubscription } = ctx.request.body
     log.info('User %s attempting to login', user)
     try {
-        const { name } = await auth.login(ctx, user, pass, memorableWord, persist)
+        const { name } = await auth.login(ctx, user, pass, memorableWord, persist, pushSubscription)
         ctx.body = { user: name }
         log.info('Login successful')
     } catch (err) {
@@ -55,6 +60,40 @@ router.delete('/session', async ctx => {
     }
     const sessionId = security.decryptString(ctx.query.encryptedId)
     auth.destroySessionById(sessionId)
+    ctx.status = 200
+})
+
+router.get('/push', async ctx => {
+    ctx.body = {
+        publicKey: VAPID_PUBLIC_KEY
+    }
+})
+
+router.post('/push', async ctx => {
+    const { user } = auth.getUser(ctx)
+    if (!user) {
+        ctx.status = 401
+        ctx.body = { error: 'You must be logged in to push notifications.' }
+        return
+    }
+    const simulateParams = await UserDAO.getSimulateParams(user)
+    await simulate.pushNotificationsForUser(simulateParams, user)
+    ctx.status = 200
+})
+
+router.post('/push/subscribe', async ctx => {
+    const { pushSubscription } = ctx.request.body
+    if (!pushSubscription) {
+        ctx.status = 400
+        return
+    }
+    const { user } = auth.getUser(ctx)
+    if (!user) {
+        ctx.status = 401
+        ctx.body = { error: 'You must be logged in to subscribe to push notifications.' }
+        return
+    }
+    auth.saveSession(ctx, { pushSubscription })
     ctx.status = 200
 })
 

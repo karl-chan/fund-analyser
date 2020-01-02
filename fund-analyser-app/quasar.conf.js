@@ -127,13 +127,14 @@ module.exports = function (ctx) {
 
     // https://quasar.dev/quasar-cli/developing-pwa/configuring-pwa
     pwa: {
-      workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
+      workboxPluginMode: 'InjectManifest', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
         name: 'Fund Analyser',
         short_name: 'Fund Analyser',
         description: 'Your mutual funds toolkit',
         display: 'standalone',
+        start_url: '/',
         orientation: 'any',
         background_color: '#ffffff',
         theme_color: '#263238',

@@ -9,6 +9,11 @@ const router = new Router({
     prefix: URL_PREFIX
 })
 
+router.get('/healthcheck', async ctx => {
+    const isUp = await csd.healthCheck()
+    ctx.body = { charlesStanleyDirect: isUp }
+})
+
 router.get('/logs/:dyno', async ctx => {
     const { dyno } = ctx.params
     const { lines } = ctx.query
@@ -18,11 +23,6 @@ router.get('/logs/:dyno', async ctx => {
 router.post('/restart/:dyno', async ctx => {
     const { dyno } = ctx.params
     ctx.body = await heroku.restart(dyno)
-})
-
-router.get('/healthcheck', async ctx => {
-    const isUp = await csd.healthCheck()
-    ctx.body = { charlesStanleyDirect: isUp }
 })
 
 module.exports = router

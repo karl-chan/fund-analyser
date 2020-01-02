@@ -5,27 +5,29 @@ const db = require('../lib/util/db')
 const log = require('../lib/util/log')
 const Stopwatch = require('../lib/util/stopwatch')
 
-const updateFunds = require('./tasks/updateFunds')
-const updateCatalog = require('./tasks/updateCatalog')
-const updateCurrencies = require('./tasks/updateCurrencies')
-const updateHolidays = require('./tasks/updateHolidays')
 const createIndex = require('./tasks/createIndex')
-const repairDatabase = require('./tasks/repairDatabase')
 const downloadCsv = require('./tasks/downloadCsv')
 const dynoHealthcheck = require('./tasks/dynoHealthcheck')
+const pushNotifications = require('./tasks/pushNotifications')
+const repairDatabase = require('./tasks/repairDatabase')
+const updateCatalog = require('./tasks/updateCatalog')
+const updateCurrencies = require('./tasks/updateCurrencies')
+const updateFunds = require('./tasks/updateFunds')
+const updateHolidays = require('./tasks/updateHolidays')
 
 function Main () {
 }
 
 Main.tasks = {
-    'updateCatalog': updateCatalog,
-    'updateCurrencies': updateCurrencies,
-    'updateFunds': updateFunds,
-    'updateHolidays': updateHolidays,
-    'createIndex': createIndex,
-    'downloadCsv': downloadCsv,
-    'dynoHealthcheck': dynoHealthcheck,
-    'repairDatabase': repairDatabase
+    createIndex,
+    downloadCsv,
+    dynoHealthcheck,
+    pushNotifications,
+    repairDatabase,
+    updateCatalog,
+    updateCurrencies,
+    updateFunds,
+    updateHolidays
 }
 
 if (require.main === module) {

@@ -91,12 +91,15 @@ const newExpiry = function (persist) {
     return moment().add(duration)
 }
 
-const saveSession = function (ctx, { token, jar }) {
+const saveSession = function (ctx, { token, jar, pushSubscription }) {
     if (token) {
         ctx.session.token = encryptToken(token)
     }
     if (jar) {
         ctx.session.jar = jar
+    }
+    if (pushSubscription) {
+        ctx.session.pushSubscription = pushSubscription
     }
 }
 
@@ -154,7 +157,7 @@ const extractIpAddress = function (req) {
     }
 }
 
-const login = async function (ctx, user, pass, memorableWord, persist) {
+const login = async function (ctx, user, pass, memorableWord, persist, pushSubscription) {
     await destroySession(ctx)
     const ip = extractIpAddress(ctx.req)
     log.debug('Extracted ip address: %s', ip)
@@ -167,7 +170,7 @@ const login = async function (ctx, user, pass, memorableWord, persist) {
     const userAgent = ctx.request.header['user-agent']
 
     const token = createToken({ user, pass, memorableWord, name, persist, location, userAgent })
-    saveSession(ctx, { token, jar })
+    saveSession(ctx, { token, jar, pushSubscription })
     saveUser(user)
     return { token, jar, name }
 }
@@ -218,5 +221,6 @@ module.exports = {
     getUser,
     getSessionId,
     findSessionsForUser,
-    destroySessionById
+    destroySessionById,
+    saveSession
 }

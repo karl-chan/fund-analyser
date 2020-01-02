@@ -1,8 +1,8 @@
 import apiService from './api-service'
 
 export default {
-  login (user, pass, memorableWord, persist) {
-    return apiService.post('/auth/login', { user, pass, memorableWord, persist })
+  login (user, pass, memorableWord, persist, pushSubscription) {
+    return apiService.post('/auth/login', { user, pass, memorableWord, persist, pushSubscription })
   },
   logout () {
     return apiService.post('/auth/logout')
@@ -15,5 +15,14 @@ export default {
   },
   destroySession (encryptedId) {
     return apiService.delete('/auth/session', { params: { encryptedId } })
+  },
+  getPushDetails () {
+    return apiService.get('/auth/push')
+  },
+  pushNotifications () {
+    return apiService.post('/auth/push')
+  },
+  subscribe (pushSubscription) {
+    return apiService.post('/auth/push/subscribe', { pushSubscription })
   }
 }

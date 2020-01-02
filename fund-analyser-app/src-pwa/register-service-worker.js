@@ -1,55 +1,61 @@
-import { register } from 'register-service-worker'
 
-// The ready(), registered(), cached(), updatefound() and updated()
-// events passes a ServiceWorkerRegistration instance in their arguments.
-// ServiceWorkerRegistration: https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration
+import get from 'lodash/get'
+import { Dialog } from 'quasar'
+import urlBase64ToUint8Array from 'urlb64touint8array'
+import authService from '../src/services/auth-service'
 
-register(process.env.SERVICE_WORKER_FILE, {
-  // The registrationOptions object will be passed as the second argument
-  // to ServiceWorkerContainer.register()
-  // https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register#Parameter
+async function main () {
+  const registration = await navigator.serviceWorker.register(process.env.SERVICE_WORKER_FILE)
 
-  // registrationOptions: { scope: './' },
-
-  ready () {
-    if (process.env.DEV) {
-      console.log('App is being served from cache by a service worker.')
-    }
-  },
-
-  registered (/* registration */) {
-    if (process.env.DEV) {
-      console.log('Service worker has been registered.')
-    }
-  },
-
-  cached (/* registration */) {
-    if (process.env.DEV) {
-      console.log('Content has been cached for offline use.')
-    }
-  },
-
-  updatefound (/* registration */) {
-    if (process.env.DEV) {
-      console.log('New content is downloading.')
-    }
-  },
-
-  updated (/* registration */) {
-    if (process.env.DEV) {
-      console.log('New content is available; please refresh.')
-    }
-  },
-
-  offline () {
-    if (process.env.DEV) {
-      console.log('No internet connection found. App is running in offline mode.')
-    }
-  },
-
-  error (err) {
-    if (process.env.DEV) {
-      console.error('Error during service worker registration:', err)
+  try {
+    const subscription = await subscribe(registration)
+    console.log('Push API subscription: ', subscription)
+  } catch (err) {
+    if (Notification.permission === 'denied') {
+      console.error('Permission for notifications was denied!')
+      showPermissionDeniedDialog()
+    } else {
+      console.error('Unable to subscribe to Push notifications!', err)
+      showPushUnsupportedDialog(err)
     }
   }
-})
+}
+
+async function subscribe (registration) {
+  const { publicKey } = await authService.getPushDetails()
+  const subscription = await registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(publicKey)
+  })
+  const pushSubscription = JSON.parse(JSON.stringify(subscription))
+  window.pushSubscription = pushSubscription // Hackily store in global window for later auth
+  await authService.subscribe(pushSubscription)
+  return subscription
+}
+
+function showPermissionDeniedDialog () {
+  Dialog.create({
+    title: 'Important',
+    message: [
+      'Permission for notifications was denied!',
+      '',
+      'You must enable Notifications API to receive trade alerts.',
+      'Tap on the green lock and select Allow from the Notifications dropdown.'
+    ].join('<br>'),
+    html: true
+  })
+}
+
+function showPushUnsupportedDialog (err) {
+  Dialog.create({
+    title: 'Important',
+    message: [
+      'Unable to subscribe to Push notifications!',
+      '',
+      `<code>${get(err, 'response.data.error') || err.message}</code>`
+    ].join('<br>'),
+    html: true
+  })
+}
+
+main()
