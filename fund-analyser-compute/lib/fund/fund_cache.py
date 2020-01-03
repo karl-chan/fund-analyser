@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta, datetime, date
 from threading import Lock
-from typing import Iterable, Set, Dict, Optional, List
+from typing import Iterable, Dict, Optional, List
 
 import numpy as np
 import pandas as pd
@@ -16,31 +16,29 @@ _LOG = logging.getLogger(__name__)
 
 _fund_cache: Dict[str, Fund] = dict()
 _prices_df: Optional[pd.DataFrame] = None  # fast DataFrame cache for fund historicPrices
-_filtered_isins: Optional[Set[str]] = set()
 _expiration_time: Optional[datetime] = None
 _is_full: bool = False
 _lock = Lock()
 
 
-def get(isins: Optional[Iterable[str]] = None, apply_filter: bool = True) -> List[Fund]:
+def get(isins: Optional[Iterable[str]] = None) -> List[Fund]:
     """
     Returns funds corresponding to isins.
     :param isins: iterable of isins
-    :param apply_filter: Filters out desirable (tradable) isins
     :return: list of funds
     """
     maybe_initialise(isins)
-    isins = _normalise_isins(isins, apply_filter)
+    isins = _normalise_isins(isins)
     return [_fund_cache[isin] for isin in isins]
 
 
-def get_prices(isins: Optional[Iterable[str]] = None, apply_filter=True) -> pd.DataFrame:
+def get_prices(isins: Optional[Iterable[str]] = None) -> pd.DataFrame:
     maybe_initialise(isins)
-    isins = _normalise_isins(isins, apply_filter)
+    isins = _normalise_isins(isins)
     return _prices_df[isins]
 
 
-def filter_isins(isins: Iterable[str]) -> Set[str]:
+def filter_isins(isins: Iterable[str]) -> List[str]:
     def no_entry_charge(isin: str) -> bool:
         return not _fund_cache[isin].entryCharge
 
@@ -63,7 +61,7 @@ def filter_isins(isins: Iterable[str]) -> Set[str]:
 
     for func in funcs:
         result = filter(func, result)
-    return set(result)
+    return list(result)
 
 
 def valid(isins: Optional[Iterable[str]]) -> bool:
@@ -76,7 +74,7 @@ def valid(isins: Optional[Iterable[str]]) -> bool:
         return False
     if isins is None:
         return _is_full
-    return _filtered_isins.issuperset(isins)
+    return set(_fund_cache.keys()).issuperset(isins)
 
 
 def initialise(isins: Optional[Iterable[str]]) -> None:
@@ -111,12 +109,12 @@ def load_from_file(isins: Optional[Iterable[str]]) -> None:
     """
     Loads fund cache from file if present and not expired, else raises ValueError.
     """
-    global _fund_cache, _prices_df, _filtered_isins, _expiration_time, _is_full
+    global _fund_cache, _prices_df, _expiration_time, _is_full
     data = read_from_disk(_PICKLE_FUND_CACHE)
     if datetime.now() > data["expiry"]:
         raise ValueError(f"Fund cache expired at: {data['expiry']}")
-    _fund_cache, _prices_df, _filtered_isins, _expiration_time, _is_full = \
-        data["funds"], data["prices_df"], data["filtered_isins"], data["expiry"], data["is_full"]
+    _fund_cache, _prices_df, _expiration_time, _is_full = \
+        data["funds"], data["prices_df"], data["expiry"], data["is_full"]
     if not valid(isins):
         raise ValueError(f"Fund cache needs refresh because it doesn't contain all isins: {isins}")
 
@@ -126,11 +124,10 @@ def save_to_file() -> None:
     Saves in-memory fund cache to file.
     :return:
     """
-    global _fund_cache, _prices_df, _filter_isins, _expiration_time, _is_full
+    global _fund_cache, _prices_df, _expiration_time, _is_full
     write_to_disk(_PICKLE_FUND_CACHE, {
         "funds": _fund_cache,
         "prices_df": _prices_df,
-        "filtered_isins": _filtered_isins,
         "expiry": _expiration_time,
         "is_full": _is_full
     })
@@ -140,7 +137,7 @@ def refresh(isins: Optional[Iterable[str]]) -> None:
     """
     Builds a fresh copy of fund cache from web.
     """
-    global _fund_cache, _prices_df, _filtered_isins, _expiration_time, _is_full
+    global _fund_cache, _prices_df, _expiration_time, _is_full
     _LOG.info("Refreshing fund cache...")
     _fund_cache = dict()
     all_prices = []
@@ -153,22 +150,17 @@ def refresh(isins: Optional[Iterable[str]]) -> None:
         all_prices.append(fund_stream_entry.historic_prices)
     _LOG.debug("Merging fund historic prices...")
     _prices_df = pd.concat(all_prices, axis=1).resample("B").asfreq().fillna(method="ffill")
-    _filtered_isins = filter_isins(_fund_cache.keys())
     _expiration_time = datetime.now() + EXPIRY
     _is_full = isins is None
     save_to_file()
     _LOG.info("Fund cache refreshed.")
 
 
-def _normalise_isins(isins: Optional[Iterable[str]] = None, apply_filter: bool = True) -> Set[str]:
+def _normalise_isins(isins: Optional[Iterable[str]] = None) -> List[str]:
     """
-    Normalise input isins. If None, will be replaced with all isins in fund cache.
-    Intersects with _filtered_isins if apply_filter == True.
+    Normalise input isins. If None, will be replaced with filtered isins in fund cache.
     """
     if isins is None:
-        isins_set = set(_fund_cache.keys())
+        return filter_isins(_fund_cache.keys())
     else:
-        isins_set = set(isins)
-    if apply_filter:
-        isins_set = isins_set & _filtered_isins
-    return isins_set
+        return list(isins)
