@@ -26,7 +26,7 @@ class MacdReturns(Strategy):
                     (formula.iloc[:, 1] > 0) &
                     (formula.iloc[:, 2] > 0)
                     ].iloc[:, 2] \
-            .nlargest(num_portfolio).index.tolist()
+            .nlargest(self._num_portfolio).index.tolist()
         return isins
 
     @overrides
@@ -37,13 +37,12 @@ class MacdReturns(Strategy):
     def on_data_ready(self, data: Simulator.Data) -> None:
         self._slow_ppo, self._slow_pposignal, self._slow_ppohist = ppo(data.prices_df, fast=20, slow=60)
         self._fast_ppo, self._fast_pposignal, self._fast_ppohist = ppo(data.prices_df, fast=3, slow=6)
+        self._num_portfolio = data.num_portfolio
 
 
 if __name__ == "__main__":
-    num_portfolio = 1
     simulator = Simulator(
         strategy=MacdReturns(),
-        num_portfolio=num_portfolio
     )
     result = simulator.run()
     Simulator.describe_and_plot([result])

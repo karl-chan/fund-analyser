@@ -25,6 +25,7 @@ class Simulator:
     class Data(NamedTuple):
         prices_df: pd.DataFrame
         fees_df: pd.DataFrame
+        num_portfolio: int
         hold_interval: pd.DateOffset
 
     class Prediction(NamedTuple):
@@ -77,6 +78,7 @@ class Simulator:
         self._broadcast_data(Simulator.Data(
             prices_df=self._prices_df,
             fees_df=self._fees_df,
+            num_portfolio=self._num_portfolio,
             hold_interval=self._hold_interval
         ))
 
