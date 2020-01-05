@@ -1,7 +1,7 @@
 const simulate = require('./simulate')
 const { push } = require('../util/push')
 
-jest.setTimeout(30000) // 30 seconds
+jest.setTimeout(60000) // 60 seconds
 jest.mock('../util/push')
 
 describe('simulate', () => {

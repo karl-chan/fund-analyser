@@ -70,8 +70,8 @@ describe('CharlesStanleyDirect', () => {
             expect(partialFund).toHaveProperty('isin', 'GB00B39RMM81')
             expect(partialFund).toHaveProperty('bidAskSpread', 0)
             expect(partialFund).toHaveProperty('entryCharge', 0)
-            expect(partialFund).toHaveProperty('amc', 0.0072)
-            expect(partialFund).toHaveProperty('ocf', 0.00982)
+            expect(partialFund).toHaveProperty('amc', expect.toBeWithin(0, 1))
+            expect(partialFund).toHaveProperty('ocf', expect.toBeWithin(0, 1))
             expect(partialFund).toHaveProperty('holdings')
             expect(partialFund.holdings).toBeArrayOfSize(10).toSatisfyAll(holding => {
                 return typeof holding.name === 'string' && holding.name &&

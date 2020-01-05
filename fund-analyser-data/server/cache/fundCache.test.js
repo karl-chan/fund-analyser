@@ -1,7 +1,7 @@
 const fundCache = require('./fundCache')
 const db = require('../../lib/util/db')
 
-jest.setTimeout(30000) // 30 seconds
+jest.setTimeout(60000) // 60 seconds
 
 describe('fundCache', () => {
     beforeAll(async () => {
