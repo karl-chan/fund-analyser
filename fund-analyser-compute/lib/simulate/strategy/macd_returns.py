@@ -44,5 +44,5 @@ if __name__ == "__main__":
     simulator = Simulator(
         strategy=MacdReturns(),
     )
-    result = simulator.run()
-    Simulator.describe_and_plot([result])
+    results = simulator.run()
+    Simulator.describe_and_plot(results)

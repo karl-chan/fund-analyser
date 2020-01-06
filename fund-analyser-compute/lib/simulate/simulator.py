@@ -88,13 +88,23 @@ class Simulator:
 
     def run(self,
             start_date: date = (date.today() - pd.DateOffset(years=5)).date(),
-            end_date: date = date.today()) -> Simulator.Result:
+            end_date: date = date.today(),
+            multi: bool = False) -> List[Simulator.Result]:
         """
         Runs simulation between a pair of dates.
         :param start_date:
         :param end_date:
+        :param multi: If true, run for start dates between
+                      [start_date, start_date + hold_interval).
+                      If false, run one off simulation.
         :return:
         """
+        if multi:
+            return self._run_multi(start_date, end_date)
+        else:
+            return [self._run_single(start_date, end_date)]
+
+    def _run_single(self, start_date: date, end_date: date) -> Simulator.Result:
         account = pd.DataFrame(data=[[100, "", ""]],
                                index=[start_date],
                                columns=["value", "isins", "names"])
@@ -139,6 +149,16 @@ class Simulator:
             start_date=start_date,
             end_date=end_date
         )
+
+    def _run_multi(self, start_date: date, end_date: date) -> List[Simulator.Result]:
+        return [
+            self._run_single(start_date=cycle_start_timestamp.date(),
+                             end_date=end_date)
+            for cycle_start_timestamp
+            in pd.date_range(start=start_date,
+                             end=start_date + self._hold_interval,
+                             freq=BDAY)
+        ]
 
     def predict(self, dt: Optional[date] = None) -> Prediction:
         """

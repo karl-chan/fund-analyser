@@ -42,5 +42,5 @@ if __name__ == "__main__":
         strategy=TargetReturns(),
         tie_breaker=MaxUpsideTieBreaker(),
     )
-    result = simulator.run()
-    Simulator.describe_and_plot([result])
+    results = simulator.run()
+    Simulator.describe_and_plot(results)

@@ -54,8 +54,9 @@ class SimulateRoutes:
     def on_post(self, req: falcon.Request, resp: falcon.Response):
         param = SimulateRoutes.SimulateParam.from_dict(req.media)
         simulator = self._build_simulator(param)
-        result = simulator.run()
-        resp.media = SimulateRoutes.SimulateResponse(result=result).as_dict()
+        results = simulator.run()
+        assert len(results) == 1
+        resp.media = SimulateRoutes.SimulateResponse(result=results[0]).as_dict()
 
     class PredictParam(NamedTuple):
         simulate_param: SimulateRoutes.SimulateParam

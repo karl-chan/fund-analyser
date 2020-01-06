@@ -30,5 +30,5 @@ if __name__ == "__main__":
         tie_breaker=NoOpTieBreaker(),
         num_portfolio=1
     )
-    result = simulator.run()
-    Simulator.describe_and_plot([result])
+    results = simulator.run()
+    Simulator.describe_and_plot(results)

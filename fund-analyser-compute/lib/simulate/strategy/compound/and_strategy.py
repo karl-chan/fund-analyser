@@ -47,5 +47,5 @@ if __name__ == "__main__":
             "LU0827884411",
         ]
     )
-    result = simulator.run()
-    Simulator.describe_and_plot([result])
+    results = simulator.run()
+    Simulator.describe_and_plot(results)
