@@ -7,7 +7,7 @@ jest.setTimeout(30000) // 30 seconds
 
 describe('heroku', () => {
     test('getLastActivity', async () => {
-        const lastActivity = await heroku.getLastActivity()
+        const lastActivity = await heroku.getLastActivity(heroku.WEB_CATEGORY)
         // last activity should not be older than 10 minutes (ideally)
         expect(moment().diff(lastActivity)).toBeLessThan(moment.duration(10, 'minutes').asMilliseconds())
     })
@@ -18,7 +18,7 @@ describe('heroku', () => {
 
         const duration = 5000 // 5 seconds
 
-        const logStream = await heroku.streamLogs()
+        const logStream = await heroku.streamLogs(heroku.WORKER_CATEGORY)
         logStream.pipe(sink)
         await Promise.delay(duration)
         logStream.unpipe(sink)

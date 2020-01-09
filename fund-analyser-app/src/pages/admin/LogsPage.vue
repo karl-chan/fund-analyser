@@ -2,9 +2,10 @@
   q-page(padding)
     q-toolbar.bg-teal.q-pa-xs
       // Selection tabs (web / worker)
-      q-tabs.bg-white(v-model="dyno")
+      q-tabs.bg-white(v-model="category")
         q-tab.text-green-9(label="Web Logs" name="web" icon="public")
         q-tab.text-purple(label="Worker Logs" name="worker" icon="settings")
+        q-tab.text-amber-9(label="Compute Logs" name="compute" icon="functions")
       q-input(v-model="filter" filled dark label="Filter logs" color="teal-1"
               style="margin-left: 150px;" clearable)
         template(v-slot:prepend)
@@ -32,7 +33,7 @@ export default {
   data () {
     return {
       loading: false,
-      dyno: 'web',
+      category: 'web',
       logs: '',
       filter: '',
       poller: null
@@ -60,15 +61,15 @@ export default {
       if (clearScreen) {
         this.logs = ''
       }
-      this.logs = await this.$services.admin.getLogs(this.dyno)
+      this.logs = await this.$services.admin.getLogs(this.category)
       this.loading = false
     },
     async restartDyno () {
-      return this.$services.admin.restartDyno(this.dyno)
+      return this.$services.admin.restartDyno(this.category)
     }
   },
   watch: {
-    dyno: {
+    category: {
       handler () {
         this.refresh(true)
       }

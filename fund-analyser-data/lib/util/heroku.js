@@ -9,29 +9,37 @@ const moment = require('moment')
 
 const http = new Http()
 
-// list of recognisable dynos
-const WEB_DYNO = 'web'
-const WORKER_DYNO = 'worker'
+// list of categories
+const WEB_CATEGORY = 'web'
+const WORKER_CATEGORY = 'worker'
+const COMPUTE_CATEGORY = 'compute'
 
 const clients = {
-    [WEB_DYNO]: {
+    [WEB_CATEGORY]: {
         appName: properties.get('heroku.app.name'),
-        herokuClient: new Heroku({ token: properties.get('heroku.api.token') })
+        herokuClient: new Heroku({ token: properties.get('heroku.api.token') }),
+        dyno: 'web'
     },
-    [WORKER_DYNO]: {
+    [WORKER_CATEGORY]: {
         appName: properties.get('heroku.app.name.data'),
-        herokuClient: new Heroku({ token: properties.get('heroku.api.token.data') })
+        herokuClient: new Heroku({ token: properties.get('heroku.api.token.data') }),
+        dyno: 'worker'
+    },
+    [COMPUTE_CATEGORY]: {
+        appName: properties.get('heroku.app.name.compute'),
+        herokuClient: new Heroku({ token: properties.get('heroku.api.token.compute') }),
+        dyno: 'web'
     }
 }
 
-async function getLogs (dyno = WORKER_DYNO, lines) {
-    const url = await getLogplexUrl(dyno, false, lines)
+async function getLogs (category, lines) {
+    const url = await getLogplexUrl(category, false, lines)
     const { body } = await http.asyncGet(url)
     return body
 }
 
-async function getLastActivity (dyno = WORKER_DYNO) {
-    const logs = await getLogs(dyno)
+async function getLastActivity (category) {
+    const logs = await getLogs(category)
     try {
         const lines = logs.split('\n')
         const lastLine = _.findLast(lines, line => {
@@ -44,11 +52,11 @@ async function getLastActivity (dyno = WORKER_DYNO) {
     }
 }
 
-async function getLogplexUrl (dyno, stream = false, lines = 1500) {
-    const { appName, herokuClient } = getClient(dyno)
+async function getLogplexUrl (category, stream = false, lines = 1500) {
+    const { appName, herokuClient } = getClient(category)
     const res = await herokuClient.post(`/apps/${appName}/log-sessions`, {
         body: {
-            dyno,
+            dyno: herokuClient.dyno,
             lines,
             tail: stream
         }
@@ -56,19 +64,19 @@ async function getLogplexUrl (dyno, stream = false, lines = 1500) {
     return res.logplex_url
 }
 
-async function streamLogs (dyno = WORKER_DYNO) {
-    const url = await getLogplexUrl(dyno, true)
+async function streamLogs (category) {
+    const url = await getLogplexUrl(category, true)
     const bufferToStringStream = streamWrapper.asTransformAsync(buf => buf.toString('utf-8'))
     return http.stream(url).pipe(bufferToStringStream)
 }
 
-async function restart (dyno = WORKER_DYNO) {
-    const { appName, herokuClient } = getClient(dyno)
-    await herokuClient.delete(`/apps/${appName}/dynos/${dyno}`)
+async function restart (category) {
+    const { appName, herokuClient } = getClient(category)
+    await herokuClient.delete(`/apps/${appName}/dynos/${category}`)
 }
 
-const getClient = dyno => {
-    return clients[dyno]
+const getClient = category => {
+    return clients[category]
 }
 
 module.exports = {
@@ -76,5 +84,8 @@ module.exports = {
     getLastActivity,
     getLogplexUrl,
     streamLogs,
-    restart
+    restart,
+    WEB_CATEGORY,
+    WORKER_CATEGORY,
+    COMPUTE_CATEGORY
 }

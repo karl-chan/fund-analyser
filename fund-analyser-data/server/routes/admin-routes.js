@@ -14,15 +14,15 @@ router.get('/healthcheck', async ctx => {
     ctx.body = { charlesStanleyDirect: isUp }
 })
 
-router.get('/logs/:dyno', async ctx => {
-    const { dyno } = ctx.params
+router.get('/logs/:category', async ctx => {
+    const { category } = ctx.params
     const { lines } = ctx.query
-    ctx.body = await heroku.getLogs(dyno, lines)
+    ctx.body = await heroku.getLogs(category, lines)
 })
 
-router.post('/restart/:dyno', async ctx => {
-    const { dyno } = ctx.params
-    ctx.body = await heroku.restart(dyno)
+router.post('/restart/:category', async ctx => {
+    const { category } = ctx.params
+    ctx.body = await heroku.restart(category)
 })
 
 module.exports = router
