@@ -4,14 +4,15 @@ const CharlesStanleyDirectAccount = require('./CharlesStanleyDirectAccount')
 const CharlesStanleyDirectAuth = require('../auth/CharlesStanleyDirectAuth')
 const db = require('../util/db')
 const properties = require('../util/properties')
+const { Sell } = require('../trade/Action')
 
 jest.setTimeout(30000) // 30 seconds
 
 describe('CharlesStanleyDirectAccount', () => {
-    let csdAccount, jar
+    let csdAccount, jar, pass
     beforeAll(async () => {
         const user = properties.get('fund.charlesstanleydirect.user')
-        const pass = properties.get('fund.charlesstanleydirect.pass')
+        pass = properties.get('fund.charlesstanleydirect.pass')
         const memorableWord = properties.get('fund.charlesstanleydirect.memorableWord')
         ;({ jar } = await new CharlesStanleyDirectAuth().login(user, pass, memorableWord))
         expect(jar).toBeTruthy()
@@ -19,7 +20,7 @@ describe('CharlesStanleyDirectAccount', () => {
         await db.init()
     })
     beforeEach(() => {
-        csdAccount = new CharlesStanleyDirectAccount(jar)
+        csdAccount = new CharlesStanleyDirectAccount(jar, pass)
     })
     afterAll(async () => {
         await db.close()
@@ -55,5 +56,10 @@ describe('CharlesStanleyDirectAccount', () => {
             // weekdays or weekends
             return (neighbouringDaysDiff === 1 || neighbouringDaysDiff === 3) && typeof hp1.price === 'number'
         })
+    })
+    test('tradeFund', async () => {
+        const action = new Sell('GB0006061963', '0606196', 0.001)
+        const orderReference = await csdAccount.tradeFund(action)
+        expect(orderReference).toBeString().toHaveLength(11)
     })
 })

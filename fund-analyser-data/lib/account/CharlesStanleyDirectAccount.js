@@ -5,23 +5,34 @@ const url = require('url')
 
 const Http = require('../util/http')
 const lang = require('../util/lang')
+const log = require('../util/log')
 const math = require('../util/math')
 const properties = require('../util/properties')
 const fundUtils = require('../util/fundUtils')
 const FundDAO = require('../db/FundDAO')
 const Fund = require('../fund/Fund')
+const { Buy } = require('../trade/Action')
 
 const http = new Http()
 
 class CharlesStanleyDirectAccount {
-    constructor (jar) {
+    constructor (jar, pass) {
         if (!jar) {
             throw new Error('Missing jar')
         }
+        if (!pass) {
+            throw new Error('Missing pass')
+        }
         this.jar = jar
+        this.pass = pass
         this.portfolioValuationUrl = 'https://www.charles-stanley-direct.co.uk/My_Dashboard/My_Direct_Accounts/Portfolio_Valuation'
         this.orderListUrl = 'https://www.charles-stanley-direct.co.uk/My_Dashboard/My_Direct_Accounts/Portfolio_Valuation/Order_List'
         this.statementUrl = 'https://www.charles-stanley-direct.co.uk/My_Dashboard/My_Direct_Accounts/Portfolio_Valuation/Statement'
+        this.tradeInstrumentUrl = ' https://www.charles-stanley-direct.co.uk/My_Dashboard/My_Direct_Accounts/Portfolio_Valuation/TradeInstrument'
+
+        // trade operations
+        this.fundTradeEntryUrl = 'https://www.charles-stanley-direct.co.uk/Trading/FundTradeEntry'
+        this.fundTradeVerifyPlaceOrderUrl = 'https://www.charles-stanley-direct.co.uk/Trading/FundTradeVerifyPlaceOrder'
 
         this.lookbacks = properties.get('fund.lookbacks')
     }
@@ -210,6 +221,78 @@ class CharlesStanleyDirectAccount {
 
         const returns = fundUtils.enrichReturns({}, series, this.lookbacks)
         return { series, events, returns }
+    }
+
+    /**
+      * Trade a fund.
+      * @param {*} action a Buy / Sell action from lib/trade/Action.js
+      * @returns {string} the 11-character order reference for the successful trade
+      */
+    async tradeFund (action) {
+        // Trade entry page
+        const { body: b1 } = await http.asyncGet(this.tradeInstrumentUrl, {
+            jar: this.jar,
+            qs: {
+                id: action.sedol,
+                Type: 'FUND',
+                actionType: action instanceof Buy ? 'buy' : 'sell'
+            }
+        })
+        const $1 = cheerio.load(b1)
+        const entryForm = $1('form[action*="FundTradeEntry"]')
+        const matches1 = entryForm.attr('action').match(/.*TradeRequestId=(.+)/)
+        if (!matches1) {
+            throw new Error('Failed to parse FundTradeEntry TradeRequestId!')
+        }
+        const entryTradeRequestId = matches1[1]
+        const entryRequestVerificationToken = entryForm.find('input[name="__RequestVerificationToken"]').attr('value')
+
+        // Trade verify page
+        const { body: b2 } = await http.asyncPost(this.fundTradeEntryUrl, {
+            jar: this.jar,
+            followAllRedirects: true,
+            qs: {
+                TradeRequestId: entryTradeRequestId
+            },
+            form: {
+                __RequestVerificationToken: entryRequestVerificationToken,
+                'FormModel.QuantitySpecified': 'value',
+                'FormModel.TradeValue': action instanceof Buy ? action.value : action.quantity,
+                'FormModel.IsIllustrationOfChargesTicked': true,
+                'FormModel.Password': this.pass
+            }
+        })
+        const $2 = cheerio.load(b2)
+        const err = $2('li.error-message[style*="display:list-item;"]').text()
+        if (err) {
+            throw new Error(`Failed to trade instrument. Reason: ${err}`)
+        }
+        const verifyForm = $2('form[action*="FundTradeVerifyPlaceOrder"]')
+        const matches2 = verifyForm.attr('action').match(/.*TradeRequestId=(.+)/)
+        if (!matches2) {
+            throw new Error('Failed to parse FundTradeVerifyPlaceOrder TradeRequestId!')
+        }
+        const verifyTradeRequestId = matches2[1]
+        const verifyRequestVerificationToken = verifyForm.find('input[name="__RequestVerificationToken"]').attr('value')
+
+        // Trade confirmation page
+        const { body: b3 } = await http.asyncPost(this.fundTradeVerifyPlaceOrderUrl, {
+            jar: this.jar,
+            followAllRedirects: true,
+            qs: {
+                TradeRequestId: verifyTradeRequestId
+            },
+            form: {
+                __RequestVerificationToken: verifyRequestVerificationToken
+            }
+        })
+        const $3 = cheerio.load(b3)
+        const orderReference = $3(`th:contains('Order Reference') + td`).text().trim()
+        if (!orderReference) {
+            throw new Error('Failed to obtain order reference!')
+        }
+        log.debug(`Executed action: ${JSON.stringify(action)}. Order reference: ${orderReference}`)
+        return orderReference
     }
 
     async getAccountCode () {
