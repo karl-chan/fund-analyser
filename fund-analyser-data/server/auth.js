@@ -44,9 +44,10 @@ const authorise = async function (ctx, next) {
 
     // add information to ctx
     const { jar } = getSession(ctx)
-    const { user, name } = getUser(ctx)
+    const { user, pass, name } = getUser(ctx)
     ctx.jar = jar
     ctx.user = user
+    ctx.pass = pass
     ctx.name = name
     await next()
 }
@@ -136,10 +137,10 @@ const destroySessionById = async function (sessionId) {
 const getUser = function (ctx) {
     const { token } = getSession(ctx)
     if (token) {
-        const { user, name, expiry, location } = token
-        return { user, name, expiry, location }
+        const { user, pass, name, expiry, location } = token
+        return { user, pass, name, expiry, location }
     }
-    return { user: null, name: null, expiry: null, location: {} }
+    return { user: null, pass: null, name: null, expiry: null, location: {} }
 }
 
 const findSessionsForUser = async function (user) {

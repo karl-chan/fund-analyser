@@ -1,6 +1,7 @@
 const Router = require('koa-router')
 const Promise = require('bluebird')
 const auth = require('../auth')
+const trade = require('../../lib/trade/trade')
 const CharlesStanleyDirectAccount = require('../../lib/account/CharlesStanleyDirectAccount')
 const UserDAO = require('../../lib/db/UserDAO')
 
@@ -11,8 +12,8 @@ const router = new Router({
 router.use(auth.authorise)
 
 router.get('/', async ctx => {
-    const { jar, user } = ctx
-    const csdAccount = new CharlesStanleyDirectAccount(jar)
+    const { jar, user, pass } = ctx
+    const csdAccount = new CharlesStanleyDirectAccount(jar, pass)
     const [balance, orders, statement, watchlist, currencies, simulateParams] = await Promise.all([
         csdAccount.getBalance(),
         csdAccount.getOrders(),
@@ -25,22 +26,22 @@ router.get('/', async ctx => {
 })
 
 router.get('/balance', async ctx => {
-    const { jar } = ctx
-    const csdAccount = new CharlesStanleyDirectAccount(jar)
+    const { jar, pass } = ctx
+    const csdAccount = new CharlesStanleyDirectAccount(jar, pass)
     const balance = await csdAccount.getBalance()
     ctx.body = { balance }
 })
 
 router.get('/orders', async ctx => {
-    const { jar } = ctx
-    const csdAccount = new CharlesStanleyDirectAccount(jar)
+    const { jar, pass } = ctx
+    const csdAccount = new CharlesStanleyDirectAccount(jar, pass)
     const orders = await csdAccount.getOrders()
     ctx.body = { orders }
 })
 
 router.get('/statement', async ctx => {
-    const { jar } = ctx
-    const csdAccount = new CharlesStanleyDirectAccount(jar)
+    const { jar, pass } = ctx
+    const csdAccount = new CharlesStanleyDirectAccount(jar, pass)
     const statement = await csdAccount.getStatement()
     ctx.body = { statement }
 })
@@ -103,6 +104,16 @@ router.post('/simulate-params/remove', async ctx => {
     const { simulateParam } = ctx.request.body
     const simulateParams = await UserDAO.removeFromSimulateParams(user, simulateParam)
     ctx.body = simulateParams
+})
+
+router.post('/trade', async ctx => {
+    const { jar, pass } = ctx
+    const { simulateParam } = ctx.request.body
+    const csdAccount = new CharlesStanleyDirectAccount(jar, pass)
+    const orderReferences = await trade.trade(simulateParam, { csdAccount })
+    ctx.body = {
+        orderReferences
+    }
 })
 
 module.exports = router
