@@ -6,13 +6,11 @@
         simulate-request(:init-simulate-param="simulateParam" ref="simulateRequest"
                          @response="onResponse")
         template(v-if="response")
-          account-returns-bar(:statement="response.simulation.simulateResponse.statement")
-          simulate-response(:simulate-response="response.simulation.simulateResponse")
+          simulate-response-footer(:simulate-response="response.simulation.simulateResponse")
 
       .col
         template(v-if="response")
-          simulate-prediction(:prediction="response.prediction" :simulation="response.simulation")
-          account-statement(:statement="response.simulation.simulateResponse.statement")
+          simulate-response(:prediction="response.prediction" :simulation="response.simulation")
 
 </template>
 

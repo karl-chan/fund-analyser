@@ -1,26 +1,37 @@
 <template lang="pug">
-  .row
-    q-chip(square :color="colourNumberChip(simulateResponse.returns)" text-color="white")
-      | Total returns: {{ formatPercentage(simulateResponse.returns) }}
-    q-chip(square color="red" text-color="white")
-      | Max drawdown: {{ formatPercentage(simulateResponse.maxDrawdown) }}
-    q-chip(square color="orange" text-color="white")
-      | Sharpe ratio: {{ formatNumber(simulateResponse.sharpeRatio) }}
+  .col
+    .row
+      .text-h5 Predictions
+      q-btn(icon="info" color="primary" flat round dense @click="openModal")
+        q-tooltip
+          .row Date: {{prediction.date}}
+          .row Click to open
+
+      .row.q-ml-lg
+        template(v-if="prediction.funds.length")
+          q-chip(v-for="fund in prediction.funds" :key="fund.isin"
+                color="primary" text-color="white" clickable
+                @click="openFundPage(fund.isin)") {{fund.isin}}
+            q-tooltip {{fund.name}}
+        q-chip(v-else color="accent" text-color="white") Cash
+
+    .row
+      account-statement(:statement="simulation.simulateResponse.statement")
+
+    simulate-response-modal(ref="modal" :prediction="prediction" :simulation="simulation")
+
 </template>
 
 <script>
 export default {
   name: 'SimulateResponse',
-  props: ['simulateResponse'],
+  props: ['prediction', 'simulation'],
   methods: {
-    colourNumberChip (num) {
-      return num > 0 ? 'green' : 'red'
+    openFundPage (isin) {
+      this.$utils.router.redirectToFund(isin, { newTab: true })
     },
-    formatNumber (num) {
-      return this.$utils.format.formatNumber(num, true)
-    },
-    formatPercentage (num) {
-      return this.$utils.format.formatPercentage(num, true)
+    openModal () {
+      this.$refs.modal.open()
     }
   }
 }

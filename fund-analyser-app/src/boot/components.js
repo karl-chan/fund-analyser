@@ -24,8 +24,9 @@ import FundWatchList from 'components/fund/FundWatchList'
 import Healthcheck from 'components/misc/Healthcheck'
 import TipOfTheDay from 'components/misc/TipOfTheDay'
 import SimulateRequest from 'components/simulate/SimulateRequest'
+import SimulateResponseFooter from 'components/simulate/SimulateResponseFooter'
+import SimulateResponseModal from 'components/simulate/SimulateResponseModal'
 import SimulateResponse from 'components/simulate/SimulateResponse'
-import SimulatePrediction from 'components/simulate/SimulatePrediction'
 import AppDrawer from 'layouts/AppDrawer'
 import AppHeader from 'layouts/AppHeader'
 
@@ -57,9 +58,10 @@ export default ({ Vue }) => {
   Vue.component('currency-returns', CurrencyReturns)
   Vue.component('currency-table', CurrencyTable)
 
-  Vue.component('simulate-prediction', SimulatePrediction)
   Vue.component('simulate-request', SimulateRequest)
   Vue.component('simulate-response', SimulateResponse)
+  Vue.component('simulate-response-footer', SimulateResponseFooter)
+  Vue.component('simulate-response-modal', SimulateResponseModal)
 
   Vue.component('healthcheck', Healthcheck)
   Vue.component('tip-of-the-day', TipOfTheDay)
