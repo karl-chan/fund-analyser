@@ -98,6 +98,26 @@ UserDAO.removeFromSimulateParams = async function (user, simulateParam) {
     return removeFromProperty(user, SIMULATE_PARAMS, simulateParam)
 }
 
+UserDAO.activateSimulateParam = async function (user, simulateParam) {
+    const operations = [
+        { updateMany: {
+            filter: { user },
+            update: { $unset: { 'meta.simulateParams.$[].active': '' } }
+        } },
+        { updateOne: {
+            filter: { user, 'meta.simulateParams': simulateParam },
+            update: { $set: { 'meta.simulateParams.$.active': true } }
+        } }
+    ]
+    await db.getUsers().bulkWrite(operations)
+    log.debug(`Activated [${user}]'s ${SIMULATE_PARAMS}: [${JSON.stringify(simulateParam)}]`)
+}
+
+UserDAO.deactivateAllSimulateParams = async function (user) {
+    await db.getUsers().updateMany({ user }, { $unset: { 'meta.simulateParams.$[].active': '' } })
+    log.debug(`Deactivated all [${user}]'s ${SIMULATE_PARAMS}`)
+}
+
 async function getProperty (user, property, fallbackValue = []) {
     const { meta } = await db.getUsers().findOne({ user }, { projection: { [`meta.${property}`]: 1 } })
     return meta[property] || fallbackValue
@@ -109,7 +129,7 @@ async function addToProperty (user, property, value) {
         return false // no action required if already present
     }
 
-    await db.getUsers().update({ user }, { $push: { [`meta.${property}`]: value } })
+    await db.getUsers().updateMany({ user }, { $push: { [`meta.${property}`]: value } })
     log.debug(`Added [${JSON.stringify(value)}] to [${user}]'s ${property}`)
     return true
 }
@@ -122,7 +142,7 @@ async function removeFromProperty (user, property, value) {
 }
 
 async function clearProperty (user, property) {
-    await db.getUsers().update({ user }, { $set: { [`meta.${property}`]: [] } })
+    await db.getUsers().updateMany({ user }, { $set: { [`meta.${property}`]: [] } })
     log.debug(`Cleared [${user}]'s ${property}`)
 }
 

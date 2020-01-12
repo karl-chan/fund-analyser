@@ -5,6 +5,7 @@ module.exports = {
     pushNotificationsForUser
 }
 
+const UserDAO = require('../db/UserDAO')
 const compute = require('../../client/compute')
 const { push } = require('../util/push')
 
@@ -22,8 +23,11 @@ async function getStrategies () {
     return compute.get('/simulate/strategies')
 }
 
-async function pushNotificationsForUser (simulateParams, user) {
-    const predictionPairs = await Promise.map(simulateParams, async simulateParam => {
+async function pushNotificationsForUser (user) {
+    const simulateParams = await UserDAO.getSimulateParams(user)
+    // Only push for active simulate params
+    const activeSimulateParams = simulateParams.filter(simulateParam => simulateParam.active)
+    const predictionPairs = await Promise.map(activeSimulateParams, async simulateParam => {
         const prediction = await predict(simulateParam)
         return {
             simulateParam,

@@ -76,8 +76,7 @@ router.post('/push', async ctx => {
         ctx.body = { error: 'You must be logged in to push notifications.' }
         return
     }
-    const simulateParams = await UserDAO.getSimulateParams(user)
-    await simulate.pushNotificationsForUser(simulateParams, user)
+    await simulate.pushNotificationsForUser(user)
     ctx.status = 200
 })
 

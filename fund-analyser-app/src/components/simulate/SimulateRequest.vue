@@ -8,7 +8,7 @@
         .row.q-gutter-x-md
           .col
             q-input(v-model="form.numPortfolio" type="number" label="Num portfolio"
-                    :rules="[requiredRule]")
+                    :rules="[positiveIntegerRule]")
           .col
             q-input(v-model="form.predictionDate" mask="date" label="Prediction date (Optional)" clearable
                     :rules="[val => val? dateRule(val): true]")
@@ -28,6 +28,7 @@
 <script>
 import { mapState, mapActions, mapGetters } from 'vuex'
 import get from 'lodash/get'
+import isInteger from 'lodash/isInteger'
 
 export default {
   name: 'SimulateRequest',
@@ -95,7 +96,10 @@ export default {
       return this.$utils.date.isBeforeToday(date)
     },
     dateRule (val) {
-      return !!this.$utils.date.verifyDate(val) || 'Required'
+      return !!this.$utils.date.verifyDate(val) || 'Must be valid date'
+    },
+    positiveIntegerRule (val) {
+      return (isInteger(+val) && Math.sign(val) === 1) || 'Must be positive integer'
     },
     requiredRule (val) {
       return !!val || 'Required'

@@ -20,7 +20,12 @@
               q-item-label {{simulateParam.strategy}}
               q-item-label(caption) Top {{simulateParam.numPortfolio}} - {{simulateParam.isins.join(',')}}
             q-item-section(side)
-              q-btn(flat round dense icon="close" @click.stop="removeFromFavouriteSimulateParams(simulateParam)")
+              .row
+                q-btn(v-if="isLoggedIn" flat round dense icon="flash_on"
+                      :color="simulateParam.active? 'amber': undefined"
+                      @click.stop="toggleActiveSimulateParam(simulateParam)")
+                  q-tooltip Click to {{simulateParam.active?  'stop': 'start'}} trading
+                q-btn(flat round dense icon="close" @click.stop="removeFromFavouriteSimulateParams(simulateParam)")
         .row.justify-end(v-if="isLoggedIn")
           q-btn.q-mr-sm.q-mb-sm(push icon="notifications" color="red-10" @click="pushNotifications")
             q-tooltip Push notifications
@@ -60,9 +65,20 @@ export default {
   },
   methods: {
     openURL,
-    ...mapActions('account', ['removeFromRecentlyViewed', 'removeFromFavouriteSimulateParams', 'clearRecentlyViewed']),
+    ...mapActions('account', [
+      'clearRecentlyViewed',
+      'removeFromRecentlyViewed',
+      'removeFromFavouriteSimulateParams',
+      'updateFavouriteSimulateParams'
+    ]),
     async pushNotifications () {
       await this.$services.auth.pushNotifications()
+    },
+    async toggleActiveSimulateParam (simulateParam) {
+      await this.updateFavouriteSimulateParams({
+        simulateParam,
+        active: !simulateParam.active
+      })
     }
   }
 }

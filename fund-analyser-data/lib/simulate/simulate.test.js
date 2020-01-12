@@ -49,12 +49,18 @@ describe('simulate', () => {
 
     test('pushNotificationsForUser', async () => {
         const user = 'user'
-        const simulateParam = {
+        const activeSimulateParam = {
             strategy: 'BollingerReturns',
             isins: ['GB00B99C0657'],
-            numPortfolio: 1
+            numPortfolio: 1,
+            trade: true
         }
-        await simulate.pushNotificationsForUser([simulateParam], user)
+        const inactiveSimulateParam = {
+            strategy: 'BollingerReturns',
+            isins: ['GB00B99C0657'],
+            numPortfolio: 2
+        }
+        await simulate.pushNotificationsForUser([activeSimulateParam, inactiveSimulateParam], user)
         expect(push).toHaveBeenCalledTimes(1)
         expect(push).toHaveBeenCalledWith('user', 'trade',
             expect.toSatisfyAll(({ simulateParam, prediction }) => simulateParam && prediction))

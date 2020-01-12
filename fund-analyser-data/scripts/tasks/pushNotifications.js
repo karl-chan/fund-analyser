@@ -9,9 +9,6 @@ const simulate = require('../../lib/simulate/simulate')
  */
 async function pushNotifications () {
     const docs = await UserDAO.listUsers()
-    await Promise.map(docs, doc => {
-        const user = doc.user
-        const simulateParams = doc.meta.simulateParams
-        simulate.pushNotificationsForUser(simulateParams, user)
-    })
+    await Promise.map(docs, doc => simulate.pushNotificationsForUser(doc.user)
+    )
 }

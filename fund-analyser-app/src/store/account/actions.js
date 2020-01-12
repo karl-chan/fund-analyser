@@ -117,6 +117,11 @@ export async function removeFromFavouriteCurrencies ({ commit, state }, symbol) 
   }
 }
 
+export async function getFavouriteSimulateParams ({ commit }) {
+  const { simulateParams } = await accountService.getFavouriteSimulateParams()
+  commit('setFavouriteSimulateParams', simulateParams)
+}
+
 export async function addToFavouriteSimulateParams ({ commit, state, getters }, simulateParam) {
   if (!getters.inFavouriteSimulateParams(simulateParam)) {
     commit('setFavouriteSimulateParams', state.favouriteSimulateParams.concat([simulateParam]))
@@ -138,6 +143,24 @@ export async function removeFromFavouriteSimulateParams ({ commit, state, getter
   }
   try {
     await accountService.removeFromFavouriteSimulateParams(simulateParam)
+  } catch (ignored) {
+    // user not logged in
+  }
+}
+
+export async function updateFavouriteSimulateParams ({ dispatch }, { simulateParam, active }) {
+  try {
+    if (!active) {
+      const confirm = await promptClear({
+        title: 'Stop trading?',
+        message: 'This will deactivate algo trading. You can re-activate it by clicking on the lightning icon of the appropriate strategy.'
+      })
+      if (!confirm) {
+        return
+      }
+    }
+    await accountService.updateFavouriteSimulateParams(simulateParam, { active })
+    await dispatch('getFavouriteSimulateParams')
   } catch (ignored) {
     // user not logged in
   }

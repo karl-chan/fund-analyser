@@ -258,6 +258,7 @@ class CharlesStanleyDirectAccount {
                 __RequestVerificationToken: entryRequestVerificationToken,
                 'FormModel.QuantitySpecified': 'value',
                 'FormModel.TradeValue': action instanceof Buy ? action.value : action.quantity,
+                'FormModel.IsKeyDocumentTicked': true,
                 'FormModel.IsIllustrationOfChargesTicked': true,
                 'FormModel.Password': this.pass
             }

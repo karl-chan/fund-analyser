@@ -106,6 +106,17 @@ router.post('/simulate-params/remove', async ctx => {
     ctx.body = simulateParams
 })
 
+router.post('/simulate-params/update', async ctx => {
+    const user = ctx.user
+    const { simulateParam, active } = ctx.request.body
+    if (active) {
+        await UserDAO.activateSimulateParam(user, simulateParam)
+    } else {
+        await UserDAO.deactivateAllSimulateParams(user, simulateParam)
+    }
+    ctx.status = 200
+})
+
 router.post('/trade', async ctx => {
     const { jar, pass } = ctx
     const { simulateParam } = ctx.request.body

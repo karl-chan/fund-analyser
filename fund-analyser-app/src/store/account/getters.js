@@ -9,5 +9,9 @@ export function recentlyViewedIsins (state) {
 }
 
 export function inFavouriteSimulateParams (state) {
-  return simulateParam => state.favouriteSimulateParams.some(param => isEqual(param, simulateParam))
+  return simulateParam => state.favouriteSimulateParams.some(param =>
+    isEqual(param.strategy, simulateParam.strategy) &&
+    isEqual(param.isins, simulateParam.isins) &&
+    isEqual(param.numPortfolio, simulateParam.numPortfolio)
+  )
 }

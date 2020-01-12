@@ -39,5 +39,8 @@ export default {
   },
   removeFromFavouriteSimulateParams (simulateParam) {
     return apiService.post('/account/simulate-params/remove', { simulateParam })
+  },
+  updateFavouriteSimulateParams (simulateParam, { active }) {
+    return apiService.post('/account/simulate-params/update', { simulateParam, active })
   }
 }

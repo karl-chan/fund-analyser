@@ -57,7 +57,7 @@ describe('CharlesStanleyDirectAccount', () => {
             return (neighbouringDaysDiff === 1 || neighbouringDaysDiff === 3) && typeof hp1.price === 'number'
         })
     })
-    test('tradeFund', async () => {
+    test.skip('tradeFund', async () => {
         const action = new Sell('GB0006061963', '0606196', 0.001)
         const orderReference = await csdAccount.tradeFund(action)
         expect(orderReference).toBeString().toHaveLength(11)
