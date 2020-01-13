@@ -24,6 +24,16 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "tradeFunds",
+            "program": "${workspaceFolder}/scripts/main.js",
+            "args": [
+                "-r",
+                "tradeFunds"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "updateCatalog",
             "program": "${workspaceFolder}/scripts/main.js",
             "args": [

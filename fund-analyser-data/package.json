@@ -9,6 +9,7 @@
     "dynoHealthcheck": "node scripts/main.js -r dynoHealthcheck",
     "pushNotifications": "node scripts/main.js -r pushNotifications",
     "repairDatabase": "node scripts/main.js -r repairDatabase",
+    "tradeFunds": "node scripts/main.js -r tradeFunds",
     "updateCatalog": "node scripts/main.js -r updateCatalog",
     "updateCurrencies": "node scripts/main.js -r updateCurrencies",
     "updateFunds": "node scripts/main.js -r updateFunds",

@@ -10,6 +10,7 @@ const downloadCsv = require('./tasks/downloadCsv')
 const dynoHealthcheck = require('./tasks/dynoHealthcheck')
 const pushNotifications = require('./tasks/pushNotifications')
 const repairDatabase = require('./tasks/repairDatabase')
+const tradeFunds = require('./tasks/tradeFunds')
 const updateCatalog = require('./tasks/updateCatalog')
 const updateCurrencies = require('./tasks/updateCurrencies')
 const updateFunds = require('./tasks/updateFunds')
@@ -24,6 +25,7 @@ Main.tasks = {
     dynoHealthcheck,
     pushNotifications,
     repairDatabase,
+    tradeFunds,
     updateCatalog,
     updateCurrencies,
     updateFunds,
