@@ -55,16 +55,19 @@ class CharlesStanleyDirectAccount {
         const rows = $('#ordl-results > tbody > tr').get()
         const orders = _.chunk(rows, 2)
             .map(([summaryRow, orderDetails]) => {
-                const [orderRef, side, sedol, name, quantity, status] =
+                const [orderRef, side, sedol, name, quantity] =
                     $(summaryRow)
                         .children('td')
                         .map((i, td) => $(td).text().trim())
                         .get()
-                const [,, settlementDate, orderDate,, price,, consideration, fundDealingFee, other, estimatedProceeds] =
-                    $(orderDetails)
-                        .find('.ordl-subtable > tbody > tr > td')
-                        .map((i, e) => $(e).text().trim())
-                        .get()
+                const settlementDate = $(orderDetails).find(`th:contains('Settlement Date') + td`).text().trim()
+                const orderDate = $(orderDetails).find(`th:contains('Order Date') + td`).text().trim()
+                const status = $(orderDetails).find(`th:contains('Status') + td`).text().trim()
+                const price = $(orderDetails).find(`th:contains('Price') + td`).text().trim()
+                const consideration = $(orderDetails).find(`th:contains('Consideration') + td`).text().trim()
+                const fundDealingFee = $(orderDetails).find(`th:contains('Fund Dealing Fee') + td`).text().trim()
+                const other = $(orderDetails).find(`th:contains('Other') + td`).text().trim()
+                const estimatedProceeds = $(orderDetails).find(`th:contains('Estimated') + td`).text().trim()
                 return {
                     orderRef,
                     side,
