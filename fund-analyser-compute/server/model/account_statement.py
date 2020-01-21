@@ -34,13 +34,15 @@ class AccountStatement(NamedTuple):
         from_date: date
         to_date: date
         holdings: List[Holding]
+        pct_change: float
 
         def as_dict(self) -> Dict:
             return {
                 "type": self.type,
                 "from": format_date(self.from_date),
                 "to": format_date(self.to_date),
-                "holdings": [holding._asdict() for holding in self.holdings]
+                "holdings": [holding._asdict() for holding in self.holdings],
+                "pctChange": self.pct_change
             }
 
     series: List[HistoricPrice]
@@ -106,7 +108,8 @@ class AccountStatement(NamedTuple):
                             sedol=fund.sedol,
                             weight=1 / len(next_isins)
                         ) for fund in next_funds
-                    ]
+                    ],
+                    pct_change=(account["value"].iat[i + 1] / account["value"].iat[i]) - 1
                 ))
         return events
 

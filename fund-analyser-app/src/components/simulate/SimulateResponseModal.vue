@@ -13,10 +13,17 @@
               q-item Funds:
             q-table(dense hide-bottom :data="funds" :columns="queryColumns" row-key="isin")
           .col-8
-            q-table(title="Holdings history" dense table-style="max-height: 400px" row-key="from"
+            q-table.holdings-history-table(title="Holdings history"
+                    dense table-style="max-height: 400px" row-key="from"
                     :data="simulation.simulateResponse.statement.events" :columns="eventsColumns"
                     virtual-scroll :pagination.sync="pagination" :rows-per-page-options="[0]")
-
+              template(v-slot:body="props")
+                q-tr(:props="props")
+                  q-td(key="from" :props="props") {{ props.row.from }}
+                  q-td(key="to" :props="props") {{ props.row.to }}
+                  q-td(key="pctChange" :props="props" :style="colourPctChange(props.row)") {{ getPctChangeFromEvent(props.row) }}
+                  q-td(key="isins" :props="props") {{ getIsinsFromEvent(props.row) }}
+                  q-td(key="names" :props="props") {{ getNamesFromEvent(props.row) }}
 </template>
 
 <script>
@@ -31,10 +38,11 @@ export default {
         { name: 'name', label: 'Name', field: 'name', align: 'left' }
       ],
       eventsColumns: [
-        { name: 'from', label: 'From', field: 'from', align: 'left' },
-        { name: 'to', label: 'To', field: 'to', align: 'left' },
-        { name: 'isins', label: 'ISINs', field: this.getIsinsFromEvent, align: 'left' },
-        { name: 'names', label: 'Names', field: this.getNamesFromEvent, align: 'left' }
+        { name: 'from', label: 'From', field: 'from', align: 'left', sortable: true },
+        { name: 'to', label: 'To', field: 'to', align: 'left', sortable: true },
+        { name: 'pctChange', label: '% Change', field: 'pctChange', align: 'left', sortable: true },
+        { name: 'isins', label: 'ISINs', align: 'left' },
+        { name: 'names', label: 'Names', align: 'left' }
       ],
       funds: [],
       pagination: { rowsPerPage: 0 }
@@ -43,6 +51,12 @@ export default {
   methods: {
     open () {
       this.openModal = true
+    },
+    colourPctChange (event) {
+      return this.$utils.format.colourNumberCell(event.pctChange * 10) // arbitrary multiplier to increase colour contrast
+    },
+    getPctChangeFromEvent (event) {
+      return this.$utils.format.formatPercentage(event.pctChange)
     },
     getIsinsFromEvent (event) {
       return event.holdings.map(holding => holding.isin).join(', ')
@@ -62,3 +76,21 @@ export default {
   }
 }
 </script>
+
+<style lang="stylus">
+.holdings-history-table
+  .q-table__middle
+    max-height: 200px
+
+  thead tr:first-child th
+    background-color: $grey-3
+
+  thead tr th
+    position: sticky
+    z-index: 1
+  thead tr:first-child th
+    top: 0
+
+  &.q-table--loading thead tr:last-child th
+    top: 48px
+</style>
