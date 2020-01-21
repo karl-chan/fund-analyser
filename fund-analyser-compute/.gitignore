@@ -1,6 +1,5 @@
 .idea/
 *.iml
-*.whl
 push.bat
 prof/
 __pycache__/
