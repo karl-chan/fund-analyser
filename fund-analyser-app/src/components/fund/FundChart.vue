@@ -1,6 +1,6 @@
 <template lang="pug">
   .shadow-5(:class="{container: !simple}")
-      highstock(v-if="fund" :options="chartOptions")
+      highstock(v-if="fund" :options="chartOptions" ref="highcharts")
       template(v-else) No chart available
 
 </template>
@@ -117,6 +117,21 @@ export default {
     },
     formatNumber (num) {
       return this.$utils.format.formatNumber(num)
+    }
+  },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler: function (query) {
+        const { startDate, endDate } = query
+        setTimeout(() => {
+          const { chart } = this.$refs.highcharts
+          if (startDate && endDate) {
+            chart.xAxis[0].setExtremes(Date.parse(startDate), Date.parse(endDate))
+            chart.xAxis[1].setExtremes(Date.parse(startDate), Date.parse(endDate))
+          }
+        }, 0)
+      }
     }
   }
 }

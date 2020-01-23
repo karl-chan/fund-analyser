@@ -22,7 +22,11 @@
                   q-td(key="from" :props="props") {{ props.row.from }}
                   q-td(key="to" :props="props") {{ props.row.to }}
                   q-td(key="pctChange" :props="props" :style="colourPctChange(props.row)") {{ getPctChangeFromEvent(props.row) }}
-                  q-td(key="isins" :props="props") {{ getIsinsFromEvent(props.row) }}
+                  q-td(key="isins" :props="props")
+                    q-badge(v-for="holding in props.row.holdings" :key="holding.isin"
+                           color="primary" text-color="white" style="cursor: pointer;"
+                           @click="openFundPage(holding.isin, props.row.from, props.row.to)")
+                      | {{ holding.isin }}
                   q-td(key="names" :props="props") {{ getNamesFromEvent(props.row) }}
 </template>
 
@@ -58,11 +62,11 @@ export default {
     getPctChangeFromEvent (event) {
       return this.$utils.format.formatPercentage(event.pctChange)
     },
-    getIsinsFromEvent (event) {
-      return event.holdings.map(holding => holding.isin).join(', ')
-    },
     getNamesFromEvent (event) {
       return event.holdings.map(holding => holding.name).join(', ')
+    },
+    openFundPage (isin, startDate, endDate) {
+      this.$utils.router.redirectToFund(isin, { newTab: true, startDate, endDate })
     }
   },
   watch: {
