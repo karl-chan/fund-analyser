@@ -27,7 +27,7 @@ async function push (user, key, payload) {
                 payload
             }))
         } catch (err) {
-            log.error(`Failed for pushSubscription: ${pushSubscription}. Cause: ${err}`)
+            log.error(`Failed for pushSubscription: ${JSON.stringify(pushSubscription)}. Cause: ${err}`)
         }
     })
 }

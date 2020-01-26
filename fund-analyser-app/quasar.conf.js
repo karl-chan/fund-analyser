@@ -134,7 +134,7 @@ module.exports = function (ctx) {
         short_name: 'Fund Analyser',
         description: 'Your mutual funds toolkit',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/index.html',
         orientation: 'any',
         background_color: '#ffffff',
         theme_color: '#263238',
