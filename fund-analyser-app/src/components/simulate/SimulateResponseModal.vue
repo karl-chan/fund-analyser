@@ -11,7 +11,9 @@
               q-item Num portfolio: {{simulation.simulateParam.numPortfolio}}
               q-item Date: {{prediction.date}}
               q-item Funds:
-            q-table(dense hide-bottom :data="funds" :columns="queryColumns" row-key="isin")
+            q-table(dense :data="funds" :columns="queryColumns" row-key="isin"
+                    table-style="max-height: 400px" virtual-scroll hide-bottom
+                    :pagination.sync="pagination" :rows-per-page-options="[0]")
           .col-8
             q-table.holdings-history-table(title="Holdings history"
                     dense table-style="max-height: 400px" row-key="from"
