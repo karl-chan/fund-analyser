@@ -187,7 +187,7 @@ class FinancialTimes {
             const dates = series.Dates
             const prices = series.Elements[0].ComponentSeries.find(s => s.Type === 'Close').Values
             const historicPrices = _.zipWith(dates, prices, (dateString, price) => {
-                const date = moment(dateString).toDate()
+                const date = moment.utc(dateString).toDate()
                 return new Fund.HistoricPrice(date, price)
             })
             return fundUtils.dropWhileGaps(historicPrices)
