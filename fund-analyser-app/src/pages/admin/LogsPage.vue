@@ -42,7 +42,7 @@ export default {
   computed: {
     filteredLogs: function () {
       const lines = this.logs.split('\n')
-      const filtered = lines.filter(line => line && line.toLowerCase().includes(this.filter.toLowerCase()))
+      const filtered = lines.filter(line => line && line.toLowerCase().includes(this.filter ? this.filter.toLowerCase() : ''))
       const regex = /^(.*) (.*\[.*\]:) (.*)$/
       return filtered
         .map(line => {
