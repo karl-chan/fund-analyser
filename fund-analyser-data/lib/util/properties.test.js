@@ -5,7 +5,8 @@ describe('properties', () => {
         expect(properties.get('missing.property')).toBeUndefined()
     })
     test('should return property from system environment', () => {
-        expect(properties.get('NODE_ENV')).toBe('development')
+        expect(properties.get('NODE_ENV')).toBe('test')
+        expect(properties.get('NODE.ENV')).toBe('test')
     })
     test('should return property from config file', () => {
         expect(properties.get('log.level')).toBe('debug')

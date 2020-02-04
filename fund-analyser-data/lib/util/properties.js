@@ -16,13 +16,11 @@ const OVERRIDE_ME = 'override_me'
 function get (path) {
     return tryParse(
         path,
-        path in process.env
-            ? getFromEnvironment(path)
-            : getFromFile(path))
+        getFromEnvironment(path) || getFromFile(path))
 }
 
 function getFromEnvironment (path) {
-    return process.env[path]
+    return process.env[path] || process.env[path.replace(/\./g, '_')]
 }
 
 function getFromFile (path) {
