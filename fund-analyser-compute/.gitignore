@@ -1,6 +1,7 @@
 .idea/
 *.iml
 push.bat
+push.sh
 prof/
 __pycache__/
 .pytest_cache/
