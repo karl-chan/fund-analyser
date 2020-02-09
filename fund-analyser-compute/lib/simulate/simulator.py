@@ -35,6 +35,7 @@ class Simulator:
     class Result(NamedTuple):
         account: pd.DataFrame
         returns: float
+        annual_returns: float
         max_drawdown: float
         sharpe_ratio: float
         start_date: date
@@ -139,11 +140,15 @@ class Simulator:
                 account.loc[next_dt, :] = [account.iloc[-1, :]["value"], None, None]
                 dt = next_dt
 
+        total_returns = (account.iloc[-1, :].loc["value"] - account.iloc[0, :].loc["value"])\
+                        / account.iloc[0, :].loc["value"]
+        annual_returns = (1 + total_returns) ** (365.25 / (end_date - start_date).days) - 1
         print(account.to_string())
+
         return Simulator.Result(
             account=account,
-            returns=(account.iloc[-1, :].loc["value"] - account.iloc[0, :].loc["value"])
-                    / account.iloc[0, :].loc["value"],
+            returns=total_returns,
+            annual_returns=annual_returns,
             max_drawdown=calc_max_drawdown(account["value"]),
             sharpe_ratio=calc_sharpe_ratio(account["value"]),
             start_date=start_date,
@@ -185,8 +190,8 @@ class Simulator:
 
         sorted_by_returns = sorted(results, key=lambda r: r.returns)
         min_returns, max_returns = sorted_by_returns[0], sorted_by_returns[-1]
-        print(f"Min returns: {min_returns.returns} Begin date: {min_returns.start_date}")
-        print(f"Max returns: {max_returns.returns} Begin date: {max_returns.start_date}")
+        print(f"Min returns: {min_returns.returns} (annual: {min_returns.annual_returns}) Begin date: {min_returns.start_date}")
+        print(f"Max returns: {max_returns.returns} (annual: {max_returns.annual_returns}) Begin date: {max_returns.start_date}")
 
         sorted_by_drawdowns = sorted(results, key=lambda r: r.max_drawdown)
         max_drawdown = sorted_by_drawdowns[0]
