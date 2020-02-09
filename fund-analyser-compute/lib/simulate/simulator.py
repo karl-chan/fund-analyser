@@ -197,7 +197,7 @@ class Simulator:
         print(f"Min sharpe ratio: {min_sharpe_ratio.sharpe_ratio} Begin date: {min_sharpe_ratio.start_date}")
 
         # set display mode and suppress useless warnings
-        matplotlib.use("tkagg", warn=False)
+        matplotlib.use("Qt5Agg", warn=False)
         logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
 
         # total returns histogram
