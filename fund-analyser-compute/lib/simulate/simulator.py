@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import logging
+import sys
 from datetime import date
-from typing import Iterable, NamedTuple, List, Optional
+from typing import Iterable, List, NamedTuple, Optional
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -140,7 +141,7 @@ class Simulator:
                 account.loc[next_dt, :] = [account.iloc[-1, :]["value"], None, None]
                 dt = next_dt
 
-        total_returns = (account.iloc[-1, :].loc["value"] - account.iloc[0, :].loc["value"])\
+        total_returns = (account.iloc[-1, :].loc["value"] - account.iloc[0, :].loc["value"]) \
                         / account.iloc[0, :].loc["value"]
         annual_returns = (1 + total_returns) ** (365.25 / (end_date - start_date).days) - 1
         print(account.to_string())
@@ -190,8 +191,10 @@ class Simulator:
 
         sorted_by_returns = sorted(results, key=lambda r: r.returns)
         min_returns, max_returns = sorted_by_returns[0], sorted_by_returns[-1]
-        print(f"Min returns: {min_returns.returns} (annual: {min_returns.annual_returns}) Begin date: {min_returns.start_date}")
-        print(f"Max returns: {max_returns.returns} (annual: {max_returns.annual_returns}) Begin date: {max_returns.start_date}")
+        print(
+            f"Min returns: {min_returns.returns} (annual: {min_returns.annual_returns}) Begin date: {min_returns.start_date}")
+        print(
+            f"Max returns: {max_returns.returns} (annual: {max_returns.annual_returns}) Begin date: {max_returns.start_date}")
 
         sorted_by_drawdowns = sorted(results, key=lambda r: r.max_drawdown)
         max_drawdown = sorted_by_drawdowns[0]
@@ -202,7 +205,7 @@ class Simulator:
         print(f"Min sharpe ratio: {min_sharpe_ratio.sharpe_ratio} Begin date: {min_sharpe_ratio.start_date}")
 
         # set display mode and suppress useless warnings
-        matplotlib.use("Qt5Agg", warn=False)
+        matplotlib.use("Qt5Agg" if sys.platform == "darwin" else "TkAgg", warn=False)
         logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
 
         # total returns histogram

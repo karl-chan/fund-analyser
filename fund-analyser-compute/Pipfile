@@ -11,7 +11,7 @@ matplotlib = "*"
 numpy = "*"
 overrides = "*"
 pandas = "*"
-pyqt5 = "*"
+pyqt5 = {version = "*", sys_platform = "== 'darwin'"}
 pytest = "*"
 pytest-profiling = "*"
 requests = "*"

@@ -1,7 +1,7 @@
 import logging
-from datetime import timedelta, datetime, date
+from datetime import date, datetime, timedelta
 from threading import Lock
-from typing import Iterable, Dict, Optional, List
+from typing import Dict, Iterable, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -16,6 +16,7 @@ _LOG = logging.getLogger(__name__)
 
 _fund_cache: Dict[str, Fund] = dict()
 _prices_df: Optional[pd.DataFrame] = None  # fast DataFrame cache for fund historicPrices
+_corr_df: Optional[pd.DataFrame] = None  # correlation between price series
 _expiration_time: Optional[datetime] = None
 _is_full: bool = False
 _lock = Lock()
@@ -36,6 +37,12 @@ def get_prices(isins: Optional[Iterable[str]] = None) -> pd.DataFrame:
     maybe_initialise(isins)
     isins = _normalise_isins(isins)
     return _prices_df[isins]
+
+
+def get_corr(isins: Optional[Iterable[str]] = None) -> pd.DataFrame:
+    maybe_initialise(isins)
+    isins = _normalise_isins(isins)
+    return _corr_df[isins, isins]
 
 
 def filter_isins(isins: Iterable[str]) -> List[str]:
@@ -109,12 +116,12 @@ def load_from_file(isins: Optional[Iterable[str]]) -> None:
     """
     Loads fund cache from file if present and not expired, else raises ValueError.
     """
-    global _fund_cache, _prices_df, _expiration_time, _is_full
+    global _fund_cache, _prices_df, _corr_df, _expiration_time, _is_full
     data = read_from_disk(_PICKLE_FUND_CACHE)
     if datetime.now() > data["expiry"]:
         raise ValueError(f"Fund cache expired at: {data['expiry']}")
-    _fund_cache, _prices_df, _expiration_time, _is_full = \
-        data["funds"], data["prices_df"], data["expiry"], data["is_full"]
+    _fund_cache, _prices_df, _corr_df, _expiration_time, _is_full = \
+        data["funds"], data["prices_df"], data["corr_df"], data["expiry"], data["is_full"]
     if not valid(isins):
         raise ValueError(f"Fund cache needs refresh because it doesn't contain all isins: {isins}")
 
@@ -124,10 +131,11 @@ def save_to_file() -> None:
     Saves in-memory fund cache to file.
     :return:
     """
-    global _fund_cache, _prices_df, _expiration_time, _is_full
+    global _fund_cache, _prices_df, _corr_df, _expiration_time, _is_full
     write_to_disk(_PICKLE_FUND_CACHE, {
         "funds": _fund_cache,
         "prices_df": _prices_df,
+        "corr_df": _corr_df,
         "expiry": _expiration_time,
         "is_full": _is_full
     })
@@ -137,7 +145,7 @@ def refresh(isins: Optional[Iterable[str]]) -> None:
     """
     Builds a fresh copy of fund cache from web.
     """
-    global _fund_cache, _prices_df, _expiration_time, _is_full
+    global _fund_cache, _prices_df, _corr_df, _expiration_time, _is_full
     _LOG.info("Refreshing fund cache...")
     _fund_cache = dict()
     all_prices = []
@@ -150,6 +158,7 @@ def refresh(isins: Optional[Iterable[str]]) -> None:
         all_prices.append(fund_stream_entry.historic_prices)
     _LOG.debug("Merging fund historic prices...")
     _prices_df = pd.concat(all_prices, axis=1).resample("B").asfreq().fillna(method="ffill")
+    _corr_df = _prices_df.truncate(before=date.today() - pd.DateOffset(years=1)).corr()
     _expiration_time = datetime.now() + EXPIRY
     _is_full = isins is None
     save_to_file()
