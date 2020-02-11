@@ -42,7 +42,7 @@ export default {
       this.getActiveSessions()
     },
     extractLocation (session) {
-      const { city, country, region } = session.location
+      const { city, country, region } = session.location || {}
       if (!city && !country && !region) {
         return 'Unknown'
       }

@@ -3,6 +3,7 @@ const Promise = require('bluebird')
 const auth = require('../auth')
 const trade = require('../../lib/trade/trade')
 const CharlesStanleyDirectAccount = require('../../lib/account/CharlesStanleyDirectAccount')
+const SessionDAO = require('../../lib/db/SessionDAO')
 const UserDAO = require('../../lib/db/UserDAO')
 
 const ACCOUNT_URL_PREFIX = '/api/account'
@@ -110,9 +111,15 @@ router.post('/simulate-params/update', async ctx => {
     const user = ctx.user
     const { simulateParam, active } = ctx.request.body
     if (active) {
-        await UserDAO.activateSimulateParam(user, simulateParam)
+        await Promise.all([
+            SessionDAO.upsertBackgroundSession(ctx.session.token),
+            UserDAO.activateSimulateParam(user, simulateParam)
+        ])
     } else {
-        await UserDAO.deactivateAllSimulateParams(user, simulateParam)
+        await Promise.all([
+            SessionDAO.deleteBackgroundSession(user),
+            UserDAO.deactivateAllSimulateParams(user, simulateParam)
+        ])
     }
     ctx.status = 200
 })

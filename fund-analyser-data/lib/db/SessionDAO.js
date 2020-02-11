@@ -1,6 +1,9 @@
 const db = require('../util/db')
 const log = require('../util/log')
 const _ = require('lodash')
+const uuid = require('uuid/v4')
+
+const BACKGROUND_SESSION_USER_AGENT = 'Background Session'
 
 /**
  * A SessionDAO entry is represented by
@@ -45,6 +48,22 @@ SessionDAO.upsertSession = async function (data, sessionId) {
     log.debug('Upserted session into database')
 }
 
+// Long lived background session for trading bot
+SessionDAO.upsertBackgroundSession = async function (token) {
+    const longLivedExpiry = new Date(9999, 0, 1)
+    const doc = {
+        token: {
+            ...token,
+            expiry: longLivedExpiry,
+            userAgent: BACKGROUND_SESSION_USER_AGENT
+        },
+        sessionId: uuid()
+    }
+    const query = { 'token.user': token.user, 'token.userAgent': BACKGROUND_SESSION_USER_AGENT }
+    await db.getSessions().updateOne(query, { $setOnInsert: doc }, { upsert: true })
+    log.debug(`Upserted background session for user: ${token.user}`)
+}
+
 SessionDAO.findSession = async function (sessionId) {
     const query = { sessionId }
 
@@ -75,10 +94,18 @@ SessionDAO.deleteSession = async function (sessionId) {
     log.debug('Deleted session from database')
 }
 
+SessionDAO.deleteBackgroundSession = async function (user) {
+    const query = { 'token.user': user, 'token.userAgent': BACKGROUND_SESSION_USER_AGENT }
+
+    await db.getSessions().deleteMany(query)
+    log.debug(`Deleted all background sessions for user: ${user}`)
+}
+
 SessionDAO.deleteExpiredSessions = async function () {
     const query = { 'token.expiry': { $lte: new Date() } }
 
     await db.getSessions().deleteMany(query)
     log.info('Deleted all expired sessions')
 }
+
 module.exports = SessionDAO
