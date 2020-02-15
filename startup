@@ -1,0 +1,4 @@
+ttab 'cd fund-analyser-app && quasar dev -m pwa'
+ttab 'cd fund-analyser-data && npm run server.dev'
+ttab 'cd fund-analyser-compute && pipenv run python -m server.server'
+
