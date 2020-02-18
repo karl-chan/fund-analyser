@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Iterator, Optional
 
 import requests
 import ujson
@@ -12,12 +12,12 @@ def _remove_leading_slash(endpoint: str) -> str:
     return endpoint[1:] if endpoint.startswith("/") else endpoint
 
 
-def get(endpoint: str, params: Optional[Dict[str, str]] = None):
+def get(endpoint: str, params: Optional[Dict[str, str]] = None) -> object:
     endpoint = f"{DATA_HOST}/{_remove_leading_slash(endpoint)}"
     return requests.get(endpoint, params).json()
 
 
-def stream(endpoint: str, params: Optional[Dict[str, str]] = None):
+def stream(endpoint: str, params: Optional[Dict[str, str]] = None) -> Iterator[Dict]:
     endpoint = f"{DATA_HOST}/{_remove_leading_slash(endpoint)}"
     line_seps = {b",", b"[", b"]"}
     lines = requests.get(endpoint, params, stream=True).iter_lines()

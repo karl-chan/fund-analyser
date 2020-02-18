@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import List, Optional
 
 import pandas as pd
@@ -8,11 +8,19 @@ from pandas.tseries.frequencies import to_offset
 from lib.fund.fund import Fund
 from lib.util import properties
 
+DAILY_PLATFORM_FEES = (1 + properties.get("fund.fees.platform.charge")) ** (1 / 252) - 1
+
 
 def calc_returns(prices_df: pd.DataFrame, dt: datetime, duration: pd.DateOffset, fees_df: pd.DataFrame) -> pd.Series:
     window = prices_df[dt - duration: dt]
     returns_before_fees = (window.iloc[-1] - window.iloc[0]) / window.iloc[0]
-    returns_after_fees = returns_before_fees * (1 - fees_df["total"])
+
+    one_off_fees = fees_df[["entry_charge", "exit_charge", "bid_ask_spread"]].sum(axis=1)
+    annual_fees = fees_df[["ocf", "platform_charge"]].sum(axis=1)
+    num_bdays = len(window.index) - 1
+    prorated_total_fees = one_off_fees + ((1 + annual_fees) ** (num_bdays / 252) - 1)
+
+    returns_after_fees = returns_before_fees - prorated_total_fees
     return returns_after_fees
 
 
@@ -23,7 +31,6 @@ def calc_fees(funds: List[Fund]) -> pd.DataFrame:
         index=[fund.isin for fund in funds],
         columns=["ocf", "amc", "entry_charge", "exit_charge", "bid_ask_spread", "platform_charge"]
     )
-    fees.loc[:, "total"] = fees[["ocf", "entry_charge", "exit_charge", "bid_ask_spread", "platform_charge"]].sum(axis=1)
     return fees
 
 

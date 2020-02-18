@@ -42,7 +42,7 @@ def get_prices(isins: Optional[Iterable[str]] = None) -> pd.DataFrame:
 def get_corr(isins: Optional[Iterable[str]] = None) -> pd.DataFrame:
     maybe_initialise(isins)
     isins = _normalise_isins(isins)
-    return _corr_df[isins, isins]
+    return _corr_df.loc[isins, isins]
 
 
 def filter_isins(isins: Iterable[str]) -> List[str]:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import NamedTuple, List, Dict, Optional
+from typing import Dict, List, NamedTuple, Optional
 
 import numpy as np
 import pandas as pd
@@ -69,7 +69,20 @@ class AccountStatement(NamedTuple):
         augmented = pd.concat([values_series, isins_series], axis=1) \
             .truncate(before=account.first_valid_index(),
                       after=account.last_valid_index())
-        for i in range(len(augmented.index) - 1):
+        last_valid_index_loc = augmented.index.get_loc(values_series.last_valid_index())
+        # Bfill from last valid entry
+        for i in range(last_valid_index_loc, 0, -1):
+            dt = augmented.index[i]
+            curr_value, prev_value = augmented.iloc[i]["value"], augmented.iloc[i - 1]["value"]
+            isins = augmented.iloc[i]["isins"]
+            if np.isnan(prev_value):
+                if isins is None:
+                    augmented.at[augmented.index[i - 1], "value"] = curr_value
+                else:
+                    augmented.at[augmented.index[i - 1], "value"] = \
+                        curr_value / prices_ratios_df.loc[dt, isins].mean()
+        # Ffill from last valid entry to today
+        for i in range(last_valid_index_loc, len(augmented.index) - 1):
             dt = augmented.index[i]
             curr_value, next_value = augmented.iloc[i]["value"], augmented.iloc[i + 1]["value"]
             next_isins = augmented.iloc[i + 1]["isins"]

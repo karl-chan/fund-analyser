@@ -13,7 +13,7 @@ from ffn import calc_max_drawdown
 
 from lib.fund import fund_cache
 from lib.fund.fund import Fund
-from lib.fund.fund_utils import calc_fees, calc_returns, calc_sharpe_ratio
+from lib.fund.fund_utils import calc_fees, calc_returns, calc_sharpe_ratio, DAILY_PLATFORM_FEES
 from lib.simulate.strategy.strategy import Strategy
 from lib.simulate.tiebreaker.tie_breaker import TieBreaker
 from lib.util.dates import BDAY
@@ -67,7 +67,6 @@ class Simulator:
         self._strategy = strategy
         self._tie_breaker = tie_breaker
 
-        self._funds_lookup = {fund.isin: fund for fund in funds}
         self._num_portfolio = num_portfolio
         self._hold_interval = hold_interval
         self._buy_sell_gap = buy_sell_gap
@@ -138,9 +137,10 @@ class Simulator:
             else:
                 next_dt = (dt + BDAY).date()
                 # carry forward
-                account.loc[next_dt, :] = [account.iloc[-1, :]["value"], None, None]
+                account.loc[next_dt, :] = [account.iloc[-1, :]["value"] * (1 - DAILY_PLATFORM_FEES), None, None]
                 dt = next_dt
 
+        account.rename(index={next_dt: min(next_dt, end_date)}, inplace=True)  # clip end date if out of bounds
         total_returns = (account.iloc[-1, :].loc["value"] - account.iloc[0, :].loc["value"]) \
                         / account.iloc[0, :].loc["value"]
         annual_returns = (1 + total_returns) ** (365.25 / (end_date - start_date).days) - 1
