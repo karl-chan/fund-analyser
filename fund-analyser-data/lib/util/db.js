@@ -2,6 +2,7 @@ module.exports = {
     init,
     get,
     getFunds,
+    getSimilarFunds,
     getCurrencies,
     getSessions,
     getUsers,
@@ -41,6 +42,10 @@ function get () {
 
 function getFunds () {
     return _fundDbs.map(db => db.collection('funds'))
+}
+
+function getSimilarFunds () {
+    return _db.collection('similarfunds')
 }
 
 function getCurrencies () {

@@ -7,6 +7,7 @@ const agGridUtils = require('../../lib/util/agGridUtils')
 const fundCache = require('../cache/fundCache')
 const FinancialTimes = require('../../lib/fund/FinancialTimes')
 const FundDAO = require('../../lib/db/FundDAO')
+const SimilarFundsDAO = require('../../lib/db/SimilarFundsDAO')
 
 const FUNDS_URL_PREFIX = '/api/funds'
 const router = new Router({
@@ -102,6 +103,17 @@ router.get('/csv', async ctx => {
     ctx.body = FundDAO.exportCsv(headerFields, options)
     ctx.set('Content-disposition', `attachment;filename=fund_${moment().format('YYYYMMDD')}.csv`)
     ctx.set('Content-type', 'text/csv')
+})
+
+router.get('/similar-funds/:isins', async ctx => {
+    const isins = ctx.params.isins.split(',')
+    const similarFunds = await SimilarFundsDAO.getSimilarFunds(isins)
+    ctx.body = similarFunds
+})
+
+router.post('/similar-funds', async ctx => {
+    const { similarFunds } = ctx.request.body
+    await SimilarFundsDAO.upsertSimilarFunds(similarFunds)
 })
 
 module.exports = router

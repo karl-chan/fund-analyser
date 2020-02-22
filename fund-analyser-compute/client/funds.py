@@ -1,5 +1,5 @@
 import logging
-from typing import Iterable, Iterator, NamedTuple, Optional
+from typing import Dict, Iterable, Iterator, List, NamedTuple, Optional
 
 from client import data
 from lib.fund.fund import Fund, FundHistoricPrices
@@ -13,6 +13,22 @@ class FundStreamEntry(NamedTuple):
     historic_prices: FundHistoricPrices
 
 
+class SimilarFundsEntry(NamedTuple):
+    isin: str
+    similar_isins: List[str]
+    fee_return_ratio: Optional[float]
+
+    def as_dict(self) -> Dict:
+        return {
+            "isin": self.isin,
+            "similarIsins": self.similar_isins,
+            "feeReturnRatio": self.fee_return_ratio
+        }
+
+
+SimilarFunds = List[SimilarFundsEntry]
+
+
 def stream_funds(isins: Optional[Iterable[str]] = None) -> Iterator[FundStreamEntry]:
     params = {"stream": "true"}
     for d in data.stream(f"/funds/isins/{','.join(isins) if isins is not None else 'all'}", params):
@@ -23,3 +39,9 @@ def stream_funds(isins: Optional[Iterable[str]] = None) -> Iterator[FundStreamEn
             )
         except Exception as e:
             _LOG.error(f"Failed to convert {d} to fund! Cause: {e}")
+
+
+def post_similar_funds(similar_funds: SimilarFunds):
+    data.post("/funds/similar-funds", {
+        "similarFunds": [similar_funds_entry.as_dict() for similar_funds_entry in similar_funds]
+    })

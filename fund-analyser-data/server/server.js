@@ -49,7 +49,7 @@ app.use(compress())
 app.use(logger())
 app.use(cors())
 app.use(session(auth.SESSION_CONFIG, app))
-app.use(bodyParser())
+app.use(bodyParser({ jsonLimit: '10mb' }))
 app.use(serve(path.resolve(__dirname, '../../fund-analyser-app/dist/pwa'), {
     maxAge: 365 * 24 * 60 * 60,
     buffer: true,

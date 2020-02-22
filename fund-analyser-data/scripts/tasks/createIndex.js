@@ -11,7 +11,7 @@ const lookbacks = properties.get('fund.lookbacks')
  * Create index on popular fields for sorting
  */
 async function createIndex () {
-    await Promise.all([createFundsIndex(), createCurrencyIndex()])
+    await Promise.all([createFundsIndex(), createSimilarFundsIndex(), createCurrencyIndex()])
 }
 
 async function createFundsIndex () {
@@ -37,6 +37,16 @@ async function createFundsIndex () {
             { background: true, weights: { name: 10, isin: 5, sedol: 5, 'holdings.name': 1, 'holdings.symbol': 1 } })
     )
     log.info('Created fund indexes')
+}
+
+async function createSimilarFundsIndex () {
+    try {
+        await db.getSimilarFunds().dropIndexes()
+    } catch (ignored) {}
+    log.info('Dropped similarfunds indexes')
+
+    await db.getSimilarFunds().createIndex({ isin: 1 }, { background: true })
+    log.info('Created similarfunds indexes')
 }
 
 async function createCurrencyIndex () {

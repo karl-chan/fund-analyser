@@ -4,7 +4,7 @@ from typing import Iterable, List, Optional
 import pandas as pd
 import pytest
 from overrides import overrides
-from pandas._testing import assert_frame_equal
+from pandas.testing import assert_frame_equal
 
 from lib.fund import fund_cache
 from lib.fund.fund import Fund

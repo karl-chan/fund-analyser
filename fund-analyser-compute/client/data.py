@@ -17,6 +17,11 @@ def get(endpoint: str, params: Optional[Dict[str, str]] = None) -> object:
     return requests.get(endpoint, params).json()
 
 
+def post(endpoint: str, data: Optional[object] = None) -> object:
+    endpoint = f"{DATA_HOST}/{_remove_leading_slash(endpoint)}"
+    return requests.post(endpoint, json=data)
+
+
 def stream(endpoint: str, params: Optional[Dict[str, str]] = None) -> Iterator[Dict]:
     endpoint = f"{DATA_HOST}/{_remove_leading_slash(endpoint)}"
     line_seps = {b",", b"[", b"]"}

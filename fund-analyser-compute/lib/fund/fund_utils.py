@@ -15,10 +15,9 @@ def calc_returns(prices_df: pd.DataFrame, dt: datetime, duration: pd.DateOffset,
     window = prices_df[dt - duration: dt]
     returns_before_fees = (window.iloc[-1] - window.iloc[0]) / window.iloc[0]
 
-    one_off_fees = fees_df[["entry_charge", "exit_charge", "bid_ask_spread"]].sum(axis=1)
-    annual_fees = fees_df[["ocf", "platform_charge"]].sum(axis=1)
     num_bdays = len(window.index) - 1
-    prorated_total_fees = one_off_fees + ((1 + annual_fees) ** (num_bdays / 252) - 1)
+    prorated_annual_fees = (1 + fees_df["total_annual_fees"]) ** (num_bdays / 252) - 1
+    prorated_total_fees = fees_df["total_one_off_fees"] + prorated_annual_fees
 
     returns_after_fees = returns_before_fees - prorated_total_fees
     return returns_after_fees
@@ -27,9 +26,13 @@ def calc_returns(prices_df: pd.DataFrame, dt: datetime, duration: pd.DateOffset,
 def calc_fees(funds: List[Fund]) -> pd.DataFrame:
     platform_charge = properties.get("fund.fees.platform.charge")
     fees = pd.DataFrame(
-        [[fund.ocf, fund.amc, fund.entryCharge, fund.exitCharge, fund.bidAskSpread, platform_charge] for fund in funds],
+        [[fund.ocf, fund.amc, fund.entryCharge, fund.exitCharge, fund.bidAskSpread, platform_charge,
+          sum(filter(None, [fund.entryCharge, fund.exitCharge, fund.bidAskSpread])),
+          sum(filter(None, [fund.ocf, platform_charge]))] for fund in funds],
         index=[fund.isin for fund in funds],
-        columns=["ocf", "amc", "entry_charge", "exit_charge", "bid_ask_spread", "platform_charge"]
+        columns=["ocf", "amc", "entry_charge", "exit_charge", "bid_ask_spread", "platform_charge",
+                 "total_one_off_fees",
+                 "total_annual_fees"]
     )
     return fees
 
