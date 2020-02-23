@@ -14,6 +14,11 @@ export function removeAllFunds (state) {
   state.loaded = {}
 }
 
+export function addSimilarFunds (state, similarFunds) {
+  const isinsToSimilarFunds = keyBy(similarFunds, similarFundsEntry => similarFundsEntry.isin)
+  state.loadedSimilarFunds = { ...state.loadedSimlarFunds, ...isinsToSimilarFunds }
+}
+
 export function setRealTimeDetails (state, realTimeDetailsPairs) {
   for (let [isin, realTimeDetails] of realTimeDetailsPairs) {
     if (isin in state.loaded) {

@@ -7,6 +7,9 @@ export default {
   getRealTimeDetails (isins) {
     return apiService.get(`/funds/real-time-details/${isins.join(',')}`)
   },
+  getSimilarFunds (isins) {
+    return apiService.get(`/funds/similar-funds/${isins.join(',')}`)
+  },
   getSummary () {
     return apiService.get('/funds/summary')
   },

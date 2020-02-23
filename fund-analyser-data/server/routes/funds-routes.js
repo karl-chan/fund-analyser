@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const Router = require('koa-router')
 const moment = require('moment')
 const Promise = require('bluebird')
@@ -108,7 +109,11 @@ router.get('/csv', async ctx => {
 router.get('/similar-funds/:isins', async ctx => {
     const isins = ctx.params.isins.split(',')
     const similarFunds = await SimilarFundsDAO.getSimilarFunds(isins)
-    ctx.body = similarFunds
+
+    const allSimilarIsins = _.uniq(similarFunds.flatMap(similarFundsEntry => similarFundsEntry.similarIsins))
+    const allSimilarFunds = await SimilarFundsDAO.getSimilarFunds(allSimilarIsins)
+
+    ctx.body = allSimilarFunds
 })
 
 router.post('/similar-funds', async ctx => {

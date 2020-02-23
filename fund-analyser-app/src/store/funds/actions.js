@@ -12,8 +12,12 @@ export async function gets ({ dispatch, commit }, isins) {
   if (!isins || !isins.length) {
     return []
   }
-  const funds = await fundService.gets(isins)
+  const [funds, similarFunds] = await Promise.all([
+    fundService.gets(isins),
+    fundService.getSimilarFunds(isins)
+  ])
   commit('addFunds', funds)
+  commit('addSimilarFunds', similarFunds)
   dispatch('updateRealTimeDetails', isins)
   return funds
 }

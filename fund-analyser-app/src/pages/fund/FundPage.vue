@@ -24,14 +24,15 @@
       // middle section
       fund-info-bar(:fund="fund")
       .row.q-col-gutter-x-sm.q-mt-xl
-        .col-md-8
+        .col-md-8.q-gutter-y-md
           fund-chart(:fund="fund")
-        .col-md-4
+          fund-charges(:fund="fund")
+        .col-md-4.q-gutter-y-xs
           fund-holdings(:fund="fund")
+          similar-funds(:fund="fund")
       .row.q-col-gutter-x-sm.q-mt-sm
-        .col-md-5.q-gutter-y-md
-            fund-charges(:fund="fund")
-            fund-currency-view(:fund="fund")
+        .col-md-5
+          fund-currency-view(:fund="fund")
         .col-md-7
           fund-indicators(:fund="fund")
 
