@@ -10,6 +10,7 @@ from lib.indicators.indicator_utils import price_channels
 from lib.simulate.simulator import Simulator
 from lib.simulate.strategy.strategy import Strategy
 from lib.util.dates import BDAY
+from lib.util.lang import intersection
 
 
 class PriceChannelReturns(Strategy):
@@ -47,11 +48,7 @@ class PriceChannelReturns(Strategy):
         ytd_isins = ytd_returns[ytd_returns < 0].index
         today_isins = today_returns[today_returns > 0].index
 
-        return list(set.intersection(
-            set(all_isins),
-            set(ytd_isins),
-            set(today_isins)
-        ))
+        return intersection(all_isins, ytd_isins, today_isins)
 
     @overrides
     def run(self, dt: date, prices_df: pd.DataFrame, fees_df: pd.DataFrame) -> List[str]:

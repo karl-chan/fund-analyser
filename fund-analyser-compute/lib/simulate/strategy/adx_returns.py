@@ -10,6 +10,7 @@ from lib.indicators.indicator_utils import adx
 from lib.simulate.simulator import Simulator
 from lib.simulate.strategy.strategy import Strategy
 from lib.util.dates import BDAY
+from lib.util.lang import intersection
 
 
 class AdxReturns(Strategy):
@@ -22,11 +23,11 @@ class AdxReturns(Strategy):
         # dis_pos_isins = diff_dis_sign.columns[diff_dis_sign[dt - period:dt].all(axis=0)]
         diverging_di_isins = self._diff_dis_grad_sign.columns[self._diff_dis_grad_sign[dt - period: dt].all(axis=0)]
 
-        isins = set.intersection(
-            set(strong_adx_isins),
-            # set(inc_adx_isins),
-            # set(dis_pos_isins),
-            set(diverging_di_isins)
+        isins = intersection(
+            strong_adx_isins,
+            # inc_adx_isins,
+            # dis_pos_isins,
+            diverging_di_isins
         )
         return list(isins)
 

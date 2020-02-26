@@ -9,6 +9,7 @@ from overrides import overrides
 from lib.fund.fund_utils import calc_returns
 from lib.simulate.simulator import Simulator
 from lib.simulate.strategy.strategy import Strategy
+from lib.util.lang import intersection
 
 
 class MomentumReturns(Strategy):
@@ -30,7 +31,7 @@ class MomentumReturns(Strategy):
     def run(self, dt: date, prices_df: pd.DataFrame, fees_df: pd.DataFrame) -> List[str]:
         isins1 = self._require_positive_returns(dt, prices_df, fees_df)
         isins2 = self._avoid_downtrend(dt)
-        return list(set.intersection(*map(set, [isins1, isins2])))
+        return intersection(isins1, isins2)
 
     @overrides
     def on_data_ready(self, data: Simulator.Data) -> None:

@@ -2,7 +2,7 @@ from overrides import overrides
 
 from lib.fund.fund import FundHistoricPrices, FundIndicator
 from lib.indicators.indicator import Indicator
-from lib.util.math import format_float
+from lib.util.maths import format_float
 
 
 class Stability(Indicator):

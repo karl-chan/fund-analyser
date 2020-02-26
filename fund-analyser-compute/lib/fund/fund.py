@@ -8,7 +8,7 @@ from overrides import overrides
 
 from lib.util.dates import parse_date
 from lib.util.enums import StrEnum
-from lib.util.math import replace_nan
+from lib.util.maths import replace_nan
 
 
 class FundShareClass(StrEnum):

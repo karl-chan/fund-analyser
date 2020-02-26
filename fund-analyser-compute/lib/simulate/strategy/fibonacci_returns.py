@@ -10,6 +10,7 @@ from overrides import overrides
 from lib.indicators.indicator_utils import support_resistance
 from lib.simulate.simulator import Simulator
 from lib.simulate.strategy.strategy import Strategy
+from lib.util.lang import intersection
 
 
 class FibonacciReturns(Strategy):
@@ -40,12 +41,12 @@ class FibonacciReturns(Strategy):
 
     @overrides
     def run(self, dt: date, prices_df: pd.DataFrame, fees_df: pd.DataFrame) -> List[str]:
-        isins = list(set.intersection(
-            set(self._above_38(dt, prices_df)),
-            set(self._below_62(dt, prices_df)),
-            set(self._large_gap(dt, prices_df)),
-            set(self._is_rising(dt))
-        ))
+        isins = intersection(
+            self._above_38(dt, prices_df),
+            self._below_62(dt, prices_df),
+            self._large_gap(dt, prices_df),
+            self._is_rising(dt)
+        )
         return isins
 
     @overrides

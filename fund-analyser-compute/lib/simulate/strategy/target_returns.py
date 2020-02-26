@@ -25,9 +25,7 @@ class TargetReturns(Strategy):
 
     @overrides
     def run(self, dt: date, prices_df: pd.DataFrame, fees_df: pd.DataFrame) -> List[str]:
-        return list(set.intersection(
-            set(self._with_upside(dt))
-        ))
+        return self._with_upside(dt)
 
     @overrides
     def on_data_ready(self, data: Simulator.Data) -> None:

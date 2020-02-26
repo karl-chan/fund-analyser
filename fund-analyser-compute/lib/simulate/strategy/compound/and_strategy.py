@@ -8,6 +8,7 @@ from lib.simulate.simulator import Simulator
 from lib.simulate.strategy.bollinger_returns import BollingerReturns
 from lib.simulate.strategy.strategy import Strategy
 from lib.simulate.strategy.target_returns import TargetReturns
+from lib.util.lang import intersection
 
 
 class AndStrategy(Strategy):
@@ -17,9 +18,9 @@ class AndStrategy(Strategy):
 
     @overrides
     def run(self, dt: date, prices_df: pd.DataFrame, fees_df: pd.DataFrame) -> List[str]:
-        return list(set.intersection(
-            *(set(strategy.run(dt, prices_df, fees_df)) for strategy in self.strategies)
-        ))
+        return intersection(
+            *(strategy.run(dt, prices_df, fees_df) for strategy in self.strategies)
+        )
 
     @overrides
     def on_data_ready(self, data: Simulator.Data) -> None:

@@ -1,6 +1,6 @@
 import numpy as np
 
-from lib.util.math import replace_nan, format_float
+from lib.util.maths import format_float, replace_nan
 
 
 def test_replace_nan():
