@@ -98,8 +98,8 @@ function enrichReturns (returns, historicPrices, additionalLookbacks) {
     return newReturns
 }
 
-async function calcIndicators (historicPrices) {
-    return indicators.calcIndicators(historicPrices)
+async function calcIndicators (fund) {
+    return indicators.calcIndicators(fund)
 }
 
 function calcStats (funds) {

@@ -45,10 +45,10 @@ SAMPLE_HISTORIC_PRICES = pd_historic_prices_from_json([
 
 
 def test_mdd_empty_returns_nan():
-    assert np.isnan(MDD().calc(pd.Series()).value)
+    assert np.isnan(MDD().calc(fund=None, historic_prices=pd.Series()).value)
 
 
 def test_mdd():
-    actual = MDD().calc(SAMPLE_HISTORIC_PRICES)
+    actual = MDD().calc(fund=None, historic_prices=SAMPLE_HISTORIC_PRICES)
     assert actual.value == pytest.approx((464 - 486) / 486)
     assert actual.metadata == {"date": "2017-04-18T00:00:00"}

@@ -47,19 +47,19 @@ class FundRealTimeHolding(NamedTuple):
 
 
 class FundRealTimeDetails(NamedTuple):
-    estChange: float
-    estPrice: float
-    stdev: float
-    ci: Tuple[float, float]
-    holdings: List[FundRealTimeHolding]
-    lastUpdated: datetime
+    estChange: float = None
+    estPrice: float = None
+    stdev: float = None
+    ci: Tuple[float, float] = None
+    holdings: List[FundRealTimeHolding] = []
+    lastUpdated: datetime = None
 
     @classmethod
     def from_dict(cls, d: Dict) -> FundRealTimeDetails:
         temp = dict(d)
-        temp["ci"] = tuple(d["ci"])
-        temp["holdings"] = [FundRealTimeHolding.from_dict(h) for h in d["holdings"]]
-        temp["lastUpdated"] = parse_date(d["lastUpdated"])
+        temp["ci"] = tuple(d.get("ci", [None, None]))
+        temp["holdings"] = [FundRealTimeHolding.from_dict(h) for h in d.get("holdings", [])]
+        temp["lastUpdated"] = parse_date(d["lastUpdated"]) if d.get("lastUpdated") else None
         return FundRealTimeDetails(**temp)
 
 
@@ -83,32 +83,32 @@ FundIndicators = Dict[str, FundIndicator]
 
 class Fund(NamedTuple):
     isin: str
-    sedol: str
-    name: str
-    type: FundType
-    shareClass: FundShareClass
-    frequency: str
-    ocf: float
-    amc: float
-    entryCharge: float
-    exitCharge: float
-    bidAskSpread: float
-    holdings: List[FundHolding]
-    returns: Dict[str, float]
-    asof: datetime
-    indicators: FundIndicators
-    realTimeDetails: FundRealTimeDetails
+    sedol: str = None
+    name: str = None
+    type: FundType = None
+    shareClass: FundShareClass = None
+    frequency: str = None
+    ocf: float = None
+    amc: float = None
+    entryCharge: float = None
+    exitCharge: float = None
+    bidAskSpread: float = None
+    holdings: List[FundHolding] = []
+    returns: Dict[str, float] = dict()
+    asof: datetime = None
+    indicators: FundIndicators = None
+    realTimeDetails: FundRealTimeDetails = None
 
     @classmethod
     def from_dict(cls, d: Dict) -> Fund:
         temp = dict(d)
         temp["type"] = FundType.from_str(d.get("type"))
         temp["shareClass"] = FundShareClass.from_str(d.get("shareClass"))
-        temp["holdings"] = [FundHolding.from_dict(e) for e in d["holdings"]]
-        temp["asof"] = parse_date(d["asof"])
-        temp["indicators"] = {k: FundIndicator.from_dict(v) for k, v in d["indicators"].items()}
-        temp["realTimeDetails"] = FundRealTimeDetails.from_dict(d["realTimeDetails"])
-        del temp["historicPrices"]
+        temp["holdings"] = [FundHolding.from_dict(e) for e in d.get("holdings", [])]
+        temp["asof"] = parse_date(d["asof"]) if d.get("asof") else None
+        temp["indicators"] = {k: FundIndicator.from_dict(v) for k, v in d.get("indicators", dict()).items()}
+        temp["realTimeDetails"] = FundRealTimeDetails.from_dict(d.get("realTimeDetails", dict()))
+        temp.pop("historicPrices", [])
         return Fund(**temp)
 
     @overrides

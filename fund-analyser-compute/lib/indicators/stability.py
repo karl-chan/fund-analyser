@@ -1,6 +1,6 @@
 from overrides import overrides
 
-from lib.fund.fund import FundHistoricPrices, FundIndicator
+from lib.fund.fund import Fund, FundHistoricPrices, FundIndicator
 from lib.indicators.indicator import Indicator
 from lib.util.maths import format_float
 
@@ -13,7 +13,7 @@ class Stability(Indicator):
         return "Stability"
 
     @overrides
-    def calc(self, historic_prices: FundHistoricPrices) -> FundIndicator:
+    def calc(self, fund: Fund, historic_prices: FundHistoricPrices) -> FundIndicator:
         daily_returns = historic_prices.diff().iloc[1:]
         signs = daily_returns.clip(-1, 1).replace(0, method="ffill")
         labelled_consecutive_groups = (signs * signs.shift() < 0).cumsum()

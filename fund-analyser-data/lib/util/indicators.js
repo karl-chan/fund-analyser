@@ -4,6 +4,10 @@ module.exports = {
 
 const compute = require('../../client/compute')
 
-async function calcIndicators (historicPrices) {
-    return compute.post('indicators', historicPrices)
+async function calcIndicators (fund) {
+    const { historicPrices, ...restFund } = fund
+    return compute.post('indicators', {
+        fund: restFund,
+        historicPrices
+    })
 }

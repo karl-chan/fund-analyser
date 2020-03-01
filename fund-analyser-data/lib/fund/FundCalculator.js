@@ -25,7 +25,7 @@ class FundCalculator {
         return fund
     }
     async calcIndicators (fund) {
-        fund.indicators = await fundUtils.calcIndicators(fund.historicPrices)
+        fund.indicators = await fundUtils.calcIndicators(fund)
         return fund
     }
 }

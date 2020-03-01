@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from overrides import overrides
 
-from lib.fund.fund import FundHistoricPrices, FundIndicator
+from lib.fund.fund import Fund, FundHistoricPrices, FundIndicator
 from lib.indicators.indicator import DisplayFormat, Indicator
 from lib.util.dates import format_date
 from lib.util.pandas import drop_duplicate_index, pd_offset_from_lookback
@@ -40,7 +40,7 @@ class MaxReturns(Indicator):
         return DisplayFormat.PERCENT
 
     @overrides
-    def calc(self, historic_prices: FundHistoricPrices) -> FundIndicator:
+    def calc(self, fund: Fund, historic_prices: FundHistoricPrices) -> FundIndicator:
         return _reduce_returns(historic_prices, self._offset, lambda s: s.idxmax())
 
 
@@ -60,5 +60,5 @@ class MinReturns(Indicator):
         return DisplayFormat.PERCENT
 
     @overrides
-    def calc(self, historic_prices: FundHistoricPrices) -> FundIndicator:
+    def calc(self, fund: Fund, historic_prices: FundHistoricPrices) -> FundIndicator:
         return _reduce_returns(historic_prices, self._offset, lambda s: s.idxmin())

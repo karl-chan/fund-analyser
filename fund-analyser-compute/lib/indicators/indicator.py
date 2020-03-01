@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 
-from lib.fund.fund import FundHistoricPrices, FundIndicator
+from lib.fund.fund import Fund, FundHistoricPrices, FundIndicator
 
 
 class DisplayFormat(Enum):
@@ -22,5 +22,5 @@ class Indicator(ABC):
         return DisplayFormat.DEFAULT
 
     @abstractmethod
-    def calc(self, historic_prices: FundHistoricPrices) -> FundIndicator:
+    def calc(self, fund: Fund, historic_prices: FundHistoricPrices) -> FundIndicator:
         pass

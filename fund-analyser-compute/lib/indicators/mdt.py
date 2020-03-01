@@ -2,8 +2,8 @@ import numpy as np
 from overrides import overrides
 from pandas import DatetimeIndex
 
-from lib.fund.fund import FundIndicator, FundHistoricPrices
-from lib.indicators.indicator import Indicator, DisplayFormat
+from lib.fund.fund import Fund, FundHistoricPrices, FundIndicator
+from lib.indicators.indicator import DisplayFormat, Indicator
 from lib.util.dates import format_date
 
 
@@ -20,7 +20,7 @@ class MDT(Indicator):
         return DisplayFormat.DEFAULT
 
     @overrides
-    def calc(self, historic_prices: FundHistoricPrices) -> FundIndicator:
+    def calc(self, fund: Fund, historic_prices: FundHistoricPrices) -> FundIndicator:
         try:
             peaks = historic_prices.expanding().max()
             peak_diffs = peaks.diff()

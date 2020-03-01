@@ -153,13 +153,15 @@ describe('fundUtils', () => {
     })
 
     describe('calcIndicators', () => {
-        const historicPrices = [
-            new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
-            new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
-            new Fund.HistoricPrice(new Date(2017, 3, 12), 482.0)
-        ]
+        const fund = Fund.Builder('Fund')
+            .historicPrices([
+                new Fund.HistoricPrice(new Date(2017, 3, 10), 486.0),
+                new Fund.HistoricPrice(new Date(2017, 3, 11), 486.0),
+                new Fund.HistoricPrice(new Date(2017, 3, 12), 482.0)
+            ])
+            .build()
         test('should return a collection of indicators', async () => {
-            const indicators = await fundUtils.calcIndicators(historicPrices)
+            const indicators = await fundUtils.calcIndicators(fund)
             expect(indicators).toHaveProperty('stability')
             expect(indicators.stability.value).toBeNumber()
         })

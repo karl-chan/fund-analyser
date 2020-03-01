@@ -45,7 +45,10 @@ describe('indicators', () => {
 
     describe('calcIndicators', () => {
         test('should return combined indicators', async () => {
-            const actual = await indicators.calcIndicators(historicPrices)
+            const fund = Fund.Builder('Fund')
+                .historicPrices(historicPrices)
+                .build()
+            const actual = await indicators.calcIndicators(fund)
             expect(actual).toBeObject()
                 .toContainKeys(['stability'])
             expect(actual.stability.value).toBeFinite()
