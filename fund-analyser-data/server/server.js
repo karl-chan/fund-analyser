@@ -1,6 +1,7 @@
 const Koa = require('koa')
 const path = require('path')
 const helmet = require('koa-helmet')
+const historyApiFallback = require('koa-history-api-fallback')
 const compress = require('koa-compress')
 const logger = require('koa-logger')
 const cors = require('@koa/cors')
@@ -45,6 +46,10 @@ if (env.isProduction()) {
     app.use(sslify({ resolver: xForwardedProtoResolver }))
 }
 
+app.use(historyApiFallback({
+    // Don't rewrite API requests (passthrough)
+    rewrites: [{ from: /^\/api\/.*$/, to: ({ parsedUrl }) => parsedUrl.format() }]
+}))
 app.use(compress())
 app.use(logger())
 app.use(cors())
