@@ -119,8 +119,8 @@ UserDAO.deactivateAllSimulateParams = async function (user) {
 }
 
 async function getProperty (user, property, fallbackValue = []) {
-    const { meta } = await db.getUsers().findOne({ user }, { projection: { [`meta.${property}`]: 1 } })
-    return meta[property] || fallbackValue
+    const doc = await db.getUsers().findOne({ user }, { projection: { [`meta.${property}`]: 1 } })
+    return doc ? doc.meta[property] : fallbackValue
 }
 
 async function addToProperty (user, property, value) {

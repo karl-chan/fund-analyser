@@ -1,10 +1,19 @@
 const simulate = require('./simulate')
+const UserDAO = require('../db/UserDAO')
+const db = require('../util/db')
 const { push } = require('../util/push')
 
 jest.setTimeout(60000) // 60 seconds
+jest.mock('../db/UserDAO')
 jest.mock('../util/push')
 
 describe('simulate', () => {
+    beforeAll(async () => {
+        await db.init()
+    })
+    afterAll(async () => {
+        await db.close()
+    })
     test('simulate', async () => {
         const simulateParam = {
             strategy: 'BollingerReturns',
@@ -37,7 +46,8 @@ describe('simulate', () => {
             date: '2019-12-31T00:00:00',
             funds: [{
                 isin: 'GB00B99C0657',
-                name: 'Legg Mason IF Japan Equity Fund Class X Accumulation (Hedged)'
+                name: 'Legg Mason IF Japan Equity Fund Class X Accumulation (Hedged)',
+                sedol: 'B99C065'
             }]
         })
     })
@@ -60,7 +70,9 @@ describe('simulate', () => {
             isins: ['GB00B99C0657'],
             numPortfolio: 2
         }
-        await simulate.pushNotificationsForUser([activeSimulateParam, inactiveSimulateParam], user)
+        UserDAO.getSimulateParams.mockResolvedValue([activeSimulateParam, inactiveSimulateParam])
+
+        await simulate.pushNotificationsForUser(user)
         expect(push).toHaveBeenCalledTimes(1)
         expect(push).toHaveBeenCalledWith('user', 'trade',
             expect.toSatisfyAll(({ simulateParam, prediction }) => simulateParam && prediction))
