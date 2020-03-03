@@ -16,6 +16,6 @@ describe('SimilarFundsDAO', () => {
         expect(similarFunds).toBeArrayOfSize(1)
         expect(similarFunds[0].isin).toBe('GB0006061963')
         expect(similarFunds[0].similarIsins).toIncludeAllMembers(['GB0006061963', 'GB0006061856'])
-        expect(similarFunds[0].feeReturnRatio).toBeGreaterThan(0)
+        expect(similarFunds[0].afterFeesReturn).toBeGreaterThan(0)
     })
 })

@@ -19,14 +19,14 @@ def update_similar_funds():
         fees_per_year = fees_df.at[isin, "total_one_off_fees"] + fees_df.at[isin, "total_annual_fees"]
         returns_per_year = fund.returns["1Y"]
         if returns_per_year:
-            fee_return_ratio = fees_per_year / returns_per_year
+            after_fees_return = returns_per_year - fees_per_year
         else:
-            fee_return_ratio = None
+            after_fees_return = None
 
         return SimilarFundsEntry(
             isin=isin,
             similar_isins=similar_isins,
-            fee_return_ratio=fee_return_ratio
+            after_fees_return=after_fees_return
         )
 
     similar_funds = [

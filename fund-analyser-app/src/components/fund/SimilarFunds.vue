@@ -9,8 +9,8 @@
           q-btn(v-if="!isCurrentFund(props)" icon="open_in_new" color="secondary"
                 flat dense @click="openFundPage(props.row.isin)")
           span(v-else)  (Current)
-        q-td(key="feeReturnRatio" :props="props")
-          | {{ $utils.format.formatPercentage(props.row.feeReturnRatio, true) }}
+        q-td(key="afterFeesReturn" :props="props")
+          | {{ $utils.format.formatPercentage(props.row.afterFeesReturn, true) }}
 
 </template>
 
@@ -24,7 +24,7 @@ export default {
     return {
       columns: [
         { name: 'isin', label: 'ISIN', field: 'isin', align: 'left', sortable: true },
-        { name: 'feeReturnRatio', label: 'Fee / Return Ratio', field: 'feeReturnRatio', sortable: true }
+        { name: 'afterFeesReturn', label: 'Fee / Return Ratio', field: 'afterFeesReturn', sortable: true }
       ]
     }
   },
@@ -36,7 +36,7 @@ export default {
         return []
       }
       const allSimilarFunds = similarFundsEntry.similarIsins.flatMap(isin => this.lookupSimilarFund(isin))
-      const sortedSimilarFunds = sortBy(allSimilarFunds, similarFundsEntry => similarFundsEntry.feeReturnRatio)
+      const sortedSimilarFunds = sortBy(allSimilarFunds, similarFundsEntry => similarFundsEntry.afterFeesReturn)
       return sortedSimilarFunds
     }
   },

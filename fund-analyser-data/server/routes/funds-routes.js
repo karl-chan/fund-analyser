@@ -119,6 +119,7 @@ router.get('/similar-funds/:isins', async ctx => {
 router.post('/similar-funds', async ctx => {
     const { similarFunds } = ctx.request.body
     await SimilarFundsDAO.upsertSimilarFunds(similarFunds)
+    ctx.status = 200
 })
 
 module.exports = router

@@ -16,13 +16,13 @@ class FundStreamEntry(NamedTuple):
 class SimilarFundsEntry(NamedTuple):
     isin: str
     similar_isins: List[str]
-    fee_return_ratio: Optional[float]
+    after_fees_return: Optional[float]
 
     def as_dict(self) -> Dict:
         return {
             "isin": self.isin,
             "similarIsins": self.similar_isins,
-            "feeReturnRatio": self.fee_return_ratio
+            "afterFeesReturn": self.after_fees_return
         }
 
 
@@ -38,7 +38,7 @@ def stream_funds(isins: Optional[Iterable[str]] = None) -> Iterator[FundStreamEn
                 historic_prices=pd_historic_prices_from_json(d["historicPrices"]).rename(d["isin"])
             )
         except Exception as e:
-            _LOG.error(f"Failed to convert {d} to fund! Cause: {e}")
+            _LOG.error(f"Failed to convert {d} to fund! Cause: {repr(e)}")
 
 
 def post_similar_funds(similar_funds: SimilarFunds):
