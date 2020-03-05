@@ -9,7 +9,7 @@
             "request": "attach",
             "name": "Nodemon server",
             "restart": true,
-            "protocol": "inspector"
+            "protocol": "inspector",
         },
         {
             "type": "node",
@@ -19,7 +19,8 @@
             "args": [
                 "-r",
                 "pushNotifications"
-            ]
+            ],
+            "outputCapture": "std"
         },
         {
             "type": "node",
@@ -29,7 +30,8 @@
             "args": [
                 "-r",
                 "tradeFunds"
-            ]
+            ],
+            "outputCapture": "std"
         },
         {
             "type": "node",
@@ -39,7 +41,8 @@
             "args": [
                 "-r",
                 "updateCatalog"
-            ]
+            ],
+            "outputCapture": "std"
         },
         {
             "type": "node",
@@ -49,7 +52,8 @@
             "args": [
                 "-r",
                 "updateFunds"
-            ]
+            ],
+            "outputCapture": "std"
         },
         {
             "type": "node",
@@ -64,5 +68,5 @@
             "disableOptimisticBPs": true,
             "program": "${workspaceFolder}/node_modules/jest/bin/jest"
         },
-    ]
+    ],
 }
