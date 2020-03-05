@@ -28,7 +28,7 @@ export default {
   name: 'LogsPage',
   created () {
     this.refresh()
-    this.poller = setInterval(this.refresh, 30000) // 30 seconds
+    this.poller = setInterval(this.refresh, 15000) // 15 seconds
   },
   data () {
     return {
