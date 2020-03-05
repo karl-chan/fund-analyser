@@ -267,6 +267,7 @@ class FinancialTimes {
                 todaysChange = groups[2] / 100
             } catch (err) {
                 log.warn('Todays change failed for: %s. Cause: %s', holdingTicker, err.stack)
+                todaysChange = NaN
             }
             return { currency, todaysChange }
         }
