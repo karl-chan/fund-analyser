@@ -13,7 +13,7 @@ DAILY_PLATFORM_FEES = (1 + properties.get("fund.fees.platform.charge")) ** (1 / 
 
 def calc_returns(prices_df: pd.DataFrame, dt: datetime, duration: pd.DateOffset, fees_df: pd.DataFrame) -> pd.Series:
     window = prices_df[dt - duration: dt]
-    returns_before_fees = (window.iloc[-1] - window.iloc[0]) / window.iloc[0]
+    returns_before_fees = (window.iloc[-1] - window.iloc[0]) / window.iloc[0] if len(window) else 0
 
     num_bdays = len(window.index) - 1
     prorated_annual_fees = (1 + fees_df["total_annual_fees"]) ** (num_bdays / 252) - 1
