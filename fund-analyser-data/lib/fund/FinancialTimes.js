@@ -259,6 +259,7 @@ class FinancialTimes {
             }
             if (!currency) {
                 log.warn('Currency failed for: %s', holdingTicker)
+                currency = null
             }
 
             try {
