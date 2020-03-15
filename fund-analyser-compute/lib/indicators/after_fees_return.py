@@ -3,7 +3,7 @@ from overrides import overrides
 
 from lib.fund.fund import Fund, FundHistoricPrices, FundIndicator
 from lib.fund.fund_utils import calc_fees
-from lib.indicators.indicator import Indicator
+from lib.indicators.indicator import DisplayFormat, Indicator
 
 
 class AfterFeesReturn(Indicator):
@@ -12,6 +12,10 @@ class AfterFeesReturn(Indicator):
 
     def get_display_name(self) -> str:
         return "After Fees Return"
+
+    @overrides
+    def get_display_format(self) -> DisplayFormat:
+        return DisplayFormat.PERCENT
 
     @overrides
     def calc(self, fund: Fund, historic_prices: FundHistoricPrices) -> FundIndicator:
