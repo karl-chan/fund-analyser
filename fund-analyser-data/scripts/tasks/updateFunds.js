@@ -18,7 +18,8 @@ async function updateFunds () {
 
     const fundsToUpdate = await FundDAO.listFunds({
         query: { $or: [{ asof: { $eq: null } }, { asof: { $lt: today } }] },
-        projection: { sedol: 1 }
+        projection: { sedol: 1 },
+        sort: { asof: 1 }
     })
     const sedols = fundsToUpdate.map(f => f.sedol).sort()
     log.info('Sedols to update: %s (%d)', JSON.stringify(sedols), sedols.length)
