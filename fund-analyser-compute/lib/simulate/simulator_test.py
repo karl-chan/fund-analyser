@@ -33,6 +33,7 @@ def test_run():
                 return []
             if dt == date(2001, 1, 10):  # 8th BDAY
                 return ["isin2"]
+            raise ValueError()
 
         @overrides
         def on_data_ready(self, data: Simulator.Data) -> None:
@@ -89,8 +90,8 @@ def mock_fundcache_get(isins: Optional[Iterable[str]] = None) -> List[Fund]:
             entryCharge=0,
             exitCharge=0,
             bidAskSpread=0,
-            holdings=None,
-            returns=None,
+            holdings=[],
+            returns=dict(),
             asof=None,
             indicators=None,
             realTimeDetails=None
@@ -107,8 +108,8 @@ def mock_fundcache_get(isins: Optional[Iterable[str]] = None) -> List[Fund]:
             entryCharge=0,
             exitCharge=0,
             bidAskSpread=0,
-            holdings=None,
-            returns=None,
+            holdings=[],
+            returns=dict(),
             asof=None,
             indicators=None,
             realTimeDetails=None

@@ -172,7 +172,7 @@ class Simulator:
         :param dt: Date of prediction. Defaults to last valid date.
         :return:
         """
-        if not dt:
+        if dt is None:
             dt = self._last_valid_date
         allowed_isins = self._strategy.run(dt, self._prices_df, self._fees_df)
         max_isins = self._tie_breaker.run(allowed_isins,

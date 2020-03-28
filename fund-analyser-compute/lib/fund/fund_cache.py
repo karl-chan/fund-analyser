@@ -36,13 +36,13 @@ def get(isins: Optional[Iterable[str]] = None) -> List[Fund]:
 def get_prices(isins: Optional[Iterable[str]] = None) -> pd.DataFrame:
     maybe_initialise(isins)
     isins = _normalise_isins(isins)
-    return _prices_df[isins]
+    return _prices_df[isins]  # type: ignore
 
 
 def get_corr(isins: Optional[Iterable[str]] = None) -> pd.DataFrame:
     maybe_initialise(isins)
     isins = _normalise_isins(isins)
-    return _corr_df.loc[isins, isins]
+    return _corr_df.loc[isins, isins]  # type: ignore
 
 
 def filter_isins(isins: Iterable[str]) -> List[str]:
@@ -56,12 +56,12 @@ def filter_isins(isins: Iterable[str]) -> List[str]:
         return _fund_cache[isin].frequency == "Daily"
 
     def long_history(isin: str) -> bool:
-        return len(_prices_df[isin].index) >= 30
+        return len(_prices_df[isin].index) >= 30  # type: ignore
 
     TODAY = date.today()
 
     def up_to_date(isin: str) -> bool:
-        return np.busday_count(_prices_df[isin].last_valid_index().date(), TODAY) <= 5
+        return np.busday_count(_prices_df[isin].last_valid_index().date(), TODAY) <= 5  # type: ignore
 
     funcs = [no_entry_charge, no_bid_ask_spread, daily_frequency, long_history, up_to_date]
     result = isins

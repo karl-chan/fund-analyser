@@ -18,10 +18,12 @@ class AdxReturns(Strategy):
     def _max_adx(self, dt: date) -> List[str]:
         period = 3 * BDAY
 
-        strong_adx_isins = self._adxs_strong_sign.columns[self._adxs_strong_sign[dt - period:dt].all(axis=0)]
+        strong_adx_isins = self._adxs_strong_sign.columns[
+            self._adxs_strong_sign[dt - period:dt].all(axis=0)]  # type: ignore
         # inc_adx_isins = adxs_grad_sign.columns[adxs_grad_sign[dt - period:dt].all(axis=0)]
         # dis_pos_isins = diff_dis_sign.columns[diff_dis_sign[dt - period:dt].all(axis=0)]
-        diverging_di_isins = self._diff_dis_grad_sign.columns[self._diff_dis_grad_sign[dt - period: dt].all(axis=0)]
+        diverging_di_isins = self._diff_dis_grad_sign.columns[
+            self._diff_dis_grad_sign[dt - period: dt].all(axis=0)]  # type: ignore
 
         isins = intersection(
             strong_adx_isins,

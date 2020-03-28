@@ -8,7 +8,7 @@ from overrides import overrides
 from lib.fund.fund import Fund, FundHistoricPrices, FundIndicator
 from lib.indicators.indicator import DisplayFormat, Indicator
 from lib.util.dates import format_date
-from lib.util.pandas import drop_duplicate_index, pd_offset_from_lookback
+from lib.util.pandas_utils import drop_duplicate_index, pd_offset_from_lookback
 
 
 def _reduce_returns(historic_prices_series: FundHistoricPrices, offset: pd.DateOffset,

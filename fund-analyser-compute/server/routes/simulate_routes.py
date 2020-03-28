@@ -9,7 +9,7 @@ from lib.simulate.simulator import Simulator
 from lib.simulate.strategy import strategies
 from lib.simulate.strategy.strategies import get_all_strategies
 from lib.simulate.strategy.strategy import Strategy
-from lib.util.dates import format_date, parse_date, BDAY
+from lib.util.dates import BDAY, format_date, parse_date
 from server.model.account_statement import AccountStatement
 
 
@@ -24,7 +24,7 @@ class SimulateRoutes:
             return SimulateRoutes.SimulateParam(
                 strategy=cls._parse_strategy(d.get("strategy")),
                 isins=d.get("isins"),
-                num_portfolio=d.get("numPortfolio")
+                num_portfolio=d.get("numPortfolio")  # type: ignore
             )
 
         @classmethod
@@ -76,7 +76,7 @@ class SimulateRoutes:
             return SimulateRoutes.SimulateParam.from_dict(d)
 
         @classmethod
-        def _parse_date(cls, date_str: Optional[str]) -> Optional[date]:
+        def _parse_date(cls, date_str: Optional[str]) -> Optional[date]:  # type: ignore
             return parse_date(date_str).date() if date_str else None
 
     def on_post_predict(self, req: falcon.Request, resp: falcon.Response):

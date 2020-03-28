@@ -9,42 +9,45 @@ import pandas as pd
 from lib.fund import fund_cache
 from lib.util import properties
 from lib.util.dates import format_date
-from lib.util.pandas import pd_offset_from_lookback
+from lib.util.pandas_utils import pd_offset_from_lookback
+
+
+class HistoricPrice(NamedTuple):
+    date: date
+    price: Optional[float]
+
+    def as_dict(self) -> Dict:
+        return {
+            "date": format_date(self.date),
+            "price": self.price
+        }
+
+
+class Holding(NamedTuple):
+    isin: str
+    name: Optional[str]
+    sedol: Optional[str]
+    weight: float
+
+
+class Event(NamedTuple):
+    type: str
+    from_date: date
+    to_date: date
+    holdings: List[Holding]
+    pct_change: float
+
+    def as_dict(self) -> Dict:
+        return {
+            "type": self.type,
+            "from": format_date(self.from_date),
+            "to": format_date(self.to_date),
+            "holdings": [holding._asdict() for holding in self.holdings],
+            "pctChange": self.pct_change
+        }
 
 
 class AccountStatement(NamedTuple):
-    class HistoricPrice(NamedTuple):
-        date: date
-        price: Optional[float]
-
-        def as_dict(self) -> Dict:
-            return {
-                "date": format_date(self.date),
-                "price": self.price
-            }
-
-    class Event(NamedTuple):
-        class Holding(NamedTuple):
-            isin: str
-            name: str
-            sedol: str
-            weight: float
-
-        type: str
-        from_date: date
-        to_date: date
-        holdings: List[Holding]
-        pct_change: float
-
-        def as_dict(self) -> Dict:
-            return {
-                "type": self.type,
-                "from": format_date(self.from_date),
-                "to": format_date(self.to_date),
-                "holdings": [holding._asdict() for holding in self.holdings],
-                "pctChange": self.pct_change
-            }
-
     series: List[HistoricPrice]
     events: List[Event]
     returns: Dict[str, Optional[float]]
@@ -100,7 +103,7 @@ class AccountStatement(NamedTuple):
         historic_prices = []
         for dt, row in augmented.iterrows():
             price = None if np.isnan(row["value"]) else row["value"]
-            historic_prices.append(AccountStatement.HistoricPrice(dt.date(), price))
+            historic_prices.append(HistoricPrice(dt.date(), price))
         return historic_prices
 
     @classmethod
@@ -110,12 +113,12 @@ class AccountStatement(NamedTuple):
             next_isins = account.iloc[i + 1, :]["isins"]
             if next_isins is not None:
                 next_funds = fund_cache.get(next_isins)
-                events.append(AccountStatement.Event(
+                events.append(Event(
                     type="fund",
                     from_date=account.index[i],
                     to_date=account.index[i + 1],
                     holdings=[
-                        AccountStatement.Event.Holding(
+                        Holding(
                             isin=fund.isin,
                             name=fund.name,
                             sedol=fund.sedol,

@@ -11,13 +11,13 @@ matplotlib = "*"
 numpy = "*"
 overrides = "*"
 pandas = "*"
-pyqt5 = {version = "*", sys_platform = "== 'darwin'"}
+pyqt5 = {version = "*",sys_platform = "== 'darwin'"}
 pytest = "*"
 pytest-profiling = "*"
 requests = "*"
 scikit-learn = "*"
 ta-lib-win32 = {path = "./bin/TA_Lib-0.4.17-cp37-cp37m-win32.whl",sys_platform = "== 'win32'"}
-ta-lib = {version = "*", sys_platform = "== 'darwin'"}
+ta-lib = {version = "*",sys_platform = "== 'darwin'"}
 tensorflow = {version = "*",sys_platform = "!= 'win32'"}
 tensorflow-win32 = {file = "https://github.com/fo40225/tensorflow-windows-wheel/raw/master/1.13.1/py37/CPU/avx2/tensorflow-1.13.1-cp37-cp37m-win_amd64.whl",sys_platform = "== 'win32'"}
 ujson = "*"
@@ -25,3 +25,6 @@ waitress = "*"
 
 [requires]
 python_version = "3.7"
+
+[dev-packages]
+mypy = "*"

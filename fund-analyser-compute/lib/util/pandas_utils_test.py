@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import List, Dict
+from typing import Dict, List
 
 import pandas as pd
 import pytest
 
-from lib.util.pandas import pd_historic_prices_from_json, pd_offset_from_lookback
+from lib.util.pandas_utils import pd_historic_prices_from_json, pd_offset_from_lookback
 
 
 @pytest.mark.parametrize("historic_prices,expected",

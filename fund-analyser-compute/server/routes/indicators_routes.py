@@ -6,7 +6,7 @@ import falcon
 
 from lib.fund.fund import Fund, FundHistoricPrices
 from lib.indicators.indicators import get_all_indicators
-from lib.util.pandas import pd_historic_prices_from_json
+from lib.util.pandas_utils import pd_historic_prices_from_json
 
 
 class IndicatorsRoutes:
@@ -17,8 +17,8 @@ class IndicatorsRoutes:
         @classmethod
         def from_dict(cls, d: Dict) -> IndicatorsRoutes.IndicatorParam:
             return IndicatorsRoutes.IndicatorParam(
-                fund=Fund.from_dict(d.get("fund")),
-                historic_prices=pd_historic_prices_from_json(d.get("historicPrices"))
+                fund=Fund.from_dict(d.get("fund")),  # type: ignore
+                historic_prices=pd_historic_prices_from_json(d.get("historicPrices"))  # type: ignore
             )
 
     def on_get(self, req: falcon.Request, resp: falcon.Response):

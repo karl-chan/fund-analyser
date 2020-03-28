@@ -47,12 +47,12 @@ class FundRealTimeHolding(NamedTuple):
 
 
 class FundRealTimeDetails(NamedTuple):
-    estChange: float = None
-    estPrice: float = None
-    stdev: float = None
-    ci: Tuple[float, float] = None
+    estChange: Optional[float] = None
+    estPrice: Optional[float] = None
+    stdev: Optional[float] = None
+    ci: Optional[Tuple[float, float]] = None
     holdings: List[FundRealTimeHolding] = []
-    lastUpdated: datetime = None
+    lastUpdated: Optional[datetime] = None
 
     @classmethod
     def from_dict(cls, d: Dict) -> FundRealTimeDetails:
@@ -83,27 +83,27 @@ FundIndicators = Dict[str, FundIndicator]
 
 class Fund(NamedTuple):
     isin: str
-    sedol: str = None
-    name: str = None
-    type: FundType = None
-    shareClass: FundShareClass = None
-    frequency: str = None
-    ocf: float = None
-    amc: float = None
-    entryCharge: float = None
-    exitCharge: float = None
-    bidAskSpread: float = None
+    sedol: Optional[str] = None
+    name: Optional[str] = None
+    type: Optional[FundType] = None
+    shareClass: Optional[FundShareClass] = None
+    frequency: Optional[str] = None
+    ocf: Optional[float] = None
+    amc: Optional[float] = None
+    entryCharge: Optional[float] = None
+    exitCharge: Optional[float] = None
+    bidAskSpread: Optional[float] = None
     holdings: List[FundHolding] = []
     returns: Dict[str, float] = dict()
-    asof: datetime = None
-    indicators: FundIndicators = None
-    realTimeDetails: FundRealTimeDetails = None
+    asof: Optional[datetime] = None
+    indicators: Optional[FundIndicators] = None
+    realTimeDetails: Optional[FundRealTimeDetails] = None
 
     @classmethod
     def from_dict(cls, d: Dict) -> Fund:
         temp = dict(d)
-        temp["type"] = FundType.from_str(d.get("type"))
-        temp["shareClass"] = FundShareClass.from_str(d.get("shareClass"))
+        temp["type"] = FundType.from_str(d.get("type"))  # type: ignore
+        temp["shareClass"] = FundShareClass.from_str(d.get("shareClass"))  # type: ignore
         temp["holdings"] = [FundHolding.from_dict(e) for e in d.get("holdings", [])]
         temp["asof"] = parse_date(d["asof"]) if d.get("asof") else None
         temp["indicators"] = {k: FundIndicator.from_dict(v) for k, v in d.get("indicators", dict()).items()}

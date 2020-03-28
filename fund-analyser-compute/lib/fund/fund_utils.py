@@ -1,5 +1,5 @@
-from datetime import date, datetime
-from typing import List, Optional
+from datetime import date
+from typing import Callable, List, Optional
 
 import pandas as pd
 from ffn import calc_sharpe
@@ -11,8 +11,8 @@ from lib.util import properties
 DAILY_PLATFORM_FEES = (1 + properties.get("fund.fees.platform.charge")) ** (1 / 252) - 1
 
 
-def calc_returns(prices_df: pd.DataFrame, dt: datetime, duration: pd.DateOffset, fees_df: pd.DataFrame) -> pd.Series:
-    window = prices_df[dt - duration: dt]
+def calc_returns(prices_df: pd.DataFrame, dt: date, duration: pd.DateOffset, fees_df: pd.DataFrame) -> pd.Series:
+    window = prices_df[dt - duration: dt]  # type: ignore
     returns_before_fees = (window.iloc[-1] - window.iloc[0]) / window.iloc[0] if len(window) else 0
 
     num_bdays = len(window.index) - 1
@@ -39,7 +39,7 @@ def calc_fees(funds: List[Fund]) -> pd.DataFrame:
 
 def calc_hold_interval(prices_df: pd.DataFrame, dt: date, isins: List[str],
                        default_hold_interval: pd.DateOffset) -> pd.DateOffset:
-    funcs = []  # min_recovery_date]
+    funcs: List[Callable[[pd.DataFrame, date, List[str]], date]] = []  # min_recovery_date]
 
     next_dt = (dt + default_hold_interval).date()
     for f in funcs:
@@ -57,7 +57,7 @@ def calc_sharpe_ratio(prices_series: pd.Series, risk_free_rate=0.0) -> float:
 
 
 def min_recovery_date(prices_df: pd.DataFrame, dt: date, isins: List[str]) -> Optional[date]:
-    prices = prices_df.loc[dt:, isins]
+    prices = prices_df.loc[dt:, isins]  # type: ignore
     series = prices.mean(axis=1)
     start_price = series.loc[dt]
     try:

@@ -3,7 +3,7 @@ from typing import Dict, Iterable, Iterator, List, NamedTuple, Optional
 
 from client import data
 from lib.fund.fund import Fund, FundHistoricPrices
-from lib.util.pandas import pd_historic_prices_from_json
+from lib.util.pandas_utils import pd_historic_prices_from_json
 
 _LOG = logging.getLogger(__name__)
 

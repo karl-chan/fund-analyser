@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 from lib.indicators.rsi import RSI
-from lib.util.pandas import pd_historic_prices_from_json
+from lib.util.pandas_utils import pd_historic_prices_from_json
 
 SAMPLE_HISTORIC_PRICES = pd_historic_prices_from_json([
     {"date": "2017-03-10T00:00:00Z", "price": 486.0},

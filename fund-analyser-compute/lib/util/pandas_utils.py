@@ -1,5 +1,5 @@
 import re
-from typing import Optional, Dict, List
+from typing import Dict, List, Optional
 
 import pandas as pd
 
@@ -29,6 +29,7 @@ def pd_offset_from_lookback(lookback: str) -> Optional[pd.DateOffset]:
             return pd.DateOffset(months=n)
         if unit == "Y":
             return pd.DateOffset(years=n)
+    raise ValueError(f"Unrecognised lookback: {lookback}")
 
 
 def drop_duplicate_index(df: pd.DataFrame) -> pd.DataFrame:

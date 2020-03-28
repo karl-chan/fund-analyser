@@ -31,7 +31,7 @@ def adx(prices_df: pd.DataFrame, timeperiod=14) -> Tuple[pd.DataFrame, pd.DataFr
         adxs.append(adx_series)
         plus_dis.append(plus_di_series)
         minus_dis.append(minus_di_series)
-    return tuple(map(lambda s: pd.concat(s, axis=1), (adxs, plus_dis, minus_dis)))
+    return pd.concat(adxs, axis=1), pd.concat(plus_dis, axis=1), pd.concat(minus_dis, axis=1)
 
 
 def ppo(prices_df: pd.DataFrame, fast=12, slow=26, signal=9) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -47,7 +47,7 @@ def ppo(prices_df: pd.DataFrame, fast=12, slow=26, signal=9) -> Tuple[pd.DataFra
         ppos.append(ppo)
         pposignals.append(pposignal)
         ppohists.append(ppohist)
-    return tuple(map(lambda s: pd.concat(s, axis=1), (ppos, pposignals, ppohists)))
+    return pd.concat(ppos, axis=1), pd.concat(pposignals, axis=1), pd.concat(ppohists, axis=1)
 
 
 def support_resistance(prices_df: pd.DataFrame) -> pd.DataFrame:

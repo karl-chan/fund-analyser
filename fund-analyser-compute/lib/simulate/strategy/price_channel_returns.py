@@ -40,7 +40,7 @@ class PriceChannelReturns(Strategy):
         )
 
     def _rebound_within_channel(self, dt: date) -> List[str]:
-        all_btw_channel = self._btw_channel.loc[dt - 2 * BDAY: dt, :].all(axis=0)
+        all_btw_channel = self._btw_channel.loc[dt - 2 * BDAY: dt, :].all(axis=0)  # type: ignore
         all_isins = all_btw_channel.index[all_btw_channel]
 
         ytd_returns = self._daily_returns.loc[dt - BDAY, :]

@@ -1,6 +1,6 @@
 import configparser
 import os
-from typing import Any
+from typing import Any, Optional
 
 import ujson
 
@@ -25,7 +25,7 @@ def _get_from_environment(path: str) -> str:
     return os.environ[path]
 
 
-def _get_from_file(path: str) -> str:
+def _get_from_file(path: str) -> Optional[str]:
     res = PROPERTIES_FILE
     for p in path.split(".", 1):
         if p not in res:
@@ -34,7 +34,7 @@ def _get_from_file(path: str) -> str:
     return res if isinstance(res, str) else None
 
 
-def _try_parse(path: str, value: str) -> object:
+def _try_parse(path: str, value: Optional[str]) -> object:
     if value is None:
         return None
     try:
