@@ -50,10 +50,28 @@ def ppo(prices_df: pd.DataFrame, fast=12, slow=26, signal=9) -> Tuple[pd.DataFra
     return pd.concat(ppos, axis=1), pd.concat(pposignals, axis=1), pd.concat(ppohists, axis=1)
 
 
-def support_resistance(prices_df: pd.DataFrame) -> pd.DataFrame:
+def support_resistance(prices_df: pd.DataFrame) -> \
+        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     # 1 = support, 0 = none, -1 = resistance
     signs = np.sign(prices_df.diff().replace(0, np.nan)).ffill(axis=0).bfill(axis=0)
-    return np.sign(signs.diff().shift(-1)).fillna(0).astype("int")
+    sr = np.sign(signs.diff().shift(-1)).fillna(0).astype("int")
+
+    def prev_support_or_resistance_dates(sr: pd.DataFrame, is_support=True) -> pd.DataFrame:
+        target = 1 if is_support else -1
+        dates = pd.concat([sr.index.to_series()] * len(sr.columns), axis=1)
+        dates.columns = sr.columns
+        dates[sr != target] = np.nan
+        return dates.ffill()
+
+    def prev_dates_to_prices(dates: pd.DataFrame) -> pd.DataFrame:
+        return dates.apply(lambda col: col.map(prices_df[col.name]))
+
+    prev_support_dates = prev_support_or_resistance_dates(sr, is_support=True)
+    prev_support_prices = prev_dates_to_prices(prev_support_dates)
+    prev_resistance_dates = prev_support_or_resistance_dates(sr, is_support=False)
+    prev_resistance_prices = prev_dates_to_prices(prev_resistance_dates)
+
+    return sr, prev_support_dates, prev_support_prices, prev_resistance_dates, prev_resistance_prices
 
 
 def variance(prices_df: pd.DataFrame, timeperiod=5) -> pd.Series:

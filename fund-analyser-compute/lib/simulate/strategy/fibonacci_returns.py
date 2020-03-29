@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import date
 from typing import List
 
-import numpy as np
 import pandas as pd
 from overrides import overrides
 
@@ -52,24 +51,16 @@ class FibonacciReturns(Strategy):
     @overrides
     def on_data_ready(self, data: Simulator.Data) -> None:
         smoothed_prices = data.prices_df.rolling(2).mean()
-        sr = support_resistance(data.prices_df)
+
+        sr, \
+        self._prev_support_dates, \
+        self._prev_support_prices, \
+        self._prev_resistance_dates, \
+        self._prev_resistance_prices \
+            = support_resistance(data.prices_df)
+
         # sr = support_resistance(smoothed_prices)
         self._rising = smoothed_prices.diff().gt(0)
-
-        def prev_support_or_resistance_dates(sr: pd.DataFrame, is_support=True) -> pd.DataFrame:
-            target = 1 if is_support else -1
-            dates = pd.concat([sr.index.to_series()] * len(sr.columns), axis=1)
-            dates.columns = sr.columns
-            dates[sr != target] = np.nan
-            return dates.ffill()
-
-        def prev_dates_to_prices(dates: pd.DataFrame) -> pd.DataFrame:
-            return dates.apply(lambda col: col.map(data.prices_df[col.name]))
-
-        self._prev_support_dates = prev_support_or_resistance_dates(sr, is_support=True)
-        self._prev_support_prices = prev_dates_to_prices(self._prev_support_dates)
-        self._prev_resistance_dates = prev_support_or_resistance_dates(sr, is_support=False)
-        self._prev_resistance_prices = prev_dates_to_prices(self._prev_resistance_dates)
         self._gap_prices_pct = (self._prev_resistance_prices - self._prev_support_prices) / self._prev_support_prices
 
 
