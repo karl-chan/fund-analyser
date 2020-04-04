@@ -11,7 +11,7 @@ const idleThreshold = moment.duration(5, 'minutes')
  * Performs health check on running heroku dynos. If stuck, restart them.
  */
 async function dynoHealthcheck () {
-    const lastActivity = await heroku.getLastActivity(heroku.WEB_CATEGORY)
+    const lastActivity = await heroku.getLastActivity(heroku.WORKER_CATEGORY)
 
     const cutoffTime = moment().subtract(idleThreshold)
     if (!lastActivity || lastActivity.isBefore(cutoffTime)) {
