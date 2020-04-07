@@ -69,7 +69,13 @@ class CharlesStanleyDirect {
      */
     async getFundFromSedol (sedol) {
         const url = `https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=${sedol}`
-        const { body } = await http.asyncGet(url)
+        let body
+        try {
+            ({ body } = await http.asyncGet(url))
+        } catch (err) {
+            log.error('Failed to get sedol from Charles Stanley: %s', sedol)
+            return undefined // return undefined so that it will continue all the way to FundDAO and get rejected
+        }
 
         const $ = cheerio.load(body)
         const isinRegex = /[A-Z0-9]{12}/
