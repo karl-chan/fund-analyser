@@ -18,7 +18,6 @@ from lib.simulate.strategy.strategy import Strategy
 from lib.simulate.tiebreaker.tie_breaker import TieBreaker
 from lib.util.dates import BDAY
 
-logging.basicConfig(level=logging.DEBUG)
 pd.set_option('display.max_colwidth', 1000)
 
 

@@ -1,4 +1,3 @@
-import logging
 import math
 import pdb
 from datetime import date
@@ -10,14 +9,13 @@ import pandas as pd
 from overrides import overrides
 from tensorflow.python.keras import Sequential
 from tensorflow.python.keras.callbacks import EarlyStopping
-from tensorflow.python.keras.layers import SeparableConv1D, AveragePooling1D, GlobalAveragePooling1D, Dense
+from tensorflow.python.keras.layers import AveragePooling1D, Dense, GlobalAveragePooling1D, SeparableConv1D
 from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.utils import Sequence
 
 from lib.fund import fund_cache
 from lib.util.dates import BDAY
 
-logging.basicConfig(level=logging.DEBUG)
 pd.set_option('display.max_colwidth', 10000)
 
 peek_interval_days = 126

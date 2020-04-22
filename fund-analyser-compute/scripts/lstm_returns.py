@@ -1,4 +1,3 @@
-import logging
 import pdb
 from datetime import date
 from typing import Tuple
@@ -16,7 +15,6 @@ from tensorflow.python.keras.utils import Sequence
 from lib.fund import fund_cache
 from lib.util.dates import BDAY
 
-logging.basicConfig(level=logging.DEBUG)
 pd.set_option('display.max_colwidth', 10000)
 
 peek_interval_days = 126

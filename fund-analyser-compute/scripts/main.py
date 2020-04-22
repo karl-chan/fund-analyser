@@ -6,7 +6,6 @@ import traceback
 from lib.util.stopwatch import Stopwatch
 from scripts.tasks.update_similar_funds import update_similar_funds
 
-logging.basicConfig(level=logging.DEBUG)
 _LOG = logging.getLogger(__name__)
 
 TASKS = {
@@ -26,7 +25,7 @@ def main():
     timer = Stopwatch()
 
     for task in args.run:
-        logging.info(f"Started running: {task}")
+        _LOG.info(f"Started running: {task}")
         try:
             TASKS[task]()
         except Exception:

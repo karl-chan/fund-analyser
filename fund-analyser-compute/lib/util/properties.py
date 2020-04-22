@@ -4,12 +4,8 @@ from typing import Any, Optional
 
 import ujson
 
-from lib.util import PROPERTIES_FILE
-
 # magic string reminder to override property via environmental variables
 OVERRIDE_ME = "override_me"
-
-_config = configparser.ConfigParser()
 
 
 def get(path: str) -> Any:
@@ -21,12 +17,18 @@ def get(path: str) -> Any:
     )
 
 
+def _init_properties():
+    parser = configparser.ConfigParser()
+    parser.read(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../app.properties")))
+    return parser
+
+
 def _get_from_environment(path: str) -> str:
     return os.environ[path]
 
 
 def _get_from_file(path: str) -> Optional[str]:
-    res = PROPERTIES_FILE
+    res = _init_properties()
     for p in path.split(".", 1):
         if p not in res:
             return None

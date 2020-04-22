@@ -1,10 +1,11 @@
-import configparser
-import os
+import logging
+from logging import getLevelName
 
-# Initialisation code for properties.py
-def _init_properties():
-    parser = configparser.ConfigParser()
-    parser.read(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../app.properties")))
-    return parser
 
-PROPERTIES_FILE = _init_properties()
+def _init_logger():
+    from lib.util import properties
+    level = getLevelName(properties.get("log.level"))
+    logging.basicConfig(level=level)
+
+
+_init_logger()
