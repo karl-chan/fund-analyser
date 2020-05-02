@@ -78,7 +78,7 @@ router.get('/summary', async ctx => {
 router.post('/list', async ctx => {
     const { isins, params } = ctx.request.body
     let funds = fundCache.get(isins, params)
-    const { asof, stats, totalFunds } = fundCache.getMetadata()
+    const { asof, stats, totalFunds } = fundCache.getMetadata(params)
     let lastRow = totalFunds
     if (params && params.agGridRequest) {
         ({ funds, lastRow } = agGridUtils.applyRequest(funds, params.agGridRequest))

@@ -38,18 +38,28 @@ function get (isins, options) {
         : fundCache
 
     if (options) {
-        const { filterText } = options
+        const { filterText, showUpToDateOnly } = options
         if (filterText && filterText.trim()) {
             funds = funds.filter(f => quickFilterCache[f.isin].includes(filterText.trim().toLowerCase()))
+        }
+        if (showUpToDateOnly) {
+            funds = funds.filter(f => isUpToDate(f, metadata.asof.date))
         }
     }
 
     return funds
 }
 
-function getMetadata () {
+function getMetadata (options) {
     checkRunning()
-    return metadata
+    const { stats, statsUpToDate, ...rest } = metadata
+    if (options) {
+        const { showUpToDateOnly } = options
+        if (showUpToDateOnly) {
+            return { stats: statsUpToDate, ...rest }
+        }
+    }
+    return { stats, ...rest }
 }
 
 async function start (clean) {
@@ -93,21 +103,26 @@ function buildQuickFilterCache (funds) {
 function refreshMetadata () {
     fundCache = fundUtils.enrichSummary(fundCache)
     quickFilterCache = buildQuickFilterCache(fundCache)
-
     const asofDate = _.max(fundCache.map(f => f.asof))
+    const fundsUpToDate = fundCache.filter(f => isUpToDate(f, asofDate))
     const asof = {
         date: asofDate,
-        numUpToDate: fundCache.filter(f => f.asof && asofDate && f.asof.getTime() === asofDate.getTime()).length
+        numUpToDate: fundsUpToDate.length
     }
     const stats = fundUtils.calcStats(fundCache)
+    const statsUpToDate = fundUtils.calcStats(fundsUpToDate)
     const totalFunds = fundCache.length
-    metadata = { asof, stats, totalFunds }
+    metadata = { asof, stats, statsUpToDate, totalFunds }
 }
 
 function checkRunning () {
     if (!refreshTask) {
         throw new Error('Fund cache not started yet! Call fundCache.start() before querying cache!')
     }
+}
+
+function isUpToDate (f, asofDate) {
+    return f.asof && f.asof.getTime() === asofDate.getTime()
 }
 
 async function loadFromFile () {

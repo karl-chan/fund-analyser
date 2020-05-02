@@ -47,7 +47,8 @@ export default {
     height: String, // null for autoheight
     window: { type: Number, default: 200 },
     filterText: { type: String, default: '' },
-    highlightIsin: String
+    highlightIsin: String,
+    showUpToDateOnly: { type: Boolean, default: false }
   },
   data () {
     return {
@@ -325,7 +326,8 @@ export default {
           try {
             const { funds, metadata } = await self.$services.fund.list(this.isins, {
               agGridRequest: params.request,
-              filterText: this.filterText
+              filterText: this.filterText,
+              showUpToDateOnly: this.showUpToDateOnly
             })
 
             this.onRowsChanged(metadata)
@@ -395,6 +397,9 @@ export default {
       this.togglePinnedRows()
     },
     filterText: function () {
+      this.initDataSource()
+    },
+    showUpToDateOnly: function () {
       this.initDataSource()
     },
     highlightIsin: function (isin) {

@@ -1,12 +1,13 @@
 <template lang="pug">
 
-  funds-table(:filterText="filterText" height="500px")
+  funds-table(:filterText="filterText" :showUpToDateOnly="showUpToDateOnly" height="500px")
     template(slot="title")
       .column.q-gutter-y-sm
         .text-h5 Summary
         .row.justify-between.items-center.q-gutter-x-md
           div
             fund-search(placeholder="Filter table" @keystroke="filter" @input="filterFund")
+          q-checkbox(v-model="showUpToDateOnly" label="Show up to date only" color="teal")
     template(slot="empty-view")
       q-chip.absolute-center.shadow-5(square detail icon="error" color="negative" text-color="white" style="{z-index: 1}") Sorry, there are no matching funds
 </template>
@@ -17,7 +18,8 @@ export default {
   name: 'FundsSummary',
   data () {
     return {
-      filterText: ''
+      filterText: '',
+      showUpToDateOnly: false
     }
   },
   methods: {
