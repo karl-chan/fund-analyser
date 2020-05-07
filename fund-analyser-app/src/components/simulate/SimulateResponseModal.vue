@@ -51,7 +51,7 @@ export default {
         { name: 'names', label: 'Names', align: 'left' }
       ],
       funds: [],
-      pagination: { rowsPerPage: 0 }
+      pagination: { rowsPerPage: 0, sortBy: 'from', descending: true }
     }
   },
   methods: {
@@ -88,14 +88,13 @@ export default {
   .q-table__middle
     max-height: 200px
 
-  thead tr:first-child th
+  .q-table__top, .q-table__bottom, thead tr:first-child th
     background-color: $grey-3
+    top: 0
 
   thead tr th
     position: sticky
     z-index: 1
-  thead tr:first-child th
-    top: 0
 
   &.q-table--loading thead tr:last-child th
     top: 48px
