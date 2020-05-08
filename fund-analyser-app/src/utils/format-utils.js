@@ -16,7 +16,7 @@ export default {
         : (float < 0
           ? lighten(red, 100 * (1 + float))
           : null),
-      'color': 'black'
+      color: 'black'
     }
   },
 

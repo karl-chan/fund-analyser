@@ -41,7 +41,7 @@ export default {
           type: 'pie'
         },
         title: {
-          text: `Currency Exposure`
+          text: 'Currency Exposure'
         },
         tooltip: {
           pointFormat: '{series.name}: <b>{point.percentage:.0f}%</b>'

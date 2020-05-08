@@ -3,7 +3,7 @@ export function setSupportedCurrencies (state, symbols) {
 }
 
 export function addCurrencies (state, currencies) {
-  for (let currency of currencies) {
+  for (const currency of currencies) {
     const key = currency.base + currency.quote
     state.loaded = { ...state.loaded, [key]: currency }
   }

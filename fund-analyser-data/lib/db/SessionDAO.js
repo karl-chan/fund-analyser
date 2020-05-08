@@ -1,7 +1,7 @@
 const db = require('../util/db')
 const log = require('../util/log')
 const _ = require('lodash')
-const uuid = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 
 const BACKGROUND_SESSION_USER_AGENT = 'Background Session'
 
@@ -57,7 +57,7 @@ SessionDAO.upsertBackgroundSession = async function (token) {
             expiry: longLivedExpiry,
             userAgent: BACKGROUND_SESSION_USER_AGENT
         },
-        sessionId: uuid()
+        sessionId: uuidv4()
     }
     const query = { 'token.user': token.user, 'token.userAgent': BACKGROUND_SESSION_USER_AGENT }
     await db.getSessions().updateOne(query, { $setOnInsert: doc }, { upsert: true })

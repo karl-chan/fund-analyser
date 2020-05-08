@@ -78,7 +78,7 @@ export default {
     },
     getTooltipText (session) {
       const { ua, device, browser, os } = session.userAgent
-      let info = []
+      const info = []
       if (device.vendor && device.model) {
         info.push(`${device.vendor} ${device.model}`)
       }

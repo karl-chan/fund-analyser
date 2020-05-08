@@ -20,7 +20,7 @@ export function addSimilarFunds (state, similarFunds) {
 }
 
 export function setRealTimeDetails (state, realTimeDetailsPairs) {
-  for (let [isin, realTimeDetails] of realTimeDetailsPairs) {
+  for (const [isin, realTimeDetails] of realTimeDetailsPairs) {
     if (isin in state.loaded) {
       state.loaded[isin].realTimeDetails = realTimeDetails
     }

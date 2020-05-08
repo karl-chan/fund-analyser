@@ -18,7 +18,7 @@ export async function predict ({ commit }, { simulateParam, date }) {
 }
 
 export async function lazySimulate ({ dispatch, getters }, simulateParam) {
-  const cachedSimulation = getters['lookupSimulations'](simulateParam)
+  const cachedSimulation = getters.lookupSimulations(simulateParam)
   const upToDate = cachedSimulation && !dateUtils.isBeforeToday(cachedSimulation.simulateResponse.date)
   return upToDate ? cachedSimulation : dispatch('simulate', simulateParam)
 }

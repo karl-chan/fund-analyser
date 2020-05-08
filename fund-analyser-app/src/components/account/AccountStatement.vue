@@ -118,7 +118,7 @@ export default {
         i--
         i = Math.max(i, 0) // in case series starts after periodStart
         if (data.length) {
-          series.push({ name: 'Cash', data, color: toRGB(this.colourMap['Cash']) })
+          series.push({ name: 'Cash', data, color: toRGB(this.colourMap.Cash) })
         }
         data = []
         while (i < statement.series.length && Date.parse(statement.series[i].date) <= periodEnd) {
@@ -130,19 +130,19 @@ export default {
           case 'deposit': series.push({
             name: 'Deposit',
             data: [[Date.parse(statement.series[i].date), statement.series[i + 1].price]],
-            color: toRGB(this.colourMap['Deposit']),
+            color: toRGB(this.colourMap.Deposit),
             marker: { enabled: true, radius: 10, symbol: 'triangle' }
           }); break
           case 'withdrawal': series.push({
             name: 'Withdrawal',
             data: [[Date.parse(statement.series[i].date), statement.series[i].price]],
-            color: toRGB(this.colourMap['Withdrawal']),
+            color: toRGB(this.colourMap.Withdrawal),
             marker: { enabled: true, radius: 10, symbol: 'triangle-down' }
           }); break
           case 'fee': series.push({
             name: 'Fee',
             data: [[Date.parse(statement.series[i].date), statement.series[i].price]],
-            color: toRGB(this.colourMap['Fee']),
+            color: toRGB(this.colourMap.Fee),
             marker: { enabled: true, radius: 5, symbol: 'circle' }
           }); break
           case 'fund': series.push({
@@ -165,7 +165,7 @@ export default {
         i++
       }
       if (data.length) {
-        series.push({ name: 'Cash', data, color: toRGB(this.colourMap['Cash']) })
+        series.push({ name: 'Cash', data, color: toRGB(this.colourMap.Cash) })
       }
       return series
     },
@@ -179,10 +179,10 @@ export default {
           const randomColour = this.colours[i % this.colours.length]
           return [sedol, randomColour]
         })),
-        'Deposit': [0, 175, 0], // green
-        'Withdrawal': [255, 0, 0], // red
-        'Cash': [50, 50, 50], // gray
-        'Fee': [255, 0, 0] // red
+        Deposit: [0, 175, 0], // green
+        Withdrawal: [255, 0, 0], // red
+        Cash: [50, 50, 50], // gray
+        Fee: [255, 0, 0] // red
       }
     }
   }

@@ -48,7 +48,8 @@ export default {
         { headerName: '', cellRendererFramework: 'FavouritesComponent', width: 60, valueGetter: this.isFavourite, pinned: 'left', sort: 'desc' },
         { headerName: 'Base', field: 'base', width: 80, pinned: 'left' },
         { headerName: 'Quote', field: 'quote', width: 80, pinned: 'left' },
-        { headerName: 'Returns',
+        {
+          headerName: 'Returns',
           marryChildren: true,
           children: periods.map(period => ({
             headerName: period, field: `returns.${period}`, width: 75, sort: period === '1D' && 'desc'
@@ -96,7 +97,7 @@ export default {
   },
   components: {
     FavouritesComponent: {
-      template: `<q-icon v-if="params.value" class="text-amber" name="star" size="18px"/>`
+      template: '<q-icon v-if="params.value" class="text-amber" name="star" size="18px"/>'
     }
   },
   computed: {
@@ -142,22 +143,22 @@ export default {
         const quote = params.node.data.quote
         const symbol = `${base}${quote}`
         const currencyContextMenuItems = this.isFavourite(params)
-          ? [ {
+          ? [{
             name: 'Remove from favourites',
             icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
             action: async () => {
               await params.context.removeFromFavouriteCurrencies(symbol)
               params.api.redrawRows()
             }
-          } ]
-          : [ {
+          }]
+          : [{
             name: 'Add to favourites',
             icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
             action: async () => {
               await params.context.addToFavouriteCurrencies(symbol)
               params.api.redrawRows()
             }
-          } ]
+          }]
         contextMenu = [...currencyContextMenuItems, 'separator', ...contextMenu]
       }
       return contextMenu

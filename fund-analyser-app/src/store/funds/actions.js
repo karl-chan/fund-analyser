@@ -27,10 +27,10 @@ export async function lazyGets ({ dispatch, getters }, isins) {
     return []
   }
   const [loadedIsins, outdatedIsins] = partition(isins, isin => {
-    const cachedFund = getters['lookupFund'](isin)
+    const cachedFund = getters.lookupFund(isin)
     return cachedFund && !dateUtils.isBeforeToday(cachedFund.asof)
   })
-  const cachedFunds = loadedIsins.map(isin => getters['lookupFund'](isin))
+  const cachedFunds = loadedIsins.map(isin => getters.lookupFund(isin))
   const newFunds = await dispatch('gets', outdatedIsins)
   return [...cachedFunds, ...newFunds]
 }

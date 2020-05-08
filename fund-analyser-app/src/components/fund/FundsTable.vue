@@ -108,7 +108,7 @@ export default {
   },
   components: {
     WarningComponent: {
-      template: `<q-icon v-if="params.value" :class="params.value > 1? 'text-red': 'text-amber'" name="warning" :title="'This fund may not be up-to-date (lag=' + params.value + ')'"/>`
+      template: '<q-icon v-if="params.value" :class="params.value > 1? \'text-red\': \'text-amber\'" name="warning" :title="\'This fund may not be up-to-date (lag=\' + params.value + \')\'"/>'
     }
   },
   computed: {
@@ -122,13 +122,15 @@ export default {
         { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated, pinned: 'left' },
         { headerName: 'ISIN', field: 'isin', width: 120, pinned: 'left' },
         { headerName: 'Name', field: 'name', width: 180, pinned: 'left', tooltipValueGetter: params => params.value },
-        { headerName: 'Returns',
+        {
+          headerName: 'Returns',
           marryChildren: true,
           children: extendedPeriods.map(period => ({
             headerName: period, field: `returns.${period}`, width: 65, sort: period === '1D' && 'desc'
           }))
         },
-        { headerName: 'Indicators',
+        {
+          headerName: 'Indicators',
           marryChildren: true,
           children: Object.entries(this.indicatorSchema).map(([key, { name }]) => {
             return {
@@ -238,20 +240,20 @@ export default {
         const isin = params.node.data.isin
         const isFavourite = this.watchlist.includes(isin)
         const fundContextMenuItems = isFavourite
-          ? [ {
+          ? [{
             name: 'Remove from watch list',
             icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
             action: () => {
               params.context.removeFromWatchlist(isin)
             }
-          } ]
-          : [ {
+          }]
+          : [{
             name: 'Add to watch list',
             icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
             action: () => {
               params.context.addToWatchlist(isin)
             }
-          } ]
+          }]
         contextMenu = [...fundContextMenuItems, 'separator', ...contextMenu]
       }
       return contextMenu

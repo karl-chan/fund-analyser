@@ -74,7 +74,7 @@ export default {
   },
   computed: {
     ...mapGetters('account', ['inWatchlist']),
-    ...mapGetters('funds', [ 'lookupFund' ]),
+    ...mapGetters('funds', ['lookupFund']),
     fund: function () {
       return this.lookupFund(this.isin)
     },
@@ -88,7 +88,7 @@ export default {
   methods: {
     openURL,
     ...mapActions('account', ['addToRecentlyViewed', 'addToWatchlist', 'removeFromWatchlist']),
-    ...mapActions('funds', [ 'gets', 'lazyGets' ]),
+    ...mapActions('funds', ['gets', 'lazyGets']),
     async refreshFund () {
       this.loading = true
       await this.gets([this.isin])
