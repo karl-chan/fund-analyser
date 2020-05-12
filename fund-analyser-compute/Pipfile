@@ -16,6 +16,7 @@ pytest = "*"
 pytest-profiling = "*"
 requests = "*"
 scikit-learn = "*"
+sortedcontainers = "*"
 ta-lib-win32 = {path = "./bin/TA_Lib-0.4.17-cp37-cp37m-win32.whl",sys_platform = "== 'win32'"}
 ta-lib = {version = "*",sys_platform = "== 'darwin'"}
 tensorflow = {version = "*",sys_platform = "!= 'win32'"}
