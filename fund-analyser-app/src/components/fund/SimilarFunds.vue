@@ -16,7 +16,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import sortBy from 'lodash/sortBy'
+import orderBy from 'lodash/orderBy'
 export default {
   name: 'SimilarFunds',
   props: ['fund'],
@@ -24,7 +24,7 @@ export default {
     return {
       columns: [
         { name: 'isin', label: 'ISIN', field: 'isin', align: 'left', sortable: true },
-        { name: 'afterFeesReturn', label: 'Fee / Return Ratio', field: 'afterFeesReturn', sortable: true }
+        { name: 'afterFeesReturn', label: 'After Fees Return', field: 'afterFeesReturn', sortable: true }
       ]
     }
   },
@@ -36,7 +36,7 @@ export default {
         return []
       }
       const allSimilarFunds = similarFundsEntry.similarIsins.flatMap(isin => this.lookupSimilarFund(isin))
-      const sortedSimilarFunds = sortBy(allSimilarFunds, similarFundsEntry => similarFundsEntry.afterFeesReturn)
+      const sortedSimilarFunds = orderBy(allSimilarFunds, 'afterFeesReturn', 'desc')
       return sortedSimilarFunds
     }
   },
