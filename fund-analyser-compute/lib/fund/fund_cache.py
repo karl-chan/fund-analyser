@@ -1,4 +1,3 @@
-import logging
 from datetime import date, datetime, timedelta
 from threading import Lock
 from typing import Dict, Iterable, List, Optional
@@ -9,10 +8,10 @@ import pandas as pd
 from client.funds import stream_funds
 from lib.fund.fund import Fund
 from lib.util.disk import read_from_disk, write_to_disk
+from lib.util.logging_utils import log_debug, log_info, log_warning
 
 EXPIRY = timedelta(days=1)
 _PICKLE_FUND_CACHE = "fund_cache.pickle"
-_LOG = logging.getLogger(__name__)
 
 _fund_cache: Dict[str, Fund] = dict()
 _prices_df: Optional[pd.DataFrame] = None  # fast DataFrame cache for fund historicPrices
@@ -92,7 +91,7 @@ def initialise(isins: Optional[Iterable[str]]) -> None:
     _lock.acquire()
     load_from_file_or_refresh(isins)
     _lock.release()
-    _LOG.info("Fund cache initialised.")
+    log_info("Fund cache initialised.")
 
 
 def maybe_initialise(isins: Optional[Iterable[str]]) -> None:
@@ -106,9 +105,9 @@ def load_from_file_or_refresh(isins: Optional[Iterable[str]]) -> None:
     """
     try:
         load_from_file(isins)
-        _LOG.debug("Successfully loaded from pickle file.")
+        log_debug("Successfully loaded from pickle file.")
     except (ValueError, FileNotFoundError) as e:
-        _LOG.warning(e)
+        log_warning(e)
         refresh(isins)
 
 
@@ -146,23 +145,23 @@ def refresh(isins: Optional[Iterable[str]]) -> None:
     Builds a fresh copy of fund cache from web.
     """
     global _fund_cache, _prices_df, _corr_df, _expiration_time, _is_full
-    _LOG.info("Refreshing fund cache...")
+    log_info("Refreshing fund cache...")
     _fund_cache = dict()
     all_prices = []
     counter = 0
     for fund_stream_entry in stream_funds(isins):
         counter += 1
         fund = fund_stream_entry.fund
-        _LOG.debug(f"Fund {counter} {fund.isin} received.")
+        log_debug(f"Fund {counter} {fund.isin} received.")
         _fund_cache[fund.isin] = fund
         all_prices.append(fund_stream_entry.historic_prices)
-    _LOG.debug("Merging fund historic prices...")
+    log_debug("Merging fund historic prices...")
     _prices_df = pd.concat(all_prices, axis=1).resample("B").asfreq().fillna(method="ffill")
     _corr_df = _prices_df.truncate(before=date.today() - pd.DateOffset(years=1)).corr()
     _expiration_time = datetime.now() + EXPIRY
     _is_full = isins is None
     save_to_file()
-    _LOG.info("Fund cache refreshed.")
+    log_info("Fund cache refreshed.")
 
 
 def _normalise_isins(isins: Optional[Iterable[str]] = None) -> List[str]:

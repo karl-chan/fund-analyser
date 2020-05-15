@@ -1,12 +1,10 @@
 import argparse
-import logging
 import sys
 import traceback
 
+from lib.util.logging_utils import log_error, log_info
 from lib.util.stopwatch import Stopwatch
 from scripts.tasks.update_similar_funds import update_similar_funds
-
-_LOG = logging.getLogger(__name__)
 
 TASKS = {
     "updateSimilarFunds": update_similar_funds
@@ -21,33 +19,33 @@ def main():
                         help=f"specify one or more of the following tasks: {operations}")
     args = parser.parse_args()
 
-    _LOG.info(f"Received instructions to run: {args.run}")
+    log_info(f"Received instructions to run: {args.run}")
     timer = Stopwatch()
 
     for task in args.run:
-        _LOG.info(f"Started running: {task}")
+        log_info(f"Started running: {task}")
         try:
             TASKS[task]()
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
 
             task_duration = timer.split()
-            _LOG.error(f"Error during {task}:\n"
-                       f"{''.join(traceback.format_exception_only(exc_type, exc_value))}\n"
-                       f" after {task_duration}.")
+            log_error(f"Error during {task}:\n"
+                      f"{''.join(traceback.format_exception_only(exc_type, exc_value))}\n"
+                      f" after {task_duration}.")
 
             overall_duration = timer.end()
-            _LOG.error(
+            log_error(
                 f"Aborted due to error:\n"
                 f"{''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))}\n"
                 f" after {overall_duration}.")
             exit(1)
 
         task_duration = timer.split()
-        _LOG.info(f"Completed: {task} in {task_duration}.")
+        log_info(f"Completed: {task} in {task_duration}.")
 
     overall_duration = timer.end()
-    _LOG.info(f"Successfully completed all operations: {args.run} in {overall_duration}.")
+    log_info(f"Successfully completed all operations: {args.run} in {overall_duration}.")
     exit()
 
 

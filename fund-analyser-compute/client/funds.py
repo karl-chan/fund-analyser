@@ -1,11 +1,9 @@
-import logging
 from typing import Dict, Iterable, Iterator, List, NamedTuple, Optional
 
 from client import data
 from lib.fund.fund import Fund, FundHistoricPrices
+from lib.util.logging_utils import log_error
 from lib.util.pandas_utils import pd_historic_prices_from_json
-
-_LOG = logging.getLogger(__name__)
 
 
 class FundStreamEntry(NamedTuple):
@@ -38,7 +36,7 @@ def stream_funds(isins: Optional[Iterable[str]] = None) -> Iterator[FundStreamEn
                 historic_prices=pd_historic_prices_from_json(d["historicPrices"]).rename(d["isin"])
             )
         except Exception as e:
-            _LOG.error(f"Failed to convert {d} to fund! Cause: {repr(e)}")
+            log_error(f"Failed to convert {d} to fund! Cause: {repr(e)}")
 
 
 def post_similar_funds(similar_funds: SimilarFunds):
