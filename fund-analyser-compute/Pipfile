@@ -17,15 +17,15 @@ pytest-profiling = "*"
 requests = "*"
 scikit-learn = "*"
 sortedcontainers = "*"
-ta-lib-win32 = {path = "./bin/TA_Lib-0.4.17-cp37-cp37m-win32.whl",sys_platform = "== 'win32'"}
+ta-lib-win32 = {path = "./bin/TA_Lib-0.4.18-cp38-cp38-win32.whl",sys_platform = "== 'win32'"}
 ta-lib = {version = "*",sys_platform = "== 'darwin'"}
-tensorflow = {version = "*",sys_platform = "!= 'win32'"}
-tensorflow-win32 = {file = "https://github.com/fo40225/tensorflow-windows-wheel/raw/master/1.13.1/py37/CPU/avx2/tensorflow-1.13.1-cp37-cp37m-win_amd64.whl",sys_platform = "== 'win32'"}
+#tensorflow = {version = "*",sys_platform = "!= 'win32'"}
+#tensorflow-win32 = {file = "https://storage.googleapis.com/tensorflow/windows/cpu/tensorflow_cpu-2.2.0-cp38-cp38-win_amd64.whl",sys_platform = "== 'win32'"}
 ujson = "*"
 waitress = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
 
 [dev-packages]
 mypy = "*"
