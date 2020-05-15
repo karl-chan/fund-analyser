@@ -38,17 +38,18 @@ describe('CharlesStanleyDirectAccount', () => {
         expect(statement.series).toBeArray().not.toBeEmpty()
         expect(statement.events).toSatisfyAll(event => {
             switch (event.type) {
-            case 'fund':
-                const from = moment(event.from)
-                const to = moment(event.to)
-                return from.isValid() && to.isValid() && from.isSameOrBefore(to) &&
+                case 'fund': {
+                    const from = moment(event.from)
+                    const to = moment(event.to)
+                    return from.isValid() && to.isValid() && from.isSameOrBefore(to) &&
                     event.holdings.every(h => typeof h.sedol === 'string' && h.sedol && typeof h.weight === 'number' && h.weight > 0)
-            case 'fee': // fallthrough
-            case 'deposit': // fallthrough
-            case 'withdrawal':
-                return typeof event.value === 'number' && event.value > 0
-            default:
-                return false
+                }
+                case 'fee': // fallthrough
+                case 'deposit': // fallthrough
+                case 'withdrawal':
+                    return typeof event.value === 'number' && event.value > 0
+                default:
+                    return false
             }
         })
         expect(_.zip(statement.series.slice(0, statement.series.length - 1), statement.series.slice(1))).toSatisfyAll(([hp1, hp2]) => {

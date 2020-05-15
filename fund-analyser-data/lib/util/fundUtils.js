@@ -149,7 +149,7 @@ function enrichSummary (summary) {
 
     // add colours to returns
     if (summary.length) {
-        const { colourAroundZero, colourAroundMedian, colourNegative } = agGridUtils
+        const { colourAroundZero } = agGridUtils
         const colourOptions = {
             // RHS is array of func args
             'returns.$lookback': [colourAroundZero],

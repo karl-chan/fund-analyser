@@ -7,7 +7,7 @@ const log = winston.createLogger({
         winston.format.splat(),
         winston.format.simple()
     ),
-    transports: [ new winston.transports.Console() ]
+    transports: [new winston.transports.Console()]
 })
 
 module.exports = log

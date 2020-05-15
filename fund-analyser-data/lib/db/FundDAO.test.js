@@ -127,7 +127,7 @@ describe('FundDAO', function () {
     })
     test('search should return relevant results', async () => {
         await FundDAO.upsertFunds([fund])
-        let funds = await FundDAO.search('test', { sedol: 1, isin: 1 }, 1)
+        const funds = await FundDAO.search('test', { sedol: 1, isin: 1 }, 1)
         expect(funds).toBeArrayOfSize(1)
         expect(funds[0].sedol).toBe(fund.sedol)
         expect(funds[0].isin).toBe(fund.isin)

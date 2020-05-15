@@ -41,9 +41,9 @@ describe('FundFactory', function () {
         const isinStream = StreamTest[version].fromObjects([isin1, isin2])
         const isinToFundStream = streamWrapper.asTransformAsync(async isin => {
             switch (isin) {
-            case isin1: return fund1
-            case isin2: return fund2
-            default: throw new Error(`Unrecognised isin: ${isin}`)
+                case isin1: return fund1
+                case isin2: return fund2
+                default: throw new Error(`Unrecognised isin: ${isin}`)
             }
         })
         const fundCalculationStream = streamWrapper.asTransformAsync(async fund => fund)
@@ -73,16 +73,16 @@ describe('FundFactory', function () {
         const version = 'v2'
         const sedolToIsinStream = streamWrapper.asTransformAsync(async sedol => {
             switch (sedol) {
-            case sedol1: return isin1
-            case sedol2: return isin2
-            default: throw new Error(`Unrecognised sedol: ${sedol}`)
+                case sedol1: return isin1
+                case sedol2: return isin2
+                default: throw new Error(`Unrecognised sedol: ${sedol}`)
             }
         })
         const isinToFundStream = streamWrapper.asTransformAsync(async isin => {
             switch (isin) {
-            case isin1: return fund1
-            case isin2: return fund2
-            default: throw new Error(`Unrecognised isin: ${isin}`)
+                case isin1: return fund1
+                case isin2: return fund2
+                default: throw new Error(`Unrecognised isin: ${isin}`)
             }
         })
         const fundCalculationStream = streamWrapper.asTransformAsync(async fund => fund)

@@ -93,7 +93,7 @@ function toPercentage (v) {
 
 function getReturnsMapping () {
     const mapping = {}
-    for (let period of lookbacks) {
+    for (const period of lookbacks) {
         mapping[period] = {
             label: `returns.${period}`,
             value: (row, field, data) => {

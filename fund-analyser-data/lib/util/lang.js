@@ -58,7 +58,7 @@ function deepTraverse (object, f, initialAcc = []) {
         if (Array.isArray(v)) {
             // case array
             let arr = v
-            for (let [i, v] of arr.entries()) {
+            for (const [i, v] of arr.entries()) {
                 const kss = ks.concat([i])
                 const [v2, acc2] = traverse(kss, v, f, acc)
                 if (v !== v2) {
@@ -94,7 +94,7 @@ function pairsToDeepObject (pairs) {
         return {}
     }
     const object = {}
-    for (let [k, v] of pairs) {
+    for (const [k, v] of pairs) {
         _.set(object, k, v)
     }
     return object

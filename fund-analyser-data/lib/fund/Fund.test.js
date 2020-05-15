@@ -17,8 +17,8 @@ describe('Fund', function () {
         entryCharge = 0
         exitCharge = 0
         bidAskSpread = NaN
-        holdings = [ new Fund.Holding('Apple Inc', 'AAPL:NSQ', 0.0407) ]
-        historicPrices = [ new Fund.HistoricPrice(new Date(2015, 8, 9), 3.198), new Fund.HistoricPrice(new Date(2015, 8, 10), 3.149) ]
+        holdings = [new Fund.Holding('Apple Inc', 'AAPL:NSQ', 0.0407)]
+        historicPrices = [new Fund.HistoricPrice(new Date(2015, 8, 9), 3.198), new Fund.HistoricPrice(new Date(2015, 8, 10), 3.149)]
         returns = { '5Y': 0.1767, '3Y': 0.226 }
         asof = new Date(2018, 8, 8)
         indicators = { stability: 1.96 }

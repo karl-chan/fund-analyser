@@ -54,34 +54,34 @@ function _applyFilter (funds, filterModel) {
 
     const parseValues = (fm) => {
         switch (fm.filterType) {
-        case 'number':
-            return [+fm.filter, +fm.filterTo]
-        case 'date':
-            return [moment(fm.dateFrom), moment(fm.dateTo)]
+            case 'number':
+                return [+fm.filter, +fm.filterTo]
+            case 'date':
+                return [moment(fm.dateFrom), moment(fm.dateTo)]
         }
     }
     const buildPredicate = (fm, lowerValue, upperValue) => {
         switch (fm.type) {
-        case 'equals':
-            return x => x === lowerValue
-        case 'notEqual':
-            return x => x !== lowerValue
-        case 'lessThan':
-            return x => x < lowerValue
-        case 'lessThanOrEqual':
-            return x => x <= lowerValue
-        case 'greaterThan':
-            return x => x > lowerValue
-        case 'greaterThanOrEqual':
-            return x => x >= lowerValue
-        case 'inRange':
-            return x => _.min(lowerValue, upperValue) <= x && x <= _.max(lowerValue, upperValue)
-        default:
-            return x => x
+            case 'equals':
+                return x => x === lowerValue
+            case 'notEqual':
+                return x => x !== lowerValue
+            case 'lessThan':
+                return x => x < lowerValue
+            case 'lessThanOrEqual':
+                return x => x <= lowerValue
+            case 'greaterThan':
+                return x => x > lowerValue
+            case 'greaterThanOrEqual':
+                return x => x >= lowerValue
+            case 'inRange':
+                return x => _.min(lowerValue, upperValue) <= x && x <= _.max(lowerValue, upperValue)
+            default:
+                return x => x
         }
     }
 
-    for (let [colId, fm] of Object.entries(filterModel)) {
+    for (const [colId, fm] of Object.entries(filterModel)) {
         const columnName = parseColId(colId)
         const [lowerValue, upperValue] = parseValues(fm)
         const predicate = buildPredicate(fm, lowerValue, upperValue)

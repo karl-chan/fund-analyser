@@ -27,10 +27,10 @@ describe('FinancialTimes', function () {
             jest.spyOn(financialTimes, 'getFundFromIsin')
                 .mockImplementation(async isin => {
                     switch (isin) {
-                    case isin1:
-                        return fund1
-                    case isin2:
-                        return fund2
+                        case isin1:
+                            return fund1
+                        case isin2:
+                            return fund2
                     }
                 })
 
@@ -230,10 +230,10 @@ describe('FinancialTimes', function () {
             jest.spyOn(financialTimes, 'getFundFromIsin')
                 .mockImplementation(async isin => {
                     switch (isin) {
-                    case isin1:
-                        return fund1
-                    case isin2:
-                        return fund2
+                        case isin1:
+                            return fund1
+                        case isin2:
+                            return fund2
                     }
                 })
 

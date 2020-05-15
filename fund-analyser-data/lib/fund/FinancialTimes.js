@@ -23,13 +23,13 @@ class FinancialTimes {
     constructor () {
         this.fundTypeMap = {
             'Open Ended Investment Company': Fund.types.OEIC,
-            'SICAV': Fund.types.OEIC,
-            'FCP': Fund.types.OEIC,
+            SICAV: Fund.types.OEIC,
+            FCP: Fund.types.OEIC,
             'Unit Trust': Fund.types.UNIT
         }
         this.shareClassMap = {
-            'Income': Fund.shareClasses.INC,
-            'Accumulation': Fund.shareClasses.ACC
+            Income: Fund.shareClasses.INC,
+            Accumulation: Fund.shareClasses.ACC
         }
         this.lookback = properties.get('fund.financialtimes.lookback.days')
     }
@@ -150,8 +150,8 @@ class FinancialTimes {
     }
 
     async getHistoricPrices (isin) {
-        let url = `https://markets.ft.com/data/funds/tearsheet/charts?s=${isin}`
-        let { body } = await http.asyncGet(url)
+        const url = `https://markets.ft.com/data/funds/tearsheet/charts?s=${isin}`
+        const { body } = await http.asyncGet(url)
 
         const $ = cheerio.load(body)
 
@@ -174,10 +174,10 @@ class FinancialTimes {
                 'content-type': 'application/json'
             },
             form: {
-                'days': this.lookback,
-                'dataPeriod': 'Day',
-                'returnDateType': 'ISO8601',
-                'elements': [{ 'Type': 'price', 'Symbol': symbol }]
+                days: this.lookback,
+                dataPeriod: 'Day',
+                returnDateType: 'ISO8601',
+                elements: [{ Type: 'price', Symbol: symbol }]
             }
         })
 
@@ -338,13 +338,13 @@ class FinancialTimes {
         }
 
         // replace charles stanley keywords with financial times before search
-        const replacements = { 'HLDGS': 'Holdings' }
-        for (let [from, to] of Object.entries(replacements)) {
+        const replacements = { HLDGS: 'Holdings' }
+        for (const [from, to] of Object.entries(replacements)) {
             name = name.replace(new RegExp(from, 'g'), to)
         }
 
         const candidates = [name, dropThePrefix(name), dropShareClassSuffix(dropThePrefix(name))]
-        for (let candidate of candidates) {
+        for (const candidate of candidates) {
             const { symbol, name } = await search(candidate)
             if (symbol) { return { symbol, name } }
         }

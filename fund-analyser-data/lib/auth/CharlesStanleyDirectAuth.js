@@ -58,9 +58,9 @@ class CharlesStanleyDirectAuth {
                 {
                     jar,
                     form: {
-                        'Username': user,
-                        'Password': pass,
-                        '__RequestVerificationToken': csrfToken
+                        Username: user,
+                        Password: pass,
+                        __RequestVerificationToken: csrfToken
                     }
                 }
             )
@@ -77,7 +77,7 @@ class CharlesStanleyDirectAuth {
         const { body: b1 } = await http.asyncPost(this.getMemorableWordUrl, {
             jar,
             headers: {
-                'RequestVerificationToken': csrfToken,
+                RequestVerificationToken: csrfToken,
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
@@ -87,13 +87,13 @@ class CharlesStanleyDirectAuth {
                 {
                     jar,
                     headers: {
-                        'RequestVerificationToken': csrfToken,
+                        RequestVerificationToken: csrfToken,
                         'X-Requested-With': 'XMLHttpRequest'
                     },
                     form: {
-                        'firstCharacter': memorableWord.charAt(FirstCharacterPosition - 1),
-                        'secondCharacter': memorableWord.charAt(SecondCharacterPosition - 1),
-                        'thirdCharacter': memorableWord.charAt(ThirdCharacterPosition - 1)
+                        firstCharacter: memorableWord.charAt(FirstCharacterPosition - 1),
+                        secondCharacter: memorableWord.charAt(SecondCharacterPosition - 1),
+                        thirdCharacter: memorableWord.charAt(ThirdCharacterPosition - 1)
                     }
                 }
             )
@@ -109,7 +109,7 @@ class CharlesStanleyDirectAuth {
             await http.asyncPost(this.logUserInUrl, {
                 jar,
                 headers: {
-                    'RequestVerificationToken': csrfToken,
+                    RequestVerificationToken: csrfToken,
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })

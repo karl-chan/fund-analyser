@@ -80,7 +80,7 @@ async function upsertFunds (funds) {
 
     // partition funds into shards
     const bucketedFunds = shardedIds.map(shard => [])
-    for (let fund of funds) {
+    for (const fund of funds) {
         let shardIdx = shardedIds.findIndex(shard => shard.has(fund[idField]))
         if (shardIdx === -1) {
             // assign to least occupied shard
@@ -122,7 +122,7 @@ async function listFunds (options, toPlainObject) {
 
     // need postprocessing because we are merging from different databases
     if (options && options.sort) {
-        docs = _.orderBy(docs, Object.keys(options.sort), Object.values(options.sort).map(dir => dir === -1 || dir['$meta'] === 'textScore' ? 'desc' : 'asc'))
+        docs = _.orderBy(docs, Object.keys(options.sort), Object.values(options.sort).map(dir => dir === -1 || dir.$meta === 'textScore' ? 'desc' : 'asc'))
     }
     if (options && options.limit) {
         docs = docs.slice(0, options.limit)

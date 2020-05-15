@@ -9,6 +9,7 @@ module.exports = {
         "jest": true
     },
     "rules": {
-        "indent":  ["error", 4]
+        "indent":  ["error", 4, { "SwitchCase": 1 }],
+        "quotes": ["error", "single", { "allowTemplateLiterals": true }]
     }
 };

@@ -125,7 +125,7 @@ class CharlesStanleyDirectAccount {
         }, true), f => f.sedol)
 
         const decodeRow = (row) => {
-            const [ date, description, stockDescription, sedol, contractReference, price, debit, credit, settlementDate, balance ] = $(row).children().map((i, el) => $(el).text().trim()).get()
+            const [date, description, stockDescription, sedol, contractReference, price, debit, credit, settlementDate, balance] = $(row).children().map((i, el) => $(el).text().trim()).get()
             return {
                 date: moment.utc(date, 'DD MMM YYYY'),
                 description,
@@ -156,36 +156,37 @@ class CharlesStanleyDirectAccount {
 
         const series = []
         const events = []
-        let carryThroughHoldings = {} // {sedol: numShares}
+        const carryThroughHoldings = {} // {sedol: numShares}
 
         for (const [i, row] of rows.entries()) {
             const { date, description, sedol, price, debit, credit, cash } = decodeRow(row)
             const nextDate = i + 1 < rows.length ? decodeRow(rows[i + 1]).date : today
             switch (description) {
-            case 'Stocks & Shares Subs':
-                if (credit) {
-                    events.push({ type: 'deposit', date: date.toDate(), value: credit })
-                } else {
-                    events.push({ type: 'withdrawal', date: date.toDate(), value: debit })
-                }
-                break
-            case 'Funds Platform Fee':
-                events.push({ type: 'fee', date: date.toDate(), value: debit })
-                break
-            default:
+                case 'Stocks & Shares Subs':
+                    if (credit) {
+                        events.push({ type: 'deposit', date: date.toDate(), value: credit })
+                    } else {
+                        events.push({ type: 'withdrawal', date: date.toDate(), value: debit })
+                    }
+                    break
+                case 'Funds Platform Fee':
+                    events.push({ type: 'fee', date: date.toDate(), value: debit })
+                    break
+                default: {
                 // stock holding
-                const correctPrice = priceCorrection(price, date, sedol)
-                if (credit) {
-                    math.roughEquals(carryThroughHoldings[sedol], credit / correctPrice)
-                        ? delete carryThroughHoldings[sedol]
-                        : carryThroughHoldings[sedol] -= credit / correctPrice
-                }
-                if (debit) {
-                    carryThroughHoldings[sedol] = (carryThroughHoldings[sedol] || 0) + debit / correctPrice
-                }
+                    const correctPrice = priceCorrection(price, date, sedol)
+                    if (credit) {
+                        math.roughEquals(carryThroughHoldings[sedol], credit / correctPrice)
+                            ? delete carryThroughHoldings[sedol]
+                            : carryThroughHoldings[sedol] -= credit / correctPrice
+                    }
+                    if (debit) {
+                        carryThroughHoldings[sedol] = (carryThroughHoldings[sedol] || 0) + debit / correctPrice
+                    }
 
-                if (i + 1 < rows.length && nextDate.isSame(date) && decodeRow(rows[i + 1]).sedol) {
-                    continue // batch all transactions on the same day
+                    if (i + 1 < rows.length && nextDate.isSame(date) && decodeRow(rows[i + 1]).sedol) {
+                        continue // batch all transactions on the same day
+                    }
                 }
             }
 
@@ -193,7 +194,7 @@ class CharlesStanleyDirectAccount {
             if (Object.keys(carryThroughHoldings).length > 0) {
                 const sedolToValue = {}
                 let totalHoldingsValue = 0
-                for (let [sedol, numShares] of Object.entries(carryThroughHoldings)) {
+                for (const [sedol, numShares] of Object.entries(carryThroughHoldings)) {
                     const fund = sedolToFund[sedol]
                     sedolToValue[sedol] = numShares * fundUtils.closestRecordBeforeDate(date.toDate(), fund.historicPrices).price
                     totalHoldingsValue += sedolToValue[sedol]

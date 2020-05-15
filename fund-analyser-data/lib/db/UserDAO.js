@@ -100,14 +100,18 @@ UserDAO.removeFromSimulateParams = async function (user, simulateParam) {
 
 UserDAO.activateSimulateParam = async function (user, simulateParam) {
     const operations = [
-        { updateMany: {
-            filter: { user },
-            update: { $unset: { 'meta.simulateParams.$[].active': '' } }
-        } },
-        { updateOne: {
-            filter: { user, 'meta.simulateParams': simulateParam },
-            update: { $set: { 'meta.simulateParams.$.active': true } }
-        } }
+        {
+            updateMany: {
+                filter: { user },
+                update: { $unset: { 'meta.simulateParams.$[].active': '' } }
+            }
+        },
+        {
+            updateOne: {
+                filter: { user, 'meta.simulateParams': simulateParam },
+                update: { $set: { 'meta.simulateParams.$.active': true } }
+            }
+        }
     ]
     await db.getUsers().bulkWrite(operations)
     log.debug(`Activated [${user}]'s ${SIMULATE_PARAMS}: [${JSON.stringify(simulateParam)}]`)

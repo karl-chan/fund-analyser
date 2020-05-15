@@ -77,7 +77,7 @@ function asTransformAsync (asyncFn) {
                 return callback(err)
             }
             if (_.isArray(data)) {
-                for (let chunk of data) {
+                for (const chunk of data) {
                     this.push(chunk)
                 }
             } else {

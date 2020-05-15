@@ -5,20 +5,20 @@ const _ = require('lodash')
 describe('lang', () => {
     describe('deepKeys', () => {
         test('should return empty array for non-objects / non-arrays', () => {
-            for (let object of [null, undefined, 1, 's']) {
+            for (const object of [null, undefined, 1, 's']) {
                 expect(lang.deepKeys(object)).toEqual([])
             }
         })
 
         test('should return keys for object', () => {
-            expect(lang.deepKeys({ 'a': 1, 'b': 2, '+c': 3, 4: 5 })).toEqual(['4', 'a', 'b', '+c'])
+            expect(lang.deepKeys({ a: 1, b: 2, '+c': 3, 4: 5 })).toEqual(['4', 'a', 'b', '+c'])
         })
 
         test('should return deep keys for object', () => {
             expect(lang.deepKeys({
-                'a': 1,
-                'b': { 'c': 2, 'd': { 'e': 3 } },
-                'f': {},
+                a: 1,
+                b: { c: 2, d: { e: 3 } },
+                f: {},
                 8: '9'
             })).toEqual(['8', 'a', 'b.c', 'b.d.e', 'f'])
         })
@@ -29,30 +29,30 @@ describe('lang', () => {
 
         test('should return deep keys for deep arrays', () => {
             expect(lang.deepKeys({
-                'a': [{ 'b': 1 }, { 'c': 2, 'd': 3 }],
-                'e': [[{ 'f': 4, 'g': [5, { 'h': 6 }] }]]
+                a: [{ b: 1 }, { c: 2, d: 3 }],
+                e: [[{ f: 4, g: [5, { h: 6 }] }]]
             })).toEqual(['a.0.b', 'a.1.c', 'a.1.d', 'e.0.0.f', 'e.0.0.g.0', 'e.0.0.g.1.h'])
         })
     })
 
     describe('deepKeysSatisfying', () => {
         test('should return empty array for non-objects  / non-arrays', () => {
-            for (let object of [null, undefined, 1, 's']) {
+            for (const object of [null, undefined, 1, 's']) {
                 expect(lang.deepKeysSatisfying(object, v => true)).toEqual([])
             }
         })
 
         test('should return keys for object satisfying predicate', () => {
             const predicate = (k, v) => v !== 3
-            expect(lang.deepKeysSatisfying({ 'a': 1, 'b': 2, '+c': 3, 4: 5 }, predicate)).toEqual(['4', 'a', 'b'])
+            expect(lang.deepKeysSatisfying({ a: 1, b: 2, '+c': 3, 4: 5 }, predicate)).toEqual(['4', 'a', 'b'])
         })
 
         test('should return deep keys for object satisfying predicate', () => {
             const predicate = (k, v) => _.isNumber(v)
             expect(lang.deepKeysSatisfying({
-                'a': 1,
-                'b': { 'c': 2, 'd': { 'e': 3 } },
-                'f': {},
+                a: 1,
+                b: { c: 2, d: { e: 3 } },
+                f: {},
                 8: '9'
             }, predicate)).toEqual(['a', 'b.c', 'b.d.e'])
         })
@@ -65,35 +65,35 @@ describe('lang', () => {
         test('should return deep keys for deep arrays satisfying predicate', () => {
             const predicate = (k, v) => v === 3 || v === 6
             expect(lang.deepKeysSatisfying({
-                'a': [{ 'b': 1 }, { 'c': 2, 'd': 3 }],
-                'e': [[{ 'f': 4, 'g': [5, { 'h': 6 }] }]]
+                a: [{ b: 1 }, { c: 2, d: 3 }],
+                e: [[{ f: 4, g: [5, { h: 6 }] }]]
             }, predicate)).toEqual(['a.1.d', 'e.0.0.g.1.h'])
         })
     })
 
     describe('deepMap', () => {
         test('should return as-is for non-objects / non-arrays', () => {
-            for (let object of [null, undefined, 1, 's']) {
+            for (const object of [null, undefined, 1, 's']) {
                 expect(lang.deepMap(object, v => true)).toEqual(object)
             }
         })
 
         test('should return transformed object with values mapped', () => {
             const mapper = v => v + 1
-            expect(lang.deepMap({ 'a': 1, 'b': 2, '+c': 3, 4: 5 }, mapper)).toEqual({ 'a': 2, 'b': 3, '+c': 4, 4: 6 })
+            expect(lang.deepMap({ a: 1, b: 2, '+c': 3, 4: 5 }, mapper)).toEqual({ a: 2, b: 3, '+c': 4, 4: 6 })
         })
 
         test('should return transformed object with deep values mapped', () => {
             const mapper = v => typeof v === 'number' ? v + 1 : v
             expect(lang.deepMap({
-                'a': 1,
-                'b': { 'c': 2, 'd': { 'e': 3 } },
-                'f': {},
+                a: 1,
+                b: { c: 2, d: { e: 3 } },
+                f: {},
                 8: '9'
             }, mapper)).toEqual({
-                'a': 2,
-                'b': { 'c': 3, 'd': { 'e': 4 } },
-                'f': {},
+                a: 2,
+                b: { c: 3, d: { e: 4 } },
+                f: {},
                 8: '9'
             })
         })
@@ -106,13 +106,14 @@ describe('lang', () => {
         test('should return transformed object with deep values mapped', () => {
             const mapper = v => typeof v === 'number' ? v + 1 : v
             expect(lang.deepMap({
-                'a': [{ 'b': 1 }, { 'c': 2, 'd': 3 }],
-                'e': [[{ 'f': 4, 'g': [5, { 'h': 6 }] }]],
-                'i': '7'
+                a: [{ b: 1 }, { c: 2, d: 3 }],
+                e: [[{ f: 4, g: [5, { h: 6 }] }]],
+                i: '7'
             }, mapper)).toEqual({
-                'a': [{ 'b': 2 }, { 'c': 3, 'd': 4 }],
-                'e': [[{ 'f': 5, 'g': [6, { 'h': 7 }] }]],
-                'i': '7' })
+                a: [{ b: 2 }, { c: 3, d: 4 }],
+                e: [[{ f: 5, g: [6, { h: 7 }] }]],
+                i: '7'
+            })
         })
     })
 

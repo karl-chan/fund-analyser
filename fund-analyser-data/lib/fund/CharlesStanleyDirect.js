@@ -141,15 +141,19 @@ class CharlesStanleyDirect {
             .pipe(this.streamSedolsFromPages())
             .pipe(this.streamFundsFromSedols())
     }
+
     streamNumPages () {
         return streamWrapper.asReadableAsync(this.getNumPages)
     }
+
     streamPageRange () {
         return streamWrapper.asTransformAsync(this.getPageRange)
     }
+
     streamSedolsFromPages () {
         return streamWrapper.asTransformAsync(this.getSedolsFromPage)
     }
+
     streamFundsFromSedols () {
         return streamWrapper.asParallelTransformAsync(this.getFundFromSedol)
     }

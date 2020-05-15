@@ -31,20 +31,20 @@ describe('CharlesStanleyDirect', () => {
             jest.spyOn(charlesStanleyDirect, 'getSedolsFromPage')
                 .mockImplementation(async page => {
                     switch (page) {
-                    case 1:
-                        return sedols[0]
-                    case 2:
-                        return sedols[1]
+                        case 1:
+                            return sedols[0]
+                        case 2:
+                            return sedols[1]
                     }
                 })
             jest.spyOn(charlesStanleyDirect, 'getFundFromSedol')
                 .mockImplementation(async (sedol) => {
                     switch (sedol) {
-                    case sedols[0]:
-                        return partialFunds[0]
+                        case sedols[0]:
+                            return partialFunds[0]
 
-                    case sedols[1]:
-                        return partialFunds[1]
+                        case sedols[1]:
+                            return partialFunds[1]
                     }
                 })
 
@@ -91,10 +91,10 @@ describe('CharlesStanleyDirect', () => {
             jest.spyOn(charlesStanleyDirect, 'getSedolsFromPage')
                 .mockImplementation(async page => {
                     switch (page) {
-                    case 1:
-                        return ['SEDOL01', 'SEDOL02']
-                    case 2:
-                        return ['SEDOL03', 'SEDOL04']
+                        case 1:
+                            return ['SEDOL01', 'SEDOL02']
+                        case 2:
+                            return ['SEDOL03', 'SEDOL04']
                     }
                 })
             const sedols = await charlesStanleyDirect.getSedolsFromPages(pages)
@@ -111,11 +111,11 @@ describe('CharlesStanleyDirect', () => {
             jest.spyOn(charlesStanleyDirect, 'getFundFromSedol')
                 .mockImplementation(async sedol => {
                     switch (sedol) {
-                    case 'SEDOL01':
-                        return partialFunds[0]
+                        case 'SEDOL01':
+                            return partialFunds[0]
 
-                    case 'SEDOL02':
-                        return partialFunds[1]
+                        case 'SEDOL02':
+                            return partialFunds[1]
                     }
                 })
             const isins = await charlesStanleyDirect.getFundsFromSedols(sedols)
@@ -139,20 +139,20 @@ describe('CharlesStanleyDirect', () => {
             jest.spyOn(charlesStanleyDirect, 'getSedolsFromPage')
                 .mockImplementation(async page => {
                     switch (page) {
-                    case 1:
-                        return ['SEDOL01']
-                    case 2:
-                        return ['SEDOL02']
+                        case 1:
+                            return ['SEDOL01']
+                        case 2:
+                            return ['SEDOL02']
                     }
                 })
             jest.spyOn(charlesStanleyDirect, 'getFundFromSedol')
                 .mockImplementation(async (sedol) => {
                     switch (sedol) {
-                    case 'SEDOL01':
-                        return partialFunds[0]
+                        case 'SEDOL01':
+                            return partialFunds[0]
 
-                    case 'SEDOL02':
-                        return partialFunds[1]
+                        case 'SEDOL02':
+                            return partialFunds[1]
                     }
                 })
 
@@ -194,10 +194,10 @@ describe('CharlesStanleyDirect', () => {
             jest.spyOn(charlesStanleyDirect, 'getSedolsFromPage')
                 .mockImplementation(async page => {
                     switch (page) {
-                    case 1:
-                        return ['SEDOL01', 'SEDOL02']
-                    case 2:
-                        return ['SEDOL03', 'SEDOL04']
+                        case 1:
+                            return ['SEDOL01', 'SEDOL02']
+                        case 2:
+                            return ['SEDOL03', 'SEDOL04']
                     }
                 })
 
@@ -219,11 +219,11 @@ describe('CharlesStanleyDirect', () => {
             jest.spyOn(charlesStanleyDirect, 'getFundFromSedol')
                 .mockImplementation(async sedol => {
                     switch (sedol) {
-                    case 'SEDOL01':
-                        return partialFunds[0]
+                        case 'SEDOL01':
+                            return partialFunds[0]
 
-                    case 'SEDOL02':
-                        return partialFunds[1]
+                        case 'SEDOL02':
+                            return partialFunds[1]
                     }
                 })
 

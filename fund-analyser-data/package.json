@@ -16,6 +16,7 @@
     "updateHolidays": "node scripts/main.js -r updateHolidays",
     "server": "node server/server.js",
     "server.dev": "nodemon --inspect server/server.js",
+    "lint": "eslint lib/** --fix",
     "test": "jest --coverage"
   },
   "author": "Karl Chan",
