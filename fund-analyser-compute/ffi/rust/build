@@ -1,0 +1,3 @@
+#!/bin/bash
+FFI_DIR=$(dirname $0)
+cd $FFI_DIR && pipenv run maturin build --release --out=../../bin
