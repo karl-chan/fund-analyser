@@ -1,10 +1,12 @@
-from datetime import date
-from typing import List, Tuple
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
 import talib
+from rust_indicators import support_resistance_ilocs
 from talib._ta_lib import MA_Type
+
+from lib.util.pandas_utils import take_nan
 
 
 def upper_bollinger_bands(prices_df: pd.DataFrame, timeperiod=5, stdev=1) -> pd.DataFrame:
@@ -53,74 +55,14 @@ def ppo(prices_df: pd.DataFrame, fast=12, slow=26, signal=9) -> Tuple[pd.DataFra
 
 def support_resistance(prices_df: pd.DataFrame) -> \
         Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    prev_support_dates, prev_support_prices, prev_resistance_dates, prev_resistance_prices = [], [], [], []
-    for isin, series in prices_df.items():
-        prev_support_dates_series, prev_support_prices_series, prev_resistance_dates_series, prev_resistance_prices_series = support_resistance_series(
-            series)
-        prev_support_dates.append(prev_support_dates_series)
-        prev_support_prices.append(prev_support_prices_series)
-        prev_resistance_dates.append(prev_resistance_dates_series)
-        prev_resistance_prices.append(prev_resistance_prices_series)
-    return pd.concat(prev_support_dates, axis=1), \
-           pd.concat(prev_support_prices, axis=1), \
-           pd.concat(prev_resistance_dates, axis=1), \
-           pd.concat(prev_resistance_prices, axis=1)
-
-
-def support_resistance_series(prices_series: pd.Series) -> \
-        Tuple[pd.Series, pd.Series, pd.Series, pd.Series]:
-    seen_supports: List[Tuple[date, float]] = []  # [(support date, support price)]
-    seen_resistances: List[Tuple[date, float]] = []  # [(resistance date, resistance price)]
-    prev_direction = 0  # 0 = flat, 1 = up, -1 = down
-
-    prev_support_dates = pd.Series(index=prices_series.index, name=prices_series.name, dtype="datetime64[ns]")
-    prev_support_prices = pd.Series(index=prices_series.index, name=prices_series.name)
-    prev_resistance_dates = pd.Series(index=prices_series.index, name=prices_series.name, dtype="datetime64[ns]")
-    prev_resistance_prices = pd.Series(index=prices_series.index, name=prices_series.name)
-
-    def _get_direction(prev_price: float, price: float) -> int:
-        if price > prev_price:
-            return 1
-        if price < prev_price:
-            return -1
-        return 0
-
-    def _get_prev_support(prev_price: float) -> Tuple[date, float]:
-        return next(
-            (t for t in reversed(seen_supports) if t[1] < prev_price),
-            (pd.NaT, np.nan)
-        )
-
-    def _get_prev_resistance(prev_price: float) -> Tuple[date, float]:
-        return next(
-            (t for t in reversed(seen_resistances) if t[1] > prev_price),
-            (pd.NaT, np.nan)
-        )
-
-    for iloc in range(1, len(prices_series)):
-        prev_date = prices_series.index[iloc - 1]
-        prev_price = prices_series.iat[iloc - 1]
-        price = prices_series.iat[iloc]
-        direction = _get_direction(prev_price, price)
-
-        # find last seen support / resistance
-        prev_support_dates[prev_date], prev_support_prices[prev_date] = _get_prev_support(prev_price)
-        prev_resistance_dates[prev_date], prev_resistance_prices[prev_date] = _get_prev_resistance(prev_price)
-
-        # update seen supports and resistances (expanding window)
-        if direction != 0:
-            if direction == 1 and prev_direction == -1:
-                seen_supports.append((prev_date, prev_price))
-            elif direction == -1 and prev_direction == 1:
-                seen_resistances.append((prev_date, prev_price))
-            prev_direction = direction
-
-    # need to handle last date after loop
-    last_date, last_price = prices_series.index[-1], prices_series.iat[-1]
-    prev_support_dates[last_date], prev_support_prices[last_date] = _get_prev_support(last_price)
-    prev_resistance_dates[last_date], prev_resistance_prices[last_date] = _get_prev_resistance(last_price)
-
-    return prev_support_dates, prev_support_prices, prev_resistance_dates, prev_resistance_prices
+    support_ilocs, resistance_ilocs = map(lambda ilocs: pd.DataFrame(np.transpose(ilocs),
+                                                                     index=prices_df.index,
+                                                                     columns=prices_df.columns),
+                                          support_resistance_ilocs(np.transpose(prices_df.to_numpy())))
+    index_df = prices_df.apply(lambda col: prices_df.index, axis=0)
+    support_dates, resistance_dates = take_nan(index_df, support_ilocs), take_nan(index_df, resistance_ilocs)
+    support_prices, resistance_prices = take_nan(prices_df, support_ilocs), take_nan(prices_df, resistance_ilocs)
+    return support_dates, support_prices, resistance_dates, resistance_prices
 
 
 def variance(prices_df: pd.DataFrame, timeperiod=5) -> pd.Series:

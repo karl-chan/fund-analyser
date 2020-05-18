@@ -1,6 +1,7 @@
 import re
 from typing import Dict, List, Optional
 
+import numpy as np
 import pandas as pd
 
 from lib.fund.fund import FundHistoricPrices
@@ -34,3 +35,24 @@ def pd_offset_from_lookback(lookback: str) -> Optional[pd.DateOffset]:
 
 def drop_duplicate_index(df: pd.DataFrame) -> pd.DataFrame:
     return df[~df.index.duplicated()]
+
+
+def take_nan(df: pd.DataFrame, idx: pd.DataFrame) -> pd.DataFrame:
+    arr, idx_arr = df.to_numpy(), idx.to_numpy()
+    idx_nan_locs = np.isnan(idx_arr)
+    idx_zero_filled = np.where(idx_nan_locs, 0, idx_arr).astype(np.int64)
+    res = np.empty_like(arr, dtype=np.float64)
+    for col in range(res.shape[1]):
+        res[:, col] = np.take(arr[:, col], idx_zero_filled[:, col])
+    res = np.where(idx_nan_locs, np.nan, res)
+
+    def fix_return_type():
+        if np.any(np.isnan(res)) and arr.dtype == "int64":
+            return "float64"  # need to support nans
+        return arr.dtype
+
+    return pd.DataFrame(
+        res,
+        index=df.index,
+        columns=df.columns,
+        dtype=fix_return_type())

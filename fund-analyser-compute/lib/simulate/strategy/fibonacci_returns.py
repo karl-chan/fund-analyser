@@ -52,7 +52,6 @@ class FibonacciReturns(Strategy):
     def on_data_ready(self, data: Simulator.Data) -> None:
         smoothed_prices = data.prices_df.rolling(2).mean()
 
-        sr, \
         self._prev_support_dates, \
         self._prev_support_prices, \
         self._prev_resistance_dates, \
