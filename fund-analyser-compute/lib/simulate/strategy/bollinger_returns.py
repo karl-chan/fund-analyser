@@ -6,7 +6,7 @@ from typing import List
 import pandas as pd
 from overrides import overrides
 
-from lib.indicators.indicator_utils import lower_bollinger_bands
+from lib.indicators.indicator_utils import bollinger_bands
 from lib.simulate.simulator import Simulator
 from lib.simulate.strategy.strategy import Strategy
 from lib.util.dates import BDAY
@@ -35,7 +35,8 @@ class BollingerReturns(Strategy):
 
     @overrides
     def on_data_ready(self, data: Simulator.Data) -> None:
-        self._below_lower_band = data.prices_df < lower_bollinger_bands(data.prices_df, stdev=1)
+        upper_bands, middle_bands, lower_bands = bollinger_bands(data.prices_df, stdev=1)
+        self._below_lower_band = data.prices_df < lower_bands
         self._rising = data.prices_df.pct_change().gt(0)
 
 
