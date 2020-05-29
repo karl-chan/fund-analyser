@@ -3,7 +3,7 @@
                     :use-chips="useChips" :multiple="multiple"
                     bg-color="grey-2" color="accent" filled clearable dense
                     :options="options" @filter="search" @input="onSelect" @clear="onClear"
-                    :input-debounce="150")
+                    :input-debounce="250")
     template(v-slot:prepend)
       q-icon(name="search")
     template(v-slot:option="scope")
