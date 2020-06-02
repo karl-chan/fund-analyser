@@ -22,11 +22,11 @@ async function createFundsIndex () {
     })
     log.info('Dropped fund indexes')
 
-    for (let period of lookbacks) {
+    for (const period of lookbacks) {
         await Promise.map(db.getFunds(), fundDb => fundDb.createIndex({ [`returns.${period}`]: 1 }, { background: true }))
     }
     const columns = ['isin', 'asof']
-    for (let col of columns) {
+    for (const col of columns) {
         await Promise.map(db.getFunds(), fundDb => fundDb.createIndex({ [col]: 1 }, { background: true }))
     }
     // text index for searching

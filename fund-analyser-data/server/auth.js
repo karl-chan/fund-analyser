@@ -148,7 +148,7 @@ const findSessionsForUser = async function (user) {
 }
 
 const extractIpAddress = function (req) {
-    let ip = req.headers['x-forwarded-for']
+    const ip = req.headers['x-forwarded-for']
     log.debug('X-forwarded-for: %s', ip)
     if (ip) {
         var list = ip.split(',')

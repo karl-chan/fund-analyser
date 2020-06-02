@@ -14,16 +14,16 @@ async function downloadCsv () {
             name: { $ne: null }
         },
         projection: {
-            'isin': 1,
-            'name': 1,
-            'type': 1,
-            'shareClass': 1,
-            'frequency': 1,
-            'ocf': 1,
-            'amc': 1,
-            'entryCharge': 1,
-            'exitCharge': 1,
-            'bidAskSpread': 1,
+            isin: 1,
+            name: 1,
+            type: 1,
+            shareClass: 1,
+            frequency: 1,
+            ocf: 1,
+            amc: 1,
+            entryCharge: 1,
+            exitCharge: 1,
+            bidAskSpread: 1,
             'returns.5Y': 1,
             'returns.3Y': 1,
             'returns.1Y': 1,
@@ -35,8 +35,8 @@ async function downloadCsv () {
             'returns.3D': 1,
             'returns.1D': 1,
             'indicators.stability.value': 1,
-            'holdings': 1,
-            'asof': 1
+            holdings: 1,
+            asof: 1
         },
         sort: {
             'returns.1D': -1

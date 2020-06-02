@@ -7,7 +7,7 @@ self.addEventListener('push', event => {
   const { key, payload } = event.data.json()
 
   switch (key) {
-    case 'trade':
+    case 'trade': {
       const predictionPairs = payload
       const notificationsPromise = Promise.all(predictionPairs.map(({ simulateParam, prediction }) => {
         const title = prediction.funds.map(fund => fund.isin).join(', ') || 'Sell'
@@ -31,6 +31,7 @@ self.addEventListener('push', event => {
       }))
       event.waitUntil(notificationsPromise)
       break
+    }
     default:
   }
 })
@@ -39,7 +40,7 @@ self.addEventListener('notificationclick', event => {
   event.notification.close()
   const { key, value } = event.notification.data
   switch (key) {
-    case 'trade':
+    case 'trade': {
       const simulateParam = value
       switch (event.action) {
         case 'trade':
@@ -49,6 +50,7 @@ self.addEventListener('notificationclick', event => {
           self.clients.openWindow(`/#/simulate/${encodeURIComponent(JSON.stringify(simulateParam))}`)
       }
       break
+    }
     default:
   }
 })

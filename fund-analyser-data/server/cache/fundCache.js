@@ -86,13 +86,13 @@ function buildQuickFilterCache (funds) {
     const cache = {}
     funds.forEach(f => {
         let s = ''
-        for (let v of Object.values(f)) {
+        for (const v of Object.values(f)) {
             switch (typeof v) {
-            case 'object':
-                s += JSON.stringify(v)
-                break
-            default:
-                s += v
+                case 'object':
+                    s += JSON.stringify(v)
+                    break
+                default:
+                    s += v
             }
         }
         cache[f.isin] = s.toLowerCase()
@@ -127,7 +127,7 @@ function isUpToDate (f, asofDate) {
 
 async function loadFromFile () {
     ({ fundCache, quickFilterCache, metadata } = await tmp.read(FILE_TMP_CACHE))
-    for (let row of fundCache) {
+    for (const row of fundCache) {
         row.asof = new Date(row.asof)
     }
     metadata.asof.date = new Date(metadata.asof.date)

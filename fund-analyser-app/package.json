@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "postinstall": "quasar build -m pwa",
-    "lint": "eslint --ext .js,.vue src",
+    "lint": "eslint --ext .js,.vue src src-pwa",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {

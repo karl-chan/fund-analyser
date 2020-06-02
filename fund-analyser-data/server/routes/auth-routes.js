@@ -1,5 +1,4 @@
 const Router = require('koa-router')
-const UserDAO = require('../../lib/db/UserDAO')
 const simulate = require('../../lib/simulate/simulate')
 const log = require('../../lib/util/log')
 const properties = require('../../lib/util/properties')

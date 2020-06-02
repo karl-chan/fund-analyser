@@ -53,7 +53,7 @@ if (require.main === module) {
         await db.init()
         log.info(`Connected to MongoDB.`)
 
-        for (let task of commander.run) {
+        for (const task of commander.run) {
             log.info(`Started running: ${task}`)
             try {
                 await Main.tasks[task]()
