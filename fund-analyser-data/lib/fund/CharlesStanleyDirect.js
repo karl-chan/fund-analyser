@@ -11,7 +11,8 @@ const Promise = require('bluebird')
 const http = new Http({
     maxParallelConnections: properties.get('fund.charlesstanleydirect.max.parallel.connections'),
     maxAttempts: properties.get('fund.charlesstanleydirect.max.attempts'),
-    retryInterval: properties.get('fund.charlesstanleydirect.retry.interval')
+    retryInterval: properties.get('fund.charlesstanleydirect.retry.interval'),
+    timeout: properties.get('fund.charlesstanleydirect.timeout')
 })
 
 class CharlesStanleyDirect {

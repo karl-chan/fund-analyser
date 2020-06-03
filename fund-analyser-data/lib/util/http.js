@@ -5,6 +5,7 @@ const log = require('./log')
 const defaultMaxAttempts = properties.get('http.max.attempts')
 const defaultRetryInterval = properties.get('http.retry.interval')
 const defaultMaxParallelConnections = properties.get('http.max.parallel.connections')
+const defaultTimeout = properties.get('http.timeout')
 
 const request = require('request')
 const rp = require('request-promise')
@@ -17,7 +18,7 @@ class Http {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
             },
-            timeout: 30000, // 30 seconds
+            timeout: _.get(options, 'timeout', defaultTimeout),
             simple: false
         })
         this.maxAttempts = _.get(options, 'maxAttempts', defaultMaxAttempts)
