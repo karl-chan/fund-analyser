@@ -9,7 +9,7 @@
               q-item-label {{entry.name}}
               q-item-label(caption) {{entry.isin}}
             q-item-section(side)
-              q-btn(flat round dense icon="close" @click.stop="removeFromRecentlyViewed(entry.isin)")
+              q-btn(flat round dense icon="close" @click.stop.prevent="removeFromRecentlyViewed(entry.isin)")
         .row.justify-end
           q-btn.q-mr-sm.q-mb-sm(rounded label="Clear all" color="pink-10" @click="clearRecentlyViewed")
       // Simulate
@@ -23,9 +23,9 @@
               .row
                 q-btn(v-if="isLoggedIn" flat round dense icon="flash_on"
                       :color="simulateParam.active? 'amber': undefined"
-                      @click.stop="toggleActiveSimulateParam(simulateParam)")
+                      @click.stop.prevent="toggleActiveSimulateParam(simulateParam)")
                   q-tooltip Click to {{simulateParam.active?  'stop': 'start'}} trading
-                q-btn(flat round dense icon="close" @click.stop="removeFromFavouriteSimulateParams(simulateParam)")
+                q-btn(flat round dense icon="close" @click.stop.prevent="removeFromFavouriteSimulateParams(simulateParam)")
         .row.justify-end(v-if="isLoggedIn")
           q-btn.q-mr-sm.q-mb-sm(push icon="notifications" color="red-10" @click="pushNotifications")
             q-tooltip Push notifications
