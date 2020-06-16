@@ -9,8 +9,8 @@ const Http = require('../lib/util/http')
 const COMPUTE_HOST = properties.get('client.compute')
 
 const http = new Http({
-    maxAttempts: properties.get('compute.max.attempts'),
-    retryInterval: properties.get('compute.retry.interval')
+    maxAttempts: properties.get('client.compute.max.attempts'),
+    retryInterval: properties.get('client.compute.retry.interval')
 })
 
 async function get (endpoint, params) {
