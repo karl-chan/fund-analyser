@@ -45,13 +45,13 @@ SAMPLE_HISTORIC_PRICES = pd_historic_prices_from_json([
 
 
 def test_rsi_empty_returns_nan():
-    assert np.isnan(RSI().calc(fund=None, historic_prices=pd.Series()).value)
+    assert np.isnan(RSI().calc(historic_prices=pd.Series()).value)
 
 
 def test_rsi_short_returns_nan():
-    assert np.isnan(RSI().calc(fund=None, historic_prices=SAMPLE_HISTORIC_PRICES[:10]).value)
+    assert np.isnan(RSI().calc(historic_prices=SAMPLE_HISTORIC_PRICES[:10]).value)
 
 
 def test_rsi():
-    actual = RSI().calc(fund=None, historic_prices=SAMPLE_HISTORIC_PRICES)
+    actual = RSI().calc(historic_prices=SAMPLE_HISTORIC_PRICES)
     assert actual.value == pytest.approx(56.0, rel=0.01)

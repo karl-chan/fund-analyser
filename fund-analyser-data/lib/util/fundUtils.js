@@ -99,7 +99,7 @@ function enrichReturns (returns, historicPrices, additionalLookbacks) {
 }
 
 async function calcIndicators (fund) {
-    return indicators.calcIndicators(fund)
+    return indicators.calcFundIndicators(fund)
 }
 
 function calcStats (funds) {

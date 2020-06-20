@@ -47,8 +47,8 @@ SAMPLE_HISTORIC_PRICES = pd_historic_prices_from_json([
 
 @pytest.mark.parametrize("lookback", properties.get("fund.lookbacks"))
 def test_empty_returns_nan(lookback: str):
-    assert np.isnan(MinReturns(lookback).calc(fund=None, historic_prices=pd.Series()).value)
-    assert np.isnan(MaxReturns(lookback).calc(fund=None, historic_prices=pd.Series()).value)
+    assert np.isnan(MinReturns(lookback).calc(historic_prices=pd.Series()).value)
+    assert np.isnan(MaxReturns(lookback).calc(historic_prices=pd.Series()).value)
 
 
 @pytest.mark.parametrize("lookback,expected_max,expected_min", [
@@ -64,13 +64,13 @@ def test_empty_returns_nan(lookback: str):
     ("5Y", np.nan, np.nan),
 ])
 def test_returns(lookback: str, expected_max: float, expected_min: float):
-    actual_min = MinReturns(lookback).calc(fund=None, historic_prices=SAMPLE_HISTORIC_PRICES)
+    actual_min = MinReturns(lookback).calc(historic_prices=SAMPLE_HISTORIC_PRICES)
     if np.isnan(expected_min):
         assert np.isnan(actual_min.value)
     else:
         assert actual_min.value == pytest.approx(expected_min, abs=0.01)
 
-    actual_max = MaxReturns(lookback).calc(fund=None, historic_prices=SAMPLE_HISTORIC_PRICES)
+    actual_max = MaxReturns(lookback).calc(historic_prices=SAMPLE_HISTORIC_PRICES)
     if np.isnan(expected_max):
         assert np.isnan(actual_max.value)
     else:

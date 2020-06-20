@@ -39,7 +39,10 @@ describe('fundCache', () => {
             const funds = fundCache.get(undefined, { filterText })
             expect(funds)
                 .not.toBeEmpty()
-                .toSatisfyAll(f => f.name.includes(filterText))
+                .toSatisfyAll(f =>
+                    f.name.includes(filterText) ||
+                    f.holdings.some(h => h.name.includes(filterText))
+                )
         })
 
         test('getMetadata should return metadata object', () => {

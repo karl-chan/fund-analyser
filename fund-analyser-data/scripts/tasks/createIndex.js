@@ -2,16 +2,18 @@ module.exports = createIndex
 
 const db = require('../../lib/util/db')
 const log = require('../../lib/util/log')
-const properties = require('../../lib/util/properties')
 const Promise = require('bluebird')
-
-const lookbacks = properties.get('fund.lookbacks')
 
 /**
  * Create index on popular fields for sorting
  */
 async function createIndex () {
-    await Promise.all([createFundsIndex(), createSimilarFundsIndex(), createCurrencyIndex()])
+    await Promise.all([
+        createFundsIndex(),
+        createStocksIndex(),
+        createSimilarFundsIndex(),
+        createCurrencyIndex()
+    ])
 }
 
 async function createFundsIndex () {
@@ -22,9 +24,6 @@ async function createFundsIndex () {
     })
     log.info('Dropped fund indexes')
 
-    for (const period of lookbacks) {
-        await Promise.map(db.getFunds(), fundDb => fundDb.createIndex({ [`returns.${period}`]: 1 }, { background: true }))
-    }
     const columns = ['isin', 'asof']
     for (const col of columns) {
         await Promise.map(db.getFunds(), fundDb => fundDb.createIndex({ [col]: 1 }, { background: true }))
@@ -37,6 +36,28 @@ async function createFundsIndex () {
             { background: true, weights: { name: 10, isin: 5, sedol: 5, 'holdings.name': 1, 'holdings.symbol': 1 } })
     )
     log.info('Created fund indexes')
+}
+
+async function createStocksIndex () {
+    await Promise.map(db.getStocks(), async stockDb => {
+        try {
+            await stockDb.dropIndexes()
+        } catch (ignored) {}
+    })
+    log.info('Dropped stock indexes')
+
+    const columns = ['symbol', 'asof']
+    for (const col of columns) {
+        await Promise.map(db.getStocks(), stockDb => stockDb.createIndex({ [col]: 1 }, { background: true }))
+    }
+    // text index for searching
+    await Promise.map(
+        db.getStocks(),
+        stockDb => stockDb.createIndex(
+            { symbol: 'text', name: 'text' },
+            { background: true, weights: { symbol: 1, name: 1 } })
+    )
+    log.info('Created stock indexes')
 }
 
 async function createSimilarFundsIndex () {

@@ -10,7 +10,8 @@ from server.routes.simulate_routes import simulate_routes
 app = falcon.API(middleware=[LoggingMiddleware()])
 
 app.add_route("/", home_routes)
-app.add_route("/indicators", indicators_routes)
+app.add_route("/indicators/fund", indicators_routes, suffix="fund")
+app.add_route("/indicators/stock", indicators_routes, suffix="stock")
 app.add_route("/simulate", simulate_routes)
 app.add_route("/simulate/predict", simulate_routes, suffix="predict")
 app.add_route("/simulate/strategies", simulate_routes, suffix="strategies")

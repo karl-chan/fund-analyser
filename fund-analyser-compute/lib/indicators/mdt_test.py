@@ -47,7 +47,7 @@ SAMPLE_HISTORIC_PRICES = pd_historic_prices_from_json([
 
 
 def test_mdt_empty_returns_nan():
-    assert np.isnan(MDT().calc(fund=None, historic_prices=pd.Series()).value)
+    assert np.isnan(MDT().calc(historic_prices=pd.Series()).value)
 
 
 @pytest.mark.parametrize("start_date,end_date,expected",
@@ -58,5 +58,5 @@ def test_mdt_empty_returns_nan():
                          ])
 def test_mdt(start_date, end_date, expected):
     partial = SAMPLE_HISTORIC_PRICES.truncate(before=start_date, after=end_date)
-    actual = MDT().calc(fund=None, historic_prices=partial)
+    actual = MDT().calc(historic_prices=partial)
     assert actual.value == expected

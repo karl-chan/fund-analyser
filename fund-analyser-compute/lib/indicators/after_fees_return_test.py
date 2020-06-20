@@ -45,10 +45,11 @@ SAMPLE_HISTORIC_PRICES = pd_historic_prices_from_json([
 
 
 def test_after_fees_return_empty_returns_nan():
-    assert np.isnan(AfterFeesReturn().calc(fund=Fund(isin="test"), historic_prices=pd.Series()).value)
+    assert np.isnan(AfterFeesReturn(Fund(isin="test"))
+                    .calc(historic_prices=pd.Series()).value)
 
 
 def test_after_fees_return():
     fund = Fund(isin="test", ocf=0.01, amc=0.009, exitCharge=0, bidAskSpread=0, returns={"1Y": 0.2})
-    actual = AfterFeesReturn().calc(fund=fund, historic_prices=SAMPLE_HISTORIC_PRICES)
+    actual = AfterFeesReturn(fund).calc(historic_prices=SAMPLE_HISTORIC_PRICES)
     assert actual.value == 0.2 - (0.01 + 0.0035)

@@ -1,5 +1,4 @@
 module.exports = updateFunds
-module.exports = updateFunds
 
 const FundFactory = require('../../lib/fund/FundFactory')
 const FundDAO = require('../../lib/db/FundDAO')

@@ -8,7 +8,7 @@ const StreamTest = require('streamtest')
 jest.setTimeout(30000) // 30 seconds
 
 describe('FinancialTimes', function () {
-    let financialTimes, isin1, isin2, fund1, fund2
+    let financialTimes
     beforeEach(function () {
         financialTimes = new FinancialTimes()
     })
@@ -222,10 +222,10 @@ describe('FinancialTimes', function () {
     describe('Stream methods', function () {
         const version = 'v2'
         test('streamFundsFromIsins should return Transform stream outputting array of funds', done => {
-            isin1 = 'GB00B80QG615'
-            isin2 = 'GB00B80QFX11'
-            fund1 = Fund.Builder(isin1).build()
-            fund2 = Fund.Builder(isin2).build()
+            const isin1 = 'GB00B80QG615'
+            const isin2 = 'GB00B80QFX11'
+            const fund1 = Fund.Builder(isin1).build()
+            const fund2 = Fund.Builder(isin2).build()
 
             jest.spyOn(financialTimes, 'getFundFromIsin')
                 .mockImplementation(async isin => {

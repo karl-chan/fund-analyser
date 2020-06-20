@@ -1,1 +1,1 @@
-worker: node scripts/main.js -r updateFunds
+worker: node scripts/main.js -r updateStocks,updateFunds

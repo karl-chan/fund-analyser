@@ -44,9 +44,9 @@ SAMPLE_HISTORIC_PRICES = pd_historic_prices_from_json([
 
 
 def test_sharpe_ratio_empty_returns_nan():
-    assert np.isnan(SharpeRatio().calc(fund=None, historic_prices=pd.Series()).value)
+    assert np.isnan(SharpeRatio().calc(historic_prices=pd.Series()).value)
 
 
 def test_sharpe_ratio():
-    actual = SharpeRatio().calc(fund=None, historic_prices=SAMPLE_HISTORIC_PRICES)
+    actual = SharpeRatio().calc(historic_prices=SAMPLE_HISTORIC_PRICES)
     assert actual.value == -0.4706320380499181

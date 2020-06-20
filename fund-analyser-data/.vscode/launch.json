@@ -57,6 +57,17 @@
         },
         {
             "type": "node",
+            "request": "launch",
+            "name": "updateStocks",
+            "program": "${workspaceFolder}/scripts/main.js",
+            "args": [
+                "-r",
+                "updateStocks"
+            ],
+            "outputCapture": "std"
+        },
+        {
+            "type": "node",
             "name": "vscode-jest-tests",
             "request": "launch",
             "args": [

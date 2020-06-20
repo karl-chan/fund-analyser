@@ -2,7 +2,7 @@ import numpy as np
 import talib
 from overrides import overrides
 
-from lib.fund.fund import Fund, FundHistoricPrices, FundIndicator
+from lib.fund.fund import FundHistoricPrices, FundIndicator
 from lib.indicators.indicator import Indicator
 
 
@@ -14,7 +14,7 @@ class RSI(Indicator):
         return "RSI"
 
     @overrides
-    def calc(self, fund: Fund, historic_prices: FundHistoricPrices) -> FundIndicator:
+    def calc(self, historic_prices: FundHistoricPrices) -> FundIndicator:
         if historic_prices.empty:
             return FundIndicator(np.nan)
         else:

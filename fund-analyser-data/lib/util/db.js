@@ -2,6 +2,7 @@ module.exports = {
     init,
     get,
     getFunds,
+    getStocks,
     getSimilarFunds,
     getCurrencies,
     getSessions,
@@ -13,22 +14,26 @@ module.exports = {
 const properties = require('./properties')
 const uri = properties.get('db.mongo.uri.main')
 const fundUris = properties.get('db.mongo.uri.funds')
+const stockUris = properties.get('db.mongo.uri.stocks')
 
 const Promise = require('bluebird')
 const MongoClient = require('mongodb').MongoClient
 
 let _client, _db
 let _fundClients, _fundDbs
+let _stockClients, _stockDbs
 
 async function init () {
     const opts = { useNewUrlParser: true, useUnifiedTopology: true }
-    ;([_client, _fundClients] = await Promise.all([
+    ;([_client, _fundClients, _stockClients] = await Promise.all([
         MongoClient.connect(uri, opts),
-        Promise.map(fundUris, fundUri => MongoClient.connect(fundUri, opts))
+        Promise.map(fundUris, fundUri => MongoClient.connect(fundUri, opts)),
+        Promise.map(stockUris, stockUri => MongoClient.connect(stockUri, opts))
     ]))
 
     _db = _client.db()
     _fundDbs = _fundClients.map(client => client.db())
+    _stockDbs = _stockClients.map(client => client.db())
 }
 
 function get () {
@@ -42,6 +47,10 @@ function get () {
 
 function getFunds () {
     return _fundDbs.map(db => db.collection('funds'))
+}
+
+function getStocks () {
+    return _stockDbs.map(db => db.collection('stocks'))
 }
 
 function getSimilarFunds () {
@@ -67,6 +76,7 @@ function getHolidays () {
 async function close () {
     await Promise.all([
         _client.close(),
-        Promise.map(_fundClients, client => client.close())
+        Promise.map(_fundClients, client => client.close()),
+        Promise.map(_stockClients, client => client.close())
     ])
 }

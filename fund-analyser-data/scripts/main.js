@@ -15,6 +15,7 @@ const updateCatalog = require('./tasks/updateCatalog')
 const updateCurrencies = require('./tasks/updateCurrencies')
 const updateFunds = require('./tasks/updateFunds')
 const updateHolidays = require('./tasks/updateHolidays')
+const updateStocks = require('./tasks/updateStocks')
 
 function Main () {
 }
@@ -29,7 +30,8 @@ Main.tasks = {
     updateCatalog,
     updateCurrencies,
     updateFunds,
-    updateHolidays
+    updateHolidays,
+    updateStocks
 }
 
 if (require.main === module) {

@@ -1,13 +1,14 @@
 import re
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
 
 from lib.fund.fund import FundHistoricPrices
+from lib.stock.stock import StockHistoricPrices
 
 
-def pd_historic_prices_from_json(historic_prices_json: List[Dict]) -> FundHistoricPrices:
+def pd_historic_prices_from_json(historic_prices_json: List[Dict]) -> Union[FundHistoricPrices, StockHistoricPrices]:
     if not len(historic_prices_json):
         return pd.Series()
     historic_prices = pd.DataFrame.from_records(historic_prices_json, index="date").squeeze(axis=1)

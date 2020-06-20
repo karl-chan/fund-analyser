@@ -11,7 +11,7 @@ module.exports = {
 }
 
 const _ = require('lodash')
-const jStat = require('jStat')
+const jstat = require('jstat')
 const lang = require('./lang')
 
 // [w1, w2, ...] normalise such that w1' / w2' = w1 / w2 and w1' + w2' = 1
@@ -37,7 +37,7 @@ function weightedVar (arr) {
     }
     const [weights, xs] = _.unzip(arr)
     const normWeights = normaliseWeights(weights)
-    const xsVar = jStat.variance(xs, true)
+    const xsVar = jstat.variance(xs, true)
     return xsVar * _.sumBy(normWeights, w => w * w)
 }
 
@@ -52,21 +52,21 @@ function ci95 (mean, stdev, n) {
 }
 
 function min (arr) {
-    return jStat.min(arr.filter(lang.isOrdered))
+    return jstat.min(arr.filter(lang.isOrdered))
 }
 
 function max (arr) {
-    return jStat.max(arr.filter(lang.isOrdered))
+    return jstat.max(arr.filter(lang.isOrdered))
 }
 
 function median (arr) {
-    return jStat.median(arr.filter(lang.isOrdered))
+    return jstat.median(arr.filter(lang.isOrdered))
 }
 
 function q1 (arr) {
-    return jStat.percentile(arr.filter(lang.isOrdered), 0.25)
+    return jstat.percentile(arr.filter(lang.isOrdered), 0.25)
 }
 
 function q3 (arr) {
-    return jStat.percentile(arr.filter(lang.isOrdered), 0.75)
+    return jstat.percentile(arr.filter(lang.isOrdered), 0.75)
 }

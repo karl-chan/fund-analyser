@@ -42,7 +42,7 @@ describe('CharlesStanleyDirectAccount', () => {
                     const from = moment(event.from)
                     const to = moment(event.to)
                     return from.isValid() && to.isValid() && from.isSameOrBefore(to) &&
-                    event.holdings.every(h => typeof h.sedol === 'string' && h.sedol && typeof h.weight === 'number' && h.weight > 0)
+                    event.holdings.every(h => typeof h.sedol === 'string' && h.sedol && typeof h.weight === 'number')
                 }
                 case 'fee': // fallthrough
                 case 'deposit': // fallthrough

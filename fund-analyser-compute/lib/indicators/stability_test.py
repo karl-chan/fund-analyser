@@ -45,10 +45,10 @@ SAMPLE_HISTORIC_PRICES = pd_historic_prices_from_json([
 
 
 def test_stability_empty_returns_nan():
-    assert np.isnan(Stability().calc(fund=None, historic_prices=pd.Series()).value)
+    assert np.isnan(Stability().calc(historic_prices=pd.Series()).value)
 
 
 def test_stability():
-    actual = Stability().calc(fund=None, historic_prices=SAMPLE_HISTORIC_PRICES)
+    actual = Stability().calc(historic_prices=SAMPLE_HISTORIC_PRICES)
     assert actual.value == pytest.approx(2.429, rel=0.01)
     assert actual.metadata == {"max": "9.00", "min": "1.00", "median": "2.00"}
