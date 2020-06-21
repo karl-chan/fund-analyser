@@ -7,6 +7,7 @@ verify_ssl = true
 ciso8601 = "*"
 falcon = "*"
 ffn = "*"
+humanize = "*"
 matplotlib = "*"
 numpy = "*"
 overrides = "*"
