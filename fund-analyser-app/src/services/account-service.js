@@ -13,17 +13,17 @@ export default {
   getStatement () {
     return apiService.get('/account/statement')
   },
-  getWatchlist () {
-    return apiService.get('/account/watchlist')
+  getFundWatchlist () {
+    return apiService.get('/account/fund-watchlist')
   },
-  addToWatchlist (isin) {
-    return apiService.post('/account/watchlist/add', { isin })
+  addToFundWatchlist (isin) {
+    return apiService.post('/account/fund-watchlist/add', { isin })
   },
-  removeFromWatchlist (isin) {
-    return apiService.post('/account/watchlist/remove', { isin })
+  removeFromFundWatchlist (isin) {
+    return apiService.post('/account/fund-watchlist/remove', { isin })
   },
-  clearWatchlist () {
-    return apiService.delete('/account/watchlist')
+  clearFundWatchlist () {
+    return apiService.delete('/account/fund-watchlist')
   },
   addToFavouriteCurrencies (currency) {
     return apiService.post('/account/currency/add', { currency })

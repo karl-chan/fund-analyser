@@ -4,11 +4,11 @@ import accountService from './../../services/account-service'
 
 export async function init ({ commit }) {
   try {
-    const { balance, orders, statement, watchlist, currencies, simulateParams } = await accountService.get()
+    const { balance, orders, statement, fundWatchlist, currencies, simulateParams } = await accountService.get()
     commit('saveBalance', balance)
     commit('saveOrders', orders)
     commit('saveStatement', statement)
-    commit('setWatchlist', watchlist)
+    commit('setFundWatchlist', fundWatchlist)
     commit('setFavouriteCurrencies', currencies)
     commit('setFavouriteSimulateParams', simulateParams)
   } catch (ignored) {
@@ -31,49 +31,49 @@ export async function getStatement ({ commit }) {
   commit('saveStatement', statement)
 }
 
-export async function getWatchlist ({ commit }) {
+export async function getFundWatchlist ({ commit }) {
   try {
-    const { watchlist } = await accountService.getWatchlist()
-    commit('setWatchlist', watchlist)
+    const { fundWatchlist } = await accountService.getFundWatchlist()
+    commit('setFundWatchlist', fundWatchlist)
   } catch (ignored) {
     // user not logged in
   }
 }
 
-export async function addToWatchlist ({ commit, state }, isin) {
-  if (!state.watchlist.includes(isin)) {
-    commit('setWatchlist', state.watchlist.concat([isin]))
+export async function addToFundWatchlist ({ commit, state }, isin) {
+  if (!state.fundWatchlist.includes(isin)) {
+    commit('setFundWatchlist', state.fundWatchlist.concat([isin]))
   }
   try {
-    await accountService.addToWatchlist(isin)
+    await accountService.addToFundWatchlist(isin)
   } catch (ignored) {
     // user not logged in
   }
 }
 
-export async function removeFromWatchlist ({ commit, dispatch, state }, isin) {
+export async function removeFromFundWatchlist ({ commit, dispatch, state }, isin) {
   const confirm = await promptClearWatchlist(false)
   if (!confirm) {
     return
   }
-  if (state.watchlist.includes(isin)) {
-    commit('setWatchlist', state.watchlist.filter(i => i !== isin))
+  if (state.fundWatchlist.includes(isin)) {
+    commit('setFundWatchlist', state.fundWatchlist.filter(i => i !== isin))
   }
   try {
-    await accountService.removeFromWatchlist(isin)
+    await accountService.removeFromFundWatchlist(isin)
   } catch (ignored) {
     // user not logged in
   }
 }
 
-export async function clearWatchlist ({ commit, dispatch }) {
+export async function clearFundWatchlist ({ commit, dispatch }) {
   const confirm = await promptClearWatchlist(true)
   if (!confirm) {
     return
   }
-  commit('setWatchlist', [])
+  commit('setFundWatchlist', [])
   try {
-    await accountService.clearWatchlist()
+    await accountService.clearFundWatchlist()
   } catch (ignored) {
     // user not logged in
   }

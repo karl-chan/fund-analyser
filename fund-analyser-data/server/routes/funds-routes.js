@@ -90,7 +90,7 @@ router.post('/list', async ctx => {
 })
 
 router.get('/indicators', async ctx => {
-    ctx.body = await compute.get('indicators')
+    ctx.body = await compute.get('indicators/fund')
 })
 
 router.get('/csv', async ctx => {

@@ -1,12 +1,12 @@
 <template lang="pug">
   .column.q-gutter-y-sm
     // table
-    funds-table(:isins="watchlist" :highlightIsin="selectedIsin"
+    funds-table(:isins="fundWatchlist" :highlightIsin="selectedIsin"
                 @rowSelected="onRowSelected")
       template(slot="title")
         .row.justify-between.items-center
           .text-h5 Watch List
-          q-btn.q-ml-xl(outline color="red" @click="clearWatchlist") Remove all
+          q-btn.q-ml-xl(outline color="red" @click="clearFundWatchlist") Remove all
       template(slot="empty-view")
         q-tooltip
           .row.items-center
@@ -15,7 +15,7 @@
             | >
             q-icon.q-mx-xs(name="star" color="amber")
             | Add to watch list
-        q-chip.absolute-center.shadow-5(square detail icon="warning" color="secondary" text-color="white" style="{z-index: 1}") Your watchlist is empty
+        q-chip.absolute-center.shadow-5(square detail icon="warning" color="secondary" text-color="white" style="{z-index: 1}") Your fund watchlist is empty
 
     // charts
     fund-chart-grid(:funds="funds" :cols="3" :selectedIsin="selectedIsin" @chartSelected="onChartSelected")
@@ -25,7 +25,7 @@
 import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'FundWatchList',
-  props: ['watchlist'],
+  props: ['fundWatchlist'],
   data () {
     return {
       selectedIsin: null
@@ -34,12 +34,12 @@ export default {
   computed: {
     ...mapGetters('funds', ['lookupFund']),
     funds: function () {
-      return this.watchlist.map(isin => this.lookupFund(isin))
+      return this.fundWatchlist.map(isin => this.lookupFund(isin))
         .filter(f => f) // remove undefined entries in case fund not ready
     }
   },
   methods: {
-    ...mapActions('account', ['clearWatchlist']),
+    ...mapActions('account', ['clearFundWatchlist']),
     onRowSelected (params) {
       this.selectedIsin = params.data.isin
     },

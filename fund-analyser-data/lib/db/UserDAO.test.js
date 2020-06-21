@@ -16,13 +16,13 @@ describe('UserDAO', function () {
         entry = {
             user: 'user',
             meta: {
-                watchlist: ['isin1', 'isin2']
+                fundWatchlist: ['isin1', 'isin2']
             }
         }
         dao = new UserDAO(entry)
         user = 'user'
         meta = {
-            watchlist: ['isin1', 'isin2']
+            fundWatchlist: ['isin1', 'isin2']
         }
     })
     test('copy constructor', function () {
@@ -47,25 +47,25 @@ describe('UserDAO', function () {
 
         await UserDAO.deleteUser(user)
     })
-    test('watchlist', async function () {
+    test('fundWatchlist', async function () {
         await UserDAO.deleteUser(user)
 
         await UserDAO.createUserIfNotExists(user)
-        let watchlist = await UserDAO.getWatchlist(user)
-        expect(watchlist).toEqual([])
+        let fundWatchlist = await UserDAO.getFundWatchlist(user)
+        expect(fundWatchlist).toEqual([])
 
-        await UserDAO.addToWatchlist(user, 'isin1')
-        await UserDAO.addToWatchlist(user, 'isin2')
-        watchlist = await UserDAO.getWatchlist(user)
-        expect(watchlist).toEqual(['isin1', 'isin2'])
+        await UserDAO.addToFundWatchlist(user, 'isin1')
+        await UserDAO.addToFundWatchlist(user, 'isin2')
+        fundWatchlist = await UserDAO.getFundWatchlist(user)
+        expect(fundWatchlist).toEqual(['isin1', 'isin2'])
 
-        await UserDAO.removeFromWatchlist(user, 'isin1')
-        watchlist = await UserDAO.getWatchlist(user)
-        expect(watchlist).toEqual(['isin2'])
+        await UserDAO.removeFromFundWatchlist(user, 'isin1')
+        fundWatchlist = await UserDAO.getFundWatchlist(user)
+        expect(fundWatchlist).toEqual(['isin2'])
 
-        await UserDAO.clearWatchlist(user)
-        watchlist = await UserDAO.getWatchlist(user)
-        expect(watchlist).toEqual([])
+        await UserDAO.clearFundWatchlist(user)
+        fundWatchlist = await UserDAO.getFundWatchlist(user)
+        expect(fundWatchlist).toEqual([])
 
         await UserDAO.deleteUser(user)
     })

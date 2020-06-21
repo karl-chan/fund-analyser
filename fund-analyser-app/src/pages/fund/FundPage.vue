@@ -87,7 +87,7 @@ export default {
   },
   methods: {
     openURL,
-    ...mapActions('account', ['addToRecentlyViewed', 'addToWatchlist', 'removeFromWatchlist']),
+    ...mapActions('account', ['addToRecentlyViewed', 'addToFundWatchlist', 'removeFromFundWatchlist']),
     ...mapActions('funds', ['gets', 'lazyGets']),
     async refreshFund () {
       this.loading = true
@@ -98,7 +98,7 @@ export default {
       this.hoveringFavouriteIcon = isMouseEnter
     },
     toggleWatchlist (isin) {
-      this.isFavourite ? this.removeFromWatchlist(isin) : this.addToWatchlist(isin)
+      this.isFavourite ? this.removeFromFundWatchlist(isin) : this.addToFundWatchlist(isin)
     }
   }
 }

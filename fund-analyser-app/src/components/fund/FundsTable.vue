@@ -112,7 +112,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('account', ['watchlist']),
+    ...mapState('account', ['fundWatchlist']),
     ...mapState('funds', ['indicatorSchema']),
     pctUpToDate: function () {
       return this.$utils.format.formatPercentage(this.numUpToDate / this.totalFunds, '0%')
@@ -199,7 +199,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('account', ['addToWatchlist', 'removeFromWatchlist']),
+    ...mapActions('account', ['addToFundWatchlist', 'removeFromFundWatchlist']),
     onGridReady (params) {
       this.gridApi = params.api
       this.columnApi = params.columnApi
@@ -238,20 +238,20 @@ export default {
       if (!this.isRowPinned(params)) {
         // row is fund
         const isin = params.node.data.isin
-        const isFavourite = this.watchlist.includes(isin)
+        const isFavourite = this.fundWatchlist.includes(isin)
         const fundContextMenuItems = isFavourite
           ? [{
             name: 'Remove from watch list',
             icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
             action: () => {
-              params.context.removeFromWatchlist(isin)
+              params.context.removeFromFundWatchlist(isin)
             }
           }]
           : [{
             name: 'Add to watch list',
             icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
             action: () => {
-              params.context.addToWatchlist(isin)
+              params.context.addToFundWatchlist(isin)
             }
           }]
         contextMenu = [...fundContextMenuItems, 'separator', ...contextMenu]

@@ -15,15 +15,15 @@ router.use(auth.authorise)
 router.get('/', async ctx => {
     const { jar, user, pass } = ctx
     const csdAccount = new CharlesStanleyDirectAccount(jar, pass)
-    const [balance, orders, statement, watchlist, currencies, simulateParams] = await Promise.all([
+    const [balance, orders, statement, fundWatchlist, currencies, simulateParams] = await Promise.all([
         csdAccount.getBalance(),
         csdAccount.getOrders(),
         csdAccount.getStatement(),
-        UserDAO.getWatchlist(user),
+        UserDAO.getFundWatchlist(user),
         UserDAO.getCurrencies(user),
         UserDAO.getSimulateParams(user)
     ])
-    ctx.body = { balance, orders, statement, watchlist, currencies, simulateParams }
+    ctx.body = { balance, orders, statement, fundWatchlist, currencies, simulateParams }
 })
 
 router.get('/balance', async ctx => {
@@ -47,29 +47,29 @@ router.get('/statement', async ctx => {
     ctx.body = { statement }
 })
 
-router.get('/watchlist', async ctx => {
+router.get('/fund-watchlist', async ctx => {
     const user = ctx.user
-    const watchlist = await UserDAO.getWatchlist(user)
-    ctx.body = { watchlist }
+    const fundWatchlist = await UserDAO.getFundWatchlist(user)
+    ctx.body = { fundWatchlist }
 })
 
-router.post('/watchlist/add', async ctx => {
+router.post('/fund-watchlist/add', async ctx => {
     const user = ctx.user
     const { isin } = ctx.request.body
-    await UserDAO.addToWatchlist(user, isin)
+    await UserDAO.addToFundWatchlist(user, isin)
     ctx.status = 200
 })
 
-router.post('/watchlist/remove', async ctx => {
+router.post('/fund-watchlist/remove', async ctx => {
     const user = ctx.user
     const { isin } = ctx.request.body
-    const watchlist = await UserDAO.removeFromWatchlist(user, isin)
-    ctx.body = { watchlist }
+    const fundWatchlist = await UserDAO.removeFromFundWatchlist(user, isin)
+    ctx.body = { fundWatchlist }
 })
 
-router.delete('/watchlist', async ctx => {
+router.delete('/fund-watchlist', async ctx => {
     const user = ctx.user
-    await UserDAO.clearWatchlist(user)
+    await UserDAO.clearFundWatchlist(user)
     ctx.status = 200
 })
 

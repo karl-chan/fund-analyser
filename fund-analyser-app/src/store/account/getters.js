@@ -1,7 +1,7 @@
 import isEqual from 'lodash/isEqual'
 
 export function inWatchlist (state) {
-  return isin => state.watchlist.includes(isin)
+  return isin => state.fundWatchlist.includes(isin)
 }
 
 export function recentlyViewedIsins (state) {

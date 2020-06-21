@@ -13,7 +13,7 @@
     q-tab-panels(v-model="tab" keep-alive )
       // Account View
       q-tab-panel(name="account")
-        fund-watch-list(:watchlist="watchlist")
+        fund-watch-list(:fundWatchlist="fundWatchlist")
 
       // Summary View
       q-tab-panel(name="summary")
@@ -35,7 +35,7 @@ export default {
     }
   },
   computed: {
-    ...mapState('account', ['balance', 'orders', 'statement', 'watchlist']),
+    ...mapState('account', ['balance', 'orders', 'statement', 'fundWatchlist']),
     ...mapState('auth', ['user']),
     ...mapState('funds', ['favouriteIsins'])
   },
@@ -50,7 +50,7 @@ export default {
         this.lazyGets(isins)
       }
     },
-    watchlist: {
+    fundWatchlist: {
       immediate: true,
       handler (newWatchlist, oldWatchlist) {
         if (newWatchlist && !isEqual(newWatchlist, oldWatchlist)) {

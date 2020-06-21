@@ -3,7 +3,7 @@ const log = require('../util/log')
 const _ = require('lodash')
 
 // property keys
-const WATCHLIST = 'watchlist'
+const FUND_WATCHLIST = 'fundWatchlist'
 const CURRENCIES = 'currencies'
 const SIMULATE_PARAMS = 'simulateParams'
 
@@ -12,7 +12,7 @@ const SIMULATE_PARAMS = 'simulateParams'
  * {
  *  user: string,
  *  meta: {
- *    watchlist: [string],
+ *    fundWatchlist: [string],
  *    currencies: [string],
  *    simulateParams: [SimulateParam]
  *  }
@@ -23,7 +23,7 @@ function UserDAO (entry) {
     _.assign(this, entry)
 
     if (!this.meta) {
-        this.meta = { [WATCHLIST]: [], [CURRENCIES]: [], simulateParams: [] }
+        this.meta = { [FUND_WATCHLIST]: [], [CURRENCIES]: [], simulateParams: [] }
     }
 }
 
@@ -58,20 +58,20 @@ UserDAO.deleteUser = async function (user) {
     await db.getUsers().deleteOne({ user })
 }
 
-UserDAO.getWatchlist = async function (user) {
-    return getProperty(user, WATCHLIST)
+UserDAO.getFundWatchlist = async function (user) {
+    return getProperty(user, FUND_WATCHLIST)
 }
 
-UserDAO.addToWatchlist = async function (user, isin) {
-    return addToProperty(user, WATCHLIST, isin)
+UserDAO.addToFundWatchlist = async function (user, isin) {
+    return addToProperty(user, FUND_WATCHLIST, isin)
 }
 
-UserDAO.removeFromWatchlist = async function (user, isin) {
-    return removeFromProperty(user, WATCHLIST, isin)
+UserDAO.removeFromFundWatchlist = async function (user, isin) {
+    return removeFromProperty(user, FUND_WATCHLIST, isin)
 }
 
-UserDAO.clearWatchlist = async function (user) {
-    return clearProperty(user, WATCHLIST)
+UserDAO.clearFundWatchlist = async function (user) {
+    return clearProperty(user, FUND_WATCHLIST)
 }
 
 UserDAO.getCurrencies = async function (user) {

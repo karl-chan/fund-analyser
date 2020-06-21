@@ -10,8 +10,8 @@ export function saveStatement (state, statement) {
   state.statement = statement
 }
 
-export function setWatchlist (state, watchlist) {
-  state.watchlist = watchlist
+export function setFundWatchlist (state, fundWatchlist) {
+  state.fundWatchlist = fundWatchlist
 }
 
 export function setRecentlyViewed (state, recentlyViewed) {
@@ -30,7 +30,7 @@ export function reset (state) {
   state.balance = null
   state.orders = []
   state.statement = null
-  state.watchlist = []
+  state.fundWatchlist = []
   state.recentlyViewed = []
   state.favouriteCurrencies = []
   state.favouriteSimulateParams = []

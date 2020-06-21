@@ -4,7 +4,7 @@ export default new VuexPersistence({
   storage: localStorage,
   reducer: state => ({
     account: {
-      watchlist: state.account.watchlist,
+      fundWatchlist: state.account.fundWatchlist,
       recentlyViewed: state.account.recentlyViewed,
       favouriteCurrencies: state.account.favouriteCurrencies,
       favouriteSimulateParams: state.account.favouriteSimulateParams

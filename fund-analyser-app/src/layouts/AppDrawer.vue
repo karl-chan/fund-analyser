@@ -51,7 +51,7 @@ import { openURL } from 'quasar'
 export default {
   name: 'AppDrawer',
   computed: {
-    ...mapState('account', ['favouriteSimulateParams', 'recentlyViewed', 'watchlist']),
+    ...mapState('account', ['favouriteSimulateParams', 'recentlyViewed', 'fundWatchlist']),
     ...mapGetters('account', ['recentlyViewedIsins']),
     ...mapGetters('auth', ['isLoggedIn']),
     drawerOpen: {
