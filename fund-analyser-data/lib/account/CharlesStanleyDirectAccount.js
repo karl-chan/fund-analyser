@@ -87,15 +87,7 @@ class CharlesStanleyDirectAccount {
         return orders
     }
 
-    /**
-     * Return {series: [Fund.HistoricPrice], events: [
-     *  {type: 'fund', from: Date, to: Date, holdings: [{sedol: string, weight: number}]},
-     *  {type: 'fee', date: Date, value: number},
-     *  {type: 'deposit', date: Date, value: number},
-     *  {type: 'withdrawal', date: Date, value: number},
-     * ]}
-     */
-    async getStatement () {
+    async getTransactions () {
         const today = moment.utc().startOf('day')
         const accountCode = await this.getAccountCode()
         const qs = {
@@ -114,20 +106,10 @@ class CharlesStanleyDirectAccount {
         const { body: b2 } = await http.asyncGet(`${this.statementUrl}/Search`, { jar: this.jar, qs })
         const $ = cheerio.load(b2)
         const rows = $('#vac-stmt-table > tbody > tr:not(.blue-row)').get().reverse().slice(1) // remove first row (* BALANCE B/F *)
-        if (!rows.length) {
-            return []
-        }
-
-        // get historic price data
-        const sedols = _.uniq(rows.map(row => $(row).children().eq(3).text()).filter(x => x))
-        const sedolToFund = _.keyBy(await FundDAO.listFunds({
-            query: { sedol: { $in: sedols } }
-        }, true), f => f.sedol)
-
-        const decodeRow = (row) => {
+        return rows.map((row) => {
             const [date, description, stockDescription, sedol, contractReference, price, debit, credit, settlementDate, balance] = $(row).children().map((i, el) => $(el).text().trim()).get()
             return {
-                date: moment.utc(date, 'DD MMM YYYY'),
+                date: moment.utc(date, 'DD MMM YYYY').toDate(),
                 description,
                 stockDescription,
                 sedol,
@@ -135,15 +117,34 @@ class CharlesStanleyDirectAccount {
                 price: lang.parseNumber(price),
                 debit: lang.parseNumber(debit),
                 credit: lang.parseNumber(credit),
-                settlementDate: moment.utc(settlementDate, 'DD MMM YYYY'),
+                settlementDate: moment.utc(settlementDate, 'DD MMM YYYY').toDate(),
                 cash: lang.parseNumber(balance) * (balance.endsWith('cr') ? 1 : -1)
             }
-        }
+        })
+    }
+
+    /**
+     * Return {series: [Fund.HistoricPrice], events: [
+     *  {type: 'fund', from: Date, to: Date, holdings: [{sedol: string, weight: number}]},
+     *  {type: 'fee', date: Date, value: number},
+     *  {type: 'deposit', date: Date, value: number},
+     *  {type: 'withdrawal', date: Date, value: number},
+     * ]}
+     */
+    async getStatement () {
+        const today = moment.utc().startOf('day')
+        const transactions = await this.getTransactions()
+
+        // get historic price data
+        const sedols = _.uniq(transactions.map(transaction => transaction.sedol).filter(x => x))
+        const sedolToFund = _.keyBy(await FundDAO.listFunds({
+            query: { sedol: { $in: sedols } }
+        }, true), f => f.sedol)
 
         const priceCorrection = (csdPrice, date, sedol) => {
             // For some reason price difference between charles stanley and financial times could be 100x
             const fund = sedolToFund[sedol]
-            const ftPrice = fundUtils.closestRecordBeforeDate(date.toDate(), fund.historicPrices).price
+            const ftPrice = fundUtils.closestRecordBeforeDate(date, fund.historicPrices).price
             if (math.roughEquals(ftPrice, csdPrice * 100, 2)) {
                 return csdPrice * 100
             }
@@ -158,19 +159,19 @@ class CharlesStanleyDirectAccount {
         const events = []
         const carryThroughHoldings = {} // {sedol: numShares}
 
-        for (const [i, row] of rows.entries()) {
-            const { date, description, sedol, price, debit, credit, cash } = decodeRow(row)
-            const nextDate = i + 1 < rows.length ? decodeRow(rows[i + 1]).date : today
+        for (const [i, transaction] of transactions.entries()) {
+            const { date, description, sedol, price, debit, credit, cash } = transaction
+            const nextDate = i + 1 < transactions.length ? moment.utc(transactions[i + 1].date) : today
             switch (description) {
                 case 'Stocks & Shares Subs':
                     if (credit) {
-                        events.push({ type: 'deposit', date: date.toDate(), value: credit })
+                        events.push({ type: 'deposit', date: date, value: credit })
                     } else {
-                        events.push({ type: 'withdrawal', date: date.toDate(), value: debit })
+                        events.push({ type: 'withdrawal', date: date, value: debit })
                     }
                     break
                 case 'Funds Platform Fee':
-                    events.push({ type: 'fee', date: date.toDate(), value: debit })
+                    events.push({ type: 'fee', date: date, value: debit })
                     break
                 default: {
                 // stock holding
@@ -184,7 +185,7 @@ class CharlesStanleyDirectAccount {
                         carryThroughHoldings[sedol] = (carryThroughHoldings[sedol] || 0) + debit / correctPrice
                     }
 
-                    if (i + 1 < rows.length && nextDate.isSame(date) && decodeRow(rows[i + 1]).sedol) {
+                    if (i + 1 < transactions.length && nextDate.isSame(date) && transactions[i + 1].sedol) {
                         continue // batch all transactions on the same day
                     }
                 }
@@ -196,18 +197,18 @@ class CharlesStanleyDirectAccount {
                 let totalHoldingsValue = 0
                 for (const [sedol, numShares] of Object.entries(carryThroughHoldings)) {
                     const fund = sedolToFund[sedol]
-                    sedolToValue[sedol] = numShares * fundUtils.closestRecordBeforeDate(date.toDate(), fund.historicPrices).price
+                    sedolToValue[sedol] = numShares * fundUtils.closestRecordBeforeDate(date, fund.historicPrices).price
                     totalHoldingsValue += sedolToValue[sedol]
                 }
                 const holdings = Object.entries(sedolToValue).map(([sedol, holdingValue]) => {
                     const fund = sedolToFund[sedol]
                     return { sedol, name: fund.name, isin: fund.isin, weight: holdingValue / totalHoldingsValue }
                 })
-                events.push({ type: 'fund', from: date.toDate(), to: nextDate.toDate(), holdings })
+                events.push({ type: 'fund', from: date, to: nextDate.toDate(), holdings })
             }
 
             // push account worth day by day
-            for (const day = date; day.isBefore(nextDate); day.add(1, 'day')) {
+            for (const day = moment.utc(date); day.isBefore(nextDate); day.add(1, 'day')) {
                 const weekday = day.day()
                 if (weekday === 0 || weekday === 6) {
                     continue // skip weekends

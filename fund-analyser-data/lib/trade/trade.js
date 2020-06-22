@@ -5,9 +5,13 @@ module.exports = {
 
 const { Buy, Sell } = require('./Action')
 const simulate = require('../simulate/simulate')
+const properties = require('../util/properties')
 
 const Promise = require('bluebird')
 const _ = require('lodash')
+const moment = require('moment-business-days')
+
+const fundHoldBusinessDays = properties.get('trade.fund.hold.business.days')
 
 /**
  * Trades according to predictions today given by simulateParam.
@@ -16,9 +20,9 @@ const _ = require('lodash')
  * @returns {Array<string>} List of order references for each executed order
  */
 async function trade (simulateParam, { csdAccount }) {
-    const balance = await csdAccount.getBalance()
+    const [balance, transactions] = await Promise.all([csdAccount.getBalance(), csdAccount.getTransactions()])
     const prediction = await simulate.predict(simulateParam)
-    const actions = decideActions(prediction, balance)
+    const actions = decideActions(prediction, balance, transactions)
     const orderReferences = await execute(actions, { csdAccount })
     return orderReferences
 }
@@ -27,9 +31,10 @@ async function trade (simulateParam, { csdAccount }) {
  * Returns list of actions based on current prediction and CSD balance.
  * @param {*} prediction
  * @param {*} balance
+ * @param {*} transactions
  * @returns {List<Action>}
  */
-function decideActions (prediction, balance) {
+function decideActions (prediction, balance, transactions) {
     const { cash, holdings } = balance
     const { funds } = prediction
     if (holdings.length > 0) {
@@ -40,8 +45,20 @@ function decideActions (prediction, balance) {
             // noop
             return []
         } else {
-            // sell existing holdings
-            return holdings.map(holding => new Sell(holding.ISIN, holding.Sedol, holding.Quantity))
+            // sell existing holdings (if held at least for threshold period)
+            const today = moment().utc().startOf('day')
+            const thresholdDate = today.businessSubtract(fundHoldBusinessDays)
+            const latestTransactions = [...transactions].reverse()
+            return holdings
+                .filter(
+                    holding => {
+                        const boughtDate = latestTransactions
+                            .find(transaction => transaction.sedol === holding.Sedol && transaction.debit > 0)
+                            .date
+                        return thresholdDate.isSameOrAfter(boughtDate)
+                    }
+                )
+                .map(holding => new Sell(holding.ISIN, holding.Sedol, holding.Quantity))
         }
     } else {
         // No existing holdings

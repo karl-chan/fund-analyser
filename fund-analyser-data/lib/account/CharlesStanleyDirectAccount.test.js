@@ -5,6 +5,7 @@ const CharlesStanleyDirectAuth = require('../auth/CharlesStanleyDirectAuth')
 const db = require('../util/db')
 const properties = require('../util/properties')
 const { Sell } = require('../trade/Action')
+const { isNumber } = require('lodash')
 
 jest.setTimeout(30000) // 30 seconds
 
@@ -31,6 +32,21 @@ describe('CharlesStanleyDirectAccount', () => {
         expect(cash).toBeNumber()
         expect(totalValue).toBePositive()
         expect(holdings).toBeArray()
+    })
+    test('getTransactions should return account transactions', async () => {
+        const transactions = await csdAccount.getTransactions()
+        expect(transactions).toBeArray().not.toBeEmpty()
+        expect(transactions).toSatisfyAll(transaction => {
+            const { date, sedol, contractReference, price, debit, credit, settlementDate, cash } = transaction
+            return date instanceof Date &&
+             (sedol.length === 7 || !sedol) &&
+             (contractReference.length === 6 || !contractReference) &&
+             (price >= 0 || isNaN(price)) &&
+             (debit >= 0 || isNaN(debit)) &&
+             (credit >= 0 || isNaN(credit)) &&
+             (settlementDate instanceof Date || !settlementDate) &&
+            isNumber(cash)
+        })
     })
     test('getStatement should return account statement', async () => {
         const statement = await csdAccount.getStatement()
