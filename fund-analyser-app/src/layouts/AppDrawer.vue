@@ -34,13 +34,13 @@
         q-list
           q-item(clickable @click.native="openURL('https://www.charles-stanley-direct.co.uk/')")
             q-item-section(side)
-              img(src="statics/charles-stanley-direct.jpg" width="120px")
+              img(src="charles-stanley-direct.jpg" width="120px")
             q-item-section
               q-item-label Charles Stanley Direct
           q-item(clickable @click.native="openURL('http://financialtimes3.herokuapp.com/')")
             q-item-section(avatar)
               q-avatar
-                img(src="statics/financial-times.jpg")
+                img(src="financial-times.jpg")
             q-item-section
               q-item-label Financial Times
 </template>

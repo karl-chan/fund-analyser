@@ -42,14 +42,14 @@ module.exports = function (ctx) {
       iconSet: 'material-icons', // Quasar icon set
       lang: 'en-us', // Quasar language pack
 
-      // Possible values for "all":
+      // Possible values for "importStrategy":
       // * 'auto' - Auto-import needed Quasar components & directives
       //            (slightly higher compile time; next to minimum bundle size; most convenient)
       // * false  - Manually specify what to import
       //            (fastest compile time; minimum bundle size; most tedious)
       // * true   - Import everything from Quasar
       //            (not treeshaking Quasar; biggest bundle size; convenient)
-      all: 'auto',
+      importStrategy: 'auto',
 
       components: [
         'QIcon' // needed by reflection in ag-grid
@@ -63,9 +63,6 @@ module.exports = function (ctx) {
       ]
     },
 
-    // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie
-    supportIE: false,
-
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
       scopeHoisting: true,
@@ -75,7 +72,6 @@ module.exports = function (ctx) {
       analyze: false,
       vueCompiler: true,
       // Options below are automatically set depending on the env, set them if you want to override
-      // preloadChunks: false,
       // extractCSS: false,
 
       // https://quasar.dev/quasar-cli/cli-documentation/handling-webpack
@@ -140,27 +136,27 @@ module.exports = function (ctx) {
         theme_color: '#263238',
         icons: [
           {
-            src: 'statics/icons/icon-128x128.png',
+            src: 'icons/icon-128x128.png',
             sizes: '128x128',
             type: 'image/png'
           },
           {
-            src: 'statics/icons/icon-192x192.png',
+            src: 'icons/icon-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'statics/icons/icon-256x256.png',
+            src: 'icons/icon-256x256.png',
             sizes: '256x256',
             type: 'image/png'
           },
           {
-            src: 'statics/icons/icon-384x384.png',
+            src: 'icons/icon-384x384.png',
             sizes: '384x384',
             type: 'image/png'
           },
           {
-            src: 'statics/icons/icon-512x512.png',
+            src: 'icons/icon-512x512.png',
             sizes: '512x512',
             type: 'image/png'
           }

@@ -3,6 +3,10 @@
  * is picked up by the build system ONLY if
  * quasar.conf > pwa > workboxPluginMode is set to "InjectManifest"
  */
+import { precacheAndRoute } from 'workbox-precaching'
+
+precacheAndRoute(self.__WB_MANIFEST)
+
 self.addEventListener('push', event => {
   const { key, payload } = event.data.json()
 
@@ -17,8 +21,8 @@ self.addEventListener('push', event => {
           requireInteraction: true,
           renotify: true,
           tag: 'trade',
-          badge: 'statics/icons/icon-128x128.png',
-          icon: 'statics/icons/favicon.ico',
+          badge: 'icons/icon-128x128.png',
+          icon: 'icons/favicon.ico',
           data: { key, value: simulateParam },
           actions: [
             {
