@@ -144,7 +144,7 @@ def refresh(symbols: Optional[Iterable[str]]) -> None:
     log_debug("Merging stock historic prices...")
     _prices_df = pd.concat(all_prices, axis=1).resample("B").asfreq().fillna(method="ffill")
     _open_df, _high_df, _low_df, _close_df, _volume_df = \
-        _prices_df["open"], _prices_df["high"], _prices_df["low"], _prices_df["close"], _prices_df["volume"]
+        _prices_df[["open"]], _prices_df[["high"]], _prices_df[["low"]], _prices_df[["close"]], _prices_df[["volume"]]
     _open_df.columns = _high_df.columns = _low_df.columns = _close_df.columns = _volume_df.columns = _stock_cache.keys()
     _expiration_time = datetime.now() + EXPIRY
     _is_full = symbols is None
