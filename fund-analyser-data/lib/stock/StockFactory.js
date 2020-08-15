@@ -21,12 +21,12 @@ class StockFactory {
     streamStocks () {
         const symbolStream = this.symbolProvider.streamSymbols()
         const symbolToStockStream = this.stockProvider.streamStocksFromSymbols()
-        const fundCalculationStream = this.stockCalculator.stream()
+        const stockCalculationStream = this.stockCalculator.stream()
 
-        const fundStream = symbolStream
+        const stockStream = symbolStream
             .pipe(symbolToStockStream)
-            .pipe(fundCalculationStream)
-        return fundStream
+            .pipe(stockCalculationStream)
+        return stockStream
     }
 
     streamStocksFromSymbols (symbols) {
@@ -34,10 +34,10 @@ class StockFactory {
         const symbolToStockStream = this.stockProvider.streamStocksFromSymbols()
         const stockCalculationStream = this.stockCalculator.stream()
 
-        const fundStream = symbolStream
+        const stockStream = symbolStream
             .pipe(symbolToStockStream)
             .pipe(stockCalculationStream)
-        return fundStream
+        return stockStream
     }
 }
 

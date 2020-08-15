@@ -11,8 +11,8 @@ const properties = require('./properties')
 const lookbacks = properties.get('stock.lookbacks')
 
 function calcReturns (historicPrices) {
-    const simpleHistoricPrices = historicPrices.map(hp => new Fund.HistoricPrice(hp.date, hp.close))
-    return fundUtils.enrichReturns({}, simpleHistoricPrices, lookbacks)
+    const historicPricesSeries = historicPrices.map(hp => new Fund.HistoricPrice(hp.date, hp.close))
+    return fundUtils.enrichReturns({}, historicPricesSeries, lookbacks)
 }
 
 async function calcIndicators (stock) {

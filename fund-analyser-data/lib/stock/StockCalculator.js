@@ -3,11 +3,11 @@ const streamWrapper = require('../util/streamWrapper')
 const log = require('../util/log')
 
 class StockCalculator {
-    async evaluate (fund) {
-        fund = await this.calcReturns(fund)
-        fund = await this.calcIndicators(fund)
-        log.silly('Calculated for isin: %s', fund.isin)
-        return fund
+    async evaluate (stock) {
+        stock = await this.calcReturns(stock)
+        stock = await this.calcIndicators(stock)
+        log.silly('Calculated for symbol: %s', stock.symbol)
+        return stock
     }
 
     stream () {
@@ -19,9 +19,9 @@ class StockCalculator {
         return stock
     }
 
-    async calcIndicators (fund) {
-        fund.indicators = await stockUtils.calcIndicators(fund)
-        return fund
+    async calcIndicators (stock) {
+        stock.indicators = await stockUtils.calcIndicators(stock)
+        return stock
     }
 }
 
