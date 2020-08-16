@@ -51,10 +51,10 @@ def test_run():
     # Does not factor in platform fees, check_less_precise later
     expected_account = pd.DataFrame(
         data=[
-            [100, "", ""],
+            [100, [], []],
             [100 * (0.5 * (14 / 12) + 0.5 * (24 / 22)), ["isin1", "isin2"], ["Fund 1", "Fund 2"]],
             [100 * (0.5 * (14 / 12) + 0.5 * (24 / 22)) * (17 / 15), ["isin1"], ["Fund 1"]],
-            [100 * (0.5 * (14 / 12) + 0.5 * (24 / 22)) * (17 / 15), None, None],
+            [100 * (0.5 * (14 / 12) + 0.5 * (24 / 22)) * (17 / 15), [], []],
             [100 * (0.5 * (14 / 12) + 0.5 * (24 / 22)) * (17 / 15) * (30 / 29), ["isin2"], ["Fund 2"]]
         ],
         index=[
@@ -67,7 +67,7 @@ def test_run():
         columns=["value", "isins", "names"]
     )
 
-    assert_frame_equal(result.account, expected_account, check_less_precise=True)
+    assert_frame_equal(result.account, expected_account, rtol=1e-4)
     assert result.returns == 0.32330550475798586
     assert result.annual_returns == 10955.427133719217
     assert result.max_drawdown == -1.3864736012392243e-05

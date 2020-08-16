@@ -25,7 +25,7 @@ from lib.util.pandas_utils import pd_historic_prices_from_json, pd_offset_from_l
                          ])
 def test_pd_series_from_historic_prices(historic_prices: List[Dict], expected: pd.Series):
     actual = pd_historic_prices_from_json(historic_prices)
-    assert_series_equal(actual, expected)
+    assert_series_equal(actual, expected, check_freq=False)
 
 
 @pytest.mark.parametrize("lookback,expected",

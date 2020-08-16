@@ -20,7 +20,7 @@ class TrailingExitStrategy(StockStrategy):
     def should_execute(self, dt: date, price_series: pd.Series, history: StockHistory) -> Confidence:
         threshold = 0.02  # 2%
         bought_dt = history[-1].dt
-        price_threshold = price_series[bought_dt:dt].expanding().max() * (1 - threshold)
+        price_threshold = price_series[bought_dt:dt].expanding().max() * (1 - threshold)  # type:ignore
         if price_series.at[dt] < price_threshold.at[dt]:
             return 1
         else:
@@ -71,7 +71,9 @@ if __name__ == "__main__":
         exit_strategy=TrailingExitStrategy(),
     )
     balance = stock_simulator.run(start_date=start_date)
-    aapl_adjusted = close_df.loc[start_date:, symbol] / close_df.loc[start_date, symbol] * balance.at[start_date]
+    aapl_adjusted = close_df.loc[
+                    start_date:, symbol  # type:ignore
+                    ] / close_df.loc[start_date, symbol] * balance.at[start_date]
 
     pd.concat([aapl_adjusted, balance], axis=1).plot()
     plt.show()

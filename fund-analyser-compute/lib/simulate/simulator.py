@@ -73,7 +73,7 @@ class Simulator:
         # computed properties
         self._prices_df = fund_cache.get_prices(isins)
         self._fees_df = calc_fees(funds)
-        self._last_valid_date = self._prices_df.last_valid_index().date()
+        self._last_valid_date = self._prices_df.last_valid_index()
 
         self._broadcast_data(Simulator.Data(
             prices_df=self._prices_df,
@@ -105,9 +105,13 @@ class Simulator:
             return [self._run_single(start_date, end_date)]
 
     def _run_single(self, start_date: date, end_date: date) -> Simulator.Result:
-        account = pd.DataFrame(data=[[100, "", ""]],
-                               index=[start_date],
-                               columns=["value", "isins", "names"])
+        class AccountRow(NamedTuple):
+            dt: date
+            value: float
+            isins: List[str]
+            names: List[Optional[str]]
+
+        account_list = [AccountRow(dt=start_date, value=100, isins=[], names=[])]
 
         # jump start to first data point if not available
         dt = max(start_date, self._prices_df.first_valid_index() + self._buy_sell_gap)
@@ -129,17 +133,25 @@ class Simulator:
                                            next_dt,
                                            curr_hold_interval,
                                            self._fees_df).mean()
-                account.loc[next_dt, :] = [account.iloc[-1, :]["value"] * (1 + next_return),
-                                           max_isins,
-                                           max_names]
+                account_list.append(
+                    AccountRow(dt=next_dt,
+                               value=account_list[-1].value * (1 + next_return),
+                               isins=max_isins,
+                               names=max_names))
                 dt = (next_dt + self._buy_sell_gap).date()
             else:
                 next_dt = (dt + BDAY).date()
                 # carry forward
-                account.loc[next_dt, :] = [account.iloc[-1, :]["value"] * (1 - DAILY_PLATFORM_FEES), None, None]
+                account_list.append(
+                    AccountRow(dt=next_dt,
+                               value=account_list[-1].value * (1 - DAILY_PLATFORM_FEES),
+                               isins=[],
+                               names=[]))
                 dt = next_dt
 
-        account.rename(index={next_dt: min(next_dt, end_date)}, inplace=True)  # clip end date if out of bounds
+        account_list[-1] = account_list[-1]._replace(dt=min(account_list[-1].dt, end_date))
+        account = pd.DataFrame.from_records([row._asdict() for row in account_list], index="dt")
+        account.index.name = None
         total_returns = (account.iloc[-1, :].loc["value"] - account.iloc[0, :].loc["value"]) \
                         / account.iloc[0, :].loc["value"]
         annual_returns = (1 + total_returns) ** (365.25 / (end_date - start_date).days) - 1
@@ -204,7 +216,7 @@ class Simulator:
         print(f"Min sharpe ratio: {min_sharpe_ratio.sharpe_ratio} Begin date: {min_sharpe_ratio.start_date}")
 
         # set display mode and suppress useless warnings
-        matplotlib.use("Qt5Agg" if sys.platform == "darwin" else "TkAgg", warn=False)
+        matplotlib.use("Qt5Agg" if sys.platform == "darwin" else "TkAgg")
         logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
 
         # total returns histogram

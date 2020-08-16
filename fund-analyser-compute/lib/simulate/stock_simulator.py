@@ -47,13 +47,13 @@ class StockSimulator:
     def run(self,
             start_date: date = (date.today() - pd.DateOffset(years=5)).date(),
             end_date: date = date.today()) -> pd.Series:
-        cash = 1
+        cash = 1.0
         curr_holdings: Dict[str, float] = defaultdict(float)
         history: Dict[str, StockHistory] = defaultdict(list)
 
         date_range = pd.date_range(start_date, end_date, freq="B")
         balance = pd.Series(index=date_range, name="balance")
-        close_df = self._close_df[start_date: end_date]
+        close_df = self._close_df[start_date: end_date]  # type:ignore
 
         for dt in date_range:
             # check sell

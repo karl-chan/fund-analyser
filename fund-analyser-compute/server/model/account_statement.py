@@ -79,7 +79,7 @@ class AccountStatement(NamedTuple):
             curr_value, prev_value = augmented.iloc[i]["value"], augmented.iloc[i - 1]["value"]
             isins = augmented.iloc[i]["isins"]
             if np.isnan(prev_value):
-                if isins is None:
+                if not isins:
                     augmented.at[augmented.index[i - 1], "value"] = curr_value
                 else:
                     augmented.at[augmented.index[i - 1], "value"] = \
@@ -90,7 +90,7 @@ class AccountStatement(NamedTuple):
             curr_value, next_value = augmented.iloc[i]["value"], augmented.iloc[i + 1]["value"]
             next_isins = augmented.iloc[i + 1]["isins"]
             if np.isnan(next_value):
-                if next_isins is None:
+                if not next_isins:
                     augmented.at[augmented.index[i + 1], "value"] = curr_value
                 else:
                     augmented.at[augmented.index[i + 1], "value"] = \
@@ -111,7 +111,7 @@ class AccountStatement(NamedTuple):
         events = []
         for i in range(len(account.index) - 1):
             next_isins = account.iloc[i + 1, :]["isins"]
-            if next_isins is not None:
+            if next_isins:
                 next_funds = fund_cache.get(next_isins)
                 events.append(Event(
                     type="fund",
