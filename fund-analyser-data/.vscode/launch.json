@@ -3,13 +3,17 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": [    
+    "configurations": [
         {
             "type": "node",
-            "request": "attach",
+            "request": "launch",
             "name": "Nodemon server",
-            "restart": true,
-            "protocol": "inspector",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script",
+                "server.dev"
+            ]
         },
         {
             "type": "node",
