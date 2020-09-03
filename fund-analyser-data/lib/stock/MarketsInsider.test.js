@@ -110,7 +110,7 @@ describe('MarketsInsider', () => {
 
         test('getSummary should return summary object', async () => {
             const summary = await marketsInsider.getSummary('aapl')
-            expect(summary.name).toEqual('Apple')
+            expect(summary.name).toEqual('Apple Inc.')
             expect(summary.realTimeDetails).toMatchObject({
                 estPrice: expect.toBeNumber(),
                 estChange: expect.toBeNumber()

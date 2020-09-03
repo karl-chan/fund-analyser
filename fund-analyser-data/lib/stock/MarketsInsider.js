@@ -80,12 +80,9 @@ class MarketsInsider {
 
         const $ = cheerio.load(body)
 
-        const title = $('.snapshot-headline  h1')
-        title.find('.exchange').remove()
-        const name = title.text().trim().replace(/^(\S*)\s*\(\S*\)$/, '$1')
-
-        const estPrice = +$('.snapshot-headline > div:nth-child(2) > div:nth-child(1) > span').text()
-        const estChange = +$('.snapshot-headline .mobile-change > div > div:nth-child(2) > span').text().replace(/^\((.+)%\)$/, '$1') / 100
+        const name = $('.price-section__label').text()
+        const estPrice = +$('.price-section__current-value').text()
+        const estChange = +$('.price-section__relative-value').text().replace(/^\((.+)%\)$/, '$1') / 100
 
         return {
             name,
