@@ -1,4 +1,5 @@
 const MarketsInsider = require('./MarketsInsider')
+const MarketWatch = require('./MarketWatch')
 const StockCalculator = require('./StockCalculator')
 const streamWrapper = require('../util/streamWrapper')
 
@@ -7,7 +8,7 @@ const Promise = require('bluebird')
 class StockFactory {
     constructor () {
         this.symbolProvider = new MarketsInsider()
-        this.stockProvider = new MarketsInsider()
+        this.stockProvider = new MarketWatch()
         this.stockCalculator = new StockCalculator()
     }
 
