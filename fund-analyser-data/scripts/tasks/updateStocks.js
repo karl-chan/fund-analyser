@@ -19,12 +19,13 @@ async function updateStocks () {
 
     const allSymbols = await new MarketsInsider().getSymbols()
 
-    const stocksUpToDate = await StockDAO.listStocks({
-        query: { asof: { $eq: today } },
-        projection: { symbol: 1 },
-        sort: { asof: 1 }
-    })
-    const symbolsUpToDate = stocksUpToDate.map(f => f.symbol)
+    const docs = await StockDAO.listStocks({ projection: { symbol: 1, asof: 1 } })
+    const oldSymbols = docs.map(s => s.symbol)
+    const symbolsUpToDate = docs.filter(s => moment.utc(s.asof).isSame(today)).map(s => s.symbol)
+
+    const deleteSymbols = lang.setDifference(oldSymbols, allSymbols)
+    await StockDAO.deleteStocks({ query: { symbol: { $in: deleteSymbols } } })
+    log.info('Deleted old symbols: %s (%d)', JSON.stringify(deleteSymbols), deleteSymbols.length)
 
     const symbols = lang.setDifference(allSymbols, symbolsUpToDate)
     log.info('Symbols to update: %s (%d)', JSON.stringify(symbols), symbols.length)

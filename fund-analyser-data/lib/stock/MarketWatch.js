@@ -16,8 +16,11 @@ class MarketWatch {
     }
 
     async getStockFromSymbol (symbol) {
-        symbol = symbol.replace('-', '.')
-        const [summary, historicPrices] = await Promise.all([this.getSummary(symbol), this.getHistoricPrices(symbol)])
+        const marketWatchSymbol = symbol.replace('-', '.')
+        const [summary, historicPrices] = await Promise.all([
+            this.getSummary(marketWatchSymbol),
+            this.getHistoricPrices(marketWatchSymbol)
+        ])
 
         return Stock.Builder(symbol)
             .name(summary.name)

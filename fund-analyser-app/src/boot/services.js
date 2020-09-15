@@ -4,6 +4,7 @@ import authService from '../services/auth-service'
 import currencyService from '../services/currency-service'
 import fundService from '../services/fund-service'
 import simulateService from '../services/simulate-service'
+import stockService from '../services/stock-service'
 
 export default ({ Vue }) => {
   Vue.prototype.$services = {
@@ -12,6 +13,7 @@ export default ({ Vue }) => {
     auth: authService,
     currency: currencyService,
     fund: fundService,
-    simulate: simulateService
+    simulate: simulateService,
+    stock: stockService
   }
 }

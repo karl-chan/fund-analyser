@@ -102,13 +102,13 @@ async function calcIndicators (fund) {
     return indicators.calcFundIndicators(fund)
 }
 
-function calcStats (funds) {
+function calcStats (funds, schema = Fund.schema) {
     if (!funds.length) {
         return undefined
     }
 
     const columns = [
-        ...lang.deepKeysSatisfying(Fund.schema, (k, v) => v === 'number' || v === 'Date'),
+        ...lang.deepKeysSatisfying(schema, (k, v) => v === 'number' || v === 'Date'),
         ...Object.keys(funds[0].indicators).map(name => `indicators.${name}.value`)
     ]
     const colToValues = _.fromPairs(columns.map(col => {

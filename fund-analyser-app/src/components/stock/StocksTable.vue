@@ -11,7 +11,7 @@
           q-tooltip
             .q-mb-sm.text-subtitle1
               <b>{{ pctUpToDate }}</b> up to date
-            | {{ numUpToDate }} out of {{ totalFunds }} funds
+            | {{ numUpToDate }} out of {{ totalStocks }} stocks
         q-btn-group.q-ml-md
           q-btn(color="accent" icon="refresh" @click="refresh")
             q-tooltip Refresh data
@@ -34,30 +34,30 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 import get from 'lodash/get'
 
 const periods = ['5Y', '3Y', '1Y', '6M', '3M', '1M', '2W', '1W', '3D', '1D']
 const extendedPeriods = periods.concat('+1D')
 
 export default {
-  name: 'FundsTable',
+  name: 'StocksTable',
   props: {
-    isins: { type: Array },
+    symbols: { type: Array },
     height: String, // null for autoheight
     window: { type: Number, default: 200 },
     filterText: { type: String, default: '' },
-    highlightIsin: String,
+    highlightSymbol: String,
     showUpToDateOnly: { type: Boolean, default: false }
   },
   data () {
     return {
-      funds: [],
+      stocks: [],
       stats: {},
       showEmptyView: false,
       asofDate: null,
       numUpToDate: 0,
-      totalFunds: 0,
+      totalStocks: 0,
       showStatMode: 0, // hidden
       gridOptions: {
         context: this,
@@ -108,19 +108,19 @@ export default {
   },
   components: {
     WarningComponent: {
-      template: '<q-icon v-if="params.value" :class="params.value > 1? \'text-red\': \'text-amber\'" name="warning" :title="\'This fund may not be up-to-date (lag=\' + params.value + \')\'"/>'
+      template: '<q-icon v-if="params.value" :class="params.value > 1? \'text-red\': \'text-amber\'" name="warning" :title="\'This stock may not be up-to-date (lag=\' + params.value + \')\'"/>'
     }
   },
   computed: {
-    ...mapState('account', ['fundWatchlist']),
-    ...mapState('funds', ['indicatorSchema']),
+    // ...mapState('account', ['stockWatchlist']),
+    ...mapState('stocks', ['indicatorSchema']),
     pctUpToDate: function () {
-      return this.$utils.format.formatPercentage(this.numUpToDate / this.totalFunds, '0%')
+      return this.$utils.format.formatPercentage(this.numUpToDate / this.totalStocks, '0%')
     },
     columnDefs: function () {
       const colDefs = [
         { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated, pinned: 'left' },
-        { headerName: 'ISIN', field: 'isin', width: 120, pinned: 'left' },
+        { headerName: 'Symbol', field: 'symbol', width: 70, pinned: 'left' },
         { headerName: 'Name', field: 'name', width: 180, pinned: 'left', tooltipValueGetter: params => params.value },
         {
           headerName: 'Returns',
@@ -141,15 +141,6 @@ export default {
             }
           })
         },
-        { headerName: 'Type', field: 'type', width: 70 },
-        { headerName: 'Share Class', field: 'shareClass', width: 60 },
-        { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 70 },
-        { headerName: 'Freq', field: 'frequency', width: 80 },
-        { headerName: 'OCF', field: 'ocf', width: 70 },
-        { headerName: 'AMC', field: 'amc', width: 70 },
-        { headerName: 'Entry Charge', field: 'entryCharge', width: 80 },
-        { headerName: 'Exit Charge', field: 'exitCharge', width: 80 },
-        { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter, tooltipValueGetter: this.jsonFormatter },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ]
 
@@ -157,7 +148,7 @@ export default {
         extendedPeriods.map(period => `returns.${period}`)
           .concat(this.getIndicatorKeys()))
       const percentFields = new Set(
-        ['bidAskSpread', 'ocf', 'amc', 'entryCharge', 'exitCharge']
+        []
           .concat(extendedPeriods.map(period => `returns.${period}`))
           .concat(this.getIndicatorKeys('percent')))
       const numberFields = new Set(this.getIndicatorKeys('default'))
@@ -199,7 +190,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('account', ['addToFundWatchlist', 'removeFromFundWatchlist']),
+    // ...mapActions('account', ['addToStockWatchlist', 'removeFromStockWatchlist']),
     onGridReady (params) {
       this.gridApi = params.api
       this.columnApi = params.columnApi
@@ -210,7 +201,7 @@ export default {
       this.stats = metadata.stats
       this.asofDate = metadata.asof.date
       this.numUpToDate = metadata.asof.numUpToDate
-      this.totalFunds = metadata.totalFunds
+      this.totalStocks = metadata.totalStocks
     },
     onRowSelected (params) {
       this.$emit('rowSelected', params)
@@ -220,7 +211,7 @@ export default {
       if (notApplicable) {
         return
       }
-      this.$utils.router.redirectToFund(params.data.isin, { newTab: true })
+      this.$utils.router.redirectToStock(params.data.symbol, { newTab: true })
     },
     getContextMenuItems (params) {
       let contextMenu = params.defaultItems
@@ -235,27 +226,27 @@ export default {
       ]
       contextMenu = [...filterContextMenuItems, 'separator', ...contextMenu]
 
-      if (!this.isRowPinned(params)) {
-        // row is fund
-        const isin = params.node.data.isin
-        const isFavourite = this.fundWatchlist.includes(isin)
-        const fundContextMenuItems = isFavourite
-          ? [{
-            name: 'Remove from watch list',
-            icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
-            action: () => {
-              params.context.removeFromFundWatchlist(isin)
-            }
-          }]
-          : [{
-            name: 'Add to watch list',
-            icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
-            action: () => {
-              params.context.addToFundWatchlist(isin)
-            }
-          }]
-        contextMenu = [...fundContextMenuItems, 'separator', ...contextMenu]
-      }
+      // if (!this.isRowPinned(params)) {
+      // row is stock
+      // const symbol = params.node.data.symbol
+      // const isFavourite = this.stockWatchlist.includes(symbol)
+      // const stockContextMenuItems = isFavourite
+      //   ? [{
+      //     name: 'Remove from watch list',
+      //     icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
+      //     action: () => {
+      //       params.context.removeFromStockWatchlist(symbol)
+      //     }
+      //   }]
+      //   : [{
+      //     name: 'Add to watch list',
+      //     icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
+      //     action: () => {
+      //       params.context.addToStockWatchlist(symbol)
+      //     }
+      //   }]
+      // contextMenu = [...stockContextMenuItems, 'separator', ...contextMenu]
+      // }
       return contextMenu
     },
     numberFormatter (params) {
@@ -300,18 +291,18 @@ export default {
         switch (this.showStatMode) {
           case 1:
             pinnedRows = [
-              { isin: 'Max', ...max },
-              { isin: 'Median', ...median },
-              { isin: 'Min', ...min }
+              { symbol: 'Max', ...max },
+              { symbol: 'Median', ...median },
+              { symbol: 'Min', ...min }
             ]
             break
           case 2:
             pinnedRows = [
-              { isin: 'Max', ...max },
-              { isin: 'Q3', ...q3 },
-              { isin: 'Median', ...median },
-              { isin: 'Q1', ...q1 },
-              { isin: 'Min', ...min }
+              { symbol: 'Max', ...max },
+              { symbol: 'Q3', ...q3 },
+              { symbol: 'Median', ...median },
+              { symbol: 'Q1', ...q1 },
+              { symbol: 'Min', ...min }
             ]
             break
         }
@@ -326,7 +317,7 @@ export default {
       this.gridApi.setServerSideDatasource({
         getRows: async params => {
           try {
-            const { funds, metadata } = await self.$services.fund.list(this.isins, {
+            const { stocks, metadata } = await self.$services.stock.list(this.symbols, {
               agGridRequest: params.request,
               filterText: this.filterText,
               showUpToDateOnly: this.showUpToDateOnly
@@ -334,7 +325,7 @@ export default {
 
             this.onRowsChanged(metadata)
             if (metadata.lastRow) {
-              params.successCallback(funds, metadata.lastRow)
+              params.successCallback(stocks, metadata.lastRow)
               this.showEmptyView = false
               return
             }
@@ -355,7 +346,6 @@ export default {
         fileName: this.$utils.format.formatDateShort(new Date()),
         processCellCallback: params => {
           switch (params.column.colId) {
-            case 'holdings': return this.jsonFormatter(params)
             case 'returns.5Y':
             case 'returns.3Y':
             case 'returns.1Y':
@@ -365,12 +355,7 @@ export default {
             case 'returns.2W':
             case 'returns.1W':
             case 'returns.3D':
-            case 'returns.1D':
-            case 'bidAskSpread':
-            case 'ocf':
-            case 'amc':
-            case 'entryCharge':
-            case 'exitCharge': return this.percentFormatter(params, '')
+            case 'returns.1D': return this.percentFormatter(params, '')
             default: return params.value
           }
         },
@@ -390,7 +375,7 @@ export default {
     }
   },
   watch: {
-    isins: function () {
+    symbols: function () {
       this.initDataSource()
     },
     showStatMode: function () {
@@ -405,9 +390,9 @@ export default {
     showUpToDateOnly: function () {
       this.initDataSource()
     },
-    highlightIsin: function (isin) {
+    highlightSymbol: function (symbol) {
       this.gridApi.forEachNode(node => {
-        node.setSelected(node.data.isin === isin)
+        node.setSelected(node.data.symbol === symbol)
       })
     }
   }

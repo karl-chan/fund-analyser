@@ -2,6 +2,8 @@ const Router = require('koa-router')
 const JSONStream = require('JSONStream')
 const compute = require('../../client/compute')
 const StockDAO = require('../../lib/db/StockDAO')
+const agGridUtils = require('../../lib/util/agGridUtils')
+const stockCache = require('../cache/stockCache')
 
 const STOCKS_URL_PREFIX = '/api/stocks'
 const router = new Router({
@@ -44,6 +46,20 @@ router.get('/summary', async ctx => {
     }
     const stocks = await StockDAO.listStocks(options)
     ctx.body = stocks
+})
+
+router.post('/list', async ctx => {
+    const { isins, params } = ctx.request.body
+    let stocks = stockCache.get(isins, params)
+    const { asof, stats, totalStocks } = stockCache.getMetadata(params)
+    let lastRow = totalStocks
+    if (params && params.agGridRequest) {
+        ({ funds: stocks, lastRow } = agGridUtils.applyRequest(stocks, params.agGridRequest))
+    }
+    ctx.body = {
+        stocks,
+        metadata: { lastRow, totalStocks, asof, stats }
+    }
 })
 
 router.get('/indicators', async ctx => {

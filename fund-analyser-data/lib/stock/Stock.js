@@ -20,6 +20,34 @@ class Stock {
     }
 }
 
+Stock.schema = {
+    symbol: 'string',
+    name: 'string',
+    historicPrices: 'Array',
+    returns: {
+        '5Y': 'number',
+        '3Y': 'number',
+        '1Y': 'number',
+        '6M': 'number',
+        '3M': 'number',
+        '1M': 'number',
+        '2W': 'number',
+        '1W': 'number',
+        '3D': 'number',
+        '1D': 'number',
+        '+1D': 'number'
+    },
+    asof: 'Date',
+    indicators: 'object',
+    realTimeDetails: {
+        estChange: 'number',
+        estPrice: 'number',
+        stdev: 'number',
+        ci: 'Array',
+        holdings: 'Array'
+    }
+}
+
 Stock.HistoricPrice = class {
     constructor (date, open, high, low, close, volume) {
         this.date = date

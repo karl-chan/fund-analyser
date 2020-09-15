@@ -1,21 +1,21 @@
 <template lang="pug">
 
-  funds-table(:filterText="filterText" :showUpToDateOnly="showUpToDateOnly" height="500px")
+  stocks-table(:filterText="filterText" :showUpToDateOnly="showUpToDateOnly"  height="500px")
     template(slot="title")
       .column.q-gutter-y-sm
-        .text-h5 Funds
+        .text-h5 Stocks
         .row.justify-between.items-center.q-gutter-x-md
           div
-            fund-search(placeholder="Filter table" @keystroke="filter" @input="filterFund")
+            stock-search(placeholder="Filter table" @keystroke="filter" @input="filterStock")
           q-checkbox(v-model="showUpToDateOnly" label="Show up to date only" color="teal")
     template(slot="empty-view")
-      q-chip.absolute-center.shadow-5(square detail icon="error" color="negative" text-color="white" style="{z-index: 1}") Sorry, there are no matching funds
+      q-chip.absolute-center.shadow-5(square detail icon="error" color="negative" text-color="white" style="{z-index: 1}") Sorry, there are no matching stocks
 </template>
 
 <script>
 
 export default {
-  name: 'FundsSummary',
+  name: 'StocksSummary',
   data () {
     return {
       filterText: '',
@@ -26,8 +26,8 @@ export default {
     filter (text) {
       this.filterText = text
     },
-    filterFund (isin) {
-      this.filterText = isin || ''
+    filterStock (symbol) {
+      this.filterText = symbol || ''
     }
   }
 }

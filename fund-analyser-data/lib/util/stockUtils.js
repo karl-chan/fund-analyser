@@ -1,8 +1,11 @@
 module.exports = {
     calcReturns,
-    calcIndicators
+    calcIndicators,
+    calcStats,
+    enrichSummary
 }
 
+const Stock = require('../stock/Stock')
 const Fund = require('../fund/Fund')
 const fundUtils = require('./fundUtils')
 const indicators = require('./indicators')
@@ -17,4 +20,12 @@ function calcReturns (historicPrices) {
 
 async function calcIndicators (stock) {
     return indicators.calcStockIndicators(stock)
+}
+
+function calcStats (stocks) {
+    return fundUtils.calcStats(stocks, Stock.schema)
+}
+
+function enrichSummary (summary) {
+    return fundUtils.enrichSummary(summary)
 }

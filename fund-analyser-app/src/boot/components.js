@@ -28,6 +28,9 @@ import SimulateRequest from 'components/simulate/SimulateRequest'
 import SimulateResponseFooter from 'components/simulate/SimulateResponseFooter'
 import SimulateResponseModal from 'components/simulate/SimulateResponseModal'
 import SimulateResponse from 'components/simulate/SimulateResponse'
+import StockSearch from 'components/stock/StockSearch'
+import StocksSummary from 'components/stock/StocksSummary'
+import StocksTable from 'components/stock/StocksTable'
 import AppDrawer from 'layouts/AppDrawer'
 import AppHeader from 'layouts/AppHeader'
 
@@ -53,6 +56,10 @@ export default ({ Vue }) => {
   Vue.component('funds-summary', FundsSummary)
   Vue.component('fund-watch-list', FundWatchList)
   Vue.component('similar-funds', SimilarFunds)
+
+  Vue.component('stock-search', StockSearch)
+  Vue.component('stocks-table', StocksTable)
+  Vue.component('stocks-summary', StocksSummary)
 
   Vue.component('currency-chart', CurrencyChart)
   Vue.component('currency-dashboard', CurrencyDashboard)

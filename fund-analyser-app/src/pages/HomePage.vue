@@ -6,20 +6,25 @@
     account-view(:user="user" :balance="balance" :orders="orders" :statement="statement")
 
     q-tabs.q-mt-md.bg-primary.text-white(v-model="tab" align="left")
-      q-tab(default label="Account View" name="account")
-      q-tab(label="Summary View" name="summary")
-      q-tab(label="Currency View" name="currency")
+      q-tab(default label="Watchlist" name="watchlist")
+      q-tab(label="Funds" name="funds")
+      q-tab(label="Stocks" name="stocks")
+      q-tab(label="Currencies" name="currency")
 
     q-tab-panels(v-model="tab" keep-alive )
-      // Account View
-      q-tab-panel(name="account")
+      // Watchlist
+      q-tab-panel(name="watchlist")
         fund-watch-list(:fundWatchlist="fundWatchlist")
 
-      // Summary View
-      q-tab-panel(name="summary")
+      // Funds
+      q-tab-panel(name="funds")
         funds-summary
 
-      // Currency View
+      // Stocks
+      q-tab-panel(name="stocks")
+        stocks-summary
+
+      // Currencies
       q-tab-panel(name="currency")
         currency-dashboard
 </template>
@@ -31,7 +36,7 @@ export default {
   name: 'HomePage',
   data () {
     return {
-      tab: 'account'
+      tab: 'watchlist'
     }
   },
   computed: {

@@ -7,15 +7,15 @@ module.exports = {
 
 const _ = require('lodash')
 const moment = require('moment')
-const FundDAO = require('../../lib/db/FundDAO')
+const StockDAO = require('../../lib/db/StockDAO')
 const log = require('../../lib/util/log')
-const fundUtils = require('../../lib/util/fundUtils')
+const stockUtils = require('../../lib/util/stockUtils')
 const tmp = require('../../lib/util/tmp')
 
 const REFRESH_INTERVAL = moment.duration(15, 'minutes')
-const FILE_TMP_CACHE = 'fundCache'
+const FILE_TMP_CACHE = 'stockCache'
 
-let fundCache = []
+let stockCache = []
 let quickFilterCache = {}
 let metadata = {}
 let refreshTask = null
@@ -24,30 +24,30 @@ async function refresh () {
     const options = {
         projection: { _id: 0, historicPrices: 0 }
     }
-    log.info('Refreshing fund cache...')
-    fundCache = await FundDAO.listFunds(options)
+    log.info('Refreshing stock cache...')
+    stockCache = await StockDAO.listStocks(options)
     refreshMetadata()
     saveToFile() // don't await to speed up 500ms
-    log.info('Fund cache refreshed.')
+    log.info('Stock cache refreshed.')
 }
 
-function get (isins, options) {
+function get (symbols, options) {
     checkRunning()
-    let funds = isins
-        ? fundCache.filter(f => isins.includes(f.isin))
-        : fundCache
+    let stocks = symbols
+        ? stockCache.filter(s => symbols.includes(s.symbol))
+        : stockCache
 
     if (options) {
         const { filterText, showUpToDateOnly } = options
         if (filterText && filterText.trim()) {
-            funds = funds.filter(f => quickFilterCache[f.isin].includes(filterText.trim().toLowerCase()))
+            stocks = stocks.filter(s => quickFilterCache[s.symbol].includes(filterText.trim().toLowerCase()))
         }
         if (showUpToDateOnly) {
-            funds = funds.filter(f => isUpToDate(f, metadata.asof.date))
+            stocks = stocks.filter(s => isUpToDate(s, metadata.asof.date))
         }
     }
 
-    return funds
+    return stocks
 }
 
 function getMetadata (options) {
@@ -63,7 +63,7 @@ function getMetadata (options) {
 }
 
 async function start (clean) {
-    log.info('Warming up fund cache.')
+    log.info('Warming up stock cache.')
     if (clean) {
         // clean boot
         await refresh()
@@ -82,11 +82,11 @@ function shutdown () {
     clearInterval(refreshTask)
 }
 
-function buildQuickFilterCache (funds) {
+function buildQuickFilterCache (stocks) {
     const cache = {}
-    funds.forEach(f => {
+    stocks.forEach(s => {
         let str = ''
-        for (const v of Object.values(f)) {
+        for (const v of Object.values(s)) {
             switch (typeof v) {
                 case 'object':
                     str += JSON.stringify(v)
@@ -95,47 +95,47 @@ function buildQuickFilterCache (funds) {
                     str += v
             }
         }
-        cache[f.isin] = str.toLowerCase()
+        cache[s.symbol] = str.toLowerCase()
     })
     return cache
 }
 
 function refreshMetadata () {
-    fundCache = fundUtils.enrichSummary(fundCache)
-    quickFilterCache = buildQuickFilterCache(fundCache)
-    const asofDate = _.max(fundCache.map(f => f.asof))
-    const fundsUpToDate = fundCache.filter(f => isUpToDate(f, asofDate))
+    stockCache = stockUtils.enrichSummary(stockCache)
+    quickFilterCache = buildQuickFilterCache(stockCache)
+    const asofDate = _.max(stockCache.map(s => s.asof))
+    const stocksUpToDate = stockCache.filter(s => isUpToDate(s, asofDate))
     const asof = {
         date: asofDate,
-        numUpToDate: fundsUpToDate.length
+        numUpToDate: stocksUpToDate.length
     }
-    const stats = fundUtils.calcStats(fundCache)
-    const statsUpToDate = fundUtils.calcStats(fundsUpToDate)
-    const totalFunds = fundCache.length
-    metadata = { asof, stats, statsUpToDate, totalFunds }
+    const stats = stockUtils.calcStats(stockCache)
+    const statsUpToDate = stockUtils.calcStats(stocksUpToDate)
+    const totalStocks = stockCache.length
+    metadata = { asof, stats, statsUpToDate, totalStocks }
 }
 
 function checkRunning () {
     if (!refreshTask) {
-        throw new Error('Fund cache not started yet! Call fundCache.start() before querying cache!')
+        throw new Error('Stock cache not started yet! Call stockCache.start() before querying cache!')
     }
 }
 
-function isUpToDate (f, asofDate) {
-    return f.asof && f.asof.getTime() === asofDate.getTime()
+function isUpToDate (s, asofDate) {
+    return s.asof && s.asof.getTime() === asofDate.getTime()
 }
 
 async function loadFromFile () {
-    ({ fundCache, quickFilterCache, metadata } = await tmp.read(FILE_TMP_CACHE))
-    for (const row of fundCache) {
+    ({ stockCache, quickFilterCache, metadata } = await tmp.read(FILE_TMP_CACHE))
+    for (const row of stockCache) {
         row.asof = new Date(row.asof)
     }
     metadata.asof.date = new Date(metadata.asof.date)
-    log.info('Fund cache loaded from file.')
+    log.info('Stock cache loaded from file.')
 }
 
 async function saveToFile () {
-    const bundle = { fundCache, quickFilterCache, metadata }
+    const bundle = { stockCache, quickFilterCache, metadata }
     await tmp.write(FILE_TMP_CACHE, bundle, REFRESH_INTERVAL.asSeconds())
-    log.info('Fund cache saved to file.')
+    log.info('Stock cache saved to file.')
 }

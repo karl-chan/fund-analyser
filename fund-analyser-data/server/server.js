@@ -27,6 +27,7 @@ const fundsRoutes = require('./routes/funds-routes')
 const simulateRoutes = require('./routes/simulate-routes')
 const stocksRoutes = require('./routes/stocks-routes')
 const fundCache = require('./cache/fundCache')
+const stockCache = require('./cache/stockCache')
 
 const PORT = process.env.PORT || properties.get('server.default.port')
 
@@ -82,10 +83,21 @@ const cleanupEvery = (frequency) => {
 const main = async () => {
     const timer = new Stopwatch()
     try {
-        await db.init()
-        log.info(`Connected to MongoDB in [${timer.split()}].`)
-        await fundCache.start()
-        log.info(`Started fund cache in [${timer.split()}].`)
+        await Promise.all([
+            (async () => {
+                await db.init()
+                log.info(`Connected to MongoDB in [${timer.split()}].`)
+            })(),
+            (async () => {
+                await fundCache.start()
+                log.info(`Started fund cache in [${timer.split()}].`)
+            })(),
+            (async () => {
+                await stockCache.start()
+                log.info(`Started stock cache in [${timer.split()}].`)
+            })()
+
+        ])
     } catch (err) {
         log.error(err)
         process.exit(1)
