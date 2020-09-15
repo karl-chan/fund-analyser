@@ -49,7 +49,12 @@ class MarketsInsider {
         const $ = cheerio.load(body)
         const symbols = $('.table').find('tbody td:first-child')
             .map((i, td) =>
-                $(td).find('a').attr('href').replace(/^\/stocks\/(.*)-stock$/, '$1')).get()
+                $(td)
+                    .find('a')
+                    .attr('href')
+                    .replace(/^\/stocks\/(.*)-stock$/, '$1')
+                    .toUpperCase()
+            ).get()
         log.debug('Symbols in page %d: %j', page, symbols)
         return symbols
     }

@@ -27,7 +27,7 @@ describe('StockCalculator', function () {
 
     beforeEach(function () {
         stockCalculator = new StockCalculator()
-        stock = Stock.Builder('aapl')
+        stock = Stock.Builder('AAPL')
             .historicPrices(historicPrices)
             .returns(returns)
             .build()
@@ -38,16 +38,16 @@ describe('StockCalculator', function () {
             '2W': 0.01,
             '1W': 0.005
         })
-        const stockWithNewReturns = Stock.Builder('aapl')
+        const stockWithNewReturns = Stock.Builder('AAPL')
             .historicPrices(historicPrices)
             .returns(newReturns)
             .build()
-        const stockWithIndicators = Stock.Builder('aapl')
+        const stockWithIndicators = Stock.Builder('AAPL')
             .historicPrices(historicPrices)
             .returns(newReturns)
             .indicators(indicators)
             .build()
-        const stockResult = Stock.Builder('aapl')
+        const stockResult = Stock.Builder('AAPL')
             .historicPrices(historicPrices)
             .returns(newReturns)
             .indicators(indicators)
@@ -71,7 +71,7 @@ describe('StockCalculator', function () {
             '2W': 0.01,
             '1W': 0.005
         })
-        const expected = Stock.Builder('aapl')
+        const expected = Stock.Builder('AAPL')
             .historicPrices(historicPrices)
             .returns(newReturns)
             .build()

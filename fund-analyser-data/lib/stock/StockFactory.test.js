@@ -13,15 +13,15 @@ describe('StockFactory', function () {
 
     test('getStocks should return array of stocks', async () => {
         const expected = [
-            Stock.Builder('aapl').build(),
-            Stock.Builder('goog').build()
+            Stock.Builder('AAPL').build(),
+            Stock.Builder('GOOG').build()
         ]
 
         jest.spyOn(stockFactory.symbolProvider, 'getSymbols')
-            .mockImplementation(async () => ['aapl', 'goog'])
+            .mockImplementation(async () => ['AAPL', 'GOOG'])
         jest.spyOn(stockFactory.stockProvider, 'getStocksFromSymbols')
             .mockImplementation(async symbols => {
-                expect(symbols).toEqual(['aapl', 'goog'])
+                expect(symbols).toEqual(['AAPL', 'GOOG'])
                 return expected
             })
         jest.spyOn(stockFactory.stockCalculator, 'evaluate')
@@ -32,8 +32,8 @@ describe('StockFactory', function () {
     })
 
     test('streamStocks should return a Transform stream outputting array of funds', (done) => {
-        const symbol1 = 'aapl'
-        const symbol2 = 'goog'
+        const symbol1 = 'AAPL'
+        const symbol2 = 'GOOG'
         const stock1 = Stock.Builder(symbol1).build()
         const stock2 = Stock.Builder(symbol2).build()
 
@@ -63,8 +63,8 @@ describe('StockFactory', function () {
     })
 
     test('streamStocksFromSymbols should return a Transform stream outputting array of funds', (done) => {
-        const symbol1 = 'aapl'
-        const symbol2 = 'goog'
+        const symbol1 = 'AAPL'
+        const symbol2 = 'GOOG'
         const stock1 = Stock.Builder(symbol1).build()
         const stock2 = Stock.Builder(symbol2).build()
 

@@ -29,7 +29,7 @@ describe('stockCache', () => {
             expect(stocks.length).toBeGreaterThan(400)
         })
         test('cache should perform symbol match', () => {
-            const symbol = 'aapl'
+            const symbol = 'AAPL'
             const stocks = stockCache.get([symbol])
             expect(stocks).toBeArrayOfSize(1)
             expect(stocks[0]).toHaveProperty('symbol', symbol)

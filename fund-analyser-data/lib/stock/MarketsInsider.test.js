@@ -19,7 +19,7 @@ describe('MarketsInsider', () => {
     describe('Core methods', () => {
         test('getSymbols should return array of symbols', async () => {
             const symbols = await marketsInsider.getSymbols()
-            expect(symbols).toIncludeAllMembers(['aapl', 'goog'])
+            expect(symbols).toIncludeAllMembers(['AAPL', 'GOOG'])
             expect(symbols.length).toBeGreaterThan(400)
         })
 
@@ -38,7 +38,7 @@ describe('MarketsInsider', () => {
             const samplePage = 1
             const symbols = await marketsInsider.getSymbolsFromPage(samplePage)
             expect(symbols).toBeArray()
-            expect(symbols).toSatisfyAll(symbol => /^[a-z]+$/.test(symbol))
+            expect(symbols).toSatisfyAll(symbol => /^\w+$/.test(symbol))
         })
 
         test('getSymbolsFromPages should return array of symbols', async () => {
@@ -48,17 +48,17 @@ describe('MarketsInsider', () => {
                 .mockImplementation(async page => {
                     switch (page) {
                         case 1:
-                            return ['aapl', 'goog']
+                            return ['AAPL', 'GOOG']
                         case 2:
-                            return ['msft', 'tsla']
+                            return ['MSFT', 'TSLA']
                     }
                 })
             const sedols = await marketsInsider.getSymbolsFromPages(pages)
-            expect(sedols).toEqual(['aapl', 'goog', 'msft', 'tsla'])
+            expect(sedols).toEqual(['AAPL', 'GOOG', 'MSFT', 'TSLA'])
         })
 
         test('getStockFromSymbol should return stock', async () => {
-            const symbol = 'aapl'
+            const symbol = 'AAPL'
             const summary = {
                 name: 'APPLE',
                 realTimeDetails: {
@@ -88,19 +88,19 @@ describe('MarketsInsider', () => {
         })
 
         test('getStocksFromSymbols should return array of partial fund', async () => {
-            const sedols = ['aapl', 'goog']
+            const sedols = ['AAPL', 'GOOG']
             const stocks = [
-                Stock.Builder('aapl'),
-                Stock.Builder('goog')
+                Stock.Builder('AAPL'),
+                Stock.Builder('GOOG')
             ]
 
             jest.spyOn(marketsInsider, 'getStockFromSymbol')
                 .mockImplementation(async sedol => {
                     switch (sedol) {
-                        case 'aapl':
+                        case 'AAPL':
                             return stocks[0]
 
-                        case 'goog':
+                        case 'GOOG':
                             return stocks[1]
                     }
                 })
@@ -109,7 +109,7 @@ describe('MarketsInsider', () => {
         })
 
         test('getSummary should return summary object', async () => {
-            const summary = await marketsInsider.getSummary('aapl')
+            const summary = await marketsInsider.getSummary('AAPL')
             expect(summary.name).toEqual('Apple Inc.')
             expect(summary.realTimeDetails).toMatchObject({
                 estPrice: expect.toBeNumber(),
@@ -118,7 +118,7 @@ describe('MarketsInsider', () => {
         })
 
         test('getHistoricPrices should return historic prices object', async () => {
-            const historicPrices = await marketsInsider.getHistoricPrices('aapl')
+            const historicPrices = await marketsInsider.getHistoricPrices('AAPL')
             expect(historicPrices).toBeArray().not.toBeEmpty()
             expect(historicPrices).toSatisfyAll(hp => {
                 return hp instanceof Stock.HistoricPrice &&
@@ -136,8 +136,8 @@ describe('MarketsInsider', () => {
     describe('Stream methods', function () {
         const version = 'v2'
         test('streamStocksFromSymbols should return Transform stream outputting array of stocks', done => {
-            const symbol1 = 'aapl'
-            const symbol2 = 'goog'
+            const symbol1 = 'AAPL'
+            const symbol2 = 'GOOG'
             const stock1 = Stock.Builder(symbol1).build()
             const stock2 = Stock.Builder(symbol2).build()
 

@@ -18,7 +18,7 @@ describe('MarketWatch', () => {
 
     describe('Core methods', () => {
         test('getStockFromSymbol should return stock', async () => {
-            const symbol = 'aapl'
+            const symbol = 'AAPL'
             const summary = {
                 name: 'APPLE',
                 realTimeDetails: {
@@ -48,19 +48,19 @@ describe('MarketWatch', () => {
         })
 
         test('getStocksFromSymbols should return array of partial fund', async () => {
-            const sedols = ['aapl', 'goog']
+            const sedols = ['AAPL', 'GOOG']
             const stocks = [
-                Stock.Builder('aapl'),
-                Stock.Builder('goog')
+                Stock.Builder('AAPL'),
+                Stock.Builder('GOOG')
             ]
 
             jest.spyOn(marketsInsider, 'getStockFromSymbol')
                 .mockImplementation(async sedol => {
                     switch (sedol) {
-                        case 'aapl':
+                        case 'AAPL':
                             return stocks[0]
 
-                        case 'goog':
+                        case 'GOOG':
                             return stocks[1]
                     }
                 })
@@ -69,7 +69,7 @@ describe('MarketWatch', () => {
         })
 
         test('getSummary should return summary object', async () => {
-            const summary = await marketsInsider.getSummary('aapl')
+            const summary = await marketsInsider.getSummary('AAPL')
             expect(summary.name).toEqual('Apple Inc.')
             expect(summary.realTimeDetails).toMatchObject({
                 estPrice: expect.toBeNumber(),
@@ -78,7 +78,7 @@ describe('MarketWatch', () => {
         })
 
         test('getHistoricPrices should return historic prices object', async () => {
-            const historicPrices = await marketsInsider.getHistoricPrices('aapl')
+            const historicPrices = await marketsInsider.getHistoricPrices('AAPL')
             expect(historicPrices).toBeArray().not.toBeEmpty()
             expect(historicPrices).toSatisfyAll(hp => {
                 return hp instanceof Stock.HistoricPrice &&
@@ -96,8 +96,8 @@ describe('MarketWatch', () => {
     describe('Stream methods', function () {
         const version = 'v2'
         test('streamStocksFromSymbols should return Transform stream outputting array of stocks', done => {
-            const symbol1 = 'aapl'
-            const symbol2 = 'goog'
+            const symbol1 = 'AAPL'
+            const symbol2 = 'GOOG'
             const stock1 = Stock.Builder(symbol1).build()
             const stock2 = Stock.Builder(symbol2).build()
 

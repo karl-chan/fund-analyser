@@ -88,7 +88,7 @@ describe('indicators', () => {
             new Stock.HistoricPrice(new Date(2017, 4, 31), 482.0, 482.0, 482.0, 482.0, 100000.0),
             new Stock.HistoricPrice(new Date(2017, 5, 1), 482.0, 482.0, 482.0, 482.0, 100000.0)
         ]
-        const stock = Stock.Builder('aapl')
+        const stock = Stock.Builder('AAPL')
             .historicPrices(historicPrices)
             .build()
         const actual = await indicators.calcStockIndicators(stock)
