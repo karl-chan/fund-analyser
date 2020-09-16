@@ -83,23 +83,19 @@ const cleanupEvery = (frequency) => {
 const main = async () => {
     const timer = new Stopwatch()
     try {
-        await Promise.all([
-            (async () => {
-                await db.init()
-                log.info(`Connected to MongoDB in [${timer.split()}].`)
-            })(),
-            (async () => {
-                await fundCache.start()
-                log.info(`Started fund cache in [${timer.split()}].`)
-            })(),
-            (async () => {
-                await stockCache.start()
-                log.info(`Started stock cache in [${timer.split()}].`)
-            })()
+        await db.init()
+        log.info(`Connected to MongoDB in [${timer.split()}].`)
 
+        await Promise.all([
+            fundCache
+                .start()
+                .then(() => log.info(`Started fund cache in [${timer.split()}].`)),
+            stockCache
+                .start()
+                .then(() => log.info(`Started stock cache in [${timer.split()}].`))
         ])
     } catch (err) {
-        log.error(err)
+        log.error(err.stack)
         process.exit(1)
     }
 
