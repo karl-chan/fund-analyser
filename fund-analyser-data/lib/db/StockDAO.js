@@ -39,7 +39,7 @@ function toStock (entry) {
 
     if (!_.isNil(entry.historicPrices)) {
         builder = builder.historicPrices(entry.historicPrices.map(
-            e => new Stock.HistoricPrice(e.date, e.open, e.high, e.low, e.close, e.volume)
+            e => new Stock.HistoricPrice(e.date, e.price, e.open, e.high, e.low, e.close, e.volume)
         ))
     }
     return builder.build()

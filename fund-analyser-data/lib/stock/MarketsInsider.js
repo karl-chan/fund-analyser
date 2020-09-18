@@ -117,7 +117,7 @@ class MarketsInsider {
         const historicPrices = series
             .map(row => new Stock.HistoricPrice(
                 moment.utc(row.Date, 'YYYY-MM-DD HH:mm').toDate(),
-                row.Open, row.High, row.Low, row.Close, row.Volume
+                row.Close, row.Open, row.High, row.Low, row.Close, row.Volume
             ))
             .filter(hp => hp.close !== 0) // skip bad entries
         return historicPrices

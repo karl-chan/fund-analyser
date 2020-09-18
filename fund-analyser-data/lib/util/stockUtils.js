@@ -6,7 +6,6 @@ module.exports = {
 }
 
 const Stock = require('../stock/Stock')
-const Fund = require('../fund/Fund')
 const fundUtils = require('./fundUtils')
 const indicators = require('./indicators')
 const properties = require('./properties')
@@ -14,8 +13,7 @@ const properties = require('./properties')
 const lookbacks = properties.get('stock.lookbacks')
 
 function calcReturns (historicPrices) {
-    const historicPricesSeries = historicPrices.map(hp => new Fund.HistoricPrice(hp.date, hp.close))
-    return fundUtils.enrichReturns({}, historicPricesSeries, lookbacks)
+    return fundUtils.enrichReturns({}, historicPrices, lookbacks)
 }
 
 async function calcIndicators (stock) {

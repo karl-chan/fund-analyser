@@ -58,7 +58,7 @@ class IndicatorsRoutes:
     def on_post_stock(self, req: falcon.Request, resp: falcon.Response):
         param = IndicatorsRoutes.StockIndicatorParam.from_dict(req.media)
         resp.media = {
-            indicator.get_key(): indicator.calc(historic_prices=param.historic_prices["close"]).as_dict()
+            indicator.get_key(): indicator.calc(historic_prices=param.historic_prices["price"]).as_dict()
             for indicator in get_all_stock_indicators()}
 
 

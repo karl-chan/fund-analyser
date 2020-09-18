@@ -9,8 +9,8 @@ def test_get():
 
 
 def test_get_prices():
-    open_df, high_df, low_df, close_df, volume_df = stock_cache.get_prices()
-    for prices_df in (open_df, high_df, low_df, close_df, volume_df):
-        assert isinstance(prices_df, pd.DataFrame)
-        assert isinstance(prices_df.index, pd.DatetimeIndex)
-        assert len(prices_df.columns) > 400
+    prices_df, open_df, high_df, low_df, close_df, volume_df = stock_cache.get_prices()
+    for df in (prices_df, open_df, high_df, low_df, close_df, volume_df):
+        assert isinstance(df, pd.DataFrame)
+        assert isinstance(df.index, pd.DatetimeIndex)
+        assert len(df.columns) > 400

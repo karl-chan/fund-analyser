@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from threading import Lock
 from typing import Dict, Iterable, List, Optional, Tuple
 
@@ -6,13 +6,15 @@ import pandas as pd
 
 from client.stocks import stream_stocks
 from lib.stock.stock import Stock
+from lib.util.dates import BDAY
 from lib.util.disk import read_from_disk, write_to_disk
 from lib.util.logging_utils import log_debug, log_info, log_warning
 
-EXPIRY = timedelta(days=1)
+EXPIRY = BDAY
 _PICKLE_STOCK_CACHE = "stock_cache.pickle"
 
 _stock_cache: Dict[str, Stock] = dict()
+_prices_df: Optional[pd.DataFrame] = None
 _open_df: Optional[pd.DataFrame] = None
 _high_df: Optional[pd.DataFrame] = None
 _low_df: Optional[pd.DataFrame] = None
@@ -35,10 +37,11 @@ def get(symbols: Optional[Iterable[str]] = None) -> List[Stock]:
 
 
 def get_prices(symbols: Optional[Iterable[str]] = None) -> Tuple[
-    pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     maybe_initialise(symbols)
     symbols = _normalise_symbols(symbols)
-    return (_open_df[symbols],  # type: ignore
+    return (_prices_df[symbols],  # type: ignore
+            _open_df[symbols],  # type: ignore
             _high_df[symbols],  # type: ignore
             _low_df[symbols],  # type: ignore
             _close_df[symbols],  # type: ignore
@@ -90,15 +93,15 @@ def load_from_file(symbols: Optional[Iterable[str]]) -> None:
     """
     Loads stock cache from file if present and not expired, else raises ValueError.
     """
-    global _stock_cache, _open_df, _high_df, _low_df, _close_df, _volume_df, _expiration_time, _is_full
+    global _stock_cache, _prices_df, _open_df, _high_df, _low_df, _close_df, _volume_df, _expiration_time, _is_full
     data = read_from_disk(_PICKLE_STOCK_CACHE)
     if datetime.now() > data["expiry"]:
         raise ValueError(f"Stock cache expired at: {data['expiry']}")
     _stock_cache, \
-    _open_df, _high_df, _low_df, _close_df, _volume_df, \
+    _prices_df, _open_df, _high_df, _low_df, _close_df, _volume_df, \
     _expiration_time, _is_full = \
         data["stocks"], \
-        data["open_df"], data["high_df"], data["low_df"], data["close_df"], data["volume_df"], \
+        data["prices_df"], data["open_df"], data["high_df"], data["low_df"], data["close_df"], data["volume_df"], \
         data["expiry"], data["is_full"]
     if not valid(symbols):
         raise ValueError(f"Stock cache needs refresh because it doesn't contain all symbols: {symbols}")
@@ -110,10 +113,11 @@ def save_to_file() -> None:
     :return:
     """
     global _stock_cache, \
-        _open_df, _high_df, _low_df, _close_df, _volume_df, \
+        _prices_df, _open_df, _high_df, _low_df, _close_df, _volume_df, \
         _expiration_time, _is_full
     write_to_disk(_PICKLE_STOCK_CACHE, {
         "stocks": _stock_cache,
+        "prices_df": _prices_df,
         "open_df": _open_df,
         "high_df": _high_df,
         "low_df": _low_df,
@@ -129,24 +133,25 @@ def refresh(symbols: Optional[Iterable[str]]) -> None:
     Builds a fresh copy of stock cache from web.
     """
     global _stock_cache, \
-        _open_df, _high_df, _low_df, _close_df, _volume_df, \
+        _prices_df, _open_df, _high_df, _low_df, _close_df, _volume_df, \
         _expiration_time, _is_full
     log_info("Refreshing stock cache...")
     _stock_cache = dict()
-    all_prices = []
+    combined_prices = []
     counter = 0
     for stock_stream_entry in stream_stocks(symbols):
         counter += 1
         stock = stock_stream_entry.stock
         log_debug(f"Stock {counter} {stock.symbol} received.")
         _stock_cache[stock.symbol] = stock
-        all_prices.append(stock_stream_entry.historic_prices)
+        combined_prices.append(stock_stream_entry.historic_prices)
     log_debug("Merging stock historic prices...")
-    _prices_df = pd.concat(all_prices, axis=1).resample("B").asfreq().fillna(method="ffill")
-    _open_df, _high_df, _low_df, _close_df, _volume_df = \
-        _prices_df[["open"]], _prices_df[["high"]], _prices_df[["low"]], _prices_df[["close"]], _prices_df[["volume"]]
-    _open_df.columns = _high_df.columns = _low_df.columns = _close_df.columns = _volume_df.columns = _stock_cache.keys()
-    _expiration_time = datetime.now() + EXPIRY
+    _combined_df = pd.concat(combined_prices, axis=1).resample("B").asfreq().fillna(method="ffill")
+    _prices_df, _open_df, _high_df, _low_df, _close_df, _volume_df = \
+        _combined_df[["price"]], _combined_df[["open"]], _combined_df[["high"]], \
+        _combined_df[["low"]], _combined_df[["close"]], _combined_df[["volume"]]
+    _prices_df.columns = _open_df.columns = _high_df.columns = _low_df.columns = _close_df.columns = _volume_df.columns = _stock_cache.keys()
+    _expiration_time = _prices_df.last_valid_index() + EXPIRY
     _is_full = symbols is None
     save_to_file()
     log_info("Stock cache refreshed.")

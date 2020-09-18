@@ -49,8 +49,9 @@ Stock.schema = {
 }
 
 Stock.HistoricPrice = class {
-    constructor (date, open, high, low, close, volume) {
+    constructor (date, price, open, high, low, close, volume) {
         this.date = date
+        this.price = price
         this.open = open
         this.high = high
         this.low = low

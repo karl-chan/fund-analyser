@@ -21,7 +21,7 @@ describe('StockDAO', function () {
         stock = Stock.Builder('test')
             .symbol('test')
             .name('Test stock')
-            .historicPrices([new Stock.HistoricPrice(new Date(2017, 3, 23), 457.0, 458.0, 456.0, 457.0, 100000.0)])
+            .historicPrices([new Stock.HistoricPrice(new Date(2017, 3, 23), 457.0, 457.0, 458.0, 456.0, 457.0, 100000.0)])
             .returns({ '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2 })
             .indicators({
                 stability: -3
@@ -34,6 +34,7 @@ describe('StockDAO', function () {
             name: 'Test stock',
             historicPrices: [{
                 date: new Date(2017, 3, 23),
+                price: 457.0,
                 open: 457.0,
                 high: 458.0,
                 low: 456.0,

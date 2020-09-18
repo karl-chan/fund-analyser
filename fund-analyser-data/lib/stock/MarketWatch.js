@@ -90,13 +90,11 @@ class MarketWatch {
         const dates = res.TimeInfo.Ticks
         const ohlcs = res.Series.find(s => s.SeriesId === 'ohlc').DataPoints
         const volumes = res.Series.find(s => s.SeriesId === 'volume').DataPoints
-        const historicPrices = _.zip(dates, ohlcs, volumes).map(([date, ohlc, [volume]]) => {
-            return new Stock.HistoricPrice(
-                moment.utc(date).toDate(),
-                ...ohlc,
-                volume
-            )
-        })
+        const historicPrices = _.zip(dates, ohlcs, volumes).map(
+            ([date, [o, h, l, c], [volume]]) => {
+                return new Stock.HistoricPrice(
+                    moment.utc(date).toDate(), c, o, h, l, c, volume)
+            })
         return historicPrices
     }
 

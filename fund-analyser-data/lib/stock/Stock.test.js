@@ -8,8 +8,8 @@ describe('Stock', function () {
         symbol = 'AAPL'
         name = 'Apple Inc'
         historicPrices = [
-            new Stock.HistoricPrice(new Date(2015, 8, 9), 3.198, 3.199, 3.197, 3.198, 100000.0),
-            new Stock.HistoricPrice(new Date(2015, 8, 10), 3.149, 3.150, 3.147, 3.148, 100000.0)
+            new Stock.HistoricPrice(new Date(2015, 8, 9), 3.198, 3.198, 3.199, 3.197, 3.198, 100000.0),
+            new Stock.HistoricPrice(new Date(2015, 8, 10), 3.148, 3.149, 3.150, 3.147, 3.148, 100000.0)
         ]
         returns = { '5Y': 0.1767, '3Y': 0.226 }
         asof = new Date(2018, 8, 8)
