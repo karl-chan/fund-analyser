@@ -5,7 +5,7 @@ export function inWatchlist (state) {
 }
 
 export function recentlyViewedIsins (state) {
-  return state.recentlyViewed.map(e => e.isin)
+  return state.recentlyViewedFunds.map(e => e.isin)
 }
 
 export function inFavouriteSimulateParams (state) {

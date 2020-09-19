@@ -6,8 +6,8 @@
         .row.items-center Today's change (estimate):
           span.text-weight-bold.text-h5.q-ml-sm(:class="colour(fund.realTimeDetails.estChange)") {{ formatPercentage(fund.realTimeDetails.estChange) }}
         div New price (est): {{ formatNumber(fund.realTimeDetails.estPrice) }}
-        div Std dev: {{ formatPercentage(fund.realTimeDetails.stdev) }}
-        div 95% Confidence interval:
+        div(v-if="fund.realTimeDetails.stdev") Std dev: {{ formatPercentage(fund.realTimeDetails.stdev) }}
+        div(v-if="fund.realTimeDetails.ci") 95% Confidence interval:
           |
           | ({{ formatPercentage(fund.realTimeDetails.ci[0]) }},
           | {{ formatPercentage(fund.realTimeDetails.ci[1]) }})

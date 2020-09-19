@@ -9,6 +9,13 @@ export default {
       query: { startDate: opts && opts.startDate, endDate: opts && opts.endDate }
     }, opts)
   },
+  redirectToStock (symbol, opts) {
+    redirect({
+      name: 'stock',
+      params: { symbol },
+      query: { startDate: opts && opts.startDate, endDate: opts && opts.endDate }
+    }, opts)
+  },
   redirectToHome (opts) {
     redirect({ name: 'home' }, opts)
   },

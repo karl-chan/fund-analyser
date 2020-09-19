@@ -4,14 +4,14 @@
       // Recently Viewed List
       q-expansion-item(v-if="recentlyViewedIsins.length" label="Recently Viewed" :default-opened="true" expand-separator)
         q-list
-          q-item(v-for="entry in recentlyViewed" :to="{name: 'fund', params: {isin: entry.isin}}" :key="entry.isin")
+          q-item(v-for="fund in recentlyViewedFunds" :to="{name: 'fund', params: {isin: fund.isin}}" :key="fund.isin")
             q-item-section
-              q-item-label {{entry.name}}
-              q-item-label(caption) {{entry.isin}}
+              q-item-label {{fund.name}}
+              q-item-label(caption) {{fund.isin}}
             q-item-section(side)
-              q-btn(flat round dense icon="close" @click.stop.prevent="removeFromRecentlyViewed(entry.isin)")
+              q-btn(flat round dense icon="close" @click.stop.prevent="removeFromRecentlyViewedFunds(fund.isin)")
         .row.justify-end
-          q-btn.q-mr-sm.q-mb-sm(rounded label="Clear all" color="pink-10" @click="clearRecentlyViewed")
+          q-btn.q-mr-sm.q-mb-sm(rounded label="Clear all" color="pink-10" @click="clearRecentlyViewedFunds")
       // Simulate
       q-expansion-item(v-if="favouriteSimulateParams.length" label="Simulations" :default-opened="true" expand-separator)
         q-list
@@ -51,7 +51,7 @@ import { openURL } from 'quasar'
 export default {
   name: 'AppDrawer',
   computed: {
-    ...mapState('account', ['favouriteSimulateParams', 'recentlyViewed', 'fundWatchlist']),
+    ...mapState('account', ['favouriteSimulateParams', 'recentlyViewedFunds', 'fundWatchlist']),
     ...mapGetters('account', ['recentlyViewedIsins']),
     ...mapGetters('auth', ['isLoggedIn']),
     drawerOpen: {
@@ -66,8 +66,8 @@ export default {
   methods: {
     openURL,
     ...mapActions('account', [
-      'clearRecentlyViewed',
-      'removeFromRecentlyViewed',
+      'clearRecentlyViewedFunds',
+      'removeFromRecentlyViewedFunds',
       'removeFromFavouriteSimulateParams',
       'updateFavouriteSimulateParams'
     ]),

@@ -40,7 +40,8 @@ function get (isins, options) {
     if (options) {
         const { filterText, showUpToDateOnly } = options
         if (filterText && filterText.trim()) {
-            funds = funds.filter(f => quickFilterCache[f.isin].includes(filterText.trim().toLowerCase()))
+            const needle = filterText.trim().toLowerCase()
+            funds = funds.filter(f => quickFilterCache[f.isin].includes(needle))
         }
         if (showUpToDateOnly) {
             funds = funds.filter(f => isUpToDate(f, metadata.asof.date))

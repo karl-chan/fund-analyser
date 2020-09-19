@@ -4,6 +4,9 @@ export default {
   gets (symbol) {
     return apiService.get(`/stocks/symbols/${symbol.join(',')}`)
   },
+  getRealTimeDetails (symbols) {
+    return apiService.get(`/stocks/real-time-details/${symbols.join(',')}`)
+  },
   getSummary () {
     return apiService.get('/stocks/summary')
   },

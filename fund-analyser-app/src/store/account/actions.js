@@ -79,20 +79,20 @@ export async function clearFundWatchlist ({ commit, dispatch }) {
   }
 }
 
-export async function addToRecentlyViewed ({ commit, state, getters }, { isin, name }) {
+export async function addToRecentlyViewedFunds ({ commit, state, getters }, { isin, name }) {
   if (!getters.recentlyViewedIsins.includes(isin)) {
-    commit('setRecentlyViewed', state.recentlyViewed.concat([{ isin, name }]))
+    commit('setRecentlyViewedFunds', state.recentlyViewedFunds.concat([{ isin, name }]))
   }
 }
 
-export async function removeFromRecentlyViewed ({ commit, state, getters }, isin) {
+export async function removeFromRecentlyViewedFunds ({ commit, state, getters }, isin) {
   if (getters.recentlyViewedIsins.includes(isin)) {
-    commit('setRecentlyViewed', state.recentlyViewed.filter(e => e.isin !== isin))
+    commit('setRecentlyViewedFunds', state.recentlyViewedFunds.filter(e => e.isin !== isin))
   }
 }
 
-export async function clearRecentlyViewed ({ commit }) {
-  commit('setRecentlyViewed', [])
+export async function clearRecentlyViewedFunds ({ commit }) {
+  commit('setRecentlyViewedFunds', [])
 }
 
 export async function addToFavouriteCurrencies ({ commit, state }, symbol) {

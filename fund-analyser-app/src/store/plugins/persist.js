@@ -5,7 +5,7 @@ export default new VuexPersistence({
   reducer: state => ({
     account: {
       fundWatchlist: state.account.fundWatchlist,
-      recentlyViewed: state.account.recentlyViewed,
+      recentlyViewedFunds: state.account.recentlyViewedFunds,
       favouriteCurrencies: state.account.favouriteCurrencies,
       favouriteSimulateParams: state.account.favouriteSimulateParams
     },

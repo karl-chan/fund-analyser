@@ -1,7 +1,9 @@
 const Router = require('koa-router')
+const Promise = require('bluebird')
 const JSONStream = require('JSONStream')
 const compute = require('../../client/compute')
 const StockDAO = require('../../lib/db/StockDAO')
+const MarketWatch = require('../../lib/stock/MarketWatch')
 const agGridUtils = require('../../lib/util/agGridUtils')
 const stockCache = require('../cache/stockCache')
 
@@ -9,6 +11,8 @@ const STOCKS_URL_PREFIX = '/api/stocks'
 const router = new Router({
     prefix: STOCKS_URL_PREFIX
 })
+
+const marketWatch = new MarketWatch()
 
 router.get('/symbols/:symbols', async ctx => {
     const symbols = ctx.params.symbols.split(',')
@@ -30,6 +34,19 @@ router.get('/symbols/:symbols', async ctx => {
         const stocks = await StockDAO.listStocks(options)
         ctx.body = stocks
     }
+})
+
+router.get('/real-time-details/:symbols', async ctx => {
+    const symbols = ctx.params.symbols.split(',')
+    const options = {
+        query: { symbol: { $in: symbols } }
+    }
+    const stocks = await StockDAO.listStocks(options)
+    const realTimeDetailsPairs = await Promise.map(stocks, async s => {
+        const { realTimeDetails } = await marketWatch.getSummary(s.symbol)
+        return [s.symbol, realTimeDetails]
+    })
+    ctx.body = realTimeDetailsPairs
 })
 
 router.get('/search/:searchText', async ctx => {

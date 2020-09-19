@@ -40,7 +40,8 @@ function get (symbols, options) {
     if (options) {
         const { filterText, showUpToDateOnly } = options
         if (filterText && filterText.trim()) {
-            stocks = stocks.filter(s => quickFilterCache[s.symbol].includes(filterText.trim().toLowerCase()))
+            const needle = filterText.trim().toLowerCase()
+            stocks = stocks.filter(s => quickFilterCache[s.symbol].includes(needle))
         }
         if (showUpToDateOnly) {
             stocks = stocks.filter(s => isUpToDate(s, metadata.asof.date))

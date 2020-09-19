@@ -14,8 +14,8 @@ export function setFundWatchlist (state, fundWatchlist) {
   state.fundWatchlist = fundWatchlist
 }
 
-export function setRecentlyViewed (state, recentlyViewed) {
-  state.recentlyViewed = recentlyViewed
+export function setRecentlyViewedFunds (state, recentlyViewedFunds) {
+  state.recentlyViewedFunds = recentlyViewedFunds
 }
 
 export function setFavouriteCurrencies (state, favouriteCurrencies) {
@@ -31,7 +31,7 @@ export function reset (state) {
   state.orders = []
   state.statement = null
   state.fundWatchlist = []
-  state.recentlyViewed = []
+  state.recentlyViewedFunds = []
   state.favouriteCurrencies = []
   state.favouriteSimulateParams = []
 }
