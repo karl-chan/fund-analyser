@@ -22,7 +22,7 @@ let refreshTask = null
 
 async function refresh () {
     const options = {
-        projection: { _id: 0, historicPrices: 0 }
+        projection: { _id: 0, historicPrices: 0, holdings: 0 }
     }
     log.info('Refreshing fund cache...')
     fundCache = await FundDAO.listFunds(options)

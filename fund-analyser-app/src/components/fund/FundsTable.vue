@@ -149,7 +149,6 @@ export default {
         { headerName: 'AMC', field: 'amc', width: 70 },
         { headerName: 'Entry Charge', field: 'entryCharge', width: 80 },
         { headerName: 'Exit Charge', field: 'exitCharge', width: 80 },
-        { headerName: 'Holdings', field: 'holdings', valueFormatter: this.jsonFormatter, tooltipValueGetter: this.jsonFormatter },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ]
 
@@ -267,9 +266,6 @@ export default {
     dateFormatter (params) {
       return this.$utils.format.formatDateShort(params.value, true)
     },
-    jsonFormatter (params) {
-      return JSON.stringify(params.value)
-    },
     indicatorMetadataFormatter (params, key) {
       const metadata = get(params.data, `indicators.${key}.metadata`)
       return metadata ? JSON.stringify(metadata) : undefined
@@ -355,7 +351,6 @@ export default {
         fileName: this.$utils.format.formatDateShort(new Date()),
         processCellCallback: params => {
           switch (params.column.colId) {
-            case 'holdings': return this.jsonFormatter(params)
             case 'returns.5Y':
             case 'returns.3Y':
             case 'returns.1Y':
