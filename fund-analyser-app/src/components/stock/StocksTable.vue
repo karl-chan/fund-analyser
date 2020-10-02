@@ -27,7 +27,7 @@
                   :style="{height}" :domLayout="height ? 'normal': 'autoHeight'"
                   :cacheBlockSize="window")
 
-      .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
+      .absolute-top-left.fit(v-if="showEmptyView")
         // transclude empty view here
         slot(name="empty-view")
 
