@@ -52,7 +52,7 @@ app.use(historyApiFallback({
     // Don't rewrite API requests (passthrough)
     rewrites: [{ from: /^\/api\/.*$/, to: ({ parsedUrl }) => parsedUrl.format() }]
 }))
-app.use(compress())
+app.use(compress({ br: false }))
 app.use(logger())
 app.use(cors())
 app.use(session(auth.SESSION_CONFIG, app))
