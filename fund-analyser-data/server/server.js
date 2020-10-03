@@ -10,6 +10,7 @@ const bodyParser = require('koa-bodyparser')
 const serve = require('koa-static-cache')
 const { default: sslify, xForwardedProtoResolver } = require('koa-sslify')
 const moment = require('moment')
+const zlib = require('zlib')
 
 const properties = require('../lib/util/properties')
 const db = require('../lib/util/db')
@@ -52,7 +53,13 @@ app.use(historyApiFallback({
     // Don't rewrite API requests (passthrough)
     rewrites: [{ from: /^\/api\/.*$/, to: ({ parsedUrl }) => parsedUrl.format() }]
 }))
-app.use(compress({ br: false }))
+app.use(compress({
+    br: {
+        params: {
+            [zlib.constants.BROTLI_PARAM_QUALITY]: 1
+        }
+    }
+}))
 app.use(logger())
 app.use(cors())
 app.use(session(auth.SESSION_CONFIG, app))
