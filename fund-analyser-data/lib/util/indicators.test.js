@@ -50,6 +50,16 @@ describe('indicators', () => {
         expect(actual.stability.value).toBeFinite()
     })
 
+    test('calcFundIndicators does not crash on empty prices', async () => {
+        const fund = Fund.Builder('Fund')
+            .historicPrices([])
+            .build()
+        const actual = await indicators.calcFundIndicators(fund)
+        expect(actual).toBeObject()
+            .toContainKeys(['stability'])
+        expect(actual.stability.value).toBeFinite()
+    })
+
     test('calcStockIndicators should return combined indicators', async () => {
         const historicPrices = [
             new Stock.HistoricPrice(new Date(2017, 3, 11), 486.0, 486.0, 486.0, 486.0, 486.0, 100000.0),
@@ -89,6 +99,16 @@ describe('indicators', () => {
         ]
         const stock = Stock.Builder('AAPL')
             .historicPrices(historicPrices)
+            .build()
+        const actual = await indicators.calcStockIndicators(stock)
+        expect(actual).toBeObject()
+            .toContainKeys(['stability'])
+        expect(actual.stability.value).toBeFinite()
+    })
+
+    test('calcStockIndicators does not crash on empty prices', async () => {
+        const stock = Stock.Builder('AAPL')
+            .historicPrices([])
             .build()
         const actual = await indicators.calcStockIndicators(stock)
         expect(actual).toBeObject()

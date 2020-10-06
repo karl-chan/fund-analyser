@@ -42,10 +42,17 @@ class Http {
             method,
             resolveWithFullResponse: true
         }
+        const description = `${method} request to ${url}` +
+                            (options && options.qs
+                                ? `\nwith query string: ${JSON.stringify(options.qs)}`
+                                : '') +
+                            (options && options.form
+                                ? `\nwith form: ${JSON.stringify(options.form)}`
+                                : '')
         const retryOptions = {
             maxAttempts: this.maxAttempts,
             retryInterval: this.retryInterval,
-            description: `${method} request to ${url}`
+            description
         }
 
         log.silly(`Http counter acquired. Remaining: ${this.counter.getPermits()} of ${this.maxParallelConnections}`)
@@ -56,7 +63,7 @@ class Http {
         } catch (err) {
             this.counter.release()
             log.silly(`Http counter released Remaining: ${this.counter.getPermits()} of ${this.maxParallelConnections}`)
-            log.error(`HTTP ${method} request to ${url} failed!`)
+            log.error(`${description} failed!`)
             throw err
         }
         this.counter.release()
