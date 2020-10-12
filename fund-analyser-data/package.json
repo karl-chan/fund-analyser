@@ -18,7 +18,8 @@
     "server": "node server/server.js",
     "server.dev": "nodemon --inspect server/server.js",
     "lint": "eslint client lib scripts server --fix",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "test.heroku": "jest --coverage --testPathIgnorePatterns lib/account/** lib/auth/** server/**"
   },
   "author": "Karl Chan",
   "private": true,
@@ -30,10 +31,6 @@
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "4.2.1",
     "eslint-plugin-standard": "4.0.1",
-    "jest": "26.0.1",
-    "jest-chain": "1.1.5",
-    "jest-extended": "0.11.5",
-    "jest-html-reporters": "2.0.1",
     "nodemon": "2.0.3"
   },
   "dependencies": {
@@ -45,6 +42,10 @@
     "crypto-js": "4.0.0",
     "fs-extra": "9.0.0",
     "heroku-client": "3.1.0",
+    "jest": "26.0.1",
+    "jest-chain": "1.1.5",
+    "jest-extended": "0.11.5",
+    "jest-html-reporters": "2.0.1",
     "json2csv": "5.0.1",
     "jstat": "1.9.3",
     "koa": "2.11.0",
