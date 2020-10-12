@@ -100,6 +100,7 @@ class MarketWatch {
                         Step: 'P1D',
                         TimeFrame: `P${this.maxLookbackYears}Y`,
                         EntitlementToken: 'cecc4267a0194af89ca343805a3e57af',
+                        IncludeMockTick: true,
                         Series: [
                             {
                                 Key: key,

@@ -15,22 +15,18 @@ const MarketsInsider = require('../../lib/stock/MarketsInsider')
  * @returns {Promise.<void>}
  */
 async function updateStocks () {
-    const today = moment().utc().startOf('day').toDate()
-
     const allSymbols = await new MarketsInsider().getSymbols()
 
     const docs = await StockDAO.listStocks({ projection: { symbol: 1, asof: 1 } })
     const oldSymbols = docs.map(s => s.symbol)
-    const symbolsUpToDate = docs.filter(s => moment.utc(s.asof).isSame(today)).map(s => s.symbol)
 
     const deleteSymbols = lang.setDifference(oldSymbols, allSymbols)
     await StockDAO.deleteStocks({ query: { symbol: { $in: deleteSymbols } } })
     log.info('Deleted old symbols: %s (%d)', JSON.stringify(deleteSymbols), deleteSymbols.length)
 
-    const symbols = lang.setDifference(allSymbols, symbolsUpToDate)
-    log.info('Symbols to update: %s (%d)', JSON.stringify(symbols), symbols.length)
+    log.info('Symbols to update: %s (%d)', JSON.stringify(allSymbols), allSymbols.length)
 
-    const stockStream = new StockFactory().streamStocksFromSymbols(symbols)
+    const stockStream = new StockFactory().streamStocksFromSymbols(allSymbols)
     const stockValidFilter = streamWrapper.asFilterAsync(isStockValid)
     const upsertStockStream = streamWrapper.asWritableAsync(async stock => {
         await StockDAO.upsertStocks([stock])
