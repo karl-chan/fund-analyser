@@ -52,7 +52,7 @@ export default {
       this.selectedFund = this.funds.find(f => f.isin === isin)
     },
     selectedFund: function (fund) {
-      this.$emit('chartSelected', fund)
+      this.$emit('chart-selected', fund)
     }
   }
 }

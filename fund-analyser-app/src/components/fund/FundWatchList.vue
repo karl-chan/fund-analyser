@@ -2,7 +2,7 @@
   .column.q-gutter-y-sm
     // table
     funds-table(:isins="fundWatchlist" :highlightIsin="selectedIsin"
-                @rowSelected="onRowSelected")
+                @row-selected="onRowSelected")
       template(slot="title")
         .row.justify-between.items-center
           .text-h5 Watch List
@@ -18,7 +18,7 @@
         q-chip.absolute-center.shadow-5(square detail icon="warning" color="secondary" text-color="white" style="{z-index: 1}") Your fund watchlist is empty
 
     // charts
-    fund-chart-grid(:funds="funds" :cols="3" :selectedIsin="selectedIsin" @chartSelected="onChartSelected")
+    fund-chart-grid(:funds="funds" :cols="3" :selectedIsin="selectedIsin" @chart-selected="onChartSelected")
 </template>
 
 <script>

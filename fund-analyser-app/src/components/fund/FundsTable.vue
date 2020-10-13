@@ -212,7 +212,7 @@ export default {
       this.totalFunds = metadata.totalFunds
     },
     onRowSelected (params) {
-      this.$emit('rowSelected', params)
+      this.$emit('row-selected', params)
     },
     onRowDoubleClicked (params) {
       const notApplicable = this.isRowPinned(params)
