@@ -1,6 +1,6 @@
 <template lang="pug">
   .shadow-5(:class="{container: !simple}")
-      highstock(v-if="fund" :options="chartOptions" ref="highcharts")
+      highcharts(v-if="fund" constructor-type="stockChart" :options="chartOptions" ref="highcharts")
       template(v-else) No chart available
 
 </template>

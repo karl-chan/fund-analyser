@@ -1,6 +1,6 @@
 <template lang="pug">
   .shadow-5.container
-      highstock(v-if="currency" :options="chartOptions")
+      highcharts(v-if="currency" constructor-type="stockChart" :options="chartOptions")
       template(v-else) No chart available
 
 </template>

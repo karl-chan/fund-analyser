@@ -1,7 +1,7 @@
 <template lang="pug">
   .column
     .shadow-5.container
-        highstock(v-if="statement.series" :options="chartOptions")
+        highcharts(v-if="statement.series" constructor-type="stockChart" :options="chartOptions")
 </template>
 
 <script>
