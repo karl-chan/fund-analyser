@@ -5,7 +5,8 @@ import urlBase64ToUint8Array from 'urlb64touint8array'
 import authService from '../src/services/auth-service'
 
 async function main () {
-  const registration = await navigator.serviceWorker.register(process.env.SERVICE_WORKER_FILE)
+  navigator.serviceWorker.register(process.env.SERVICE_WORKER_FILE)
+  const registration = await navigator.serviceWorker.ready
 
   try {
     const subscription = await subscribe(registration)
