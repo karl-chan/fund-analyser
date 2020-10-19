@@ -47,8 +47,13 @@ if (require.main === module) {
     if (!validInput) {
         commander.help()
     }
+    const remainingArgs = commander.args
 
     log.info(`Received instructions to run: ${commander.run}`)
+    if (remainingArgs.length) {
+        log.info(`with remaining args: ${remainingArgs}`)
+    }
+
     const timer = new Stopwatch();
 
     (async () => {
@@ -58,7 +63,7 @@ if (require.main === module) {
         for (const task of commander.run) {
             log.info(`Started running: ${task}`)
             try {
-                await Main.tasks[task]()
+                await Main.tasks[task](...remainingArgs)
             } catch (err) {
                 const taskDuration = timer.split()
                 log.error(`Error during ${task}: ${err.stack} after ${taskDuration}.`)
