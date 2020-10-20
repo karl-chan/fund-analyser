@@ -15,6 +15,7 @@
     "updateFunds": "node scripts/main.js -r updateFunds",
     "updateHolidays": "node scripts/main.js -r updateHolidays",
     "updateStocks": "node scripts/main.js -r updateStocks",
+    "uploadTestReport": "node scripts/main.js -r uploadTestReport -- test-report.html",
     "server": "node server/server.js",
     "server.dev": "nodemon --inspect server/server.js",
     "lint": "eslint client lib scripts server --fix",
