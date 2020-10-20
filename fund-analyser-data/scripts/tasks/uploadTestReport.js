@@ -1,6 +1,6 @@
 module.exports = uploadTestReport
 
-const fs = require('fs/promises')
+const fs = require('fs').promises
 const log = require('../../lib/util/log')
 const TestReportDAO = require('../../lib/db/TestReportDAO')
 
