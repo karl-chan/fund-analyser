@@ -85,7 +85,7 @@ class MarketsInsider {
 
         const $ = cheerio.load(body)
 
-        const name = $('.price-section__label').text()
+        const name = $('.price-section__label').text().trim()
         const estPrice = +$('.price-section__current-value').text()
         const estChange = +$('.price-section__relative-value').text().replace(/^\((.+)%\)$/, '$1') / 100
 
