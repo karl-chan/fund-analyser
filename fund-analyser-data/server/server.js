@@ -45,7 +45,9 @@ app.use(async (ctx, next) => {
 })
 
 if (env.isProduction()) {
-    app.use(helmet())
+    app.use(helmet({
+        contentSecurityPolicy: false
+    }))
     app.use(sslify({ resolver: xForwardedProtoResolver }))
 }
 

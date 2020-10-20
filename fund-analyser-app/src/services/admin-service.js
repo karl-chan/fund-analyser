@@ -12,5 +12,8 @@ export default {
   },
   restartDyno (category) {
     return apiService.post(`/admin/restart/${category}`)
+  },
+  getTestReport () {
+    return apiService.get('/admin/test-report')
   }
 }

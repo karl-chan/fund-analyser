@@ -4,6 +4,7 @@ export default {
     'Sign in for Charles Stanley Direct account integration'
   ],
   health: {
-    charlesStanleyDirect: null
+    charlesStanleyDirect: null,
+    testsPassing: null
   }
 }

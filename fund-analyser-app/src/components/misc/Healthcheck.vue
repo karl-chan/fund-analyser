@@ -1,8 +1,11 @@
 <template lang="pug">
-  .row.inline.justify-between.items-center.bg-blue-grey.text-white.shadow-1.q-pa-md
-    .row.items-center
+  .row.inline.justify-between.items-center.q-py-md.q-pr-md.q-gutter-x-md.bg-blue-grey.text-white.shadow-1
+    .row.items-center.q-gutter-x-sm
       .dot(:class="getColour(health.charlesStanleyDirect)")
-      .q-ml-md Charles Stanley Direct
+      div Charles Stanley Direct
+    .row.items-center.q-gutter-x-sm
+      .dot(:class="getColour(health.testsPassing)")
+      div Tests
 
 </template>
 

@@ -11,7 +11,7 @@
       q-tab(label="Stocks" name="stocks")
       q-tab(label="Currencies" name="currency")
 
-    q-tab-panels(v-model="tab" keep-alive )
+    q-tab-panels(v-model="tab" keep-alive)
       // Watchlist
       q-tab-panel(name="watchlist")
         fund-watch-list(:fundWatchlist="fundWatchlist")
