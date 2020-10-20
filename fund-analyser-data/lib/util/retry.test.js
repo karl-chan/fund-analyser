@@ -16,7 +16,7 @@ describe('retry', () => {
         })
     })
 
-    describe('with max attempts', async () => {
+    describe('with max attempts', () => {
         const options = {
             maxAttempts: 2
         }
@@ -35,7 +35,7 @@ describe('retry', () => {
         })
     })
 
-    describe('with retry interval', async () => {
+    describe('with retry interval', () => {
         const options = {
             maxAttempts: 5,
             retryInterval: 200
