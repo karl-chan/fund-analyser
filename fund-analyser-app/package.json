@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Fund Analyser App",
   "productName": "Fund Analyser App",
-  "author": "karl-chan <karlwayne_chan@yahoo.com>",
+  "author": "Karl Chan <https://github.com/karl-chan>",
   "private": true,
   "scripts": {
     "postinstall": "quasar build -m pwa",

@@ -22,7 +22,7 @@
     "test": "jest --coverage",
     "test.heroku": "jest --coverage --testPathIgnorePatterns lib/account/** lib/auth/** server/**"
   },
-  "author": "Karl Chan",
+  "author": "Karl Chan <https://github.com/karl-chan>",
   "private": true,
   "devDependencies": {
     "eslint": "7.11.0",
