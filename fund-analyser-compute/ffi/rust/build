@@ -5,7 +5,7 @@ FFI_DIR_LINUX='/home/ubuntu/Home/Projects/fund-analyser/fund-analyser-compute/ff
 MATURIN_BUILD_CMD='maturin build --release --out=../../bin'
 
 # build for Mac OS
-cd $FFI_DIR_MAC && pipenv run $MATURIN_BUILD_CMD
+cd $FFI_DIR_MAC && poetry run $MATURIN_BUILD_CMD
 
 # build for Linux
 multipass exec primary -- sh -c "export PATH=$PATH:/home/ubuntu/.cargo/bin && cd $FFI_DIR_LINUX && /home/ubuntu/.local/bin/$MATURIN_BUILD_CMD"

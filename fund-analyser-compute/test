@@ -1,2 +1,2 @@
 #!/bin/bash
-pipenv run pytest
+poetry run pytest

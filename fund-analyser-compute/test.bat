@@ -1,1 +1,1 @@
-pipenv run pytest %*
+poetry run pytest %*
