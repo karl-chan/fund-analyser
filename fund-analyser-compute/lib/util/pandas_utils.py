@@ -39,6 +39,9 @@ def drop_duplicate_index(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def take_nan(df: pd.DataFrame, idx: pd.DataFrame) -> pd.DataFrame:
+    """
+    Similar to pandas.DataFrame.take(), but gracefully handles nan idx values.
+    """
     arr, idx_arr = df.to_numpy(), idx.to_numpy()
     idx_nan_locs = np.isnan(idx_arr)
     idx_zero_filled = np.where(idx_nan_locs, 0, idx_arr).astype(np.int64)
