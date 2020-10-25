@@ -93,15 +93,13 @@ class FinancialTimes {
         const { body } = await http.asyncGet(url)
 
         const $ = cheerio.load(body)
-        const name = $(`body > div.o-grid-container.mod-container > div:nth-child(2) > section:nth-child(1) 
-                > div > div > div.mod-tearsheet-overview__overview.clearfix > div.mod-tearsheet-overview__header 
-                > h1.mod-tearsheet-overview__header__name.mod-tearsheet-overview__header__name--large`).text()
+        const name = $('.mod-tearsheet-overview__header__name--large').text()
 
-        const leftTable = $(`table.mod-ui-table.mod-ui-table--two-column.mod-profile-and-investment-app__table--profile`)
+        const leftTable = $('table.mod-ui-table.mod-ui-table--two-column.mod-profile-and-investment-app__table--profile')
         const type = leftTable.find(`th:contains('Fund type') + td`).text()
         const shareClass = leftTable.find(`th:contains('Income treatment') + td`).text()
 
-        const rightTable = $(`table.mod-ui-table.mod-ui-table--two-column.mod-profile-and-investment-app__table--invest`)
+        const rightTable = $('table.mod-ui-table.mod-ui-table--two-column.mod-profile-and-investment-app__table--invest')
         const frequency = rightTable.find(`th:contains('Pricing frequency') + td`).text()
         const ocf = rightTable.find(`th:contains('Net expense ratio') + td`).text()
         const amc = rightTable.find(`th:contains('Max annual charge') + td`).text()
