@@ -14,10 +14,13 @@ def bollinger_bands(prices_df: pd.DataFrame, timeperiod=5, stdev=1) -> Tuple[pd.
     upper_band, middle_band, lower_band = \
         np.empty_like(prices_arr), np.empty_like(prices_arr), np.empty_like(prices_arr)
     for col in range(prices_arr.shape[1]):
-        upper_band[:, col], middle_band[:, col], lower_band[:, col] = talib.BBANDS(prices_arr[:, col],
-                                                                                   timeperiod=timeperiod,
-                                                                                   nbdevup=stdev, nbdevdn=stdev,
-                                                                                   matype=MA_Type.SMA)
+        try:
+            upper_band[:, col], middle_band[:, col], lower_band[:, col] = talib.BBANDS(prices_arr[:, col],
+                                                                                       timeperiod=timeperiod,
+                                                                                       nbdevup=stdev, nbdevdn=stdev,
+                                                                                       matype=MA_Type.SMA)
+        except:
+            upper_band[:, col], middle_band[:, col], lower_band[:, col] = np.nan, np.nan, np.nan
     return (pd.DataFrame(upper_band, dtype=prices_arr.dtype, index=prices_df.index, columns=prices_df.columns),
             pd.DataFrame(middle_band, dtype=prices_arr.dtype, index=prices_df.index, columns=prices_df.columns),
             pd.DataFrame(lower_band, dtype=prices_arr.dtype, index=prices_df.index, columns=prices_df.columns))
