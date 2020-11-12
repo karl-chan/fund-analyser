@@ -11,12 +11,15 @@ describe('db', () => {
         await db.close()
     })
     test('connectivity test', async () => {
-        const { mainClient, fundClients } = db.get()
+        const { mainClient, fundClients, stockClients } = db.get()
 
         let res = await mainClient.isConnected()
         expect(res).toBeTrue()
 
         res = await Promise.map(fundClients, client => client.isConnected())
+        expect(res).toBeArray().not.toBeEmpty().toSatisfyAll(res => res === true)
+
+        res = await Promise.map(stockClients, client => client.isConnected())
         expect(res).toBeArray().not.toBeEmpty().toSatisfyAll(res => res === true)
     })
 })

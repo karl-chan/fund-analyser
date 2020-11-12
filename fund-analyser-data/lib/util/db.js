@@ -42,7 +42,9 @@ function get () {
         mainClient: _client,
         mainDb: _db,
         fundClients: _fundClients,
-        fundDbs: _fundDbs
+        fundDbs: _fundDbs,
+        stockClients: _stockClients,
+        stockDbs: _stockDbs
     }
 }
 
