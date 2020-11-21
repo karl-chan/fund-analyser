@@ -37,8 +37,8 @@ function _applySort (funds, sortModel) {
     }
 
     // Move NaN rows to bottom always
+    const columnName = parseColId(sortModel[0].colId)
     const [nanRows, validFunds] = _.partition(funds, f => {
-        const columnName = parseColId(sortModel[0].colId)
         const cell = _.get(f, columnName)
         return !cell && cell !== 0
     })
@@ -58,6 +58,8 @@ function _applyFilter (funds, filterModel) {
                 return [+fm.filter, +fm.filterTo]
             case 'date':
                 return [moment(fm.dateFrom), moment(fm.dateTo)]
+            default:
+                throw new Error(`Unsupported filter type: ${fm.filterType}`)
         }
     }
     const buildPredicate = (fm, lowerValue, upperValue) => {
