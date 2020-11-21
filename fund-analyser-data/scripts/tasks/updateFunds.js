@@ -5,7 +5,7 @@ const FundDAO = require('../../lib/db/FundDAO')
 const streamWrapper = require('../../lib/util/streamWrapper')
 const log = require('../../lib/util/log')
 
-const moment = require('moment')
+const moment = require('moment-business-days')
 const Promise = require('bluebird')
 
 /**
@@ -13,10 +13,11 @@ const Promise = require('bluebird')
  * @returns {Promise.<void>}
  */
 async function updateFunds () {
-    const today = moment().utc().startOf('day').toDate()
+    const today = moment().utc().startOf('day')
+    const lastBusinessDay = today.isBusinessDay() ? today : today.prevBusinessDay()
 
     const fundsToUpdate = await FundDAO.listFunds({
-        query: { $or: [{ asof: { $eq: null } }, { asof: { $lt: today } }] },
+        query: { $or: [{ asof: { $eq: null } }, { asof: { $lt: lastBusinessDay.toDate() } }] },
         projection: { sedol: 1 },
         sort: { asof: 1 }
     })
