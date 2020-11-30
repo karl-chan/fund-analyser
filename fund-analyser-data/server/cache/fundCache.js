@@ -6,7 +6,7 @@ module.exports = {
 }
 
 const _ = require('lodash')
-const moment = require('moment')
+const moment = require('moment-business-days')
 const FundDAO = require('../../lib/db/FundDAO')
 const log = require('../../lib/util/log')
 const fundUtils = require('../../lib/util/fundUtils')
@@ -63,6 +63,11 @@ function getMetadata (options) {
     return { stats, ...rest }
 }
 
+function getAsOfDate () {
+    const today = moment().utc().startOf('day')
+    return today.isBusinessDay() ? today.toDate() : today.prevBusinessDay().toDate()
+}
+
 async function start (clean) {
     log.info('Warming up fund cache.')
     if (clean) {
@@ -104,7 +109,7 @@ function buildQuickFilterCache (funds) {
 function refreshMetadata () {
     fundCache = fundUtils.enrichSummary(fundCache)
     quickFilterCache = buildQuickFilterCache(fundCache)
-    const asofDate = _.max(fundCache.map(f => f.asof))
+    const asofDate = getAsOfDate()
     const fundsUpToDate = fundCache.filter(f => isUpToDate(f, asofDate))
     const asof = {
         date: asofDate,

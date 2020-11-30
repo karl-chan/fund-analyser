@@ -5,8 +5,7 @@ module.exports = {
     shutdown
 }
 
-const _ = require('lodash')
-const moment = require('moment')
+const moment = require('moment-business-days')
 const StockDAO = require('../../lib/db/StockDAO')
 const log = require('../../lib/util/log')
 const stockUtils = require('../../lib/util/stockUtils')
@@ -63,6 +62,11 @@ function getMetadata (options) {
     return { stats, ...rest }
 }
 
+function getAsOfDate () {
+    const today = moment().utc().startOf('day')
+    return today.isBusinessDay() ? today.toDate() : today.prevBusinessDay().toDate()
+}
+
 async function start (clean) {
     log.info('Warming up stock cache.')
     if (clean) {
@@ -104,7 +108,7 @@ function buildQuickFilterCache (stocks) {
 function refreshMetadata () {
     stockCache = stockUtils.enrichSummary(stockCache)
     quickFilterCache = buildQuickFilterCache(stockCache)
-    const asofDate = _.max(stockCache.map(s => s.asof))
+    const asofDate = getAsOfDate()
     const stocksUpToDate = stockCache.filter(s => isUpToDate(s, asofDate))
     const asof = {
         date: asofDate,
