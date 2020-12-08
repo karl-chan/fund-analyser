@@ -8,13 +8,13 @@ const http = new Http()
 class CharlesStanleyDirectAuth {
     constructor () {
         this.homeUrl = 'https://www.charles-stanley-direct.co.uk/'
-        this.loginUrl = 'https://www.charles-stanley-direct.co.uk/LoginApi/Login'
-        this.getMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/LoginApi/GetMemorableWord'
-        this.validateMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/LoginApi/ValidateMemorableWord'
-        this.logUserInUrl = 'https://www.charles-stanley-direct.co.uk/LoginApi/LogUserIn'
-        this.myAccountsUrl = 'https://www.charles-stanley-direct.co.uk/Dashboard/MyAccounts'
+        this.loginUrl = 'https://www.charles-stanley-direct.co.uk/Login/Login'
+        this.getMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/Login/GetMemorableWord'
+        this.validateMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/Login/ValidateMemorableWord'
+        this.logUserInUrl = 'https://www.charles-stanley-direct.co.uk/Login/LogUserIn'
+        this.getAccountSummaryUrl = 'https://www.charles-stanley-direct.co.uk/accountSummary/GetAccountSummary'
 
-        this.investmentSummaryUrl = 'https://www.charles-stanley-direct.co.uk/Dashboard/GetInvestmentSummaryJson?showByType='
+        this.getChangeInValuePerAccountUrl = 'https://www.charles-stanley-direct.co.uk/AccountSummary/GetChangeInValuePerAccount'
     }
 
     async login (user, pass, memorableWord) {
@@ -40,10 +40,10 @@ class CharlesStanleyDirectAuth {
         return { jar, name }
     }
 
-    // cost is about 200ms per call
+    // cost is about 70ms per call
     async isLoggedIn ({ jar }) {
         if (!jar) throw new Error('Missing jar')
-        const { statusCode } = await http.asyncGet(this.investmentSummaryUrl, { jar, followRedirect: false })
+        const { statusCode } = await http.asyncGet(this.getChangeInValuePerAccountUrl, { jar, followRedirect: false })
         return statusCode === 200
     }
 
@@ -121,10 +121,9 @@ class CharlesStanleyDirectAuth {
 
     async _getMyAccount ({ jar }) {
         log.debug('Getting user name from my account')
-        const { body } = await http.asyncGet(this.myAccountsUrl, { jar })
-        const $ = cheerio.load(body)
-        const accountName = $('body > table > tbody > tr > td:nth-child(1) > a').text()
-        const name = accountName.match(/(.+)\(\d+\)/)[1].trim()
+        const { body } = await http.asyncGet(this.getAccountSummaryUrl, { jar })
+        const account = JSON.parse(body)
+        const name = account.Accounts[0].AccountName
         return { name }
     }
 }
