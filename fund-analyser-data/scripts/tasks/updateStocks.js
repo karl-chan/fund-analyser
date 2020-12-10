@@ -6,16 +6,15 @@ const streamWrapper = require('../../lib/util/streamWrapper')
 const lang = require('../../lib/util/lang')
 const log = require('../../lib/util/log')
 
-const moment = require('moment')
 const Promise = require('bluebird')
-const MarketsInsider = require('../../lib/stock/MarketsInsider')
+const WikipediaStocks = require('../../lib/stock/WikipediaStocks')
 
 /**
  * Update stocks that need to be updated based on asof time
  * @returns {Promise.<void>}
  */
 async function updateStocks () {
-    const allSymbols = await new MarketsInsider().getSymbols()
+    const allSymbols = await new WikipediaStocks().getSymbols()
 
     const docs = await StockDAO.listStocks({ projection: { symbol: 1, asof: 1 } })
     const oldSymbols = docs.map(s => s.symbol)

@@ -1,16 +1,15 @@
 const MarketWatch = require('./MarketWatch')
 const Stock = require('./Stock')
 
-const _ = require('lodash')
 const moment = require('moment')
 const StreamTest = require('streamtest')
 
 jest.setTimeout(30000) // 30 seconds
 
 describe('MarketWatch', () => {
-    let marketsInsider
+    let marketWatch
     beforeEach(() => {
-        marketsInsider = new MarketWatch()
+        marketWatch = new MarketWatch()
     })
     afterEach(() => {
         jest.restoreAllMocks()
@@ -31,9 +30,9 @@ describe('MarketWatch', () => {
                 new Stock.HistoricPrice(new Date(2017, 0, 1), 457.0, 457.0, 458.0, 456.0, 457.0, 100000.0)
             ]
 
-            jest.spyOn(marketsInsider, 'getSummary')
+            jest.spyOn(marketWatch, 'getSummary')
                 .mockImplementation(async (symbol) => summary)
-            jest.spyOn(marketsInsider, 'getHistoricPrices')
+            jest.spyOn(marketWatch, 'getHistoricPrices')
                 .mockImplementation(async (symbol) => historicPrices)
 
             const expected = Stock.Builder(symbol)
@@ -43,7 +42,7 @@ describe('MarketWatch', () => {
                 .realTimeDetails(summary.realTimeDetails)
                 .build()
 
-            const actual = await marketsInsider.getStockFromSymbol(symbol)
+            const actual = await marketWatch.getStockFromSymbol(symbol)
             expect(actual).toMatchObject(expected)
         })
 
@@ -54,7 +53,7 @@ describe('MarketWatch', () => {
                 Stock.Builder('GOOG')
             ]
 
-            jest.spyOn(marketsInsider, 'getStockFromSymbol')
+            jest.spyOn(marketWatch, 'getStockFromSymbol')
                 .mockImplementation(async sedol => {
                     switch (sedol) {
                         case 'AAPL':
@@ -64,12 +63,12 @@ describe('MarketWatch', () => {
                             return stocks[1]
                     }
                 })
-            const actual = await marketsInsider.getStocksFromSymbols(sedols)
+            const actual = await marketWatch.getStocksFromSymbols(sedols)
             expect(actual).toEqual(stocks)
         })
 
         test('getSummary should return summary object', async () => {
-            const summary = await marketsInsider.getSummary('AAPL')
+            const summary = await marketWatch.getSummary('AAPL')
             expect(summary.name).toEqual('Apple Inc.')
             expect(summary.realTimeDetails).toMatchObject({
                 estPrice: expect.toBeNumber(),
@@ -78,7 +77,7 @@ describe('MarketWatch', () => {
         })
 
         test('getHistoricPrices should return historic prices object', async () => {
-            const historicPrices = await marketsInsider.getHistoricPrices('AAPL')
+            const historicPrices = await marketWatch.getHistoricPrices('AAPL')
             expect(historicPrices).toBeArray().not.toBeEmpty()
             expect(historicPrices).toSatisfyAll(hp => {
                 return hp instanceof Stock.HistoricPrice &&
@@ -101,7 +100,7 @@ describe('MarketWatch', () => {
             const stock1 = Stock.Builder(symbol1).build()
             const stock2 = Stock.Builder(symbol2).build()
 
-            jest.spyOn(marketsInsider, 'getStockFromSymbol')
+            jest.spyOn(marketWatch, 'getStockFromSymbol')
                 .mockImplementation(async symbol => {
                     switch (symbol) {
                         case symbol1:
@@ -111,7 +110,7 @@ describe('MarketWatch', () => {
                     }
                 })
 
-            const symbolToFundStream = marketsInsider.streamStocksFromSymbols()
+            const symbolToFundStream = marketWatch.streamStocksFromSymbols()
             StreamTest[version].fromObjects([symbol1, symbol2])
                 .pipe(symbolToFundStream)
                 .pipe(StreamTest[version].toObjects((err, funds) => {
