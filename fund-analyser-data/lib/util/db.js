@@ -12,6 +12,7 @@ module.exports = {
     close
 }
 
+const log = require('./log')
 const properties = require('./properties')
 const uri = properties.get('db.mongo.uri.main')
 const fundUris = properties.get('db.mongo.uri.funds')
@@ -27,9 +28,9 @@ let _stockClients, _stockDbs
 async function init () {
     const opts = { useNewUrlParser: true, useUnifiedTopology: true }
     ;([_client, _fundClients, _stockClients] = await Promise.all([
-        MongoClient.connect(uri, opts),
-        Promise.map(fundUris, fundUri => MongoClient.connect(fundUri, opts)),
-        Promise.map(stockUris, stockUri => MongoClient.connect(stockUri, opts))
+        connectOrFail(uri, opts),
+        Promise.map(fundUris, fundUri => connectOrFail(fundUri, opts)),
+        Promise.map(stockUris, stockUri => connectOrFail(stockUri, opts))
     ]))
 
     _db = _client.db()
@@ -78,6 +79,14 @@ function getHolidays () {
 
 function getTestReport () {
     return _db.collection('testreport')
+}
+
+async function connectOrFail (uri, opts) {
+    return MongoClient.connect(uri, opts)
+        .catch(err => {
+            log.error(`Failed to connect to uri: ${uri}`)
+            throw err
+        })
 }
 
 async function close () {
