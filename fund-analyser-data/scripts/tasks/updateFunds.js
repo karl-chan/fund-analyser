@@ -7,6 +7,7 @@ const log = require('../../lib/util/log')
 
 const moment = require('moment-business-days')
 const Promise = require('bluebird')
+const BatchStream = require('batch-stream')
 
 /**
  * Update funds that need to be updated based on asof time
@@ -26,13 +27,14 @@ async function updateFunds () {
 
     const fundStream = new FundFactory().streamFundsFromSedols(sedols)
     const fundValidFilter = streamWrapper.asFilterAsync(isFundValid)
-    const upsertFundStream = streamWrapper.asWritableAsync(async fund => {
-        await FundDAO.upsertFunds([fund])
+    const upsertFundStream = streamWrapper.asWritableAsync(async funds => {
+        await FundDAO.upsertFunds(funds)
     })
 
     await new Promise((resolve, reject) => {
         const stream = fundStream
             .pipe(fundValidFilter)
+            .pipe(new BatchStream({ size: 5 }))
             .pipe(upsertFundStream)
         stream.on('finish', () => {
             log.info('Finished updating funds')
