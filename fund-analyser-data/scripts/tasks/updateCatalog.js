@@ -32,8 +32,13 @@ async function updateCatalog () {
     log.info(`To add: %s`, JSON.stringify(toAdd))
 
     // delete old sedols
-    await FundDAO.deleteFunds({ query: { sedol: { $in: toRemove } } })
-    log.info('Deleted old sedols: %s', JSON.stringify(toRemove))
+    if (toRemove.length > 50) {
+        // in case csd fails
+        log.warn('Remove operation aborted, too many sedols!')
+    } else {
+        await FundDAO.deleteFunds({ query: { sedol: { $in: toRemove } } })
+        log.info('Deleted old sedols: %s', JSON.stringify(toRemove))
+    }
 
     // insert new sedols with time 1970
     const funds = _.map(toAdd, (sedol) => {
