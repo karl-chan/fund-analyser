@@ -15,7 +15,7 @@ describe('SimilarFundsDAO', () => {
         const similarFunds = await SimilarFundsDAO.getSimilarFunds(['GB0006061963'])
         expect(similarFunds).toBeArrayOfSize(1)
         expect(similarFunds[0].isin).toBe('GB0006061963')
-        expect(similarFunds[0].similarIsins).toIncludeAllMembers(['GB0006061963', 'GB0006061856'])
+        expect(similarFunds[0].similarIsins).toIncludeAllMembers(['GB00BYNK7G95', 'GB0006061963', 'GB00BD5Z1070', 'GB00BZ4CG750', 'GB0006059223'])
         expect(similarFunds[0].afterFeesReturn).toBeGreaterThan(0)
     })
 })
