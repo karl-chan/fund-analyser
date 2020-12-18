@@ -45,7 +45,10 @@ export default {
       vm.loading = true
       const stocks = await vm.lazyGets([to.params.symbol])
       vm.loading = false
-      stocks.forEach(stock => vm.addToRecentlyViewedStocks({ symbol: stock.symbol, name: stock.name }))
+      stocks.forEach(stock => {
+        vm.addToRecentlyViewedStocks({ symbol: stock.symbol, name: stock.name })
+        vm.updateRealTimeDetails([stock.symbol])
+      })
     })
   },
   async beforeRouteUpdate (to, from, next) {
@@ -54,7 +57,10 @@ export default {
       this.loading = true
       const stocks = await this.lazyGets([to.params.symbol])
       this.loading = false
-      stocks.forEach(stock => this.addToRecentlyViewedStocks({ symbol: stock.symbol, name: stock.name }))
+      stocks.forEach(stock => {
+        this.addToRecentlyViewedStocks({ symbol: stock.symbol, name: stock.name })
+        this.updateRealTimeDetails([stock.symbol])
+      })
     }
   },
   data () {
@@ -79,7 +85,7 @@ export default {
   methods: {
     openURL,
     ...mapActions('account', ['addToRecentlyViewedStocks', 'addToStockWatchlist', 'removeFromStockWatchlist']),
-    ...mapActions('stocks', ['gets', 'lazyGets']),
+    ...mapActions('stocks', ['gets', 'lazyGets', 'updateRealTimeDetails']),
     async refreshStock () {
       this.loading = true
       await this.gets([this.symbol])

@@ -54,7 +54,10 @@ export default {
       vm.loading = true
       const funds = await vm.lazyGets([to.params.isin])
       vm.loading = false
-      funds.forEach(fund => vm.addToRecentlyViewedFunds({ isin: fund.isin, name: fund.name }))
+      funds.forEach(fund => {
+        vm.addToRecentlyViewedFunds({ isin: fund.isin, name: fund.name })
+        vm.updateRealTimeDetails([fund.isin])
+      })
     })
   },
   async beforeRouteUpdate (to, from, next) {
@@ -63,7 +66,10 @@ export default {
       this.loading = true
       const funds = await this.lazyGets([to.params.isin])
       this.loading = false
-      funds.forEach(fund => this.addToRecentlyViewedFunds({ isin: fund.isin, name: fund.name }))
+      funds.forEach(fund => {
+        this.addToRecentlyViewedFunds({ isin: fund.isin, name: fund.name })
+        this.updateRealTimeDetails([fund.isin])
+      })
     }
   },
   data () {
@@ -88,7 +94,7 @@ export default {
   methods: {
     openURL,
     ...mapActions('account', ['addToRecentlyViewedFunds', 'addToFundWatchlist', 'removeFromFundWatchlist']),
-    ...mapActions('funds', ['gets', 'lazyGets']),
+    ...mapActions('funds', ['gets', 'lazyGets', 'updateRealTimeDetails']),
     async refreshFund () {
       this.loading = true
       await this.gets([this.isin])

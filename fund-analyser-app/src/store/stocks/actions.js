@@ -14,7 +14,6 @@ export async function gets ({ dispatch, commit }, symbols) {
   }
   const stocks = await stockService.gets(symbols)
   commit('addStocks', stocks)
-  dispatch('updateRealTimeDetails', symbols)
   return stocks
 }
 

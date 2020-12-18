@@ -18,7 +18,6 @@ export async function gets ({ dispatch, commit }, isins) {
   ])
   commit('addFunds', funds)
   commit('addSimilarFunds', similarFunds)
-  dispatch('updateRealTimeDetails', isins)
   return funds
 }
 
