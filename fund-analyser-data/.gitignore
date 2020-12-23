@@ -6,4 +6,3 @@ node_modules
 test-report.html
 npm-debug.log*
 push
-push.bat
