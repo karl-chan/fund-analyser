@@ -1,15 +1,20 @@
 module.exports = {
-    "extends": "standard",
-    "plugins": [
-        "standard",
-        "promise"
-    ],
-    "env": {
-        "node": true,
-        "jest": true
-    },
-    "rules": {
-        "indent":  ["error", 4, { "SwitchCase": 1 }],
-        "quotes": ["error", "single", { "allowTemplateLiterals": true }]
-    }
-};
+  env: {
+    es2021: true,
+    jest: true,
+    node: true
+  },
+  extends: [
+    'standard'
+  ],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 12,
+    sourceType: 'module'
+  },
+  plugins: [
+    '@typescript-eslint'
+  ],
+  rules: {
+  }
+}
