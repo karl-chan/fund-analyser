@@ -11,15 +11,15 @@ describe('StockCalculator', function () {
     '1M': 0.02
   }
   const historicPrices = [
-    new Stock.HistoricPrice(new Date(2017, 3, 10), 486.0, 486.0, 486.0, 486.0, 486.0, 100000.0),
-    new Stock.HistoricPrice(new Date(2017, 3, 11), 486.0, 486.0, 486.0, 486.0, 486.0, 100000.0),
-    new Stock.HistoricPrice(new Date(2017, 3, 12), 482.0, 482.0, 482.0, 482.0, 482.0, 100000.0),
-    new Stock.HistoricPrice(new Date(2017, 3, 13), 479.0, 479.0, 479.0, 479.0, 479.0, 100000.0),
-    new Stock.HistoricPrice(new Date(2017, 3, 18), 475.0, 475.0, 475.0, 475.0, 475.0, 100000.0),
-    new Stock.HistoricPrice(new Date(2017, 3, 19), 467.0, 467.0, 467.0, 467.0, 467.0, 100000.0),
-    new Stock.HistoricPrice(new Date(2017, 3, 20), 468.0, 468.0, 468.0, 468.0, 468.0, 100000.0),
-    new Stock.HistoricPrice(new Date(2017, 3, 21), 472.0, 472.0, 472.0, 472.0, 472.0, 100000.0),
-    new Stock.HistoricPrice(new Date(2017, 3, 24), 469.0, 469.0, 469.0, 469.0, 469.0, 100000.0)
+    new Stock.HistoricPrice(new Date(2017, 3, 10), 486.0, 100000.0),
+    new Stock.HistoricPrice(new Date(2017, 3, 11), 486.0, 100000.0),
+    new Stock.HistoricPrice(new Date(2017, 3, 12), 482.0, 100000.0),
+    new Stock.HistoricPrice(new Date(2017, 3, 13), 479.0, 100000.0),
+    new Stock.HistoricPrice(new Date(2017, 3, 18), 475.0, 100000.0),
+    new Stock.HistoricPrice(new Date(2017, 3, 19), 467.0, 100000.0),
+    new Stock.HistoricPrice(new Date(2017, 3, 20), 468.0, 100000.0),
+    new Stock.HistoricPrice(new Date(2017, 3, 21), 472.0, 100000.0),
+    new Stock.HistoricPrice(new Date(2017, 3, 24), 469.0, 100000.0)
   ]
   const indicators = {
     stability: -3

@@ -61,18 +61,11 @@ namespace Stock {
   export class HistoricPrice {
     close: any;
     date: any;
-    high: any;
-    low: any;
-    open: any;
     price: any;
     volume: any;
-    constructor (date: any, price: any, open: any, high: any, low: any, close: any, volume: any) {
+    constructor (date: any, price: any, volume: any) {
       this.date = date
       this.price = price
-      this.open = open
-      this.high = high
-      this.low = low
-      this.close = close
       this.volume = volume
     }
   }

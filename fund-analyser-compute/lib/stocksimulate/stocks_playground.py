@@ -105,7 +105,7 @@ def _describe_and_plot(account: pd.DataFrame) -> None:
 
 if __name__ == "__main__":
     symbols = None
-    prices_df, open_df, high_df, low_df, close_df, volume_df = stock_cache.get_prices(symbols)
+    prices_df, volume_df = stock_cache.get_prices(symbols)
     symbols = tuple(prices_df.columns)
 
     start_date = datetime(2001, 1, 1)

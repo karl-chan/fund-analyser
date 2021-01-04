@@ -117,7 +117,7 @@ export default class MarketWatch {
         const volumes = res3.Series.find((s: any) => s.SeriesId === 'volume').DataPoints
         // @ts-expect-error ts-migrate(7031) FIXME: Binding element 'date' implicitly has an 'any' typ... Remove this comment to see the full error message
         const historicPrices = _.zip(dates, ohlcs, volumes).map(([date, [o, h, l, c], [volume]]) => {
-          return new Stock.HistoricPrice(moment.utc(date).toDate(), c, o, h, l, c, volume)
+          return new Stock.HistoricPrice(moment.utc(date).toDate(), c, volume)
         })
         return historicPrices
       } catch (err) {

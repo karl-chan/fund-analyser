@@ -17,7 +17,7 @@ class StockSimulator:
                  entry_strategy: StockStrategy,
                  exit_strategy: StockStrategy):
         self._symbols = set(symbols)
-        prices_df, open_df, high_df, low_df, close_df, volume_df = stock_cache.get_prices(symbols)
+        prices_df, volume_df = stock_cache.get_prices(symbols)
         self._prices_df = prices_df
         self._entry_strategy = entry_strategy
         self._exit_strategy = exit_strategy
