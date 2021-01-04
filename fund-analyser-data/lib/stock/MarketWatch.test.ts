@@ -27,7 +27,7 @@ describe('MarketWatch', () => {
         }
       }
       const historicPrices = [
-        new Stock.HistoricPrice(new Date(2017, 0, 1), 457.0, 457.0, 458.0, 456.0, 457.0, 100000.0)
+        new Stock.HistoricPrice(new Date(2017, 0, 1), 457.0, 100000.0)
       ]
 
       jest.spyOn(marketWatch, 'getSummary')
@@ -82,12 +82,8 @@ describe('MarketWatch', () => {
       expect(historicPrices).toSatisfyAll((hp: any) => {
         return hp instanceof Stock.HistoricPrice &&
                         moment(hp.date).isValid() &&
-                        typeof hp.open === 'number' && !isNaN(hp.open) &&
-                        typeof hp.high === 'number' && !isNaN(hp.high) &&
-                        typeof hp.low === 'number' && !isNaN(hp.low) &&
-                        typeof hp.close === 'number' && !isNaN(hp.close) &&
-                        typeof hp.volume === 'number' && !isNaN(hp.volume) &&
-                        hp.close !== 0
+                        hp.price !== 0 &&
+                        typeof hp.volume === 'number' && !isNaN(hp.volume)
       })
     })
   })

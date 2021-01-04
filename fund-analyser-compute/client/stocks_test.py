@@ -9,4 +9,4 @@ def test_stream_stocks():
     assert stock.symbol == "AAPL"
     assert stock.name == "Apple Inc."
     assert list(stock.returns.keys()) == ["5Y", "3Y", "1Y", "6M", "3M", "1M", "2W", "1W", "3D", "1D"]
-    assert {'price', 'open', 'high', 'low', 'close', 'volume'}.issubset(historic_prices.columns)
+    assert {'price', 'volume'}.issubset(historic_prices.columns)
