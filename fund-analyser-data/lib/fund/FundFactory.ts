@@ -1,5 +1,5 @@
 import { Promise } from 'bluebird'
-import { Transform } from 'stream'
+import { Readable, Transform } from 'stream'
 import * as streamWrapper from '../util/streamWrapper'
 import CharlesStanleyDirect from './CharlesStanleyDirect'
 import FinancialTimes from './FinancialTimes'
@@ -13,7 +13,7 @@ export interface FundProvider {
 
 export interface IsinProvider {
     getFunds(): Promise<Fund[]> // partially filled Fund
-    streamFunds(): Transform
+    streamFunds(): Readable
     streamFundsFromSedols(): Transform
 }
 

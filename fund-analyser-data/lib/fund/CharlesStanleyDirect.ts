@@ -37,11 +37,11 @@ export default class CharlesStanleyDirect implements IsinProvider {
       return sedols
     }
 
-    async getPageRange (lastPage: any) {
+    private async getPageRange (lastPage: any) {
       return _.range(1, lastPage + 1)
     }
 
-    async getNumPages () {
+    private async getNumPages () {
       const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?Category=Funds&Pagesize=${this.pageSize}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
@@ -50,7 +50,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
       return lastPage
     }
 
-    async getSedolsFromPage (page: any) {
+    private async getSedolsFromPage (page: any) {
       const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?sortdirection=ASC&SearchType=KeywordSearch&Category=Funds&SortColumn=TER&SortDirection=DESC&Pagesize=${this.pageSize}&Page=${page}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
@@ -59,7 +59,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
       return sedols
     }
 
-    async getSedolsFromPages (pages: any) {
+    private async getSedolsFromPages (pages: any) {
       const sedols = await (Promise as any).map(pages, this.getSedolsFromPage.bind(this))
       return _.flatten(sedols)
     }
@@ -138,15 +138,15 @@ export default class CharlesStanleyDirect implements IsinProvider {
         .pipe(this.streamFundsFromSedols())
     }
 
-    streamNumPages () {
+    private streamNumPages () {
       return streamWrapper.asReadableAsync(this.getNumPages)
     }
 
-    streamPageRange () {
+    private streamPageRange () {
       return streamWrapper.asTransformAsync(this.getPageRange)
     }
 
-    streamSedolsFromPages () {
+    private streamSedolsFromPages () {
       return streamWrapper.asTransformAsync(this.getSedolsFromPage)
     }
 
