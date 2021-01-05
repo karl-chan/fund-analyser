@@ -1,23 +1,24 @@
 import { Promise } from 'bluebird'
+import * as cheerio from 'cheerio'
+import * as _ from 'lodash'
 import moment from 'moment'
-import Fund from './Fund'
 import Currency from '../currency/Currency'
-import * as math from '../util/math'
-import * as lang from '../util/lang'
 import * as fundUtils from '../util/fundUtils'
 import Http from '../util/http'
+import * as lang from '../util/lang'
 import log from '../util/log'
+import * as math from '../util/math'
 import * as properties from '../util/properties'
 import * as streamWrapper from '../util/streamWrapper'
-import * as _ from 'lodash'
-import * as cheerio from 'cheerio'
+import Fund from './Fund'
+import { FundProvider } from './FundFactory'
 
 const http = new Http({
   maxParallelConnections: properties.get('fund.financialtimes.max.parallel.connections'),
   maxAttempts: properties.get('fund.financialtimes.max.attempts'),
   retryInterval: properties.get('fund.financialtimes.retry.interval')
 })
-export default class FinancialTimes {
+export default class FinancialTimes implements FundProvider {
     fundTypeMap: any;
     lookback: any;
     shareClassMap: any;

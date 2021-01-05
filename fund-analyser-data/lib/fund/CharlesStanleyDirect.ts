@@ -1,12 +1,13 @@
 import { Promise } from 'bluebird'
-import Fund from './Fund'
+import * as cheerio from 'cheerio'
+import * as _ from 'lodash'
 import Http from '../util/http'
+import log from '../util/log'
 import * as math from '../util/math'
 import * as properties from '../util/properties'
-import log from '../util/log'
 import * as streamWrapper from '../util/streamWrapper'
-import * as _ from 'lodash'
-import * as cheerio from 'cheerio'
+import Fund from './Fund'
+import { IsinProvider } from './FundFactory'
 
 const http = new Http({
   maxParallelConnections: properties.get('fund.charlesstanleydirect.max.parallel.connections'),
@@ -15,7 +16,7 @@ const http = new Http({
   timeout: properties.get('fund.charlesstanleydirect.timeout')
 })
 
-export default class CharlesStanleyDirect {
+export default class CharlesStanleyDirect implements IsinProvider {
     pageSize: any;
     constructor () {
       this.pageSize = properties.get('fund.charlesstanleydirect.page.size')

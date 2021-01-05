@@ -1,10 +1,11 @@
 import * as cheerio from 'cheerio'
 import Http from '../util/http'
 import * as streamWrapper from '../util/streamWrapper'
+import { SymbolProvider } from './StockFactory'
 
 const http = new Http()
 
-export default class WikipediaStocks {
+export default class WikipediaStocks implements SymbolProvider {
     sp500CompaniesUrl: any;
     constructor () {
       this.sp500CompaniesUrl = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'

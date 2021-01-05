@@ -1,15 +1,16 @@
 import { Promise } from 'bluebird'
-import moment from 'moment'
 import * as cheerio from 'cheerio'
 import * as _ from 'lodash'
-import Stock from './Stock'
+import moment from 'moment'
 import Http from '../util/http'
 import log from '../util/log'
 import * as properties from '../util/properties'
 import * as streamWrapper from '../util/streamWrapper'
+import Stock from './Stock'
+import { StockProvider } from './StockFactory'
 
 const http = new Http()
-export default class MarketWatch {
+export default class MarketWatch implements StockProvider {
     getSymbolsFromPage: any;
     maxLookbackYears: any;
     constructor () {

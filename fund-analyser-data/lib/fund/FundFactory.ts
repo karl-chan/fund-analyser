@@ -1,12 +1,26 @@
 import { Promise } from 'bluebird'
+import { Transform } from 'stream'
+import * as streamWrapper from '../util/streamWrapper'
 import CharlesStanleyDirect from './CharlesStanleyDirect'
 import FinancialTimes from './FinancialTimes'
+import Fund from './Fund'
 import FundCalculator from './FundCalculator'
-import * as streamWrapper from '../util/streamWrapper'
+
+export interface FundProvider {
+    getFundsFromIsins(isins: Fund[]): Promise<Fund[]>
+    streamFundsFromIsins(): Transform
+}
+
+export interface IsinProvider {
+    getFunds(): Promise<Fund[]> // partially filled Fund
+    streamFunds(): Transform
+    streamFundsFromSedols(): Transform
+}
+
 export default class FundFactory {
-    fundCalculator: any;
-    fundProvider: any;
-    isinProvider: any;
+    fundCalculator: FundCalculator;
+    fundProvider: FundProvider;
+    isinProvider: IsinProvider;
     constructor () {
       this.isinProvider = new CharlesStanleyDirect()
       this.fundProvider = new FinancialTimes()
