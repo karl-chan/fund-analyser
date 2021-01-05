@@ -1,8 +1,7 @@
-import MarketWatch from './MarketWatch'
-import Stock from './Stock'
-
 import moment from 'moment'
 import * as StreamTest from 'streamtest'
+import MarketWatch from './MarketWatch'
+import Stock from './Stock'
 
 jest.setTimeout(30000) // 30 seconds
 

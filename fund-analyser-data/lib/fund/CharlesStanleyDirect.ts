@@ -1,12 +1,13 @@
 import { Promise } from 'bluebird'
-import Fund from './Fund'
+import * as cheerio from 'cheerio'
+import * as _ from 'lodash'
 import Http from '../util/http'
+import log from '../util/log'
 import * as math from '../util/math'
 import * as properties from '../util/properties'
-import log from '../util/log'
 import * as streamWrapper from '../util/streamWrapper'
-import * as _ from 'lodash'
-import * as cheerio from 'cheerio'
+import Fund from './Fund'
+import { IsinProvider } from './FundFactory'
 
 const http = new Http({
   maxParallelConnections: properties.get('fund.charlesstanleydirect.max.parallel.connections'),
@@ -15,7 +16,7 @@ const http = new Http({
   timeout: properties.get('fund.charlesstanleydirect.timeout')
 })
 
-export default class CharlesStanleyDirect {
+export default class CharlesStanleyDirect implements IsinProvider {
     pageSize: any;
     constructor () {
       this.pageSize = properties.get('fund.charlesstanleydirect.page.size')
@@ -36,11 +37,11 @@ export default class CharlesStanleyDirect {
       return sedols
     }
 
-    async getPageRange (lastPage: any) {
+    private async getPageRange (lastPage: any) {
       return _.range(1, lastPage + 1)
     }
 
-    async getNumPages () {
+    private async getNumPages () {
       const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?Category=Funds&Pagesize=${this.pageSize}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
@@ -49,7 +50,7 @@ export default class CharlesStanleyDirect {
       return lastPage
     }
 
-    async getSedolsFromPage (page: any) {
+    private async getSedolsFromPage (page: any) {
       const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?sortdirection=ASC&SearchType=KeywordSearch&Category=Funds&SortColumn=TER&SortDirection=DESC&Pagesize=${this.pageSize}&Page=${page}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
@@ -58,7 +59,7 @@ export default class CharlesStanleyDirect {
       return sedols
     }
 
-    async getSedolsFromPages (pages: any) {
+    private async getSedolsFromPages (pages: any) {
       const sedols = await (Promise as any).map(pages, this.getSedolsFromPage.bind(this))
       return _.flatten(sedols)
     }
@@ -137,15 +138,15 @@ export default class CharlesStanleyDirect {
         .pipe(this.streamFundsFromSedols())
     }
 
-    streamNumPages () {
+    private streamNumPages () {
       return streamWrapper.asReadableAsync(this.getNumPages)
     }
 
-    streamPageRange () {
+    private streamPageRange () {
       return streamWrapper.asTransformAsync(this.getPageRange)
     }
 
-    streamSedolsFromPages () {
+    private streamSedolsFromPages () {
       return streamWrapper.asTransformAsync(this.getSedolsFromPage)
     }
 

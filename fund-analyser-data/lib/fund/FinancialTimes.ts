@@ -1,23 +1,24 @@
 import { Promise } from 'bluebird'
+import * as cheerio from 'cheerio'
+import * as _ from 'lodash'
 import moment from 'moment'
-import Fund from './Fund'
 import Currency from '../currency/Currency'
-import * as math from '../util/math'
-import * as lang from '../util/lang'
 import * as fundUtils from '../util/fundUtils'
 import Http from '../util/http'
+import * as lang from '../util/lang'
 import log from '../util/log'
+import * as math from '../util/math'
 import * as properties from '../util/properties'
 import * as streamWrapper from '../util/streamWrapper'
-import * as _ from 'lodash'
-import * as cheerio from 'cheerio'
+import Fund from './Fund'
+import { FundProvider } from './FundFactory'
 
 const http = new Http({
   maxParallelConnections: properties.get('fund.financialtimes.max.parallel.connections'),
   maxAttempts: properties.get('fund.financialtimes.max.attempts'),
   retryInterval: properties.get('fund.financialtimes.retry.interval')
 })
-export default class FinancialTimes {
+export default class FinancialTimes implements FundProvider {
     fundTypeMap: any;
     lookback: any;
     shareClassMap: any;
@@ -39,7 +40,7 @@ export default class FinancialTimes {
       return (Promise as any).map(isins, this.getFundFromIsin.bind(this))
     }
 
-    async getFundFromIsin (isin: any): Promise<Fund> {
+    private async getFundFromIsin (isin: any): Promise<Fund> {
       if (!isin) {
         // @ts-ignore
         return new Fund()
@@ -104,7 +105,7 @@ export default class FinancialTimes {
       const summary = {
         name: name,
         type: this.fundTypeMap[type],
-        shareClass: this._getShareClass(shareClass, name),
+        shareClass: this.getShareClass(shareClass, name),
         frequency: frequency,
         ocf: math.pcToFloat(ocf),
         amc: math.pcToFloat(amc),
@@ -282,7 +283,7 @@ export default class FinancialTimes {
       return streamWrapper.asParallelTransformAsync(this.getFundFromIsin.bind(this))
     }
 
-    async getSymbolFromName (name: string) {
+    private async getSymbolFromName (name: string) {
       const dropShareClassSuffix = (name: string) => {
         const chunks = name.split(' ')
         if (chunks.length > 1 && _.last(chunks) === _.last(chunks).toUpperCase()) {
@@ -326,7 +327,7 @@ export default class FinancialTimes {
       return { symbol: undefined, name: undefined }
     }
 
-    _getShareClass (shareClass: any, name: any) {
+    private getShareClass (shareClass: any, name: any) {
       if (shareClass in this.shareClassMap) {
         return this.shareClassMap[shareClass]
       }

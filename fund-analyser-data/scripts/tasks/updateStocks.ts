@@ -1,14 +1,12 @@
+import BatchStream from 'batch-stream'
 import { Promise } from 'bluebird'
-
-import StockFactory from '../../lib/stock/StockFactory'
+import moment from 'moment-business-days'
 import * as StockDAO from '../../lib/db/StockDAO'
-import * as streamWrapper from '../../lib/util/streamWrapper'
+import NYSEStocks from '../../lib/stock/NYSEStocks'
+import StockFactory from '../../lib/stock/StockFactory'
 import * as lang from '../../lib/util/lang'
 import log from '../../lib/util/log'
-
-import moment from 'moment-business-days'
-import WikipediaStocks from '../../lib/stock/WikipediaStocks'
-import BatchStream from 'batch-stream'
+import * as streamWrapper from '../../lib/util/streamWrapper'
 
 /**
  * Update stocks that need to be updated based on asof time
@@ -18,7 +16,7 @@ export default async function updateStocks () {
   const today = moment().utc().startOf('day')
   const lastBusinessDay = today.isBusinessDay() ? today : today.prevBusinessDay()
 
-  const allSymbols = await new WikipediaStocks().getSymbols()
+  const allSymbols = await new NYSEStocks().getSymbols()
 
   const docs = await StockDAO.listStocks({ projection: { symbol: 1, asof: 1 } })
   const oldSymbols = docs.map((s: any) => s.symbol)

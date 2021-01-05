@@ -1,26 +1,27 @@
 import { Promise } from 'bluebird'
-import moment from 'moment'
 import * as cheerio from 'cheerio'
 import * as _ from 'lodash'
-import Stock from './Stock'
+import moment from 'moment'
 import Http from '../util/http'
 import log from '../util/log'
 import * as properties from '../util/properties'
 import * as streamWrapper from '../util/streamWrapper'
+import Stock from './Stock'
+import { StockProvider } from './StockFactory'
 
 const http = new Http()
-export default class MarketWatch {
-    getSymbolsFromPage: any;
-    maxLookbackYears: any;
+
+export default class MarketWatch implements StockProvider {
+    maxLookbackYears: string
+
     constructor () {
       this.maxLookbackYears = properties.get('stock.max.lookback.years')
     }
 
-    async getStockFromSymbol (symbol: any) {
-      const marketWatchSymbol = symbol.replace('.')
+    private async getStockFromSymbol (symbol: any) {
       const [summary, historicPrices] = await Promise.all([
-        this.getSummary(marketWatchSymbol),
-        this.getHistoricPrices(marketWatchSymbol)
+        this.getSummary(symbol),
+        this.getHistoricPrices(symbol)
       ])
       return Stock.builder(symbol)
         .name(summary.name)
@@ -80,12 +81,16 @@ export default class MarketWatch {
           }
         })
         const res2 = JSON.parse(body2)
-        const instrument = res2.GetInstrumentResponse.InstrumentResponses[0].Matches[0].Instrument
-        const isoCode = instrument.Exchange.IsoCode
+        const exchange = res2.GetInstrumentResponse.InstrumentResponses[0].Matches[0].Instrument.Exchange
+        const countryCode = exchange.CountryCode
+        const isoCode = exchange.IsoCode
+        if (!countryCode) {
+          throw new Error(`Failed to retrieve countryCode for ${symbol}`)
+        }
         if (!isoCode) {
           throw new Error(`Failed to retrieve isoCode for ${symbol}`)
         }
-        const key = `STOCK/${market}/${isoCode}/${ticker}`
+        const key = `STOCK/${countryCode}/${isoCode}/${ticker}`
         const url3 = 'https://api-secure.wsj.net/api/michelangelo/timeseries/history'
         const { body: body3 } = await http.asyncGet(url3, {
           qs: {
@@ -129,10 +134,6 @@ export default class MarketWatch {
     /**
      * Analogous stream methods below
      */
-    streamSymbolsFromPages () {
-      return streamWrapper.asTransformAsync(this.getSymbolsFromPage)
-    }
-
     streamStocksFromSymbols () {
       return streamWrapper.asParallelTransformAsync(this.getStockFromSymbol.bind(this))
     }

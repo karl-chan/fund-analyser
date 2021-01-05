@@ -1,14 +1,27 @@
 import { Promise } from 'bluebird'
-import WikipediaStocks from './WikipediaStocks'
-import MarketWatch from './MarketWatch'
-import StockCalculator from './StockCalculator'
+import { Readable, Transform } from 'stream'
+import Stock from '../stock/Stock'
 import * as streamWrapper from '../util/streamWrapper'
+import MarketWatch from './MarketWatch'
+import NYSEStocks from './NYSEStocks'
+import StockCalculator from './StockCalculator'
+
+export interface StockProvider {
+    getStocksFromSymbols(symbols: string[]): Promise<Stock[]>
+    streamStocksFromSymbols(): Transform
+}
+
+export interface SymbolProvider {
+  getSymbols(): Promise<string[]>
+  streamSymbols(): Readable
+}
+
 export default class StockFactory {
-    stockCalculator: any;
-    stockProvider: any;
-    symbolProvider: any;
+    stockCalculator: StockCalculator;
+    stockProvider: StockProvider;
+    symbolProvider: SymbolProvider;
     constructor () {
-      this.symbolProvider = new WikipediaStocks()
+      this.symbolProvider = new NYSEStocks()
       this.stockProvider = new MarketWatch()
       this.stockCalculator = new StockCalculator()
     }
