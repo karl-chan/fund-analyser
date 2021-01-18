@@ -1,13 +1,14 @@
 import { Promise } from 'bluebird'
-import * as _ from 'lodash'
+import { Context } from 'koa'
 import Router from 'koa-router'
+import * as _ from 'lodash'
 import moment from 'moment'
 import * as compute from '../../client/compute'
-import * as agGridUtils from '../../lib/util/agGridUtils'
-import * as fundCache from '../cache/fundCache'
-import FinancialTimes from '../../lib/fund/FinancialTimes'
 import * as FundDAO from '../../lib/db/FundDAO'
 import * as SimilarFundsDAO from '../../lib/db/SimilarFundsDAO'
+import FinancialTimes from '../../lib/fund/FinancialTimes'
+import * as agGridUtils from '../../lib/util/agGridUtils'
+import * as fundCache from '../cache/fundCache'
 const JSONStream = require('JSONStream')
 
 const FUNDS_URL_PREFIX = '/api/funds'
@@ -18,7 +19,7 @@ const router = new Router({
 
 const financialTimes = new FinancialTimes()
 
-router.get('/isins', async (ctx: any) => {
+router.get('/isins', async (ctx: Context) => {
   const options = {
     projection: { _id: 0, isin: 1 }
   }
@@ -26,7 +27,7 @@ router.get('/isins', async (ctx: any) => {
   ctx.body = funds.map((f: any) => f.isin)
 })
 
-router.get('/isins/:isins', async (ctx: any) => {
+router.get('/isins/:isins', async (ctx: Context) => {
   const isins = ctx.params.isins.split(',')
   const { stream } = ctx.query
   const options = {
@@ -49,19 +50,19 @@ router.get('/isins/:isins', async (ctx: any) => {
   }
 })
 
-router.get('/real-time-details/:isins', async (ctx: any) => {
+router.get('/real-time-details/:isins', async (ctx: Context) => {
   const isins = ctx.params.isins.split(',')
   const options = {
     query: { isin: { $in: isins } }
   }
   const funds = await FundDAO.listFunds(options)
-  const realTimeDetailsPairs = await (Promise as any).map(funds, async (f: any) => {
+  const realTimeDetailsPairs = await Promise.map(funds, async (f: any) => {
     return [f.isin, await financialTimes.getRealTimeDetails(f)]
   })
   ctx.body = realTimeDetailsPairs
 })
 
-router.get('/search/:searchText', async (ctx: any) => {
+router.get('/search/:searchText', async (ctx: Context) => {
   const searchText = ctx.params.searchText
   const projection = { _id: 0, isin: 1, sedol: 1, name: 1 }
   const limit = 25
@@ -69,7 +70,7 @@ router.get('/search/:searchText', async (ctx: any) => {
   ctx.body = searchResults
 })
 
-router.get('/summary', async (ctx: any) => {
+router.get('/summary', async (ctx: Context) => {
   const options = {
     projection: { _id: 0, historicPrices: 0 }
   }
@@ -77,7 +78,7 @@ router.get('/summary', async (ctx: any) => {
   ctx.body = funds
 })
 
-router.post('/list', async (ctx: any) => {
+router.post('/list', async (ctx: Context) => {
   const { isins, params } = ctx.request.body
   let funds = fundCache.get(isins, params)
   const { asof, stats, totalFunds } = fundCache.getMetadata(params)
@@ -91,11 +92,11 @@ router.post('/list', async (ctx: any) => {
   }
 })
 
-router.get('/indicators', async (ctx: any) => {
+router.get('/indicators', async (ctx: Context) => {
   ctx.body = await compute.get('indicators/fund')
 })
 
-router.get('/csv', async (ctx: any) => {
+router.get('/csv', async (ctx: Context) => {
   const options = {
     projection: { _id: 0, historicPrices: 0 }
   }
@@ -108,7 +109,7 @@ router.get('/csv', async (ctx: any) => {
   ctx.set('Content-type', 'text/csv')
 })
 
-router.get('/similar-funds/:isins', async (ctx: any) => {
+router.get('/similar-funds/:isins', async (ctx: Context) => {
   const isins = ctx.params.isins.split(',')
   const similarFunds = await SimilarFundsDAO.getSimilarFunds(isins)
   const allSimilarIsins = _.uniq(similarFunds.flatMap((similarFundsEntry: any) => similarFundsEntry.similarIsins))
@@ -116,7 +117,7 @@ router.get('/similar-funds/:isins', async (ctx: any) => {
   ctx.body = allSimilarFunds
 })
 
-router.post('/similar-funds', async (ctx: any) => {
+router.post('/similar-funds', async (ctx: Context) => {
   const { similarFunds } = ctx.request.body
   await SimilarFundsDAO.upsertSimilarFunds(similarFunds)
   ctx.status = 200

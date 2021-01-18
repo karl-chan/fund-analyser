@@ -32,7 +32,7 @@ export default class MarketWatch implements StockProvider {
     }
 
     async getStocksFromSymbols (isins: any) {
-      return (Promise as any).map(isins, this.getStockFromSymbol.bind(this))
+      return Promise.map(isins, this.getStockFromSymbol.bind(this))
     }
 
     async getSummary (symbol: any) {

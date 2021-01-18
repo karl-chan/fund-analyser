@@ -1,15 +1,16 @@
-import moment from 'moment'
 import * as _ from 'lodash'
-import CharlesStanleyDirectAccount from './CharlesStanleyDirectAccount'
+import moment from 'moment'
+import { CookieJar } from 'request'
 import CharlesStanleyDirectAuth from '../auth/CharlesStanleyDirectAuth'
+import { Sell } from '../trade/Action'
 import * as db from '../util/db'
 import * as properties from '../util/properties'
-import { Sell } from '../trade/Action'
+import CharlesStanleyDirectAccount from './CharlesStanleyDirectAccount'
 
 jest.setTimeout(30000) // 30 seconds
 
 describe('CharlesStanleyDirectAccount', () => {
-  let csdAccount: any, jar: any, pass: any
+  let csdAccount: CharlesStanleyDirectAccount, jar: CookieJar, pass: string
   beforeAll(async () => {
     const user = properties.get('fund.charlesstanleydirect.user')
     pass = properties.get('fund.charlesstanleydirect.pass')

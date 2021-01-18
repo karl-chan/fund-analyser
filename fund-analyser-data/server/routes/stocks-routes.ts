@@ -1,4 +1,5 @@
 import { Promise } from 'bluebird'
+import { Context } from 'koa'
 import Router from 'koa-router'
 import * as compute from '../../client/compute'
 import * as StockDAO from '../../lib/db/StockDAO'
@@ -14,7 +15,7 @@ const router = new Router({
 
 const marketWatch = new MarketWatch()
 
-router.get('/symbols/:symbols', async (ctx: any) => {
+router.get('/symbols/:symbols', async (ctx: Context) => {
   const symbols = ctx.params.symbols.split(',')
   const { stream } = ctx.query
   const options = {
@@ -37,19 +38,19 @@ router.get('/symbols/:symbols', async (ctx: any) => {
   }
 })
 
-router.get('/real-time-details/:symbols', async (ctx: any) => {
+router.get('/real-time-details/:symbols', async (ctx: Context) => {
   const symbols = ctx.params.symbols.split(',')
   const options = {
     query: { symbol: { $in: symbols } }
   }
   const stocks = await StockDAO.listStocks(options)
-  const realTimeDetailsPairs = await (Promise as any).map(stocks, async (s: any) => {
+  const realTimeDetailsPairs = await Promise.map(stocks, async (s: any) => {
     const { realTimeDetails } = await marketWatch.getSummary(s.symbol)
     return [s.symbol, realTimeDetails]
   })
   ctx.body = realTimeDetailsPairs
 })
-router.get('/search/:searchText', async (ctx: any) => {
+router.get('/search/:searchText', async (ctx: Context) => {
   const searchText = ctx.params.searchText
   const projection = { _id: 0, symbol: 1, name: 1 }
   const limit = 25
@@ -57,7 +58,7 @@ router.get('/search/:searchText', async (ctx: any) => {
   ctx.body = searchResults
 })
 
-router.get('/summary', async (ctx: any) => {
+router.get('/summary', async (ctx: Context) => {
   const options = {
     projection: { _id: 0, historicPrices: 0 }
   }
@@ -65,7 +66,7 @@ router.get('/summary', async (ctx: any) => {
   ctx.body = stocks
 })
 
-router.post('/list', async (ctx: any) => {
+router.post('/list', async (ctx: Context) => {
   const { isins, params } = ctx.request.body
   let stocks = stockCache.get(isins, params)
   const { asof, stats, totalStocks } = stockCache.getMetadata(params)
@@ -79,7 +80,7 @@ router.post('/list', async (ctx: any) => {
   }
 })
 
-router.get('/indicators', async (ctx: any) => {
+router.get('/indicators', async (ctx: Context) => {
   ctx.body = await compute.get('indicators/stock')
 })
 

@@ -4,7 +4,7 @@ import moment from 'moment-business-days'
 import * as simulate from '../simulate/simulate'
 import { PredictResponse } from '../simulate/simulate'
 import * as properties from '../util/properties'
-import { Buy, Sell } from './Action'
+import { Action, Buy, Sell } from './Action'
 
 const fundHoldBusinessDays = properties.get('trade.fund.hold.business.days')
 /**
@@ -69,8 +69,8 @@ export function decideActions (prediction: PredictResponse, balance: any, transa
  * @param {*} {csdAccount}
  * @returns {List<string>} list of order reference for each executed action.
  */
-async function execute (actions: any, { csdAccount }: any) {
-  const orderReferences = await (Promise as any).mapSeries(actions, async (action: any) => {
+async function execute (actions: Action[], { csdAccount }: any) {
+  const orderReferences = await Promise.mapSeries(actions, async action => {
     return csdAccount.tradeFund(action)
   })
   return orderReferences

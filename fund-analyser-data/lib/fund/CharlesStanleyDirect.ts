@@ -60,7 +60,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
     }
 
     private async getSedolsFromPages (pages: any) {
-      const sedols = await (Promise as any).map(pages, this.getSedolsFromPage.bind(this))
+      const sedols = await Promise.map(pages, this.getSedolsFromPage.bind(this))
       return _.flatten(sedols)
     }
 
@@ -125,7 +125,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
     }
 
     async getFundsFromSedols (sedols: any) {
-      return (Promise as any).map(sedols, this.getFundFromSedol.bind(this))
+      return Promise.map(sedols, this.getFundFromSedol.bind(this))
     }
 
     /**
