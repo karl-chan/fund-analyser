@@ -1,10 +1,11 @@
 import { Promise } from 'bluebird'
 import * as _ from 'lodash'
 import moment from 'moment-business-days'
+import Fund from '../fund/Fund'
 import * as simulate from '../simulate/simulate'
 import { PredictResponse } from '../simulate/simulate'
 import * as properties from '../util/properties'
-import { Buy, Sell } from './Action'
+import { Action, Buy, Sell } from './Action'
 
 const fundHoldBusinessDays = properties.get('trade.fund.hold.business.days')
 /**
@@ -33,7 +34,7 @@ export function decideActions (prediction: PredictResponse, balance: any, transa
   if (holdings.length > 0) {
     // Existing holdings
     const existingIsins = holdings.map((holding: any) => holding.ISIN)
-    const predictIsins = funds.map((fund: any) => fund.isin)
+    const predictIsins = funds.map((fund: Fund) => fund.isin)
     if (_.isEqual(new Set(existingIsins), new Set(predictIsins))) {
       // noop
       return []
@@ -59,7 +60,7 @@ export function decideActions (prediction: PredictResponse, balance: any, transa
     } else {
       // buy predictions
       const value = cash / funds.length
-      return funds.map((fund: any) => new Buy(fund.isin, fund.sedol, value))
+      return funds.map((fund: Fund) => new Buy(fund.isin, fund.sedol, value))
     }
   }
 }
@@ -69,8 +70,8 @@ export function decideActions (prediction: PredictResponse, balance: any, transa
  * @param {*} {csdAccount}
  * @returns {List<string>} list of order reference for each executed action.
  */
-async function execute (actions: any, { csdAccount }: any) {
-  const orderReferences = await (Promise as any).mapSeries(actions, async (action: any) => {
+async function execute (actions: Action[], { csdAccount }: any) {
+  const orderReferences = await Promise.mapSeries(actions, async action => {
     return csdAccount.tradeFund(action)
   })
   return orderReferences

@@ -36,7 +36,7 @@ export async function pushNotificationsForUser (user: any) {
   const simulateParams = await UserDAO.getSimulateParams(user)
   // Only push for active simulate params
   const activeSimulateParams = simulateParams.filter((simulateParam: any) => simulateParam.active)
-  const predictionPairs = await (Promise as any).map(activeSimulateParams, async (simulateParam: any) => {
+  const predictionPairs = await Promise.map(activeSimulateParams, async (simulateParam: any) => {
     const prediction = await predict(simulateParam)
     return {
       simulateParam,

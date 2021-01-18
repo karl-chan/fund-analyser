@@ -18,7 +18,8 @@ export default class MarketWatch implements StockProvider {
       this.maxLookbackYears = properties.get('stock.max.lookback.years')
     }
 
-    private async getStockFromSymbol (symbol: any) {
+    private async getStockFromSymbol (symbol: string) {
+      console.log(`Get stock frm symbol: ${symbol}`)
       const [summary, historicPrices] = await Promise.all([
         this.getSummary(symbol),
         this.getHistoricPrices(symbol)
@@ -31,11 +32,11 @@ export default class MarketWatch implements StockProvider {
         .build()
     }
 
-    async getStocksFromSymbols (isins: any) {
-      return (Promise as any).map(isins, this.getStockFromSymbol.bind(this))
+    async getStocksFromSymbols (isins: string[]) {
+      return Promise.map(isins, isin => this.getStockFromSymbol(isin))
     }
 
-    async getSummary (symbol: any) {
+    async getSummary (symbol: string) {
       try {
         const url = `https://www.marketwatch.com/investing/stock/${symbol}/charts`
         const { body } = await http.asyncGet(url)
@@ -57,7 +58,7 @@ export default class MarketWatch implements StockProvider {
       }
     }
 
-    async getHistoricPrices (symbol: any) {
+    async getHistoricPrices (symbol: string) {
       try {
         const url = `https://www.marketwatch.com/investing/stock/${symbol}/charts`
         const { body } = await http.asyncGet(url)
@@ -135,6 +136,6 @@ export default class MarketWatch implements StockProvider {
      * Analogous stream methods below
      */
     streamStocksFromSymbols () {
-      return streamWrapper.asParallelTransformAsync(this.getStockFromSymbol.bind(this))
+      return streamWrapper.asParallelTransformAsync((symbol: string) => this.getStockFromSymbol(symbol))
     }
 }

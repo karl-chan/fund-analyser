@@ -19,9 +19,9 @@ const http = new Http({
   retryInterval: properties.get('fund.financialtimes.retry.interval')
 })
 export default class FinancialTimes implements FundProvider {
-    fundTypeMap: any;
+    fundTypeMap: {[fundType: string]: string};
     lookback: any;
-    shareClassMap: any;
+    shareClassMap: {[shareClass: string]: string};
     constructor () {
       this.fundTypeMap = {
         'Open Ended Investment Company': Fund.types.OEIC,
@@ -36,20 +36,17 @@ export default class FinancialTimes implements FundProvider {
       this.lookback = properties.get('fund.financialtimes.lookback.days')
     }
 
-    async getFundsFromIsins (isins: any) {
-      return (Promise as any).map(isins, this.getFundFromIsin.bind(this))
+    async getFundsFromIsins (csdFunds: Fund[]) {
+      return Promise.map(csdFunds, csdFund => this.getFundFromIsin(csdFund))
     }
 
-    private async getFundFromIsin (isin: any): Promise<Fund> {
-      if (!isin) {
+    private async getFundFromIsin (csdFund: Fund): Promise<Fund> {
+      if (!csdFund) {
         // @ts-ignore
         return new Fund()
       }
       /* Overload to accept partial fund case from Charles Stanley */
-      const csdFund = isin instanceof Fund ? isin : undefined
-      if (csdFund) {
-        isin = csdFund.isin
-      }
+      const isin = csdFund?.isin
       log.silly('Get fund from isin: %s', isin)
       const [summary, performance, historicPrices, holdings] = await Promise.all([
         this.getSummary(isin),
@@ -73,22 +70,22 @@ export default class FinancialTimes implements FundProvider {
       // @ts-ignore
       const fund = lang.assignIfDefined(new Fund(), csdFund, ftFund)
       if (!fund.isValid()) {
-        log.warn('No data found for isin: ' + isin)
+        log.warn('No data found for isin: ' + csdFund)
       } else {
-        log.debug('Got fund from isin %s', isin)
-        log.silly('Isin: %s. Fund: %j', isin, fund)
+        log.debug('Got fund from isin %s', csdFund)
+        log.silly('Isin: %s. Fund: %j', csdFund, fund)
       }
       // try enrich with real time details
       try {
         const realTimeDetails = await this.getRealTimeDetails(fund)
         fund.realTimeDetails = realTimeDetails
       } catch (err) {
-        log.error('Failed to get real time details for isin: %s. Cause: %s', isin, err.stack)
+        log.error('Failed to get real time details for isin: %s. Cause: %s', csdFund, err.stack)
       }
       return fund
     }
 
-    async getSummary (isin: any) {
+    async getSummary (isin: string) {
       const url = `https://markets.ft.com/data/funds/tearsheet/summary?s=${isin}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
@@ -115,7 +112,7 @@ export default class FinancialTimes implements FundProvider {
       return summary
     }
 
-    async getPerformance (isin: any): Promise<{ [period: string]: number }> {
+    async getPerformance (isin: string): Promise<{ [period: string]: number }> {
       const url = `https://markets.ft.com/data/funds/tearsheet/performance?s=${isin}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
@@ -141,7 +138,7 @@ export default class FinancialTimes implements FundProvider {
       return performance
     }
 
-    async getHistoricPrices (isin: any): Promise<Fund.HistoricPrice[]> {
+    async getHistoricPrices (isin: string): Promise<Fund.HistoricPrice[]> {
       const url = `https://markets.ft.com/data/funds/tearsheet/charts?s=${isin}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
@@ -173,7 +170,7 @@ export default class FinancialTimes implements FundProvider {
         const series = JSON.parse(body2)
         const dates = series.Dates
         const prices = series.Elements[0].ComponentSeries.find((s: any) => s.Type === 'Close').Values
-        const historicPrices = _.zipWith(dates, prices, (dateString: any, price: any) => {
+        const historicPrices = _.zipWith(dates, prices, (dateString, price) => {
           const date = moment.utc(dateString).toDate()
           return new Fund.HistoricPrice(date, price)
         })
@@ -184,19 +181,19 @@ export default class FinancialTimes implements FundProvider {
       }
     }
 
-    async getHistoricExchangeRates (base: any, quote: any) {
+    async getHistoricExchangeRates (base: string, quote: string) {
       const entries = await this.getHistoricPrices(`${base}${quote}`)
-      return entries.map((entry: any) => new Currency.HistoricRate(entry.date, entry.price))
+      return entries.map(entry => new Currency.HistoricRate(entry.date, entry.price))
     }
 
-    async getHoldings (isin: any, fallbackFund: any) {
+    async getHoldings (isin: string, fallbackFund: Fund) {
       const url = `https://markets.ft.com/data/funds/tearsheet/holdings?s=${isin}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
       const table = $(`body > div.o-grid-container.mod-container > div:nth-child(3) > section 
                 > div:nth-child(3) > div > div > table`)
       const tbody = $('body').html('<tbody></tbody>').append(table.children().not('thead, tfoot'))
-      let holdings = tbody.find('tr').map((i: any, tr: any) => {
+      let holdings = tbody.find('tr').map((i, tr) => {
         const company = $(tr).find('td:nth-child(1)')
         const name = company.has('a').length ? company.find('a').text() : company.text()
         const symbol = company.find('span').text()
@@ -208,7 +205,7 @@ export default class FinancialTimes implements FundProvider {
         holdings = fallbackFund.holdings
       }
       // enrich holdings with symbols if necessary
-      await Promise.all(holdings.filter((h: any) => !h.symbol).map(async (h: any) => {
+      await Promise.all(holdings.filter(h => !h.symbol).map(async h => {
         const { symbol, name } = await this.getSymbolFromName(h.name)
         if (symbol) {
           h.symbol = symbol
@@ -222,8 +219,8 @@ export default class FinancialTimes implements FundProvider {
 
     // Real time details
     // precondition: fund with holdings and historic prices
-    async getRealTimeDetails (fund: any) {
-      const getTodaysChange = async (holdingTicker: any) => {
+    async getRealTimeDetails (fund: Fund) {
+      const getTodaysChange = async (holdingTicker: string) => {
         const url = `https://markets.ft.com/data/equities/tearsheet/summary?s=${holdingTicker}`
         const { body } = await http.asyncGet(url)
         const $ = cheerio.load(body)
@@ -253,7 +250,7 @@ export default class FinancialTimes implements FundProvider {
         }
         return { currency, todaysChange }
       }
-      const enrichedHoldings = await (Promise as any).map(fund.holdings, async (h: any) => {
+      const enrichedHoldings = await Promise.map(fund.holdings, async h => {
         const { currency, todaysChange } = h.symbol ? await getTodaysChange(h.symbol) : { currency: null, todaysChange: null }
         return { name: h.name, symbol: h.symbol, currency, todaysChange, weight: h.weight }
       })
@@ -267,11 +264,11 @@ export default class FinancialTimes implements FundProvider {
       const $ = cheerio.load(body)
       const currencyOptions = $('form.mod-currency-selector__controls select:nth-of-type(1)').find('option')
       const currencies = _.sortedUniq(currencyOptions
-        .map((i: any, option: any) => {
+        .map((i, option) => {
           return $(option).attr('value').trim()
         })
         .get()
-        .filter((text: any) => text.length) // filter out empty string
+        .filter((text) => text.length) // filter out empty string
         .sort())
       return currencies
     }
@@ -280,7 +277,7 @@ export default class FinancialTimes implements FundProvider {
      * Analogous stream methods below
      */
     streamFundsFromIsins () {
-      return streamWrapper.asParallelTransformAsync(this.getFundFromIsin.bind(this))
+      return streamWrapper.asParallelTransformAsync((csdFund: Fund) => this.getFundFromIsin(csdFund))
     }
 
     private async getSymbolFromName (name: string) {
@@ -295,21 +292,21 @@ export default class FinancialTimes implements FundProvider {
         }
         return chunks.join(' ')
       }
-      const dropThePrefix = (name: any) => {
+      const dropThePrefix = (name:string) => {
         const prefix = 'the '
         if (name.toLowerCase().startsWith(prefix)) {
           return name.substring(prefix.length)
         }
         return name
       }
-      const search = async (name: any) => {
+      const search = async (name:string) => {
         const url = 'https://markets.ft.com/data/searchapi/searchsecurities'
         const qs = {
           query: name
         }
         const { body } = await http.asyncGet(url, { qs })
         const { data } = JSON.parse(body)
-        const security = data.security.find((s: any) => s.name.toLowerCase().replace(/-/g, ' ').includes(name.toLowerCase().replace(/-/g, ' ')))
+        const security = data.security.find((s:any) => s.name.toLowerCase().replace(/-/g, ' ').includes(name.toLowerCase().replace(/-/g, ' ')))
         return { symbol: security && security.symbol, name: security && security.name }
       }
       // replace charles stanley keywords with financial times before search
@@ -327,7 +324,7 @@ export default class FinancialTimes implements FundProvider {
       return { symbol: undefined, name: undefined }
     }
 
-    private getShareClass (shareClass: any, name: any) {
+    private getShareClass (shareClass: string, name: string) {
       if (shareClass in this.shareClassMap) {
         return this.shareClassMap[shareClass]
       }

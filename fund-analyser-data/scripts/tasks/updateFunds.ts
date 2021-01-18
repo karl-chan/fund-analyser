@@ -1,12 +1,11 @@
-import { Promise } from 'bluebird'
-
-import FundFactory from '../../lib/fund/FundFactory'
-import * as FundDAO from '../../lib/db/FundDAO'
-import * as streamWrapper from '../../lib/util/streamWrapper'
-import log from '../../lib/util/log'
-
-import moment from 'moment-business-days'
 import BatchStream from 'batch-stream'
+import { Promise } from 'bluebird'
+import moment from 'moment-business-days'
+import * as FundDAO from '../../lib/db/FundDAO'
+import Fund from '../../lib/fund/Fund'
+import FundFactory from '../../lib/fund/FundFactory'
+import log from '../../lib/util/log'
+import * as streamWrapper from '../../lib/util/streamWrapper'
 
 /**
  * Update funds that need to be updated based on asof time
@@ -50,7 +49,7 @@ export default async function updateFunds () {
   log.info('Deleted funds without names')
 }
 
-async function isFundValid (fund: any) {
+async function isFundValid (fund: Fund) {
   if (!fund.isValid()) {
     log.warn('Fund is not valid: %j. Skipping upsert.', fund)
     return false

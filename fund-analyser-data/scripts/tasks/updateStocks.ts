@@ -3,6 +3,7 @@ import { Promise } from 'bluebird'
 import moment from 'moment-business-days'
 import * as StockDAO from '../../lib/db/StockDAO'
 import NYSEStocks from '../../lib/stock/NYSEStocks'
+import Stock from '../../lib/stock/Stock'
 import StockFactory from '../../lib/stock/StockFactory'
 import * as lang from '../../lib/util/lang'
 import log from '../../lib/util/log'
@@ -55,11 +56,11 @@ export default async function updateStocks () {
   log.info('Deleted stocks without names')
 }
 
-async function isStockValid (stock: any) {
+async function isStockValid (stock: Stock) {
   if (!stock.isValid()) {
     log.warn('Stock is not valid: %j. Skipping upsert.', stock)
     return false
   }
-  log.silly('Stock is valid: %s', stock.isin)
+  log.silly('Stock is valid: %s', stock.symbol)
   return true
 }

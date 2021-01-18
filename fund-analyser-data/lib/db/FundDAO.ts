@@ -1,14 +1,14 @@
 import { Promise } from 'bluebird'
-import Fund from '../fund/Fund'
-import * as db from '../util/db'
-import log from '../util/log'
-import * as csv from '../util/csv'
-import * as math from '../util/math'
 import * as _ from 'lodash'
 import * as stream from 'stream'
+import Fund from '../fund/Fund'
+import * as csv from '../util/csv'
+import * as db from '../util/db'
+import log from '../util/log'
+import * as math from '../util/math'
 const idField = 'sedol'
 
-export function fromFund (fund: any) {
+export function fromFund (fund: Fund) {
   return {
     _id: fund[idField],
     ..._.toPlainObject(fund)
@@ -40,21 +40,21 @@ export function toFund (entry: any) {
   }
   return builder.build()
 }
-export async function upsertFunds (funds: any) {
+export async function upsertFunds (funds: Fund[]) {
   if (!funds.length) {
     log.info('No funds to upsert. Returning...')
     return
   }
   // count all funds
-  const shardCounts = await (Promise as any).map(db.getFunds(), (fundDb: any) => fundDb.countDocuments())
+  const shardCounts = await Promise.map(db.getFunds(), fundDb => fundDb.countDocuments())
   // find matching ids in shards
   const searchIds = funds.map((f: any) => f[idField]).filter((val: any) => val)
   const findOptions = {
     query: { _id: { $in: searchIds } },
     projection: { _id: 1 }
   }
-  const shardedDocs = await (Promise as any).map(buildFindQuery(findOptions), (query: any) => query.toArray())
-  const shardedIds = shardedDocs.map((docs: any) => new Set(docs.map((doc: any) => doc._id)))
+  const shardedDocs = await Promise.map(buildFindQuery(findOptions), query => query.toArray())
+  const shardedIds = shardedDocs.map(docs => new Set(docs.map(doc => doc._id)))
   // partition funds into shards
   const bucketedFunds = shardedIds.map((shard: any) => <Fund[]>[])
   for (const fund of funds) {
@@ -66,23 +66,23 @@ export async function upsertFunds (funds: any) {
     }
     bucketedFunds[shardIdx].push(fund)
   }
-  const upsertOperation = (fund: any) => {
+  const upsertOperation = (fund: Fund) => {
     const doc = fromFund(fund)
     const query = { _id: fund[idField] }
     const operation = { replaceOne: { filter: query, replacement: doc, upsert: true } }
     return operation
   }
-  const bucketedOperations = bucketedFunds.map((bucket: any) => bucket.map(upsertOperation))
+  const bucketedOperations = bucketedFunds.map(bucket => bucket.map(upsertOperation))
   try {
-    // @ts-expect-error ts-migrate(7031) FIXME: Binding element 'fundDb' implicitly has an 'any' t... Remove this comment to see the full error message
-    await (Promise as any).map(_.zip(db.getFunds(), bucketedOperations), ([fundDb, operations]) => {
-      return operations.length ? fundDb.bulkWrite(operations) : []
+    await Promise.map(_.zip(db.getFunds(), bucketedOperations), async ([fundDb, operations]) => {
+      return operations.length ? fundDb.bulkWrite(operations) : Promise.resolve()
     })
   } catch (err) {
     log.error('Failed to upsert funds: %j. Error: %s', funds, err.stack)
     return
   }
-  log.info('Upserted funds: %j', bucketedFunds.map((funds: any, i: any) => `${JSON.stringify(funds.map((f: any) => f[idField]))} in shard ${i}`).join('; '))
+  log.info('Upserted funds: %j', bucketedFunds.map((funds, i) =>
+        `${JSON.stringify(funds.map(f => f[idField]))} in shard ${i}`).join('; '))
 }
 /**
  *
@@ -91,7 +91,7 @@ export async function upsertFunds (funds: any) {
  */
 
 export async function listFunds (options: any, toPlainObject = false) {
-  const shardedDocs = await (Promise as any).map(buildFindQuery(options), (query: any) => query.toArray())
+  const shardedDocs = await Promise.map(buildFindQuery(options), query => query.toArray())
   let docs = _.flatten(shardedDocs)
   // need postprocessing because we are merging from different databases
   if (options && options.sort) {
@@ -107,8 +107,9 @@ export async function listFunds (options: any, toPlainObject = false) {
 export function streamFunds (options: any, toPlainObject = false) {
   const res = new stream.PassThrough({
     objectMode: true
-  });
-  (Promise as any).each(buildFindQuery(options), async (query: any) => {
+  })
+  Promise.each(buildFindQuery(options), async (query) => {
+    // @ts-ignore
     const fundDbStream = query.transformStream({
       transform: toPlainObject ? _.toPlainObject : toFund
     })
@@ -126,7 +127,7 @@ export function streamFunds (options: any, toPlainObject = false) {
 export async function deleteFunds (options: any) {
   const queryOpts = _.defaultTo(options.query, {})
   try {
-    await (Promise as any).map(db.getFunds(), (fundDb: any) => fundDb.deleteMany(queryOpts))
+    await Promise.map(db.getFunds(), fundDb => fundDb.deleteMany(queryOpts))
   } catch (err) {
     log.error('Failed to delete funds. Error: %s', err.stack)
   }
@@ -137,7 +138,7 @@ export async function exportCsv (headerFields: any, options: any) {
   return csv.convert(funds, headerFields)
 }
 
-export async function search (text: any, projection: any, limit: any) {
+export async function search (text: string, projection: any, limit: number) {
   const options = {
     query: { $text: { $search: text } },
     projection: { ...projection, score: { $meta: 'textScore' } },
@@ -162,5 +163,5 @@ const buildFindQuery = (options: any) => {
     sort: options && options.sort,
     limit: options && options.limit
   }
-  return db.getFunds().map((fundDb: any) => fundDb.find(query, findOptions))
+  return db.getFunds().map(fundDb => fundDb.find(query, findOptions))
 }

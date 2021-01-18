@@ -10,7 +10,7 @@ webpush.setVapidDetails(vapidSubject, properties.get('vapid.key.public'), proper
 export default async function push (user: any, key: any, payload: any) {
   const sessions = await SessionDAO.findSessionsForUser(user)
   const pushSubscriptions = sessions.map((s: any) => s.pushSubscription)
-  await (Promise as any).map(pushSubscriptions, async (pushSubscription: any) => {
+  await Promise.map(pushSubscriptions, async (pushSubscription: any) => {
     try {
       await webpush.sendNotification(pushSubscription, JSON.stringify({
         key,

@@ -1,7 +1,7 @@
 import { Promise } from 'bluebird'
 import moment from 'moment'
-import CharlesStanleyDirectAuth from '../../lib/auth/CharlesStanleyDirectAuth'
 import CharlesStanleyDirectAccount from '../../lib/account/CharlesStanleyDirectAccount'
+import CharlesStanleyDirectAuth from '../../lib/auth/CharlesStanleyDirectAuth'
 import SessionDAO from '../../lib/db/SessionDAO'
 import UserDAO from '../../lib/db/UserDAO'
 import trade from '../../lib/trade/trade'
@@ -12,7 +12,7 @@ import * as security from '../../lib/util/security'
  */
 export default async function tradeFunds () {
   const docs = await UserDAO.listUsers()
-  await (Promise as any).map(docs, (doc: any) => tradeFundsForUser(doc.user))
+  await Promise.map(docs, doc => tradeFundsForUser(doc.user))
 }
 async function tradeFundsForUser (user: any) {
   const [simulateParams, sessions] = await Promise.all([

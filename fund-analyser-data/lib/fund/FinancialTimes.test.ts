@@ -1,9 +1,8 @@
+import moment from 'moment'
+import * as StreamTest from 'streamtest'
+import Currency from '../currency/Currency'
 import FinancialTimes from './FinancialTimes'
 import Fund from './Fund'
-import Currency from '../currency/Currency'
-import moment from 'moment'
-
-import * as StreamTest from 'streamtest'
 
 jest.setTimeout(30000) // 30 seconds
 
@@ -39,7 +38,7 @@ describe('FinancialTimes', function () {
     })
 
     test('getFundFromIsin should return fund', async () => {
-      const isin = 'GB00000ISIN0'
+      const csdFund = Fund.builder('GB00000ISIN0').build()
       const summary = {
         name: 'My fund',
         type: Fund.types.UNIT,
@@ -74,7 +73,7 @@ describe('FinancialTimes', function () {
       jest.spyOn(financialTimes, 'getHoldings')
         .mockImplementation(async (isin: any) => holdings)
 
-      const expected = Fund.builder(isin)
+      const expected = Fund.builder(csdFund.isin)
         .name('My fund')
         .type(Fund.types.UNIT)
         .shareClass(Fund.shareClasses.ACC)
@@ -87,7 +86,7 @@ describe('FinancialTimes', function () {
         .build()
       expected.realTimeDetails = expect.any(Object)
 
-      const actual = await financialTimes.getFundFromIsin(isin)
+      const actual = await financialTimes.getFundFromIsin(csdFund)
       expect(actual).toMatchObject(expected)
     })
 

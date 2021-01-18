@@ -1,4 +1,5 @@
 import { Promise } from 'bluebird'
+import { Context } from 'koa'
 import Router from 'koa-router'
 import * as TestReportDAO from '../../lib/db/TestReportDAO'
 import CharlesStanleyDirect from '../../lib/fund/CharlesStanleyDirect'
@@ -11,7 +12,7 @@ const router = new Router({
   prefix: URL_PREFIX
 })
 
-router.get('/healthcheck', async (ctx: any) => {
+router.get('/healthcheck', async (ctx: Context) => {
   const [isUp, isPassing] = await Promise.all([
     csd.healthCheck(),
     TestReportDAO.isPassing()
@@ -22,18 +23,18 @@ router.get('/healthcheck', async (ctx: any) => {
   }
 })
 
-router.get('/logs/:category', async (ctx: any) => {
+router.get('/logs/:category', async (ctx: Context) => {
   const { category } = ctx.params
   const { lines } = ctx.query
   ctx.body = await heroku.getLogs(category, lines)
 })
 
-router.post('/restart/:category', async (ctx: any) => {
+router.post('/restart/:category', async (ctx: Context) => {
   const { category } = ctx.params
   ctx.body = await heroku.restart(category)
 })
 
-router.get('/test-report', async (ctx: any) => {
+router.get('/test-report', async (ctx: Context) => {
   ctx.body = await TestReportDAO.getTestReport()
 })
 

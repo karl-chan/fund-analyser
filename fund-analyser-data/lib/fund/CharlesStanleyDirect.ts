@@ -37,7 +37,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
       return sedols
     }
 
-    private async getPageRange (lastPage: any) {
+    private async getPageRange (lastPage: number) {
       return _.range(1, lastPage + 1)
     }
 
@@ -50,17 +50,17 @@ export default class CharlesStanleyDirect implements IsinProvider {
       return lastPage
     }
 
-    private async getSedolsFromPage (page: any) {
+    private async getSedolsFromPage (page: number) {
       const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?sortdirection=ASC&SearchType=KeywordSearch&Category=Funds&SortColumn=TER&SortDirection=DESC&Pagesize=${this.pageSize}&Page=${page}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
-      const sedols = $('#funds-table').find('tbody td:nth-child(3)').map((i: any, td: any) => $(td).text().trim()).get()
+      const sedols = $('#funds-table').find('tbody td:nth-child(3)').map((i, td) => $(td).text().trim()).get()
       log.debug('Sedols in page %d: %j', page, sedols)
       return sedols
     }
 
-    private async getSedolsFromPages (pages: any) {
-      const sedols = await (Promise as any).map(pages, this.getSedolsFromPage.bind(this))
+    private async getSedolsFromPages (pages: number[]) {
+      const sedols = await Promise.map(pages, (page) => this.getSedolsFromPage(page))
       return _.flatten(sedols)
     }
 
@@ -68,7 +68,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
      * ONLY PARTIAL FUND IS RETURNED!! (with isin and bid ask spread as % of price)
      * @param sedol
      */
-    async getFundFromSedol (sedol: any) {
+    async getFundFromSedol (sedol: string) {
       const url = `https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=${sedol}`
       let body
       try {
@@ -124,8 +124,8 @@ export default class CharlesStanleyDirect implements IsinProvider {
       return partialFund
     }
 
-    async getFundsFromSedols (sedols: any) {
-      return (Promise as any).map(sedols, this.getFundFromSedol.bind(this))
+    async getFundsFromSedols (sedols: string[]) {
+      return Promise.map(sedols, (sedol) => this.getFundFromSedol(sedol))
     }
 
     /**
@@ -139,19 +139,19 @@ export default class CharlesStanleyDirect implements IsinProvider {
     }
 
     private streamNumPages () {
-      return streamWrapper.asReadableAsync(this.getNumPages)
+      return streamWrapper.asReadableAsync(() => this.getNumPages())
     }
 
     private streamPageRange () {
-      return streamWrapper.asTransformAsync(this.getPageRange)
+      return streamWrapper.asTransformAsync((numPages: number) => this.getPageRange(numPages))
     }
 
     private streamSedolsFromPages () {
-      return streamWrapper.asTransformAsync(this.getSedolsFromPage)
+      return streamWrapper.asTransformAsync((page: number) => this.getSedolsFromPage(page))
     }
 
     streamFundsFromSedols () {
-      return streamWrapper.asParallelTransformAsync(this.getFundFromSedol)
+      return streamWrapper.asParallelTransformAsync((sedol: string) => this.getFundFromSedol(sedol))
     }
 
     /**

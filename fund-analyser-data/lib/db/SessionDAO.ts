@@ -1,7 +1,8 @@
-import * as db from '../util/db'
-import log from '../util/log'
 import * as _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
+import { Token } from '../../server/auth'
+import * as db from '../util/db'
+import log from '../util/log'
 
 const BACKGROUND_SESSION_USER_AGENT = 'Background Session'
 
@@ -43,7 +44,7 @@ interface Entry {
 }
 
 export default class SessionDAO {
-  private static serialise (token: any, sessionId: any): Entry {
+  private static serialise (token: Token, sessionId: string): Entry {
     return { ...token, sessionId }
   }
 
@@ -52,7 +53,7 @@ export default class SessionDAO {
     return { token, sessionId }
   }
 
-  static async upsertSession (data: any, sessionId: any) {
+  static async upsertSession (data: any, sessionId: string) {
     const entry = SessionDAO.serialise(data, sessionId)
     const query = { sessionId }
     const doc = _.toPlainObject(entry)
@@ -62,7 +63,7 @@ export default class SessionDAO {
   }
 
   // Long lived background session for trading bot
-  static async upsertBackgroundSession (token: any) {
+  static async upsertBackgroundSession (token: Token) {
     const longLivedExpiry = new Date(9999, 0, 1)
     const doc = {
       token: {
@@ -77,7 +78,7 @@ export default class SessionDAO {
     log.debug(`Upserted background session for user: ${token.user}`)
   }
 
-  static async findSession (sessionId: any) {
+  static async findSession (sessionId: string) {
     const query = { sessionId }
 
     const entry = await db.getSessions().findOne(query)
@@ -100,7 +101,7 @@ export default class SessionDAO {
     return sessions
   }
 
-  static async deleteSession (sessionId: any) {
+  static async deleteSession (sessionId: string) {
     const query = { sessionId }
 
     await db.getSessions().deleteOne(query)

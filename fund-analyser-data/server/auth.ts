@@ -1,4 +1,8 @@
 import { Promise } from 'bluebird'
+import { Context, Request } from 'koa'
+import moment from 'moment'
+import { CookieJar } from 'request'
+import { PushSubscription } from 'web-push'
 import CharlesStanleyDirectAuth from '../lib/auth/CharlesStanleyDirectAuth'
 import SessionDAO from '../lib/db/SessionDAO'
 import UserDAO from '../lib/db/UserDAO'
@@ -6,15 +10,13 @@ import * as geolocation from '../lib/util/geolocation'
 import log from '../lib/util/log'
 import * as security from '../lib/util/security'
 
-import moment from 'moment'
-
 interface Location {
  city: string
  region: string
  country: string
  ip: string
 }
-interface Token {
+export interface Token {
     user: string,
     pass: string,
     memorableWord: string,
@@ -57,7 +59,7 @@ const jarCache = {} // {[sessionId: string]: jar: object}
 
 const csdAuth = new CharlesStanleyDirectAuth()
 
-export async function authorise (ctx: any, next: any) {
+export async function authorise (ctx: Context, next: any) {
   const stillLoggedIn = await isLoggedIn(ctx)
   if (!stillLoggedIn) {
     ctx.status = 401
@@ -102,40 +104,44 @@ export function createToken ({
     userAgent: userAgent
   }
 }
-export function encryptToken (token: any) {
+export function encryptToken (token: Token): Token {
   return {
     user: token.user,
     pass: security.encryptString(token.pass),
     memorableWord: security.encryptString(token.memorableWord),
     name: token.name,
-    expiry: token.expiry.toDate(),
+    expiry: token.expiry,
     location: token.location,
     userAgent: token.userAgent
   }
 }
 
-export function deserialiseToken (token: any) {
+export function deserialiseToken (token: Token): Token {
   return {
     user: token.user,
     pass: security.decryptString(token.pass),
     memorableWord: security.decryptString(token.memorableWord),
     name: token.name,
-    expiry: moment(token.expiry),
+    expiry: token.expiry,
     location: token.location,
     userAgent: token.userAgent
   }
 }
 
-export function newExpiry (persist: any) {
+export function newExpiry (persist: boolean): Date {
   const duration = persist ? LONG_EXPIRY : SHORT_EXPIRY
   return moment().add(duration).toDate()
 }
 
-export function saveSession (ctx: any, {
+export function saveSession (ctx: Context, {
   token,
   jar,
   pushSubscription
-}: any) {
+}: {
+  token?: Token,
+  jar?: CookieJar,
+  pushSubscription?: any
+}) {
   if (token) {
     ctx.session.token = encryptToken(token)
   }
@@ -147,64 +153,72 @@ export function saveSession (ctx: any, {
   }
 }
 
-const saveUser = async function (user: any) {
+const saveUser = async function (user: string) {
   return UserDAO.createUserIfNotExists(user)
 }
 
-export function getSession (ctx: any) {
+export function getSession (ctx: Context) {
   return {
     token: ctx.session.token ? deserialiseToken(ctx.session.token) : null,
     jar: ctx.session.jar
   }
 }
 
-export function getSessionId (ctx: any) {
+export function getSessionId (ctx: Context) {
   const contextSessionSymbol = Object.getOwnPropertySymbols(ctx)[0]
+  // @ts-ignore
   const contextSession = ctx[contextSessionSymbol]
   return contextSession.externalKey
 }
 
-const destroySession = async function (ctx: any) {
+const destroySession = async function (ctx: Context) {
   const contextSessionSymbol = Object.getOwnPropertySymbols(ctx)[0]
+  // @ts-ignore
   const contextSession = ctx[contextSessionSymbol]
   await contextSession.remove()
 
   await contextSession.initFromExternal()
 }
 
-export async function destroySessionById (sessionId: any) {
+export async function destroySessionById (sessionId: string) {
   await SessionDAO.deleteSession(sessionId)
   // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   delete jarCache[sessionId]
 }
 
-export function getUser (ctx: any) {
+export function getUser (ctx: Context) {
   const { token } = getSession(ctx)
   if (token) {
     const { user, pass, name, expiry, location } = token
     return { user, pass, name, expiry, location }
   }
-  return { user: null, pass: null, name: null, expiry: null, location: {} }
+  return {
+    user: null as string,
+    pass: null as string,
+    name: null as string,
+    expiry: null as Date,
+    location: {}
+  }
 }
 
 export async function findSessionsForUser (user: any) {
   return SessionDAO.findSessionsForUser(user)
 }
 
-export function extractIpAddress (req: any) {
+export function extractIpAddress (req: Request) {
   const ip = req.headers['x-forwarded-for']
   log.debug('X-forwarded-for: %s', ip)
   if (ip) {
     const list = ip.split(',')
     return list[list.length - 1]
   } else {
-    return req.connection.remoteAddress
+    return req.socket.remoteAddress
   }
 }
 
-export async function login (ctx: any, user: any, pass: any, memorableWord: any, persist: any, pushSubscription: any) {
+export async function login (ctx: Context, user: string, pass: string, memorableWord: string, persist: boolean, pushSubscription: PushSubscription) {
   await destroySession(ctx)
-  const ip = extractIpAddress(ctx.req)
+  const ip = extractIpAddress(ctx.request)
   log.debug('Extracted ip address: %s', ip)
 
   const [{ jar, name }, location] = await Promise.all([
@@ -219,11 +233,11 @@ export async function login (ctx: any, user: any, pass: any, memorableWord: any,
   return { token, jar, name }
 }
 
-export async function logout (ctx: any) {
+export async function logout (ctx: Context) {
   await destroySession(ctx)
 }
 
-export async function isLoggedIn (ctx: any) {
+export async function isLoggedIn (ctx: Context) {
   const { token, jar } = getSession(ctx)
   if (!token && !jar) {
     return false
@@ -243,7 +257,7 @@ export async function isLoggedIn (ctx: any) {
   return refreshToken(ctx, token)
 }
 
-const refreshToken = async function (ctx: any, token: any) {
+const refreshToken = async function (ctx: Context, token: Token) {
   try {
     const { user, pass, memorableWord } = token
     const { jar } = await csdAuth.login(user, pass, memorableWord)

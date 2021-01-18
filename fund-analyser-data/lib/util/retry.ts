@@ -28,7 +28,7 @@ export default async function retry (asyncFn: any, options?: any) {
         throw err
       }
       log.warn(`Retrying task [${description}] on failed attempt ${attempt - 1}. Waiting ${retryInterval}ms...\nError: ${err.stack}`)
-      await (Promise as any).delay(retryInterval)
+      await Promise.delay(retryInterval)
     }
   }
   clearInterval(slowTaskWarningMessage)

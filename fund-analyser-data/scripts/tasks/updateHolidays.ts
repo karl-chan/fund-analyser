@@ -1,8 +1,8 @@
 import { Promise } from 'bluebird'
+import * as _ from 'lodash'
 import * as HolidayDAO from '../../lib/db/HolidayDAO'
 import NYTimes from '../../lib/fund/NYTimes'
 import log from '../../lib/util/log'
-import * as _ from 'lodash'
 /**
  * Update holidays for all stock exchanges
  * @returns {Promise.<void>}
@@ -10,7 +10,7 @@ import * as _ from 'lodash'
 export default async function updateHolidays () {
   const nyTimes = new NYTimes()
   const exchangeTickers = await nyTimes.getExchangeTickers()
-  const holidaysMap = _.fromPairs(await (Promise as any).map(exchangeTickers, async (exchange: any) => {
+  const holidaysMap = _.fromPairs(await Promise.map(exchangeTickers, async (exchange: any) => {
     const holidays = await nyTimes.getHolidaysForExchange(exchange)
     return [exchange, holidays]
   }))
