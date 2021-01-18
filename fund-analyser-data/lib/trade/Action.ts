@@ -1,20 +1,22 @@
 export class Buy {
-    isin: any;
-    sedol: any;
-    value: any;
-    constructor (isin: any, sedol: any, value: any) {
+    isin: string;
+    sedol: string;
+    value: number;
+    constructor (isin: string, sedol: string, value: number) {
       this.isin = isin
       this.sedol = sedol
       this.value = value
     }
 }
 export class Sell {
-    isin: any;
-    quantity: any;
-    sedol: any;
-    constructor (isin: any, sedol: any, quantity: any) {
+    isin: string;
+    quantity: number;
+    sedol: string;
+    constructor (isin: string, sedol: string, quantity: number) {
       this.isin = isin
       this.sedol = sedol
       this.quantity = quantity
     }
 }
+
+export type Action = Buy | Sell;

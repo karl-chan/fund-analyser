@@ -17,12 +17,12 @@ class Currency {
       }
     };
 
-    base: any;
+    base: string;
     historicRates: Currency.HistoricRate[];
-    quote: any;
-    returns: any;
+    quote: string;
+    returns: {[lookback: string]: number};
 
-    constructor (base: any, quote: any, historicRates: Currency.HistoricRate[], returns: any) {
+    constructor (base: string, quote: string, historicRates: Currency.HistoricRate[], returns:{[lookback: string]: number}) {
       this.base = base
       this.quote = quote
       this.historicRates = historicRates

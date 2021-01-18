@@ -1,13 +1,13 @@
 import { Promise } from 'bluebird'
+import * as _ from 'lodash'
+import * as stream from 'stream'
+import Stock from '../stock/Stock'
 import * as db from '../util/db'
 import log from '../util/log'
 import * as math from '../util/math'
-import Stock from '../stock/Stock'
-import * as _ from 'lodash'
-import * as stream from 'stream'
 const idField = 'symbol'
 
-export function fromStock (stock: any) {
+export function fromStock (stock: Stock) {
   return {
     _id: stock[idField],
     ..._.toPlainObject(stock)
@@ -29,20 +29,20 @@ export function toStock (entry: any) {
   return builder.build()
 }
 
-export async function upsertStocks (stocks: any) {
+export async function upsertStocks (stocks: Stock[]) {
   if (!stocks.length) {
     log.info('No stocks to upsert. Returning...')
     return
   }
   // count all stocks
-  const shardCounts = await (Promise as any).map(db.getStocks(), (stockDb: any) => stockDb.countDocuments())
+  const shardCounts = await Promise.map(db.getStocks(), stockDb => stockDb.countDocuments())
   // find matching ids in shards
   const searchIds = stocks.map((f: any) => f[idField]).filter((val: any) => val)
   const findOptions = {
     query: { _id: { $in: searchIds } },
     projection: { _id: 1 }
   }
-  const shardedDocs = await (Promise as any).map(buildFindQuery(findOptions), (query: any) => query.toArray())
+  const shardedDocs = await Promise.map(buildFindQuery(findOptions), query => query.toArray())
   const shardedIds = shardedDocs.map((docs: any) => new Set(docs.map((doc: any) => doc._id)))
   // partition stocks into shards
   const bucketedStocks = shardedIds.map((shard: any) => <Stock[]>[])
@@ -61,10 +61,10 @@ export async function upsertStocks (stocks: any) {
     const operation = { replaceOne: { filter: query, replacement: doc, upsert: true } }
     return operation
   }
-  const bucketedOperations = bucketedStocks.map((bucket: any) => bucket.map(upsertOperation))
+  const bucketedOperations = bucketedStocks.map(bucket => bucket.map(upsertOperation))
   try {
     // @ts-expect-error ts-migrate(7031) FIXME: Binding element 'stockDb' implicitly has an 'any' ... Remove this comment to see the full error message
-    await (Promise as any).map(_.zip(db.getStocks(), bucketedOperations), ([stockDb, operations]) => {
+    await Promise.map(_.zip(db.getStocks(), bucketedOperations), ([stockDb, operations]) => {
       return operations.length ? stockDb.bulkWrite(operations) : []
     })
   } catch (err) {
@@ -80,7 +80,7 @@ export async function upsertStocks (stocks: any) {
      * @param toPlainObject [optional] boolean - true: to plain object, false: to stock
      */
 export async function listStocks (options: any, toPlainObject = false) {
-  const shardedDocs = await (Promise as any).map(buildFindQuery(options), (query: any) => query.toArray())
+  const shardedDocs = await Promise.map(buildFindQuery(options), query => query.toArray())
   let docs = _.flatten(shardedDocs)
   // need postprocessing because we are merging from different databases
   if (options && options.sort) {
@@ -96,8 +96,9 @@ export async function listStocks (options: any, toPlainObject = false) {
 export function streamStocks (options: any, toPlainObject = false) {
   const res = new stream.PassThrough({
     objectMode: true
-  });
-  (Promise as any).each(buildFindQuery(options), async (query: any) => {
+  })
+  Promise.each(buildFindQuery(options), async query => {
+    // @ts-ignore
     const stockDbStream = query.transformStream({
       transform: toPlainObject ? _.toPlainObject : toStock
     })
@@ -115,13 +116,13 @@ export function streamStocks (options: any, toPlainObject = false) {
 export async function deleteStocks (options: any) {
   const queryOpts = _.defaultTo(options.query, {})
   try {
-    await (Promise as any).map(db.getStocks(), (stockDb: any) => stockDb.deleteMany(queryOpts))
+    await Promise.map(db.getStocks(), stockDb => stockDb.deleteMany(queryOpts))
   } catch (err) {
     log.error('Failed to delete stocks. Error: %s', err.stack)
   }
 }
 
-export async function search (text: any, projection: any, limit: any) {
+export async function search (text: string, projection: any, limit: number) {
   const options = {
     query: { $text: { $search: text } },
     projection: { ...projection, score: { $meta: 'textScore' } },
@@ -147,5 +148,5 @@ const buildFindQuery = (options: any) => {
     sort: options && options.sort,
     limit: options && options.limit
   }
-  return db.getStocks().map((stockDb: any) => stockDb.find(query, findOptions))
+  return db.getStocks().map(stockDb => stockDb.find(query, findOptions))
 }
