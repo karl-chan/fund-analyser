@@ -37,7 +37,7 @@ export default class FinancialTimes implements FundProvider {
     }
 
     async getFundsFromIsins (isins: any) {
-      return Promise.map(isins, this.getFundFromIsin.bind(this))
+      return Promise.map(isins, this.getFundFromIsin)
     }
 
     private async getFundFromIsin (isin: any): Promise<Fund> {
@@ -280,7 +280,7 @@ export default class FinancialTimes implements FundProvider {
      * Analogous stream methods below
      */
     streamFundsFromIsins () {
-      return streamWrapper.asParallelTransformAsync(this.getFundFromIsin.bind(this))
+      return streamWrapper.asParallelTransformAsync(this.getFundFromIsin)
     }
 
     private async getSymbolFromName (name: string) {

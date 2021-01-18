@@ -37,7 +37,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
       return sedols
     }
 
-    private async getPageRange (lastPage: any) {
+    private async getPageRange (lastPage: number) {
       return _.range(1, lastPage + 1)
     }
 
@@ -50,17 +50,17 @@ export default class CharlesStanleyDirect implements IsinProvider {
       return lastPage
     }
 
-    private async getSedolsFromPage (page: any) {
+    private async getSedolsFromPage (page: number) {
       const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?sortdirection=ASC&SearchType=KeywordSearch&Category=Funds&SortColumn=TER&SortDirection=DESC&Pagesize=${this.pageSize}&Page=${page}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
-      const sedols = $('#funds-table').find('tbody td:nth-child(3)').map((i: any, td: any) => $(td).text().trim()).get()
+      const sedols = $('#funds-table').find('tbody td:nth-child(3)').map((i, td) => $(td).text().trim()).get()
       log.debug('Sedols in page %d: %j', page, sedols)
       return sedols
     }
 
-    private async getSedolsFromPages (pages: any) {
-      const sedols = await Promise.map(pages, this.getSedolsFromPage.bind(this))
+    private async getSedolsFromPages (pages: number[]) {
+      const sedols = await Promise.map(pages, this.getSedolsFromPage)
       return _.flatten(sedols)
     }
 
@@ -68,7 +68,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
      * ONLY PARTIAL FUND IS RETURNED!! (with isin and bid ask spread as % of price)
      * @param sedol
      */
-    async getFundFromSedol (sedol: any) {
+    async getFundFromSedol (sedol: string) {
       const url = `https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=${sedol}`
       let body
       try {
@@ -124,8 +124,8 @@ export default class CharlesStanleyDirect implements IsinProvider {
       return partialFund
     }
 
-    async getFundsFromSedols (sedols: any) {
-      return Promise.map(sedols, this.getFundFromSedol.bind(this))
+    async getFundsFromSedols (sedols: string[]) {
+      return Promise.map(sedols, this.getFundFromSedol)
     }
 
     /**

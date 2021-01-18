@@ -1,6 +1,6 @@
+import * as _ from 'lodash'
 import * as db from '../util/db'
 import log from '../util/log'
-import * as _ from 'lodash'
 
 // property keys
 const FUND_WATCHLIST = 'fundWatchlist'
@@ -118,6 +118,7 @@ export default class UserDAO {
         }
       }
     ]
+    // @ts-ignore
     await db.getUsers().bulkWrite(operations)
     log.debug(`Activated [${user}]'s ${SIMULATE_PARAMS}: [${JSON.stringify(simulateParam)}]`)
   }

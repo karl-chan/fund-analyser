@@ -1,7 +1,7 @@
-import * as fundUtils from '../util/fundUtils'
-import * as properties from '../util/properties'
-import * as streamWrapper from '../util/streamWrapper'
-import log from '../util/log'
+import * as fundUtils from '../util/fundUtils';
+import log from '../util/log';
+import * as properties from '../util/properties';
+import * as streamWrapper from '../util/streamWrapper';
 
 export default class FundCalculator {
     lookbacks: any;
@@ -17,7 +17,7 @@ export default class FundCalculator {
     }
 
     stream () {
-      return streamWrapper.asTransformAsync(this.evaluate.bind(this))
+      return streamWrapper.asTransformAsync(this.evaluate)
     }
 
     enrichReturns (fund: any) {

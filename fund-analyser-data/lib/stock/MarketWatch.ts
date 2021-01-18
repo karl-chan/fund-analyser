@@ -32,7 +32,7 @@ export default class MarketWatch implements StockProvider {
     }
 
     async getStocksFromSymbols (isins: any) {
-      return Promise.map(isins, this.getStockFromSymbol.bind(this))
+      return Promise.map(isins, this.getStockFromSymbol)
     }
 
     async getSummary (symbol: any) {
@@ -135,6 +135,6 @@ export default class MarketWatch implements StockProvider {
      * Analogous stream methods below
      */
     streamStocksFromSymbols () {
-      return streamWrapper.asParallelTransformAsync(this.getStockFromSymbol.bind(this))
+      return streamWrapper.asParallelTransformAsync(this.getStockFromSymbol)
     }
 }
