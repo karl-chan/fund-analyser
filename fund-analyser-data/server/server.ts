@@ -1,24 +1,25 @@
-import Koa from 'koa'
-import * as path from 'path'
-import helmet from 'koa-helmet'
-import compress from 'koa-compress'
-import logger from 'koa-logger'
 import cors from '@koa/cors'
-import session from 'koa-session'
+import Koa, { Context, Next } from 'koa'
 import bodyParser from 'koa-bodyparser'
+import compress from 'koa-compress'
+import helmet from 'koa-helmet'
+import logger from 'koa-logger'
+import session from 'koa-session'
+import sslify, { xForwardedProtoResolver } from 'koa-sslify'
 import serve from 'koa-static-cache'
 import moment from 'moment'
+import * as path from 'path'
 import * as zlib from 'zlib'
-
-import { getProjectRoot } from '../lib/util/paths'
-import * as properties from '../lib/util/properties'
+import SessionDAO from '../lib/db/SessionDAO'
 import * as db from '../lib/util/db'
 import * as env from '../lib/util/env'
 import log from '../lib/util/log'
-import SessionDAO from '../lib/db/SessionDAO'
+import { getProjectRoot } from '../lib/util/paths'
+import * as properties from '../lib/util/properties'
 import Stopwatch from '../lib/util/stopwatch'
-
 import { SESSION_CONFIG } from './auth'
+import * as fundCache from './cache/fundCache'
+import * as stockCache from './cache/stockCache'
 import accountRoutes from './routes/account-routes'
 import adminRoutes from './routes/admin-routes'
 import authRoutes from './routes/auth-routes'
@@ -26,9 +27,7 @@ import currencyRoutes from './routes/currency-routes'
 import fundsRoutes from './routes/funds-routes'
 import simulateRoutes from './routes/simulate-routes'
 import stocksRoutes from './routes/stocks-routes'
-import * as fundCache from './cache/fundCache'
-import * as stockCache from './cache/stockCache'
-import sslify, { xForwardedProtoResolver } from 'koa-sslify'
+
 const historyApiFallback = require('koa-history-api-fallback')
 
 const PORT = process.env.PORT || properties.get('server.default.port')
@@ -37,7 +36,7 @@ const app = new Koa()
 app.keys = [properties.get('secret.key')]
 
 // redirect / to index.html
-app.use(async (ctx: any, next: any) => {
+app.use(async (ctx: Context, next: Next) => {
   if (ctx.request.url === '/') {
     ctx.redirect('/index.html')
     return
@@ -87,7 +86,7 @@ app.use(fundsRoutes.routes())
 app.use(simulateRoutes.routes())
 app.use(stocksRoutes.routes())
 
-const cleanupEvery = (frequency: any) => {
+const cleanupEvery = (frequency: number) => {
   const cleanup = () => {
     SessionDAO.deleteExpiredSessions()
   }

@@ -37,7 +37,7 @@ export default class FinancialTimes implements FundProvider {
     }
 
     async getFundsFromIsins (isins: any) {
-      return (Promise as any).map(isins, this.getFundFromIsin.bind(this))
+      return Promise.map(isins, this.getFundFromIsin)
     }
 
     private async getFundFromIsin (isin: any): Promise<Fund> {
@@ -253,7 +253,7 @@ export default class FinancialTimes implements FundProvider {
         }
         return { currency, todaysChange }
       }
-      const enrichedHoldings = await (Promise as any).map(fund.holdings, async (h: any) => {
+      const enrichedHoldings = await Promise.map(fund.holdings, async (h: any) => {
         const { currency, todaysChange } = h.symbol ? await getTodaysChange(h.symbol) : { currency: null, todaysChange: null }
         return { name: h.name, symbol: h.symbol, currency, todaysChange, weight: h.weight }
       })
@@ -280,7 +280,7 @@ export default class FinancialTimes implements FundProvider {
      * Analogous stream methods below
      */
     streamFundsFromIsins () {
-      return streamWrapper.asParallelTransformAsync(this.getFundFromIsin.bind(this))
+      return streamWrapper.asParallelTransformAsync(this.getFundFromIsin)
     }
 
     private async getSymbolFromName (name: string) {

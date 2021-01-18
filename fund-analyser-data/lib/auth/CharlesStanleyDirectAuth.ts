@@ -1,7 +1,7 @@
-import Http from '../util/http'
-import log from '../util/log'
 import * as cheerio from 'cheerio'
 import rp from 'request-promise'
+import Http from '../util/http'
+import log from '../util/log'
 
 const http = new Http()
 

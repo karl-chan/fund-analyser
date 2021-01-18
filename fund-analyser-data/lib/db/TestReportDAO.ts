@@ -1,17 +1,17 @@
 import * as cheerio from 'cheerio'
-import * as db from '../util/db'
 import * as util from 'util'
 import * as zlib from 'zlib'
+import * as db from '../util/db'
 const brotliCompress = util.promisify(zlib.brotliCompress)
 const brotliDecompress = util.promisify(zlib.brotliDecompress)
 
 export async function isPassing () {
-  const doc = await db.getTestReport().findOne({}, { passed: 1 })
+  const doc = await db.getTestReport().findOne({}, { projection: { passed: 1 } })
   return doc && doc.passed
 }
 
 export async function getTestReport () {
-  const doc = await db.getTestReport().findOne({}, { compressedHtml: 1 })
+  const doc = await db.getTestReport().findOne({}, { projection: { compressedHtml: 1 } })
   return doc &&
         brotliDecompress(doc.compressedHtml.buffer)
           .then((buffer: any) => buffer.toString())

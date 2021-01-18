@@ -1,17 +1,17 @@
-import moment from 'moment'
 import * as cheerio from 'cheerio'
 import * as _ from 'lodash'
+import moment from 'moment'
+import { CookieJar } from 'request'
 import * as url from 'url'
-
+import * as FundDAO from '../db/FundDAO'
+import Fund from '../fund/Fund'
+import { Action, Buy } from '../trade/Action'
+import * as fundUtils from '../util/fundUtils'
 import Http from '../util/http'
 import * as lang from '../util/lang'
 import log from '../util/log'
 import * as math from '../util/math'
 import * as properties from '../util/properties'
-import * as fundUtils from '../util/fundUtils'
-import * as FundDAO from '../db/FundDAO'
-import Fund from '../fund/Fund'
-import { Buy } from '../trade/Action'
 
 const http = new Http()
 
@@ -57,16 +57,16 @@ export interface Statement {
   returns: object
 }
 export default class CharlesStanleyDirectAccount {
-    fundTradeEntryUrl: any;
-    fundTradeVerifyPlaceOrderUrl: any;
-    jar: any;
-    lookbacks: any;
-    orderListUrl: any;
-    pass: any;
-    portfolioValuationUrl: any;
-    statementUrl: any;
-    tradeInstrumentUrl: any;
-    constructor (jar: any, pass: any) {
+    fundTradeEntryUrl: string;
+    fundTradeVerifyPlaceOrderUrl: string;
+    jar: CookieJar;
+    lookbacks: string[];
+    orderListUrl: string;
+    pass: string;
+    portfolioValuationUrl: string;
+    statementUrl: string;
+    tradeInstrumentUrl: string;
+    constructor (jar?: CookieJar, pass?: string) {
       if (!jar) {
         throw new Error('Missing jar')
       }
@@ -286,7 +286,7 @@ export default class CharlesStanleyDirectAccount {
       * @param {*} action a Buy / Sell action from lib/trade/Action.js
       * @returns {string} the 11-character order reference for the successful trade
       */
-    async tradeFund (action: any) {
+    async tradeFund (action: Action) {
       // Trade entry page
       const { body: b1 } = await http.asyncGet(this.tradeInstrumentUrl, {
         jar: this.jar,

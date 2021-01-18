@@ -1,6 +1,6 @@
 import { Promise } from 'bluebird'
-import * as heroku from './heroku'
 import moment from 'moment'
+import * as heroku from './heroku'
 import * as streamWrapper from './streamWrapper'
 jest.setTimeout(30000) // 30 seconds
 describe('heroku', () => {
@@ -15,7 +15,7 @@ describe('heroku', () => {
     const duration = 5000 // 5 seconds
     const logStream = await heroku.streamLogs(heroku.WORKER_CATEGORY)
     logStream.pipe(sink)
-    await (Promise as any).delay(duration)
+    await Promise.delay(duration)
     logStream.unpipe(sink)
     const timestampRegex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
     expect(spy.mock.calls.length).toBeGreaterThan(0)

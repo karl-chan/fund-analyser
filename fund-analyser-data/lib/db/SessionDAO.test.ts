@@ -1,11 +1,11 @@
+import * as db from '../util/db'
 import SessionDAO from './SessionDAO'
 
-import * as db from '../util/db'
 
 jest.setTimeout(30000) // 30 seconds
 
 describe('SessionDAO', () => {
-  let data: any, sessionId: any
+  let data: any, sessionId: string
   beforeAll(async () => {
     await db.init()
   })

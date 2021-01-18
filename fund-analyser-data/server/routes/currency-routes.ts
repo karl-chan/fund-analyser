@@ -1,3 +1,4 @@
+import { Context } from 'koa'
 import Router from 'koa-router'
 import * as CurrencyDAO from '../../lib/db/CurrencyDAO'
 import * as currencyUtils from '../../lib/util/currencyUtils'
@@ -8,17 +9,17 @@ const router = new Router({
   prefix: CURRENCY_URL_PREFIX
 })
 
-router.get('/supported', async (ctx: any) => {
+router.get('/supported', async (ctx: Context) => {
   ctx.body = await CurrencyDAO.listSupportedCurrencies()
 })
 
-router.get('/get', async (ctx: any) => {
+router.get('/get', async (ctx: Context) => {
   const { pairs } = ctx.request.query
   const currencies = pairs ? await CurrencyDAO.listCurrencies(pairs.trim().split(',')) : []
   ctx.body = currencies
 })
 
-router.get('/summary', async (ctx: any) => {
+router.get('/summary', async (ctx: Context) => {
   const { invert } = ctx.request.query
   let currencies = await CurrencyDAO.listSummary()
   if (invert) {

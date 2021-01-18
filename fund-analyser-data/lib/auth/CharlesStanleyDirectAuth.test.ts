@@ -1,10 +1,10 @@
-import CharlesStanleyDirectAuth from './CharlesStanleyDirectAuth'
 import * as properties from '../util/properties'
+import CharlesStanleyDirectAuth from './CharlesStanleyDirectAuth'
 
 jest.setTimeout(30000) // 30 seconds
 
 describe('CharlesStanleyDirectAuth', () => {
-  let csdAuth: any, user: any, pass: any, memorableWord: any
+  let csdAuth: CharlesStanleyDirectAuth, user: string, pass: string, memorableWord: string
   beforeAll(() => {
     user = properties.get('fund.charlesstanleydirect.user')
     pass = properties.get('fund.charlesstanleydirect.pass')

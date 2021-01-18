@@ -1,6 +1,6 @@
+import log from '../util/log'
 import * as stockUtils from '../util/stockUtils'
 import * as streamWrapper from '../util/streamWrapper'
-import log from '../util/log'
 
 export default class StockCalculator {
   async evaluate (stock: any) {
@@ -11,7 +11,7 @@ export default class StockCalculator {
   }
 
   stream () {
-    return streamWrapper.asTransformAsync(this.evaluate.bind(this))
+    return streamWrapper.asTransformAsync(this.evaluate)
   }
 
   calcReturns (stock: any) {

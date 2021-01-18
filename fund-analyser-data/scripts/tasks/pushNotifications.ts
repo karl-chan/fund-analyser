@@ -6,5 +6,5 @@ import * as simulate from '../../lib/simulate/simulate'
  */
 export default async function pushNotifications () {
   const docs = await UserDAO.listUsers()
-  await (Promise as any).map(docs, (doc: any) => simulate.pushNotificationsForUser(doc.user))
+  await Promise.map(docs, doc => simulate.pushNotificationsForUser(doc.user))
 }
