@@ -29,7 +29,7 @@ export default class StockFactory {
     async getStocks () {
       const symbols = await this.symbolProvider.getSymbols()
       const stocks = await this.stockProvider.getStocksFromSymbols(symbols)
-      const enrichedStocks = await Promise.map(stocks, this.stockCalculator.evaluate)
+      const enrichedStocks = await Promise.map(stocks, stock => this.stockCalculator.evaluate(stock))
       return enrichedStocks
     }
 

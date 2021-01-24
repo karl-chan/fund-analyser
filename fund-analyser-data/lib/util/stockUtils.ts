@@ -9,7 +9,7 @@ export function calcReturns (historicPrices: any) {
   return fundUtils.enrichReturns({}, historicPrices, lookbacks)
 }
 
-export async function calcIndicators (stock: any) {
+export async function calcIndicators (stock: Stock) {
   return indicators.calcStockIndicators(stock)
 }
 

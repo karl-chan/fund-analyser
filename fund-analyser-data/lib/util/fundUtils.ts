@@ -1,10 +1,10 @@
-import moment from 'moment'
 import * as _ from 'lodash'
+import moment from 'moment'
+import Fund from '../fund/Fund'
 import * as agGridUtils from './agGridUtils'
+import * as indicators from './indicators'
 import * as lang from './lang'
 import * as stat from './stat'
-import * as indicators from './indicators'
-import Fund from '../fund/Fund'
 
 export function closestRecord (lookback: any, historicPrices: {date: Date}[]) {
   if (!historicPrices || !historicPrices.length) {
@@ -89,7 +89,7 @@ export function enrichReturns (returns: any, historicPrices: Fund.HistoricPrice[
   return newReturns
 }
 
-export async function calcIndicators (fund: any) {
+export async function calcIndicators (fund: Fund) {
   return indicators.calcFundIndicators(fund)
 }
 
@@ -114,7 +114,7 @@ export function calcStats (funds: any, schema : object = Fund.schema) {
   return { min, q1, median, q3, max }
 }
 
-export function enrichRealTimeDetails (realTimeDetails: any, fund: any) {
+export function enrichRealTimeDetails (realTimeDetails: any, fund: Fund) {
   // excluding nulls
   const holdingsX = realTimeDetails.holdings
     .filter((h: any) => h.todaysChange != null)

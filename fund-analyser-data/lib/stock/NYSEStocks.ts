@@ -18,10 +18,10 @@ export default class NYSEStocks implements SymbolProvider {
         filterToken: ''
       }
     })
-    return data.body.map((o: { symbolTicker: any }) => o.symbolTicker)
+    return data.body.map((o: any) => o.symbolTicker)
   }
 
   streamSymbols () {
-    return streamWrapper.asReadableAsync(this.getSymbols)
+    return streamWrapper.asReadableAsync(() => this.getSymbols())
   }
 }

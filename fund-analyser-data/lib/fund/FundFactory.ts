@@ -30,7 +30,7 @@ export default class FundFactory {
     async getFunds () {
       const isins = await this.isinProvider.getFunds()
       const funds = await this.fundProvider.getFundsFromIsins(isins)
-      const enrichedFunds = await Promise.map(funds, this.fundCalculator.evaluate)
+      const enrichedFunds = await Promise.map(funds, fund => this.fundCalculator.evaluate(fund))
       return enrichedFunds
     }
 

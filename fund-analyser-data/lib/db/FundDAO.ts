@@ -74,8 +74,8 @@ export async function upsertFunds (funds: Fund[]) {
   }
   const bucketedOperations = bucketedFunds.map(bucket => bucket.map(upsertOperation))
   try {
-    await Promise.map(_.zip(db.getFunds(), bucketedOperations), ([fundDb, operations]) => {
-      return operations.length ? fundDb.bulkWrite(operations) : new Promise(undefined)
+    await Promise.map(_.zip(db.getFunds(), bucketedOperations), async ([fundDb, operations]) => {
+      return operations.length ? fundDb.bulkWrite(operations) : Promise.resolve()
     })
   } catch (err) {
     log.error('Failed to upsert funds: %j. Error: %s', funds, err.stack)

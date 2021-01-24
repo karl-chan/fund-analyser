@@ -55,7 +55,7 @@ export async function upsertStocks (stocks: Stock[]) {
     }
     bucketedStocks[shardIdx].push(stock)
   }
-  const upsertOperation = (stock: any) => {
+  const upsertOperation = (stock: Stock) => {
     const doc = fromStock(stock)
     const query = { _id: stock[idField] }
     const operation = { replaceOne: { filter: query, replacement: doc, upsert: true } }

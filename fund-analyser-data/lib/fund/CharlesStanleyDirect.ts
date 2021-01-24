@@ -60,7 +60,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
     }
 
     private async getSedolsFromPages (pages: number[]) {
-      const sedols = await Promise.map(pages, this.getSedolsFromPage)
+      const sedols = await Promise.map(pages, (page) => this.getSedolsFromPage(page))
       return _.flatten(sedols)
     }
 
@@ -125,7 +125,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
     }
 
     async getFundsFromSedols (sedols: string[]) {
-      return Promise.map(sedols, this.getFundFromSedol)
+      return Promise.map(sedols, (sedol) => this.getFundFromSedol(sedol))
     }
 
     /**
@@ -139,19 +139,19 @@ export default class CharlesStanleyDirect implements IsinProvider {
     }
 
     private streamNumPages () {
-      return streamWrapper.asReadableAsync(this.getNumPages)
+      return streamWrapper.asReadableAsync(() => this.getNumPages())
     }
 
     private streamPageRange () {
-      return streamWrapper.asTransformAsync(this.getPageRange)
+      return streamWrapper.asTransformAsync((numPages: number) => this.getPageRange(numPages))
     }
 
     private streamSedolsFromPages () {
-      return streamWrapper.asTransformAsync(this.getSedolsFromPage)
+      return streamWrapper.asTransformAsync((page: number) => this.getSedolsFromPage(page))
     }
 
     streamFundsFromSedols () {
-      return streamWrapper.asParallelTransformAsync(this.getFundFromSedol)
+      return streamWrapper.asParallelTransformAsync((sedol: string) => this.getFundFromSedol(sedol))
     }
 
     /**
