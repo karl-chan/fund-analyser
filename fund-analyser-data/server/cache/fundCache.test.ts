@@ -1,5 +1,5 @@
-import * as fundCache from './fundCache'
 import * as db from '../../lib/util/db'
+import * as fundCache from './fundCache'
 
 jest.setTimeout(60000) // 60 seconds
 
@@ -39,8 +39,8 @@ describe('fundCache', () => {
       const funds = fundCache.get(undefined, { filterText })
       expect(funds)
         .not.toBeEmpty()
-        .toSatisfyAll((f: any) => f.name.includes(filterText) ||
-            f.holdings.some((h: any) => h.name.includes(filterText))
+        .toSatisfyAll((f: any) => f.name.toLowerCase().includes(filterText.toLowerCase()) ||
+            f.holdings.some((h: any) => h.name.toLowerCase().includes(filterText.toLowerCase()))
         )
     })
 
