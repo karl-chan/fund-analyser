@@ -1,5 +1,5 @@
 import cors from '@koa/cors'
-import Koa, { Context, Next } from 'koa'
+import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import compress from 'koa-compress'
 import helmet from 'koa-helmet'
@@ -34,15 +34,6 @@ const PORT = process.env.PORT || properties.get('server.default.port')
 
 const app = new Koa()
 app.keys = [properties.get('secret.key')]
-
-// redirect / to index.html
-app.use(async (ctx: Context, next: Next) => {
-  if (ctx.request.url === '/') {
-    ctx.redirect('/index.html')
-    return
-  }
-  await next()
-})
 
 if (env.isProduction()) {
   app.use(helmet({
