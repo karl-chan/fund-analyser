@@ -1,5 +1,5 @@
-import * as stockCache from './stockCache'
 import * as db from '../../lib/util/db'
+import * as stockCache from './stockCache'
 
 jest.setTimeout(60000) // 60 seconds
 
@@ -39,9 +39,7 @@ describe('stockCache', () => {
       const stocks = stockCache.get(undefined, { filterText })
       expect(stocks)
         .not.toBeEmpty()
-        .toSatisfyAll((f: any) => f.name.includes(filterText) ||
-            f.holdings.some((h: any) => h.name.includes(filterText))
-        )
+        .toSatisfyAll((f: any) => f.name.toLowerCase().includes(filterText.toLowerCase()))
     })
 
     test('getMetadata should return metadata object', () => {

@@ -1,3 +1,4 @@
+import math
 from collections import defaultdict
 from datetime import date
 from typing import Dict, Iterable, Set, Tuple
@@ -62,8 +63,9 @@ class StockSimulator:
                 budget = cash / len(buy_confidences)
                 for symbol, confidence in buy_confidences.items():
                     price = prices_df.loc[dt, symbol]
-                    buy_amount = confidence * budget
-                    bought_shares = buy_amount / price
+                    buy_budget = confidence * budget
+                    bought_shares = math.floor(buy_budget / price)
+                    buy_amount = bought_shares * price
 
                     curr_holdings[symbol] += bought_shares
                     cash -= buy_amount

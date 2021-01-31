@@ -55,10 +55,24 @@ class BollingerHighExitStrategy(StockStrategy):
         return prices_df.gt(upper_band).loc[dt, :].astype('int').to_dict()
 
 
+class WorstFallEntryStrategy(StockStrategy):
+    @overrides
+    def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
+        log_debug(f"HighestRisingEntryStrategy for date: {dt}")
+        return prices_df.pct_change(20).loc[dt, :].nsmallest(10).lt(0).astype('int').to_dict()
+
+
+class HighestRiseEntryStrategy(StockStrategy):
+    @overrides
+    def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
+        log_debug(f"HighestRiseEntryStrategy for date: {dt}")
+        return prices_df.pct_change(1).loc[dt, :].nlargest(1).gt(0).astype('int').to_dict()
+
+
 class RisingEntryStrategy(StockStrategy):
     @overrides
     def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
-        return prices_df.pct_change().gt(0.02).loc[dt, :].astype('int').to_dict()
+        return prices_df.pct_change(5).gt(0.5).loc[dt, :].astype('int').to_dict()
 
 
 class AbsRisingEntryStrategy(StockStrategy):
@@ -80,7 +94,7 @@ class AbsFallingExitStrategy(StockStrategy):
 class HoldingDaysExitStrategy(StockStrategy):
     @overrides
     def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
-        hold_days = 5  # business days
+        hold_days = 1  # business days
         confidences: Confidences = {}
         for symbol in prices_df.columns:
             bought_dt = last_bought_date(symbol, history)
@@ -108,10 +122,10 @@ if __name__ == "__main__":
     prices_df, volume_df = stock_cache.get_prices(symbols)
     symbols = tuple(prices_df.columns)
 
-    start_date = datetime(2001, 1, 1)
+    start_date = datetime(2020, 1, 1)
     stock_simulator = StockSimulator(
         symbols=symbols,
-        entry_strategy=BollingerLowEntryStrategy(),
+        entry_strategy=WorstFallEntryStrategy(),  # BollingerLowEntryStrategy(),
         exit_strategy=HoldingDaysExitStrategy()  # TrailingExitStrategy(),
     )
     account, history = stock_simulator.run(start_date=start_date)
