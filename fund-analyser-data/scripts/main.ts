@@ -62,7 +62,7 @@ if (require.main === module) {
     for (const task of options.run) {
       log.info(`Started running: ${task}`)
       try {
-        // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+        // @ts-ignore
         await Main.tasks[task](...remainingArgs)
       } catch (err) {
         const taskDuration = timer.split()

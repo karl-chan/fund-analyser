@@ -168,8 +168,8 @@ export default class FinancialTimes implements FundProvider {
       // In case of failure, simply return an empty array and continue
       try {
         const series = JSON.parse(body2)
-        const dates = series.Dates
-        const prices = series.Elements[0].ComponentSeries.find((s: any) => s.Type === 'Close').Values
+        const dates : number[] = series.Dates
+        const prices : number[] = series.Elements[0].ComponentSeries.find((s: any) => s.Type === 'Close').Values
         const historicPrices = _.zipWith(dates, prices, (dateString, price) => {
           const date = moment.utc(dateString).toDate()
           return new Fund.HistoricPrice(date, price)

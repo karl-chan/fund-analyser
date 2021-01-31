@@ -35,7 +35,6 @@ export const SESSION_CONFIG = {
     async get (key: any, maxAge: any, {
       rolling
     }: any) {
-      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       const jar = jarCache[key]
       const data = await SessionDAO.findSession(key)
       return { ...data, jar }
@@ -46,7 +45,6 @@ export const SESSION_CONFIG = {
     }: any) {
       const { jar, ...data } = sess
       await SessionDAO.upsertSession(data, key)
-      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       jarCache[key] = jar
     },
     async destroy (key: any) {
@@ -55,7 +53,7 @@ export const SESSION_CONFIG = {
   }
 }
 
-const jarCache = {} // {[sessionId: string]: jar: object}
+const jarCache: {[sessionId: string]: CookieJar } = {}
 
 const csdAuth = new CharlesStanleyDirectAuth()
 
@@ -182,7 +180,6 @@ const destroySession = async function (ctx: Context) {
 
 export async function destroySessionById (sessionId: string) {
   await SessionDAO.deleteSession(sessionId)
-  // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   delete jarCache[sessionId]
 }
 

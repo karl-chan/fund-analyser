@@ -19,7 +19,7 @@ export interface Balance {
     portfolio: number
     cash: number
     totalValue: number
-    holdings: any[]
+    holdings: Fund.Holding[][]
 }
 
 export interface Order {
@@ -191,7 +191,7 @@ export default class CharlesStanleyDirectAccount {
         query: { sedol: { $in: sedols } }
       }, true), (f: any) => f.sedol)
 
-      const priceCorrection = (csdPrice: any, date: any, sedol: any) => {
+      const priceCorrection = (csdPrice: any, date: Date, sedol: any) => {
         // For some reason price difference between charles stanley and financial times could be 100x
         const fund = sedolToFund[sedol]
         const ftPrice = fundUtils.closestRecordBeforeDate(date, fund.historicPrices).price
@@ -243,18 +243,15 @@ export default class CharlesStanleyDirectAccount {
 
         // push event
         if (Object.keys(carryThroughHoldings).length > 0) {
-          const sedolToValue = {}
+          const sedolToValue: {[sedol: string]: number} = {}
           let totalHoldingsValue = 0
           for (const [sedol, numShares] of Object.entries(carryThroughHoldings)) {
             const fund = sedolToFund[sedol]
-            // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             sedolToValue[sedol] = numShares * fundUtils.closestRecordBeforeDate(date, fund.historicPrices).price
-            // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             totalHoldingsValue += sedolToValue[sedol]
           }
           const holdings = Object.entries(sedolToValue).map(([sedol, holdingValue]) => {
             const fund = sedolToFund[sedol]
-            // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
             return { sedol, name: fund.name, isin: fund.isin, weight: holdingValue / totalHoldingsValue }
           })
           events.push({ type: 'fund', from: date, to: nextDate.toDate(), holdings })

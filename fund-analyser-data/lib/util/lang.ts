@@ -72,8 +72,8 @@ export function deepTraverse (object: any, f: any, initialAcc : any[] = []) {
   return traverse([], object, f, initialAcc)
 }
 
-export function pairsToDeepObject (pairs: any) {
-  if (!Array.isArray(pairs)) {
+export function pairsToDeepObject (pairs: any[]) {
+  if (!pairs) {
     return {}
   }
   const object = {}
@@ -88,8 +88,7 @@ export function pairsToDeepObject (pairs: any) {
  * @param {*} object
  * @param  {...any} sources
  */
-// @ts-expect-error ts-migrate(7019) FIXME: Rest parameter 'sources' implicitly has an 'any[]'... Remove this comment to see the full error message
-export function assignIfDefined (dest: any, ...sources) {
+export function assignIfDefined (dest: any, ...sources: any[]) {
   for (const source of sources) {
     if (source && typeof source === 'object') {
       for (const [k, v] of Object.entries(source)) {

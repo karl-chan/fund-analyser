@@ -1,4 +1,6 @@
-import { isEmpty } from 'lodash'
+
+import { isEmpty } from 'lodash';
+
 class Fund {
     static types = Object.freeze({
       OEIC: 'OEIC',
@@ -61,12 +63,12 @@ class Fund {
     name: any;
     ocf: any;
     realTimeDetails: any;
-    returns: object;
+    returns: Fund.Returns;
     sedol: any;
     shareClass: any;
     type: any;
 
-    constructor (isin: any, sedol: any, name: any, type: any, shareClass: any, frequency: any, ocf: any, amc: any, entryCharge: any, exitCharge: any, bidAskSpread: any, holdings: Fund.Holding[], historicPrices: Fund.HistoricPrice[], returns: object, asof: any, indicators: any, realTimeDetails: any) {
+    constructor (isin: any, sedol: any, name: any, type: any, shareClass: any, frequency: any, ocf: any, amc: any, entryCharge: any, exitCharge: any, bidAskSpread: any, holdings: Fund.Holding[], historicPrices: Fund.HistoricPrice[], returns: Fund.Returns, asof: any, indicators: any, realTimeDetails: any) {
       this.isin = isin
       this.sedol = sedol
       this.name = name
@@ -109,13 +111,15 @@ class Fund {
     }
 
     export class HistoricPrice {
-        date: any;
-        price: any;
-        constructor (date: any, price: any) {
+        date: Date;
+        price: number;
+        constructor (date: Date, price: number) {
           this.date = date
           this.price = price
         }
     }
+
+    export type Returns = {[lookback: string]: number}
 
     export class Builder {
         _amc: any;
@@ -124,14 +128,14 @@ class Fund {
         _entryCharge: any;
         _exitCharge: any;
         _frequency: any;
-        _historicPrices: any;
-        _holdings: any;
+        _historicPrices: HistoricPrice[];
+        _holdings: Holding[];
         _indicators: any;
         _isin: any;
         _name: any;
         _ocf: any;
         _realTimeDetails: any;
-        _returns: any;
+        _returns: Returns;
         _sedol: any;
         _shareClass: any;
         _type: any;
@@ -189,17 +193,17 @@ class Fund {
           return this
         }
 
-        holdings (holdings: any) {
+        holdings (holdings: Holding[]) {
           this._holdings = holdings
           return this
         }
 
-        historicPrices (historicPrices: any) {
+        historicPrices (historicPrices: HistoricPrice[]) {
           this._historicPrices = historicPrices
           return this
         }
 
-        returns (returns: any) {
+        returns (returns: Returns) {
           this._returns = returns
           return this
         }

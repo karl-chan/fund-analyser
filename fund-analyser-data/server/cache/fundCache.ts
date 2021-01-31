@@ -1,8 +1,8 @@
-import Fund from '../../lib/fund/Fund'
 import moment from 'moment-business-days'
 import * as FundDAO from '../../lib/db/FundDAO'
-import log from '../../lib/util/log'
+import Fund from '../../lib/fund/Fund'
 import * as fundUtils from '../../lib/util/fundUtils'
+import log from '../../lib/util/log'
 import * as tmp from '../../lib/util/tmp'
 const REFRESH_INTERVAL = moment.duration(15, 'minutes')
 const FILE_TMP_CACHE = 'fundCache'
@@ -18,7 +18,7 @@ interface Metadata {
 }
 
 let fundCache : Fund[] = []
-let quickFilterCache = {}
+let quickFilterCache: {[isin: string]: string} = {}
 let metadata: Metadata
 let refreshTask: any = null
 
@@ -33,20 +33,19 @@ async function refresh () {
   log.info('Fund cache refreshed.')
 }
 
-export function get (isins?: any, options?: any) {
+export function get (isins?: string[], options?: any) {
   checkRunning()
   let funds = isins
-    ? fundCache.filter((f: any) => isins.includes(f.isin))
+    ? fundCache.filter(f => isins.includes(f.isin))
     : fundCache
   if (options) {
     const { filterText, showUpToDateOnly } = options
     if (filterText && filterText.trim()) {
       const needle = filterText.trim().toLowerCase()
-      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-      funds = funds.filter((f: any) => quickFilterCache[f.isin].includes(needle))
+      funds = funds.filter(f => quickFilterCache[f.isin].includes(needle))
     }
     if (showUpToDateOnly) {
-      funds = funds.filter((f: any) => isUpToDate(f, (metadata as any).asof.date))
+      funds = funds.filter(f => isUpToDate(f, metadata.asof.date))
     }
   }
   return funds
@@ -89,9 +88,9 @@ export function shutdown () {
   clearInterval(refreshTask)
 }
 
-function buildQuickFilterCache (funds: any) {
-  const cache = {}
-  funds.forEach((f: any) => {
+function buildQuickFilterCache (funds: Fund[]) {
+  const cache: {[isin: string]: string} = {}
+  funds.forEach(f => {
     let str = ''
     for (const v of Object.values(f)) {
       switch (typeof v) {
@@ -102,7 +101,6 @@ function buildQuickFilterCache (funds: any) {
           str += v
       }
     }
-    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     cache[f.isin] = str.toLowerCase()
   })
   return cache
@@ -112,7 +110,7 @@ function refreshMetadata () {
   fundCache = fundUtils.enrichSummary(fundCache)
   quickFilterCache = buildQuickFilterCache(fundCache)
   const asofDate = getAsOfDate()
-  const fundsUpToDate = fundCache.filter((f: any) => isUpToDate(f, asofDate))
+  const fundsUpToDate = fundCache.filter(f => isUpToDate(f, asofDate))
   const asof = {
     date: asofDate,
     numUpToDate: fundsUpToDate.length
@@ -129,7 +127,7 @@ function checkRunning () {
   }
 }
 
-function isUpToDate (f: any, asofDate: any) {
+function isUpToDate (f: Fund, asofDate: Date) {
   return f.asof && f.asof.getTime() === asofDate.getTime()
 }
 
@@ -138,7 +136,7 @@ async function loadFromFile () {
   for (const row of fundCache) {
     row.asof = new Date(row.asof)
   }
-  (metadata as any).asof.date = new Date((metadata as any).asof.date)
+  metadata.asof.date = new Date(metadata.asof.date)
   log.info('Fund cache loaded from file.')
 }
 

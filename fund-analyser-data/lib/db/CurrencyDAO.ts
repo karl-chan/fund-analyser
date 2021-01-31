@@ -1,7 +1,7 @@
-import Currency from '../currency/Currency'
-import * as db from '../util/db'
-import * as currencyUtils from '../util/currencyUtils'
 import * as _ from 'lodash'
+import Currency from '../currency/Currency'
+import * as currencyUtils from '../util/currencyUtils'
+import * as db from '../util/db'
 
 export const HOME_CURRENCY = 'GBP'
 
@@ -13,18 +13,18 @@ export const HOME_CURRENCY = 'GBP'
  *      {base: "GBP", quote: "BRL", historicRates: [...]}
  * ]
  */
-export async function listCurrencies (currencyPairs: any) {
+export async function listCurrencies (currencyPairs: string[]) {
   if (!currencyPairs || !currencyPairs.length) {
     return []
   }
 
-  const baseQuotePairs = currencyPairs.map((pair: any) => {
+  const baseQuotePairs = currencyPairs.map((pair: string) => {
     const base = pair.substring(0, 3)
     const quote = pair.substring(3, 6)
     return [base, quote]
   })
 
-  const requiredQuoteCurrencies = _.uniq(_.flatten(baseQuotePairs)).filter((c: any) => c !== HOME_CURRENCY)
+  const requiredQuoteCurrencies = _.uniq(_.flatten(baseQuotePairs)).filter(c => c !== HOME_CURRENCY)
   const query = {
     quote: { $in: requiredQuoteCurrencies }
   }
@@ -35,11 +35,10 @@ export async function listCurrencies (currencyPairs: any) {
     quote,
     historicRates,
     returns
-  }: any) => new Currency(base, quote, historicRates, returns))
-  const currenciesByQuote = _.keyBy(parsedCurrencies, (c: any) => c.quote)
+  }) => new Currency(base, quote, historicRates, returns))
+  const currenciesByQuote = _.keyBy(parsedCurrencies, c => c.quote)
 
-  const currencies: any = []
-  // @ts-expect-error ts-migrate(7031) FIXME: Binding element 'base' implicitly has an 'any' typ... Remove this comment to see the full error message
+  const currencies: Currency[] = []
   baseQuotePairs.forEach(([base, quote]) => {
     let currency
     if (base === quote) {
@@ -68,7 +67,7 @@ export async function listCurrencies (currencyPairs: any) {
   return currencies
 }
 
-export async function upsertCurrency (currency: any) {
+export async function upsertCurrency (currency: Currency) {
   const query = {
     base: currency.base,
     quote: currency.quote
@@ -85,20 +84,20 @@ export async function upsertCurrency (currency: any) {
 export async function listSupportedCurrencies () {
   const projection = { _id: 0, base: 1, quote: 1 }
   const baseQuotes = await db.getCurrencies().find({}, { projection }).toArray()
-  return _.uniq(_.flatten(baseQuotes.map((pair: any) => [pair.base, pair.quote])))
+  return _.uniq(_.flatten(baseQuotes.map(pair => [pair.base, pair.quote])))
 }
 
 export async function listSummary () {
-  const defaultHistoricRates: any = [] // fill with empty array
+  const defaultHistoricRates: Currency.HistoricRate[] = [] // fill with empty array
   const projection = { _id: 0, base: 1, quote: 1, returns: 1 }
   const rawCurrencies = await db.getCurrencies().find({}, { projection }).toArray()
   return rawCurrencies.map(({
     base,
     quote,
     returns
-  }: any) => new Currency(base, quote, defaultHistoricRates, returns))
+  }) => new Currency(base, quote, defaultHistoricRates, returns))
 }
 
-function fromCurrency (currency: any) {
+function fromCurrency (currency: Currency) {
   return _.toPlainObject(currency)
 }

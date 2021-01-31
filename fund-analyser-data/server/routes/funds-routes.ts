@@ -30,14 +30,13 @@ router.get('/isins', async (ctx: Context) => {
 router.get('/isins/:isins', async (ctx: Context) => {
   const isins = ctx.params.isins.split(',')
   const { stream } = ctx.query
-  const options = {
+  const options: FundDAO.Options = {
     query: { isin: { $in: isins } },
     projection: { _id: 0 }
   }
   if (stream) {
     // support "all" only in stream mode to be memory friendly
     if (ctx.params.isins === 'all') {
-      // @ts-expect-error ts-migrate(2741) FIXME: Property 'isin' is missing in type '{}' but requir... Remove this comment to see the full error message
       options.query = {}
     }
     ctx.type = 'json'

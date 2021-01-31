@@ -8,6 +8,13 @@ import log from '../util/log'
 import * as math from '../util/math'
 const idField = 'sedol'
 
+export interface Options {
+  query?: object
+  projection?: object
+  sort?: object
+  limit?: number
+}
+
 export function fromFund (fund: Fund) {
   return {
     _id: fund[idField],
@@ -56,7 +63,7 @@ export async function upsertFunds (funds: Fund[]) {
   const shardedDocs = await Promise.map(buildFindQuery(findOptions), query => query.toArray())
   const shardedIds = shardedDocs.map(docs => new Set(docs.map(doc => doc._id)))
   // partition funds into shards
-  const bucketedFunds = shardedIds.map((shard: any) => <Fund[]>[])
+  const bucketedFunds = shardedIds.map(() => <Fund[]>[])
   for (const fund of funds) {
     let shardIdx = shardedIds.findIndex((shard: any) => shard.has(fund[idField]))
     if (shardIdx === -1) {
@@ -90,13 +97,15 @@ export async function upsertFunds (funds: Fund[]) {
  * @param toPlainObject [optional] boolean - true: to plain object, false: to fund
  */
 
-export async function listFunds (options: any, toPlainObject = false) {
+export async function listFunds (options: Options, toPlainObject = false) {
   const shardedDocs = await Promise.map(buildFindQuery(options), query => query.toArray())
   let docs = _.flatten(shardedDocs)
   // need postprocessing because we are merging from different databases
   if (options && options.sort) {
-    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-    docs = _.orderBy(docs, Object.keys(options.sort), Object.values(options.sort).map(dir => dir === -1 || dir.$meta === 'textScore' ? 'desc' : 'asc'))
+    docs = _.orderBy(docs,
+      Object.keys(options.sort),
+      Object.values(options.sort).map(dir =>
+        dir === -1 || dir.$meta === 'textScore' ? 'desc' : 'asc'))
   }
   if (options && options.limit) {
     docs = docs.slice(0, options.limit)
@@ -104,7 +113,7 @@ export async function listFunds (options: any, toPlainObject = false) {
   return docs.map(toPlainObject ? _.toPlainObject : toFund)
 }
 
-export function streamFunds (options: any, toPlainObject = false) {
+export function streamFunds (options: Options, toPlainObject = false) {
   const res = new stream.PassThrough({
     objectMode: true
   })
@@ -124,7 +133,7 @@ export function streamFunds (options: any, toPlainObject = false) {
   return res
 }
 
-export async function deleteFunds (options: any) {
+export async function deleteFunds (options: Options) {
   const queryOpts = _.defaultTo(options.query, {})
   try {
     await Promise.map(db.getFunds(), fundDb => fundDb.deleteMany(queryOpts))
@@ -133,7 +142,7 @@ export async function deleteFunds (options: any) {
   }
 }
 
-export async function exportCsv (headerFields: any, options: any) {
+export async function exportCsv (headerFields: any, options: Options) {
   const funds = await listFunds(options, true)
   return csv.convert(funds, headerFields)
 }
@@ -156,7 +165,7 @@ export async function search (text: string, projection: any, limit: number) {
  *  limit: int
  *  }
  */
-const buildFindQuery = (options: any) => {
+const buildFindQuery = (options: Options) => {
   const query = (options && options.query) || {}
   const findOptions = {
     projection: options && options.projection,

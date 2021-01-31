@@ -33,9 +33,9 @@ class Currency {
 // eslint-disable-next-line no-redeclare
 namespace Currency {
     export class HistoricRate {
-        date: any;
+        date: Date;
         rate: any;
-        constructor (date: any, rate: any) {
+        constructor (date: Date, rate: any) {
           this.date = date
           this.rate = rate
         }

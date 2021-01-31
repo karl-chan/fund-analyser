@@ -1,11 +1,12 @@
 import { Promise } from 'bluebird'
 import moment from 'moment'
 import * as heroku from './heroku'
+import { Category } from './heroku'
 import * as streamWrapper from './streamWrapper'
 jest.setTimeout(30000) // 30 seconds
 describe('heroku', () => {
   test('getLastActivity', async () => {
-    const lastActivity = await heroku.getLastActivity(heroku.WEB_CATEGORY)
+    const lastActivity = await heroku.getLastActivity(Category.WEB_CATEGORY)
     // last activity should not be older than 10 minutes (ideally)
     expect(moment().diff(lastActivity)).toBeLessThan(moment.duration(10, 'minutes').asMilliseconds())
   })
@@ -13,7 +14,7 @@ describe('heroku', () => {
     const spy = jest.fn()
     const sink = streamWrapper.asWritableAsync(async (x: any) => spy(x))
     const duration = 5000 // 5 seconds
-    const logStream = await heroku.streamLogs(heroku.WORKER_CATEGORY)
+    const logStream = await heroku.streamLogs(Category.WORKER_CATEGORY)
     logStream.pipe(sink)
     await Promise.delay(duration)
     logStream.unpipe(sink)

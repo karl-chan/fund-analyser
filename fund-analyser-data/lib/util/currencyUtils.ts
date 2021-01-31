@@ -1,18 +1,17 @@
-import Currency from '../currency/Currency'
-import * as fundUtils from './fundUtils'
-import * as agGridUtils from './agGridUtils'
-import * as lang from './lang'
-import * as stat from './stat'
-import * as properties from './properties'
 import * as _ from 'lodash'
+import Currency from '../currency/Currency'
+import * as agGridUtils from './agGridUtils'
+import * as fundUtils from './fundUtils'
+import * as lang from './lang'
+import * as properties from './properties'
+import * as stat from './stat'
 
 const lookbacks = properties.get('fund.lookbacks')
 
 export function invertCurrency (currency: Currency) {
   const invertedRates = currency.historicRates.map((hr: any) => new Currency.HistoricRate(hr.date, 1 / hr.rate))
-  const invertedReturns = {}
+  const invertedReturns: {[pair: string]: number} = {}
   for (const [k, v] of Object.entries(currency.returns)) {
-    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     invertedReturns[k] = 1 / (v + 1) - 1
   }
   return new Currency(currency.quote, currency.base, invertedRates, invertedReturns)
@@ -54,14 +53,13 @@ export function multiplyCurrencies (currency1: Currency, currency2: Currency) {
       .map((hr: any) => new Currency.HistoricRate(hr.date, _.last(currency1.historicRates).rate * hr.rate))
   }
   multipliedRates = multipliedRates.concat(tail)
-  // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 2.
-  const returns = calcReturns(multipliedRates, lookbacks)
+  const returns = calcReturns(multipliedRates)
   return new Currency(currency1.base, currency2.quote, multipliedRates, returns)
 }
 
 export function calcReturns (historicRates: Currency.HistoricRate[]) {
   // Null safe check
-  const returns = {}
+  const returns: {[lookback: string]: number} = {}
   if (_.isEmpty(historicRates) || _.isEmpty(lookbacks)) {
     return returns
   }
@@ -70,11 +68,9 @@ export function calcReturns (historicRates: Currency.HistoricRate[]) {
   _.forEach(lookbacks, (lookback: any) => {
     const beginRecord = fundUtils.closestRecord(lookback, historicRates)
     if (_.isNil(beginRecord)) {
-      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       returns[lookback] = null
     } else {
       const beginRate = beginRecord.rate
-      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       returns[lookback] = (latestRate - beginRate) / beginRate
     }
   })
@@ -86,8 +82,8 @@ export function calcStats (currencies: Currency[]) {
     return undefined
   }
 
-  const columns = lang.deepKeysSatisfying(Currency.schema, (k: any, v: any) => v === 'number' || v === 'Date')
-  const colToValues = _.fromPairs(columns.map((col: any) => {
+  const columns: string[] = lang.deepKeysSatisfying(Currency.schema, (k: any, v: any) => v === 'number' || v === 'Date')
+  const colToValues = _.fromPairs(columns.map(col => {
     return [col, currencies.map(c => _.get(c, col))]
   }))
 

@@ -3,60 +3,59 @@ import * as lang from './lang'
 const jstat = require('jstat')
 
 // [w1, w2, ...] normalise such that w1' / w2' = w1 / w2 and w1' + w2' = 1
-export function normaliseWeights (weights: any) {
+export function normaliseWeights (weights: number[]) {
   const s = _.sum(weights)
-  return weights.map((w: any) => w / s)
+  return weights.map(w => w / s)
 }
 
 // [[w1, x1], [w2, x2], ...]
-export function weightedMean (arr: any) {
+export function weightedMean (arr: number[][]) {
   if (_.isEmpty(arr)) {
     return NaN
   }
-  // @ts-expect-error ts-migrate(7031) FIXME: Binding element 'w' implicitly has an 'any' type.
   const numerator = _.sum(arr.map(([w, x]) => w * x))
-  // @ts-expect-error ts-migrate(7031) FIXME: Binding element 'w' implicitly has an 'any' type.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const denominator = _.sum(arr.map(([w, _]) => w))
   return numerator / denominator
 }
 
 // [[w1, x1], [w2, x2], ...]
-export function weightedVar (arr: any) {
+export function weightedVar (arr: number[][]) {
   if (_.isEmpty(arr)) {
     return NaN
   }
   const [weights, xs] = _.unzip(arr)
   const normWeights = normaliseWeights(weights)
   const xsVar = jstat.variance(xs, true)
-  return xsVar * _.sumBy(normWeights, (w: any) => w * w)
+  return xsVar * _.sumBy(normWeights, w => w * w)
 }
 
 // [[w1, x1], [w2, x2], ...]
-export function weightedStd (arr: any) {
-  return _.isEmpty(arr) ? arr : Math.sqrt(weightedVar(arr))
+export function weightedStd (arr: number[][]) {
+  return _.isEmpty(arr) ? NaN : Math.sqrt(weightedVar(arr))
 }
 
-export function ci95 (mean: any, stdev: any, n: any) {
+export function ci95 (mean: number, stdev: number) {
   const z = 1.96
   return [mean - z * stdev, mean + z * stdev]
 }
 
-export function min (arr: any) {
+export function min (arr: number[]) {
   return jstat.min(arr.filter(lang.isOrdered))
 }
 
-export function max (arr: any) {
+export function max (arr: number[]) {
   return jstat.max(arr.filter(lang.isOrdered))
 }
 
-export function median (arr: any) {
+export function median (arr: number[]) {
   return jstat.median(arr.filter(lang.isOrdered))
 }
 
-export function q1 (arr: any) {
+export function q1 (arr: number[]) {
   return jstat.percentile(arr.filter(lang.isOrdered), 0.25)
 }
 
-export function q3 (arr: any) {
+export function q3 (arr: number[]) {
   return jstat.percentile(arr.filter(lang.isOrdered), 0.75)
 }
