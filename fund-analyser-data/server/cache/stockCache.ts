@@ -1,6 +1,6 @@
-import Stock from '../../lib/stock/Stock'
 import moment from 'moment-business-days'
 import * as StockDAO from '../../lib/db/StockDAO'
+import Stock from '../../lib/stock/Stock'
 import log from '../../lib/util/log'
 import * as stockUtils from '../../lib/util/stockUtils'
 import * as tmp from '../../lib/util/tmp'
@@ -19,7 +19,7 @@ interface Metadata {
 }
 
 let stockCache: Stock[] = []
-let quickFilterCache = {}
+let quickFilterCache: {[symbol: string]: string} = {}
 let metadata: Metadata
 // eslint-disable-next-line no-undef
 let refreshTask: NodeJS.Timeout
@@ -38,17 +38,16 @@ async function refresh () {
 export function get (symbols?: any, options?: any) {
   checkRunning()
   let stocks = symbols
-    ? stockCache.filter((s: any) => symbols.includes(s.symbol))
+    ? stockCache.filter(s => symbols.includes(s.symbol))
     : stockCache
   if (options) {
     const { filterText, showUpToDateOnly } = options
     if (filterText && filterText.trim()) {
       const needle = filterText.trim().toLowerCase()
-      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-      stocks = stocks.filter((s: any) => quickFilterCache[s.symbol].includes(needle))
+      stocks = stocks.filter(s => quickFilterCache[s.symbol].includes(needle))
     }
     if (showUpToDateOnly) {
-      stocks = stocks.filter((s: any) => isUpToDate(s, (metadata as any).asof.date))
+      stocks = stocks.filter(s => isUpToDate(s, metadata.asof.date))
     }
   }
   return stocks
@@ -90,9 +89,9 @@ export function shutdown () {
   clearInterval(refreshTask)
 }
 
-function buildQuickFilterCache (stocks: any) {
-  const cache = {}
-  stocks.forEach((s: any) => {
+function buildQuickFilterCache (stocks: Stock[]) {
+  const cache: {[symbol:string]: string} = {}
+  stocks.forEach(s => {
     let str = ''
     for (const v of Object.values(s)) {
       switch (typeof v) {
@@ -103,7 +102,6 @@ function buildQuickFilterCache (stocks: any) {
           str += v
       }
     }
-    // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     cache[s.symbol] = str.toLowerCase()
   })
   return cache
@@ -113,7 +111,7 @@ function refreshMetadata () {
   stockCache = stockUtils.enrichSummary(stockCache)
   quickFilterCache = buildQuickFilterCache(stockCache)
   const asofDate = getAsOfDate()
-  const stocksUpToDate = stockCache.filter((s: any) => isUpToDate(s, asofDate))
+  const stocksUpToDate = stockCache.filter(s => isUpToDate(s, asofDate))
   const asof = {
     date: asofDate,
     numUpToDate: stocksUpToDate.length
@@ -139,7 +137,7 @@ async function loadFromFile () {
   for (const row of stockCache) {
     row.asof = new Date(row.asof)
   }
-  (metadata as any).asof.date = new Date((metadata as any).asof.date)
+  metadata.asof.date = new Date(metadata.asof.date)
   log.info('Stock cache loaded from file.')
 }
 

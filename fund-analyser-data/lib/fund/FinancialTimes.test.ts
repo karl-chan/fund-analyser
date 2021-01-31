@@ -65,13 +65,13 @@ describe('FinancialTimes', function () {
       ]
 
       jest.spyOn(financialTimes, 'getSummary')
-        .mockImplementation(async (isin: any) => summary)
+        .mockImplementation(async () => summary)
       jest.spyOn(financialTimes, 'getPerformance')
-        .mockImplementation(async (isin: any) => performance)
+        .mockImplementation(async () => performance)
       jest.spyOn(financialTimes, 'getHistoricPrices')
-        .mockImplementation(async (isin: any) => historicPrices)
+        .mockImplementation(async () => historicPrices)
       jest.spyOn(financialTimes, 'getHoldings')
-        .mockImplementation(async (isin: any) => holdings)
+        .mockImplementation(async () => holdings)
 
       const expected = Fund.builder(csdFund.isin)
         .name('My fund')

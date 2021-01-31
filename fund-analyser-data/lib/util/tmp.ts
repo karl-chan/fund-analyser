@@ -1,11 +1,10 @@
 // writes to tmp storage
 // put everything in /tmp/fund-analyser
 
-import * as os from 'os'
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'fs'.
 import * as fs from 'fs-extra'
-import * as path from 'path'
 import moment from 'moment'
+import * as os from 'os'
+import * as path from 'path'
 
 const APP_FOLDER = 'fund-analyser'
 const tmp = path.join(os.tmpdir(), APP_FOLDER)
@@ -14,7 +13,7 @@ const tmp = path.join(os.tmpdir(), APP_FOLDER)
  * Read object from /tmp/<key> file. Throws error if doesn't exist or expired.
  * @param {string} key
  */
-export async function read (key: any) {
+export async function read (key: string) {
   const location = path.join(tmp, key)
   const { expiry, object } = await fs.readJson(location)
   if (expiry < moment().unix()) {
@@ -27,7 +26,7 @@ export async function read (key: any) {
  * Write object into /tmp/<key> file, persisting for expiry seconds
  * @param {string} key
  */
-export async function write (key: any, object: any, expirySeconds: any) {
+export async function write (key: string, object: object, expirySeconds: number) {
   const location = path.join(tmp, key)
   const expiry = moment().add(expirySeconds, 'seconds').unix()
   return fs.outputJson(location, { expiry, object })

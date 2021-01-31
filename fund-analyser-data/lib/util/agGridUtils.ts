@@ -1,8 +1,8 @@
-import moment from 'moment'
-
 import * as _ from 'lodash'
-import * as stat from './stat'
+import moment from 'moment'
+import Fund from '../fund/Fund'
 import * as properties from './properties'
+import * as stat from './stat'
 
 const lookbacks = properties.get('fund.lookbacks')
 
@@ -12,7 +12,7 @@ const lookbacks = properties.get('fund.lookbacks')
  * @param {*} funds
  * @param {IServerSideGetRowsRequest} agGridRequest
  */
-export function applyRequest (funds: any, agGridRequest: any) {
+export function applyRequest (funds: Fund[], agGridRequest: any) {
   funds = _applyFilter(funds, agGridRequest.filterModel)
   funds = _applySort(funds, agGridRequest.sortModel)
 
@@ -23,7 +23,7 @@ export function applyRequest (funds: any, agGridRequest: any) {
   return { funds, lastRow }
 }
 
-function _applySort (funds: any, sortModel: any) {
+function _applySort (funds: Fund[], sortModel: any) {
   if (!sortModel.length) {
     return funds
   }
@@ -39,7 +39,7 @@ function _applySort (funds: any, sortModel: any) {
   return _.orderBy(validFunds, cols, orders).concat(nanRows)
 }
 
-function _applyFilter (funds: any, filterModel: any) {
+function _applyFilter (funds: Fund[], filterModel: any) {
   if (_.isEmpty(filterModel)) {
     return funds
   }
@@ -108,8 +108,7 @@ export function addColours (iterables: any, colourOptions: any) {
 
 // scoring methods
 // (inf, 0, -inf) = (green, 0, red)
-export function colourAroundZero (field: any, funds: any) {
-  // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
+export function colourAroundZero (field: string, funds: Fund[]) {
   return _colour(field, funds, ({
     val,
     max,
@@ -126,7 +125,7 @@ export function colourAroundZero (field: any, funds: any) {
 }
 
 // (inf, clipUpper, median, clipLower, -inf) = (green, green, white, red, red)
-export function colourAroundMedian (field: any, funds: any, clipUpper: any, clipLower: any) {
+export function colourAroundMedian (field: string, funds: Fund[], clipUpper: number, clipLower: number) {
   const options = { clipUpper, clipLower }
   return _colour(field, funds, ({
     val,
@@ -145,15 +144,14 @@ export function colourAroundMedian (field: any, funds: any, clipUpper: any, clip
 }
 
 // (inf, 0, -inf) = (white, white, red)
-export function colourNegative (field: any, funds: any) {
-  // @ts-expect-error ts-migrate(2554) FIXME: Expected 4 arguments, but got 3.
+export function colourNegative (field: string, funds: Fund[]) {
   return _colour(field, funds, ({
     val,
     max
   }: any) => -val / max)
 }
 
-function _colour (field: any, funds: any, scoreFn: any, options: any) {
+function _colour (field: string, funds: Fund[], scoreFn: any, options?: any) {
   const max = _.get(options, 'clipUpper') || stat.max(funds.map((row: any) => _.get(row, field)))
   const min = _.get(options, 'clipLower') || stat.min(funds.map((row: any) => _.get(row, field)))
   const median = stat.median(funds.map((row: any) => _.get(row, field)))

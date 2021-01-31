@@ -18,14 +18,13 @@ const marketWatch = new MarketWatch()
 router.get('/symbols/:symbols', async (ctx: Context) => {
   const symbols = ctx.params.symbols.split(',')
   const { stream } = ctx.query
-  const options = {
+  const options: StockDAO.Options = {
     query: { symbol: { $in: symbols } },
     projection: { _id: 0 }
   }
   if (stream) {
     // support "all" only in stream mode to be memory friendly
     if (ctx.params.symbols === 'all') {
-      // @ts-expect-error ts-migrate(2741) FIXME: Property 'symbol' is missing in type '{}' but requ... Remove this comment to see the full error message
       options.query = {}
     }
     ctx.type = 'json'
@@ -72,6 +71,7 @@ router.post('/list', async (ctx: Context) => {
   const { asof, stats, totalStocks } = stockCache.getMetadata(params)
   let lastRow = totalStocks
   if (params && params.agGridRequest) {
+    // @ts-ignore
     ({ funds: stocks, lastRow } = agGridUtils.applyRequest(stocks, params.agGridRequest))
   }
   ctx.body = {

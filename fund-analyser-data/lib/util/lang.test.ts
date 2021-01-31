@@ -1,6 +1,5 @@
-import * as lang from './lang'
-
 import * as _ from 'lodash'
+import * as lang from './lang'
 
 describe('lang', () => {
   describe('deepKeys', () => {
@@ -38,7 +37,7 @@ describe('lang', () => {
   describe('deepKeysSatisfying', () => {
     test('should return empty array for non-objects  / non-arrays', () => {
       for (const object of [null, undefined, 1, 's']) {
-        expect(lang.deepKeysSatisfying(object, (v: any) => true)).toEqual([])
+        expect(lang.deepKeysSatisfying(object, () => true)).toEqual([])
       }
     })
 
@@ -74,7 +73,7 @@ describe('lang', () => {
   describe('deepMap', () => {
     test('should return as-is for non-objects / non-arrays', () => {
       for (const object of [null, undefined, 1, 's']) {
-        expect(lang.deepMap(object, (v: any) => true)).toEqual(object)
+        expect(lang.deepMap(object, () => true)).toEqual(object)
       }
     })
 
@@ -122,11 +121,6 @@ describe('lang', () => {
       expect(lang.pairsToDeepObject(null)).toEqual({})
       expect(lang.pairsToDeepObject(undefined)).toEqual({})
 
-      expect(lang.pairsToDeepObject(123)).toEqual({})
-
-      expect(lang.pairsToDeepObject('string')).toEqual({})
-
-      expect(lang.pairsToDeepObject({ this: 'is not array' })).toEqual({})
       expect(lang.pairsToDeepObject([])).toEqual({})
     })
     test('should form shallow object', () => {

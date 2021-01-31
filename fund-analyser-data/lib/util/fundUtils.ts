@@ -29,7 +29,7 @@ export function closestRecord (lookback: any, historicPrices: {date: Date}[]) {
   return beginRecord
 }
 
-export function closestRecordBeforeDate (date: any, historicPrices: any) {
+export function closestRecordBeforeDate (date: Date, historicPrices: Fund.HistoricPrice[]) {
   let low = 0
   let high = historicPrices.length - 1
   // binary search
@@ -53,7 +53,7 @@ export function closestRecordBeforeDate (date: any, historicPrices: any) {
 }
 
 // drop while gaps in series if there is a large gap (e.g. 1 year) in the middle
-export function dropWhileGaps (historicPrices: any) {
+export function dropWhileGaps (historicPrices: Fund.HistoricPrice[]) {
   const multiplier = 30
   const sampleLastN = 5
   if (historicPrices.length < sampleLastN) {
@@ -61,22 +61,20 @@ export function dropWhileGaps (historicPrices: any) {
   }
 
   const zippedHistoricPrices = _.zip(historicPrices, _.tail(historicPrices))
-  // @ts-expect-error ts-migrate(7031) FIXME: Binding element 'hp1' implicitly has an 'any' type... Remove this comment to see the full error message
-  const averageGap = _.mean(_.map(_.takeRight(_.dropRight(zippedHistoricPrices, 1), sampleLastN - 1), ([hp1, hp2]) => hp2.date - hp1.date))
+  const averageGap = _.mean(_.map(_.takeRight(_.dropRight(zippedHistoricPrices, 1), sampleLastN - 1), ([hp1, hp2]) => hp2.date.getTime() - hp1.date.getTime()))
 
   const thresholdGap = multiplier * averageGap
-  // @ts-expect-error ts-migrate(7031) FIXME: Binding element 'hp1' implicitly has an 'any' type... Remove this comment to see the full error message
-  return _.unzip(_.takeRightWhile(zippedHistoricPrices, ([hp1, hp2]) => hp2 === undefined || hp2.date - hp1.date < thresholdGap))[0]
+  return _.unzip(_.takeRightWhile(zippedHistoricPrices, ([hp1, hp2]) => hp2 === undefined || hp2.date.getTime() - hp1.date.getTime() < thresholdGap))[0]
 }
 
-export function enrichReturns (returns: any, historicPrices: Fund.HistoricPrice[], additionalLookbacks: any) {
+export function enrichReturns (returns: Fund.Returns, historicPrices: Fund.HistoricPrice[], additionalLookbacks: any) {
   // Null safe check
   if (!_.isPlainObject(returns) || _.isEmpty(historicPrices) || _.isEmpty(additionalLookbacks)) {
     return returns
   }
 
   const latestPrice = _.last(historicPrices).price
-  const newReturns = _.clone(returns)
+  const newReturns: {[lookback: string]: number} = _.clone(returns)
   _.forEach(additionalLookbacks, (lookback: any) => {
     const beginRecord = closestRecord(lookback, historicPrices)
     if (_.isNil(beginRecord)) {
@@ -121,7 +119,7 @@ export function enrichRealTimeDetails (realTimeDetails: any, fund: Fund) {
     .map((h: any) => [h.weight, h.todaysChange])
   const estChange = stat.weightedMean(holdingsX)
   const stdev = stat.weightedStd(holdingsX)
-  const ci = stat.ci95(estChange, stdev, holdingsX.length)
+  const ci = stat.ci95(estChange, stdev)
 
   const latestPrice = _.get(_.last(fund.historicPrices), 'price')
   const estPrice = latestPrice * (1 + estChange)
@@ -141,13 +139,12 @@ export function enrichSummary (summary: any) {
   // add colours to returns
   if (summary.length) {
     const { colourAroundZero } = agGridUtils
-    const colourOptions = {
+    const colourOptions: {[field: string]: any[]} = {
       // RHS is array of func args
       'returns.$lookback': [colourAroundZero],
       'returns.+1D': [colourAroundZero] // include +1D
     }
     for (const name of Object.keys(summary[0].indicators || {})) {
-      // @ts-expect-error ts-migrate(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       colourOptions[`indicators.${name}.value`] = [colourAroundZero]
     }
     summary = agGridUtils.addColours(summary, colourOptions)

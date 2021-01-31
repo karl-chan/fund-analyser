@@ -5,7 +5,7 @@ import * as properties from './properties'
 
 const lookbacks = properties.get('stock.lookbacks')
 
-export function calcReturns (historicPrices: any) {
+export function calcReturns (historicPrices: Stock.HistoricPrice[]) {
   return fundUtils.enrichReturns({}, historicPrices, lookbacks)
 }
 

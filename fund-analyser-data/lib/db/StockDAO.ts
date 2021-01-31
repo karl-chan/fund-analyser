@@ -7,6 +7,13 @@ import log from '../util/log'
 import * as math from '../util/math'
 const idField = 'symbol'
 
+export interface Options {
+  query?: object
+  projection?: object
+  sort?: object
+  limit?: number
+}
+
 export function fromStock (stock: Stock) {
   return {
     _id: stock[idField],
@@ -45,7 +52,7 @@ export async function upsertStocks (stocks: Stock[]) {
   const shardedDocs = await Promise.map(buildFindQuery(findOptions), query => query.toArray())
   const shardedIds = shardedDocs.map((docs: any) => new Set(docs.map((doc: any) => doc._id)))
   // partition stocks into shards
-  const bucketedStocks = shardedIds.map((shard: any) => <Stock[]>[])
+  const bucketedStocks = shardedIds.map(() => <Stock[]>[])
   for (const stock of stocks) {
     let shardIdx = shardedIds.findIndex((shard: any) => shard.has(stock[idField]))
     if (shardIdx === -1) {
@@ -63,7 +70,7 @@ export async function upsertStocks (stocks: Stock[]) {
   }
   const bucketedOperations = bucketedStocks.map(bucket => bucket.map(upsertOperation))
   try {
-    // @ts-expect-error ts-migrate(7031) FIXME: Binding element 'stockDb' implicitly has an 'any' ... Remove this comment to see the full error message
+    // @ts-ignore
     await Promise.map(_.zip(db.getStocks(), bucketedOperations), ([stockDb, operations]) => {
       return operations.length ? stockDb.bulkWrite(operations) : []
     })
@@ -79,12 +86,11 @@ export async function upsertStocks (stocks: Stock[]) {
      * @param options mongodb options
      * @param toPlainObject [optional] boolean - true: to plain object, false: to stock
      */
-export async function listStocks (options: any, toPlainObject = false) {
+export async function listStocks (options: Options, toPlainObject = false) {
   const shardedDocs = await Promise.map(buildFindQuery(options), query => query.toArray())
   let docs = _.flatten(shardedDocs)
   // need postprocessing because we are merging from different databases
   if (options && options.sort) {
-    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     docs = _.orderBy(docs, Object.keys(options.sort), Object.values(options.sort).map(dir => dir === -1 || dir.$meta === 'textScore' ? 'desc' : 'asc'))
   }
   if (options && options.limit) {
@@ -93,7 +99,7 @@ export async function listStocks (options: any, toPlainObject = false) {
   return docs.map(toPlainObject ? _.toPlainObject : toStock)
 }
 
-export function streamStocks (options: any, toPlainObject = false) {
+export function streamStocks (options: Options, toPlainObject = false) {
   const res = new stream.PassThrough({
     objectMode: true
   })
@@ -113,7 +119,7 @@ export function streamStocks (options: any, toPlainObject = false) {
   return res
 }
 
-export async function deleteStocks (options: any) {
+export async function deleteStocks (options: Options) {
   const queryOpts = _.defaultTo(options.query, {})
   try {
     await Promise.map(db.getStocks(), stockDb => stockDb.deleteMany(queryOpts))
@@ -141,7 +147,7 @@ export async function search (text: string, projection: any, limit: number) {
      *  limit: int
      *  }
      */
-const buildFindQuery = (options: any) => {
+const buildFindQuery = (options: Options) => {
   const query = (options && options.query) || {}
   const findOptions = {
     projection: options && options.projection,
