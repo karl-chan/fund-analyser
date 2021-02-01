@@ -201,7 +201,6 @@ export default class CharlesStanleyDirectAccount {
         if (math.roughEquals(ftPrice, csdPrice, 2)) {
           return csdPrice
         }
-        console.log('FT: ' + ftPrice + ' CSD: ' + csdPrice + ' Date: ' + date)
         return ftPrice
       }
 

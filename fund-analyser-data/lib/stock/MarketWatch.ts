@@ -19,7 +19,6 @@ export default class MarketWatch implements StockProvider {
     }
 
     private async getStockFromSymbol (symbol: string) {
-      console.log(`Get stock frm symbol: ${symbol}`)
       const [summary, historicPrices] = await Promise.all([
         this.getSummary(symbol),
         this.getHistoricPrices(symbol)
