@@ -1,3 +1,5 @@
+# noinspection PyUnresolvedReferences
+import _tkinter
 import logging
 import sys
 from datetime import date, datetime
