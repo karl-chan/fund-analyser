@@ -90,7 +90,7 @@ export default class SessionDAO {
     return null
   }
 
-  static async findSessionsForUser (user: any) {
+  static async findSessionsForUser (user: string) {
     if (!user) {
       return []
     }
@@ -108,7 +108,7 @@ export default class SessionDAO {
     log.debug('Deleted session from database')
   }
 
-  static async deleteBackgroundSession (user: any) {
+  static async deleteBackgroundSession (user: string) {
     const query = { 'token.user': user, 'token.userAgent': BACKGROUND_SESSION_USER_AGENT }
 
     await db.getSessions().deleteMany(query)

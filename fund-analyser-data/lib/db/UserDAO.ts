@@ -1,4 +1,5 @@
 import * as _ from 'lodash'
+import { SimulateParam } from '../simulate/simulate'
 import * as db from '../util/db'
 import log from '../util/log'
 
@@ -22,7 +23,7 @@ const SIMULATE_PARAMS = 'simulateParams'
 interface Metadata {
     fundWatchlist: string[]
     currencies: string[]
-    simulateParams: any[]
+    simulateParams: SimulateParam[]
 }
 
 interface Entry {
@@ -59,51 +60,51 @@ export default class UserDAO {
     return users
   }
 
-  static async deleteUser (user: any) {
+  static async deleteUser (user: string) {
     await db.getUsers().deleteOne({ user })
   }
 
-  static async getFundWatchlist (user: any) {
+  static async getFundWatchlist (user: string) {
     return this.getProperty(user, FUND_WATCHLIST)
   }
 
-  static async addToFundWatchlist (user: any, isin: any) {
+  static async addToFundWatchlist (user: string, isin: string) {
     return this.addToProperty(user, FUND_WATCHLIST, isin)
   }
 
-  static async removeFromFundWatchlist (user: any, isin: any) {
+  static async removeFromFundWatchlist (user: string, isin: string) {
     return this.removeFromProperty(user, FUND_WATCHLIST, isin)
   }
 
-  static async clearFundWatchlist (user: any) {
+  static async clearFundWatchlist (user: string) {
     return this.clearProperty(user, FUND_WATCHLIST)
   }
 
-  static async getCurrencies (user: any) {
+  static async getCurrencies (user: string) {
     return this.getProperty(user, CURRENCIES)
   }
 
-  static async addToCurrencies (user: any, currency: any) {
+  static async addToCurrencies (user: string, currency: any) {
     return this.addToProperty(user, CURRENCIES, currency)
   }
 
-  static async removeFromCurrencies (user: any, currency: any) {
+  static async removeFromCurrencies (user: string, currency: any) {
     return this.removeFromProperty(user, CURRENCIES, currency)
   }
 
-  static async getSimulateParams (user: any) {
+  static async getSimulateParams (user: string) : Promise<SimulateParam[]> {
     return this.getProperty(user, SIMULATE_PARAMS)
   }
 
-  static async addToSimulateParams (user: any, simulateParam: any) {
+  static async addToSimulateParams (user: string, simulateParam: SimulateParam) {
     return this.addToProperty(user, SIMULATE_PARAMS, simulateParam)
   }
 
-  static async removeFromSimulateParams (user: any, simulateParam: any) {
+  static async removeFromSimulateParams (user: string, simulateParam: SimulateParam) {
     return this.removeFromProperty(user, SIMULATE_PARAMS, simulateParam)
   }
 
-  static async activateSimulateParam (user: any, simulateParam: any) {
+  static async activateSimulateParam (user: string, simulateParam: SimulateParam) {
     const operations = [
       {
         updateMany: {
@@ -123,17 +124,17 @@ export default class UserDAO {
     log.debug(`Activated [${user}]'s ${SIMULATE_PARAMS}: [${JSON.stringify(simulateParam)}]`)
   }
 
-  static async deactivateAllSimulateParams (user: any) {
+  static async deactivateAllSimulateParams (user: string) {
     await db.getUsers().updateMany({ user }, { $unset: { 'meta.simulateParams.$[].active': '' } })
     log.debug(`Deactivated all [${user}]'s ${SIMULATE_PARAMS}`)
   }
 
-  static async getProperty (user: any, property: any, fallbackValue: any[] = []) {
+  static async getProperty (user: string, property: any, fallbackValue: any[] = []) {
     const doc = await db.getUsers().findOne({ user }, { projection: { [`meta.${property}`]: 1 } })
     return doc ? doc.meta[property] : fallbackValue
   }
 
-  private static async addToProperty (user: any, property: any, value: any) {
+  private static async addToProperty (user: string, property: any, value: any) {
     const oldValues = await this.getProperty(user, property)
     if (oldValues.some((v: any) => _.isEqual(v, value))) {
       return false // no action required if already present
@@ -144,14 +145,14 @@ export default class UserDAO {
     return true
   }
 
-  static async removeFromProperty (user: any, property: any, value: any) {
+  static async removeFromProperty (user: string, property: any, value: any) {
     const res = await db.getUsers().findOneAndUpdate({ user }, { $pull: { [`meta.${property}`]: value } })
     log.debug(`Removed [${value}] from [${user}]'s ${property}`)
 
     return res.value.meta[property]
   }
 
-  static async clearProperty (user: any, property: any) {
+  static async clearProperty (user: string, property: any) {
     await db.getUsers().updateMany({ user }, { $set: { [`meta.${property}`]: [] } })
     log.debug(`Cleared [${user}]'s ${property}`)
   }

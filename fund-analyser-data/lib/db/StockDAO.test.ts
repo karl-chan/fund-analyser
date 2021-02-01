@@ -1,9 +1,8 @@
-import * as StockDAO from './StockDAO'
-import Stock from '../stock/Stock'
-
 import * as _ from 'lodash'
 import * as StreamTest from 'streamtest'
+import Stock from '../stock/Stock'
 import * as db from '../util/db'
+import * as StockDAO from './StockDAO'
 
 jest.setTimeout(30000) // 30 seconds
 
@@ -26,7 +25,7 @@ describe('StockDAO', function () {
       .indicators({
         stability: -3
       })
-      .realTimeDetails({ estChange: 0.01 })
+      .realTimeDetails({ estChange: 0.01, estPrice: 457.0, lastUpdated: new Date(2017, 3, 23) })
       .build()
     doc = {
       _id: 'test',
@@ -42,7 +41,7 @@ describe('StockDAO', function () {
       indicators: {
         stability: -3
       },
-      realTimeDetails: { estChange: 0.01 }
+      realTimeDetails: { estChange: 0.01, estPrice: 457.0, lastUpdated: new Date(2017, 3, 23) }
     }
   })
   test('fromStock should return plain object', function () {

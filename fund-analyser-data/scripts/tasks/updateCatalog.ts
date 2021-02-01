@@ -1,6 +1,6 @@
-import CharlesStanleyDirect from '../../lib/fund/CharlesStanleyDirect'
 import * as _ from 'lodash'
 import * as FundDAO from '../../lib/db/FundDAO'
+import CharlesStanleyDirect from '../../lib/fund/CharlesStanleyDirect'
 import Fund from '../../lib/fund/Fund'
 import * as lang from '../../lib/util/lang'
 import log from '../../lib/util/log'
@@ -39,7 +39,7 @@ export default async function updateCatalog () {
   }
 
   // insert new sedols with time 1970
-  const funds = _.map(toAdd, (sedol: any) => {
+  const funds = _.map(toAdd, (sedol: string) => {
     const fund = Fund.builder(undefined)
       .sedol(sedol)
       .asof(new Date(0)) // unix time 0 (1970-01-01)

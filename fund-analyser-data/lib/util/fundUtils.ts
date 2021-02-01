@@ -112,11 +112,11 @@ export function calcStats (funds: any, schema : object = Fund.schema) {
   return { min, q1, median, q3, max }
 }
 
-export function enrichRealTimeDetails (realTimeDetails: any, fund: Fund) {
+export function enrichRealTimeDetails (realTimeDetails: Fund.RealTimeDetails, fund: Fund) {
   // excluding nulls
-  const holdingsX = realTimeDetails.holdings
-    .filter((h: any) => h.todaysChange != null)
-    .map((h: any) => [h.weight, h.todaysChange])
+  const holdingsX: [number, number][] = realTimeDetails.holdings
+    .filter(h => h.todaysChange != null)
+    .map(h => [h.weight, h.todaysChange])
   const estChange = stat.weightedMean(holdingsX)
   const stdev = stat.weightedStd(holdingsX)
   const ci = stat.ci95(estChange, stdev)
@@ -125,7 +125,7 @@ export function enrichRealTimeDetails (realTimeDetails: any, fund: Fund) {
   const estPrice = latestPrice * (1 + estChange)
 
   const enrichment = { estChange, estPrice, stdev, ci }
-  return { ...enrichment, ...realTimeDetails }
+  return { ...realTimeDetails, ...enrichment }
 }
 
 export function enrichSummary (summary: any) {

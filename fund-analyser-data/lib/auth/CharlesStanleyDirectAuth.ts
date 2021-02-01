@@ -24,7 +24,7 @@ export default class CharlesStanleyDirectAuth {
       this.getChangeInValuePerAccountUrl = 'https://www.charles-stanley-direct.co.uk/AccountSummary/GetChangeInValuePerAccount'
     }
 
-    async login (user: any, pass: any, memorableWord: any) {
+    async login (user: string, pass: string, memorableWord: string) {
       if (!user) throw new Error('Missing user')
       if (!pass) throw new Error('Missing password')
       if (!memorableWord) throw new Error('Missing memorable word')
@@ -56,7 +56,7 @@ export default class CharlesStanleyDirectAuth {
       return statusCode === 200
     }
 
-    async _enterUserAndPass (user: any, pass: any, {
+    async _enterUserAndPass (user: string, pass: string, {
       jar
     }: any) {
       log.debug('Entering user and pass')
@@ -82,7 +82,7 @@ export default class CharlesStanleyDirectAuth {
       return { csrfToken }
     }
 
-    async _checkMemorableWord (memorableWord: any, {
+    async _checkMemorableWord (memorableWord: string, {
       csrfToken,
       jar
     }: any) {

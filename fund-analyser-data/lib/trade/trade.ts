@@ -3,7 +3,7 @@ import * as _ from 'lodash'
 import moment from 'moment-business-days'
 import Fund from '../fund/Fund'
 import * as simulate from '../simulate/simulate'
-import { PredictResponse } from '../simulate/simulate'
+import { PredictResponse, SimulateParam } from '../simulate/simulate'
 import * as properties from '../util/properties'
 import { Action, Buy, Sell } from './Action'
 
@@ -14,7 +14,7 @@ const fundHoldBusinessDays = properties.get('trade.fund.hold.business.days')
  * @param {*} {csdAccount}
  * @returns {Array<string>} List of order references for each executed order
  */
-export default async function trade (simulateParam: any, { csdAccount }: any) {
+export default async function trade (simulateParam: SimulateParam, { csdAccount }: any) {
   const [balance, transactions] = await Promise.all([csdAccount.getBalance(), csdAccount.getTransactions()])
   const prediction = await simulate.predict(simulateParam)
   const actions = decideActions(prediction, balance, transactions)

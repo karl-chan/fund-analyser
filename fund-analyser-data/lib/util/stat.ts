@@ -9,7 +9,7 @@ export function normaliseWeights (weights: number[]) {
 }
 
 // [[w1, x1], [w2, x2], ...]
-export function weightedMean (arr: number[][]) {
+export function weightedMean (arr: [number, number][]) {
   if (_.isEmpty(arr)) {
     return NaN
   }
@@ -20,7 +20,7 @@ export function weightedMean (arr: number[][]) {
 }
 
 // [[w1, x1], [w2, x2], ...]
-export function weightedVar (arr: number[][]) {
+export function weightedVar (arr: [number, number][]) {
   if (_.isEmpty(arr)) {
     return NaN
   }
@@ -31,7 +31,7 @@ export function weightedVar (arr: number[][]) {
 }
 
 // [[w1, x1], [w2, x2], ...]
-export function weightedStd (arr: number[][]) {
+export function weightedStd (arr: [number, number][]) {
   return _.isEmpty(arr) ? NaN : Math.sqrt(weightedVar(arr))
 }
 

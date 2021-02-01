@@ -14,13 +14,13 @@ export default async function tradeFunds () {
   const docs = await UserDAO.listUsers()
   await Promise.map(docs, doc => tradeFundsForUser(doc.user))
 }
-async function tradeFundsForUser (user: any) {
+async function tradeFundsForUser (user: string) {
   const [simulateParams, sessions] = await Promise.all([
     UserDAO.getSimulateParams(user),
     SessionDAO.findSessionsForUser(user)
   ])
   // Only trade for first active simulate params
-  const activeSimulateParam = simulateParams.find((simulateParam: any) => simulateParam.active)
+  const activeSimulateParam = simulateParams.find(simulateParam => simulateParam.active)
   if (!activeSimulateParam) {
     log.info(`There is no active simulateParam for user ${user}. Aborting trade.`)
     return
