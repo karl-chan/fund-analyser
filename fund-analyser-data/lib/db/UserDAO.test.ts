@@ -1,6 +1,5 @@
-import UserDAO from './UserDAO'
-
 import * as db from '../util/db'
+import UserDAO from './UserDAO'
 
 jest.setTimeout(30000) // 30 seconds
 
@@ -78,34 +77,34 @@ describe('UserDAO', function () {
     expect(simulateParams).toEqual([])
 
     await UserDAO.addToSimulateParams(user, { strategy: 'BollingerReturns', numPortfolio: 1 })
-    await UserDAO.addToSimulateParams(user, { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] })
+    await UserDAO.addToSimulateParams(user, { strategy: 'PriceChannelReturns', isins: ['GB0006061963'], numPortfolio: 2 })
     simulateParams = await UserDAO.getSimulateParams(user)
     expect(simulateParams).toEqual([
       { strategy: 'BollingerReturns', numPortfolio: 1 },
-      { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] }
+      { strategy: 'PriceChannelReturns', isins: ['GB0006061963'], numPortfolio: 2 }
     ])
 
     await UserDAO.activateSimulateParam(user, { strategy: 'BollingerReturns', numPortfolio: 1 })
     simulateParams = await UserDAO.getSimulateParams(user)
     expect(simulateParams).toEqual([
       { strategy: 'BollingerReturns', numPortfolio: 1, active: true },
-      { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] }
+      { strategy: 'PriceChannelReturns', isins: ['GB0006061963'], numPortfolio: 2 }
     ])
 
     await UserDAO.deactivateAllSimulateParams(user)
     simulateParams = await UserDAO.getSimulateParams(user)
     expect(simulateParams).toEqual([
       { strategy: 'BollingerReturns', numPortfolio: 1 },
-      { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] }
+      { strategy: 'PriceChannelReturns', isins: ['GB0006061963'], numPortfolio: 2 }
     ])
 
     await UserDAO.removeFromSimulateParams(user, { strategy: 'BollingerReturns', numPortfolio: 1 })
     simulateParams = await UserDAO.getSimulateParams(user)
     expect(simulateParams).toEqual([
-      { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] }
+      { strategy: 'PriceChannelReturns', isins: ['GB0006061963'], numPortfolio: 2 }
     ])
 
-    await UserDAO.removeFromSimulateParams(user, { strategy: 'PriceChannelReturns', isins: ['GB0006061963'] })
+    await UserDAO.removeFromSimulateParams(user, { strategy: 'PriceChannelReturns', isins: ['GB0006061963'], numPortfolio: 2 })
     simulateParams = await UserDAO.getSimulateParams(user)
     expect(simulateParams).toEqual([])
 

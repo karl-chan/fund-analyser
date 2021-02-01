@@ -191,7 +191,7 @@ export default class CharlesStanleyDirectAccount {
         query: { sedol: { $in: sedols } }
       }, true), (f: any) => f.sedol)
 
-      const priceCorrection = (csdPrice: any, date: Date, sedol: any) => {
+      const priceCorrection = (csdPrice: any, date: Date, sedol: string) => {
         // For some reason price difference between charles stanley and financial times could be 100x
         const fund = sedolToFund[sedol]
         const ftPrice = fundUtils.closestRecordBeforeDate(date, fund.historicPrices).price

@@ -7,7 +7,7 @@ import * as properties from './properties'
 const vapidSubject = `mailto: ${properties.get('heroku.username')}`
 webpush.setVapidDetails(vapidSubject, properties.get('vapid.key.public'), properties.get('vapid.key.private'))
 
-export default async function push (user: any, key: any, payload: any) {
+export default async function push (user: string, key: any, payload: any) {
   const sessions = await SessionDAO.findSessionsForUser(user)
   const pushSubscriptions = sessions.map((s: any) => s.pushSubscription)
   await Promise.map(pushSubscriptions, async (pushSubscription: any) => {

@@ -15,10 +15,7 @@ import updateFunds from './tasks/updateFunds'
 import updateStocks from './tasks/updateStocks'
 import uploadTestReport from './tasks/uploadTestReport'
 
-function Main () {
-}
-
-Main.tasks = {
+const TASKS: Record<string, any> = {
   createIndex,
   downloadCsv,
   dynoHealthcheck,
@@ -33,7 +30,7 @@ Main.tasks = {
 }
 
 if (require.main === module) {
-  const operations = _.keys(Main.tasks).join(',')
+  const operations = _.keys(TASKS).join(',')
   commander
     .version('0.9.alpha')
     .description('Specify tasks to run')
@@ -42,7 +39,7 @@ if (require.main === module) {
     .parse(process.argv)
 
   const options = commander.opts()
-  const validInput = options.run && _.every(options.run, (task: any) => task in Main.tasks)
+  const validInput = options.run && _.every(options.run, (task: any) => task in TASKS)
   if (!validInput) {
     commander.help()
   }
@@ -62,8 +59,7 @@ if (require.main === module) {
     for (const task of options.run) {
       log.info(`Started running: ${task}`)
       try {
-        // @ts-ignore
-        await Main.tasks[task](...remainingArgs)
+        await TASKS[task](...remainingArgs)
       } catch (err) {
         const taskDuration = timer.split()
         log.error(`Error during ${task}: ${err.stack} after ${taskDuration}.`)

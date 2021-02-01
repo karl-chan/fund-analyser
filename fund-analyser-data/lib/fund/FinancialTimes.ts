@@ -254,7 +254,14 @@ export default class FinancialTimes implements FundProvider {
         const { currency, todaysChange } = h.symbol ? await getTodaysChange(h.symbol) : { currency: null, todaysChange: null }
         return { name: h.name, symbol: h.symbol, currency, todaysChange, weight: h.weight }
       })
-      const realTimeDetails = { holdings: enrichedHoldings, lastUpdated: new Date() }
+      const realTimeDetails = {
+        estChange: undefined as number,
+        estPrice: undefined as number,
+        stdev: undefined as number,
+        ci: undefined as [number, number],
+        holdings: enrichedHoldings,
+        lastUpdated: new Date()
+      }
       return fundUtils.enrichRealTimeDetails(realTimeDetails, fund)
     }
 

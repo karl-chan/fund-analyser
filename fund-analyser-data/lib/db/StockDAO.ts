@@ -70,9 +70,8 @@ export async function upsertStocks (stocks: Stock[]) {
   }
   const bucketedOperations = bucketedStocks.map(bucket => bucket.map(upsertOperation))
   try {
-    // @ts-ignore
     await Promise.map(_.zip(db.getStocks(), bucketedOperations), ([stockDb, operations]) => {
-      return operations.length ? stockDb.bulkWrite(operations) : []
+      return operations.length ? stockDb.bulkWrite(operations) : Promise.resolve(undefined)
     })
   } catch (err) {
     log.error('Failed to upsert stocks: %j. Error: %s', stocks, err.stack)
@@ -104,8 +103,7 @@ export function streamStocks (options: Options, toPlainObject = false) {
     objectMode: true
   })
   Promise.each(buildFindQuery(options), async query => {
-    // @ts-ignore
-    const stockDbStream = query.transformStream({
+    const stockDbStream = query.stream({
       transform: toPlainObject ? _.toPlainObject : toStock
     })
     stockDbStream.pipe(res, { end: false })

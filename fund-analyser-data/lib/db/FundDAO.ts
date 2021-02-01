@@ -118,8 +118,7 @@ export function streamFunds (options: Options, toPlainObject = false) {
     objectMode: true
   })
   Promise.each(buildFindQuery(options), async (query) => {
-    // @ts-ignore
-    const fundDbStream = query.transformStream({
+    const fundDbStream = query.stream({
       transform: toPlainObject ? _.toPlainObject : toFund
     })
     fundDbStream.pipe(res, { end: false })

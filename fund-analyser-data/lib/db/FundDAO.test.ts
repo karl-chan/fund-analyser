@@ -1,9 +1,8 @@
-import * as FundDAO from './FundDAO'
-import Fund from '../fund/Fund'
-
 import * as _ from 'lodash'
 import * as StreamTest from 'streamtest'
+import Fund from '../fund/Fund'
 import * as db from '../util/db'
+import * as FundDAO from './FundDAO'
 
 jest.setTimeout(30000) // 30 seconds
 
@@ -34,7 +33,7 @@ describe('FundDAO', function () {
       .indicators({
         stability: -3
       })
-      .realTimeDetails({ estChange: 0.01 })
+      .realTimeDetails({ estChange: 0.01, estPrice: 457.0, stdev: 1.0, ci: [456.0, 458.0], holdings: [], lastUpdated: new Date(2017, 3, 23) })
       .build()
     doc = {
       _id: 'SEDOL01',
@@ -63,7 +62,7 @@ describe('FundDAO', function () {
       indicators: {
         stability: -3
       },
-      realTimeDetails: { estChange: 0.01 }
+      realTimeDetails: { estChange: 0.01, estPrice: 457.0, stdev: 1.0, ci: [456.0, 458.0], holdings: [], lastUpdated: new Date(2017, 3, 23) }
     }
   })
   test('fromFund should return plain object', function () {

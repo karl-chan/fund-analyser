@@ -23,21 +23,19 @@ class Stock {
     realTimeDetails: {
       estChange: 'number',
       estPrice: 'number',
-      stdev: 'number',
-      ci: 'Array',
-      holdings: 'Array'
+      lastUpdated: 'Date'
     }
   };
 
-  asof: any;
+  asof: Date;
   historicPrices: Stock.HistoricPrice[];
-  indicators: any;
-  name: any;
-  realTimeDetails: any;
+  indicators: object;
+  name: string;
+  realTimeDetails: Stock.RealTimeDetails;
   returns: Stock.Returns;
-  symbol: any;
+  symbol: string;
 
-  constructor (symbol: any, name: any, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: any, indicators: any, realTimeDetails: any) {
+  constructor (symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails) {
     this.symbol = symbol
     this.name = name
     this.historicPrices = historicPrices
@@ -72,24 +70,30 @@ namespace Stock {
 
   export type Returns = { [lookback: string]: number }
 
+  export interface RealTimeDetails {
+    estChange: number,
+    estPrice: number,
+    lastUpdated: Date
+  }
+
   export class Builder {
-    _asof: any;
+    _asof: Date;
     _historicPrices: HistoricPrice[];
-    _indicators: any;
-    _name: any;
-    _realTimeDetails: any;
+    _indicators: object;
+    _name: string;
+    _realTimeDetails: RealTimeDetails;
     _returns: Returns;
-    _symbol: any;
-    constructor (symbol: any) {
+    _symbol: string;
+    constructor (symbol: string) {
       this._symbol = symbol
     }
 
-    symbol (symbol: any) {
+    symbol (symbol: string) {
       this._symbol = symbol
       return this
     }
 
-    name (name: any) {
+    name (name: string) {
       this._name = name
       return this
     }
@@ -104,17 +108,17 @@ namespace Stock {
       return this
     }
 
-    asof (asof: any) {
+    asof (asof: Date) {
       this._asof = asof
       return this
     }
 
-    indicators (indicators: any) {
+    indicators (indicators: object) {
       this._indicators = indicators
       return this
     }
 
-    realTimeDetails (realTimeDetails: any) {
+    realTimeDetails (realTimeDetails: RealTimeDetails) {
       this._realTimeDetails = realTimeDetails
       return this
     }

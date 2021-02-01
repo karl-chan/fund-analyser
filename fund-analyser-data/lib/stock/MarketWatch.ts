@@ -119,8 +119,9 @@ export default class MarketWatch implements StockProvider {
         })
         const res3 = JSON.parse(body3)
         const dates: number[] = res3.TimeInfo.Ticks
-        const ohlcs: number[][] = res3.Series.find((s: any) => s.SeriesId === 'ohlc').DataPoints
-        const volumes: number[][] = res3.Series.find((s: any) => s.SeriesId === 'volume').DataPoints
+        const ohlcs: [number, number, number, number][] = res3.Series.find((s: any) => s.SeriesId === 'ohlc').DataPoints
+        const volumes: [number][] = res3.Series.find((s: any) => s.SeriesId === 'volume').DataPoints
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const historicPrices = _.zip(dates, ohlcs, volumes).map(([date, [o, h, l, c], [volume]]) => {
           return new Stock.HistoricPrice(moment.utc(date).toDate(), c, volume)
         })

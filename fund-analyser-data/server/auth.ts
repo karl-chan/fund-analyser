@@ -198,7 +198,7 @@ export function getUser (ctx: Context) {
   }
 }
 
-export async function findSessionsForUser (user: any) {
+export async function findSessionsForUser (user: string) {
   return SessionDAO.findSessionsForUser(user)
 }
 

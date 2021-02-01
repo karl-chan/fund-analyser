@@ -3,28 +3,35 @@ import * as compute from '../../client/compute'
 import UserDAO from '../db/UserDAO'
 import push from '../util/push'
 
-export interface SimulateResponse {
-    statement: any
-    returns: object
-    maxDrawdown: number,
-    sharpeRatio: number,
-    startDate: string,
-    endDate: string
-}
-export interface PredictResponse {
-    date: string
-    funds: {
-        isin: string,
-        sedol: string,
-        name: string
-    }[]
+export interface SimulateParam {
+  strategy: string
+  isins?: string[]
+  numPortfolio: number
+  active?: boolean
 }
 
-export async function simulate (simulateParam: any) {
+export interface SimulateResponse {
+  statement: any
+  returns: object
+  maxDrawdown: number,
+  sharpeRatio: number,
+  startDate: string,
+  endDate: string
+}
+export interface PredictResponse {
+  date: string
+  funds: {
+    isin: string,
+    sedol: string,
+    name: string
+  }[]
+}
+
+export async function simulate (simulateParam: SimulateParam) {
   return compute.post('/simulate', simulateParam)
 }
 
-export async function predict (simulateParam: any, date?: any): Promise<PredictResponse> {
+export async function predict (simulateParam: SimulateParam, date?: any): Promise<PredictResponse> {
   return compute.post('/simulate/predict', { simulateParam, date })
 }
 
@@ -32,11 +39,11 @@ export async function getStrategies () {
   return compute.get('/simulate/strategies')
 }
 
-export async function pushNotificationsForUser (user: any) {
+export async function pushNotificationsForUser (user: string) {
   const simulateParams = await UserDAO.getSimulateParams(user)
   // Only push for active simulate params
-  const activeSimulateParams = simulateParams.filter((simulateParam: any) => simulateParam.active)
-  const predictionPairs = await Promise.map(activeSimulateParams, async (simulateParam: any) => {
+  const activeSimulateParams = simulateParams.filter(simulateParam => simulateParam.active)
+  const predictionPairs = await Promise.map(activeSimulateParams, async simulateParam => {
     const prediction = await predict(simulateParam)
     return {
       simulateParam,
