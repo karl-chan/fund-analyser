@@ -29,24 +29,28 @@ router.get('/isins', async (ctx: Context) => {
 
 router.get('/isins/:isins', async (ctx: Context) => {
   const isins = ctx.params.isins.split(',')
-  const { stream } = ctx.query
   const options: FundDAO.Options = {
     query: { isin: { $in: isins } },
     projection: { _id: 0 }
   }
-  if (stream) {
-    // support "all" only in stream mode to be memory friendly
-    if (ctx.params.isins === 'all') {
-      options.query = {}
-    }
-    ctx.type = 'json'
-    ctx.body = FundDAO.streamFunds(options)
-      .on('error', ctx.onerror)
-      .pipe(JSONStream.stringify())
-  } else {
-    const funds = await FundDAO.listFunds(options)
-    ctx.body = funds
-  }
+  const funds = await FundDAO.listFunds(options)
+  ctx.body = funds
+})
+
+router.get('/stream', async (ctx: Context) => {
+  const { isins } = ctx.request.body
+  const options: FundDAO.Options = isins
+    ? {
+        query: { isin: { $in: isins } },
+        projection: { _id: 0 }
+      }
+    : {
+        projection: { _id: 0 }
+      }
+  ctx.type = 'json'
+  ctx.body = FundDAO.streamFunds(options)
+    .on('error', ctx.onerror)
+    .pipe(JSONStream.stringify())
 })
 
 router.get('/real-time-details/:isins', async (ctx: Context) => {

@@ -22,10 +22,10 @@ def post(endpoint: str, data: Optional[object] = None) -> object:
     return requests.post(endpoint, json=data)
 
 
-def stream(endpoint: str, params: Optional[Dict[str, str]] = None) -> Iterator[Dict]:
+def stream(endpoint: str, data: Optional[object] = None) -> Iterator[Dict]:
     endpoint = f"{DATA_HOST}/{_remove_leading_slash(endpoint)}"
     line_seps = {b",", b"[", b"]"}
-    lines = requests.get(endpoint, params, stream=True).iter_lines()
+    lines = requests.post(endpoint, json=data, stream=True).iter_lines()
     return (ujson.loads(line)
             for line in lines
             if line not in line_seps)

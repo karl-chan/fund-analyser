@@ -17,24 +17,27 @@ const marketWatch = new MarketWatch()
 
 router.get('/symbols/:symbols', async (ctx: Context) => {
   const symbols = ctx.params.symbols.split(',')
-  const { stream } = ctx.query
   const options: StockDAO.Options = {
     query: { symbol: { $in: symbols } },
     projection: { _id: 0 }
   }
-  if (stream) {
-    // support "all" only in stream mode to be memory friendly
-    if (ctx.params.symbols === 'all') {
-      options.query = {}
-    }
-    ctx.type = 'json'
-    ctx.body = StockDAO.streamStocks(options)
-      .on('error', ctx.onerror)
-      .pipe(JSONStream.stringify())
-  } else {
-    const stocks = await StockDAO.listStocks(options)
-    ctx.body = stocks
-  }
+  const stocks = await StockDAO.listStocks(options)
+  ctx.body = stocks
+})
+
+router.post('/stream', async (ctx: Context) => {
+  const { symbols } = ctx.request.body
+  const options: StockDAO.Options = symbols
+    ? {
+        query: { symbol: { $in: symbols } },
+        projection: { _id: 0 }
+      }
+    : {
+        projection: { _id: 0 }
+      }
+  ctx.body = StockDAO.streamStocks(options)
+    .on('error', ctx.onerror)
+    .pipe(JSONStream.stringify())
 })
 
 router.get('/real-time-details/:symbols', async (ctx: Context) => {
@@ -49,6 +52,7 @@ router.get('/real-time-details/:symbols', async (ctx: Context) => {
   })
   ctx.body = realTimeDetailsPairs
 })
+
 router.get('/search/:searchText', async (ctx: Context) => {
   const searchText = ctx.params.searchText
   const projection = { _id: 0, symbol: 1, name: 1 }
@@ -66,8 +70,8 @@ router.get('/summary', async (ctx: Context) => {
 })
 
 router.post('/list', async (ctx: Context) => {
-  const { isins, params } = ctx.request.body
-  let stocks = stockCache.get(isins, params)
+  const { symbols, params } = ctx.request.body
+  let stocks = stockCache.get(symbols, params)
   const { asof, stats, totalStocks } = stockCache.getMetadata(params)
   let lastRow = totalStocks
   if (params && params.agGridRequest) {

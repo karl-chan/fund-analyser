@@ -13,8 +13,8 @@ export default {
   search (searchText) {
     return apiService.get(`/stocks/search/${searchText}`)
   },
-  list (symbol, params) {
-    return apiService.post('/stocks/list', { symbol, params })
+  list (symbols, params) {
+    return apiService.post('/stocks/list', { symbols, params })
   },
   getIndicatorSchema () {
     return apiService.get('/stocks/indicators')

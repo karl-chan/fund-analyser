@@ -12,8 +12,7 @@ class StockStreamEntry(NamedTuple):
 
 
 def stream_stocks(symbols: Optional[Iterable[str]] = None) -> Iterator[StockStreamEntry]:
-    params = {"stream": "true"}
-    for d in data.stream(f"/stocks/symbols/{','.join(symbols) if symbols is not None else 'all'}", params):
+    for d in data.stream("/stocks/stream", data={"symbols": symbols}):
         try:
             yield StockStreamEntry(
                 stock=Stock.from_dict(d),
