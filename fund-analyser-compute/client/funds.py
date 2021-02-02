@@ -28,8 +28,7 @@ SimilarFunds = List[SimilarFundsEntry]
 
 
 def stream_funds(isins: Optional[Iterable[str]] = None) -> Iterator[FundStreamEntry]:
-    params = {"stream": "true"}
-    for d in data.stream(f"/funds/isins/{','.join(isins) if isins is not None else 'all'}", params):
+    for d in data.stream("/funds/stream", data={"isins": isins}):
         try:
             yield FundStreamEntry(
                 fund=Fund.from_dict(d),
