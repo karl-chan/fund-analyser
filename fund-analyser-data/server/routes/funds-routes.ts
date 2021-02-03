@@ -37,7 +37,7 @@ router.get('/isins/:isins', async (ctx: Context) => {
   ctx.body = funds
 })
 
-router.get('/stream', async (ctx: Context) => {
+router.post('/stream', async (ctx: Context) => {
   const { isins } = ctx.request.body
   const options: FundDAO.Options = isins
     ? {
