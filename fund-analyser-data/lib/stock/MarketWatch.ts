@@ -18,7 +18,7 @@ export default class MarketWatch implements StockProvider {
       this.maxLookbackYears = properties.get('stock.max.lookback.years')
     }
 
-    private async getStockFromSymbol (symbol: string) {
+    async getStockFromSymbol (symbol: string) {
       const [summary, historicPrices] = await Promise.all([
         this.getSummary(symbol),
         this.getHistoricPrices(symbol)

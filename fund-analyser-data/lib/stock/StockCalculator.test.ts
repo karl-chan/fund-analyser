@@ -1,12 +1,10 @@
-import StockCalculator from './StockCalculator'
-import Stock from './Stock'
-
 import * as _ from 'lodash'
-
 import * as StreamTest from 'streamtest'
+import Stock from './Stock'
+import StockCalculator from './StockCalculator'
 
 describe('StockCalculator', function () {
-  let stockCalculator: any, stock: any
+  let stockCalculator: StockCalculator, stock: Stock
   const returns = {
     '1M': 0.02
   }
@@ -54,10 +52,11 @@ describe('StockCalculator', function () {
       .build()
 
     jest.spyOn(stockCalculator, 'calcReturns')
-      .mockImplementation(async (f: any) => stockWithNewReturns)
+    // @ts-ignore
+      .mockImplementation(async () => stockWithNewReturns)
 
     jest.spyOn(stockCalculator, 'calcIndicators')
-      .mockImplementation(async (f: any) => {
+      .mockImplementation(async f => {
         expect(f).toEqual(stockWithNewReturns)
         return stockWithIndicators
       })
@@ -66,7 +65,7 @@ describe('StockCalculator', function () {
     expect(actual).toEqual(stockResult)
   })
 
-  test('stream should return a Transform stream that evaluates stock', (done: any) => {
+  test('stream should return a Transform stream that evaluates stock', done => {
     const newReturns = _.assign(returns, {
       '2W': 0.01,
       '1W': 0.005
@@ -79,7 +78,7 @@ describe('StockCalculator', function () {
     const version = 'v2'
 
     jest.spyOn(stockCalculator, 'evaluate')
-      .mockImplementation(async (f: any) => {
+      .mockImplementation(async f => {
         expect(f).toEqual(stock)
         return expected
       })
@@ -87,7 +86,7 @@ describe('StockCalculator', function () {
     const stockStream = StreamTest[version].fromObjects([stock])
     stockStream
       .pipe(stockCalculator.stream())
-      .pipe(StreamTest[version].toObjects((err: any, stocks: any) => {
+      .pipe(StreamTest[version].toObjects((err, stocks) => {
         expect(stocks).toEqual([expected])
         done(err)
       }))

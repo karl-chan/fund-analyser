@@ -1,7 +1,7 @@
-import * as simulate from './simulate'
 import UserDAO from '../db/UserDAO'
 import * as db from '../util/db'
 import push from '../util/push'
+import * as simulate from './simulate'
 
 jest.setTimeout(60000) // 60 seconds
 jest.mock('../db/UserDAO')
@@ -79,6 +79,6 @@ describe('simulate', () => {
       expect.toSatisfyAll(({
         simulateParam,
         prediction
-      }: any) => simulateParam && prediction))
+      }) => simulateParam && prediction))
   })
 })

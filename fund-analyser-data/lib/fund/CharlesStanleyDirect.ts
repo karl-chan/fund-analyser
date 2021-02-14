@@ -17,7 +17,7 @@ const http = new Http({
 })
 
 export default class CharlesStanleyDirect implements IsinProvider {
-    pageSize: any;
+    pageSize: number;
     constructor () {
       this.pageSize = properties.get('fund.charlesstanleydirect.page.size')
     }
@@ -37,11 +37,11 @@ export default class CharlesStanleyDirect implements IsinProvider {
       return sedols
     }
 
-    private async getPageRange (lastPage: number) {
+    async getPageRange (lastPage: number) {
       return _.range(1, lastPage + 1)
     }
 
-    private async getNumPages () {
+    async getNumPages () {
       const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?Category=Funds&Pagesize=${this.pageSize}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
@@ -50,16 +50,16 @@ export default class CharlesStanleyDirect implements IsinProvider {
       return lastPage
     }
 
-    private async getSedolsFromPage (page: number) {
+    async getSedolsFromPage (page: number) {
       const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?sortdirection=ASC&SearchType=KeywordSearch&Category=Funds&SortColumn=TER&SortDirection=DESC&Pagesize=${this.pageSize}&Page=${page}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
-      const sedols = $('#funds-table').find('tbody td:nth-child(3)').map((i, td) => $(td).text().trim()).get()
+      const sedols : string[] = $('#funds-table').find('tbody td:nth-child(3)').map((i, td) => $(td).text().trim()).get()
       log.debug('Sedols in page %d: %j', page, sedols)
       return sedols
     }
 
-    private async getSedolsFromPages (pages: number[]) {
+    async getSedolsFromPages (pages: number[]) {
       const sedols = await Promise.map(pages, (page) => this.getSedolsFromPage(page))
       return _.flatten(sedols)
     }
@@ -138,15 +138,15 @@ export default class CharlesStanleyDirect implements IsinProvider {
         .pipe(this.streamFundsFromSedols())
     }
 
-    private streamNumPages () {
+    streamNumPages () {
       return streamWrapper.asReadableAsync(() => this.getNumPages())
     }
 
-    private streamPageRange () {
+    streamPageRange () {
       return streamWrapper.asTransformAsync((numPages: number) => this.getPageRange(numPages))
     }
 
-    private streamSedolsFromPages () {
+    streamSedolsFromPages () {
       return streamWrapper.asTransformAsync((page: number) => this.getSedolsFromPage(page))
     }
 

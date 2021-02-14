@@ -1,8 +1,8 @@
 import Stock from './Stock'
 
 describe('Stock', function () {
-  let symbol: any, name: any, historicPrices: any, returns: any, asof: any, indicators: any, realTimeDetails: any
-  let stock: any
+  let symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails
+  let stock: Stock
 
   beforeEach(() => {
     symbol = 'AAPL'
@@ -14,7 +14,7 @@ describe('Stock', function () {
     returns = { '5Y': 0.1767, '3Y': 0.226 }
     asof = new Date(2018, 8, 8)
     indicators = { stability: 1.96 }
-    realTimeDetails = { estChange: -0.00123 }
+    realTimeDetails = { estChange: -0.00123, estPrice: 3.198, lastUpdated: undefined }
 
     stock = new Stock(symbol, name, historicPrices, returns, asof, indicators, realTimeDetails)
   })
@@ -29,7 +29,7 @@ describe('Stock', function () {
     const undefinedNameStock = new Stock(symbol, undefined, [], {}, undefined, undefined, undefined)
     const nullNameStock = new Stock(symbol, null, [], {}, undefined, undefined, undefined)
     const emptyNameStock = new Stock(symbol, '', [], {}, undefined, undefined, undefined)
-    expect([undefinedNameStock, nullNameStock, emptyNameStock]).toSatisfyAll((f: any) => !f.isValid())
+    expect([undefinedNameStock, nullNameStock, emptyNameStock]).toSatisfyAll(f => !f.isValid())
   })
 
   describe('Builder', () => {

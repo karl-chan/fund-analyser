@@ -1,5 +1,5 @@
-import * as CurrencyDAO from './CurrencyDAO'
 import * as db from '../util/db'
+import * as CurrencyDAO from './CurrencyDAO'
 
 jest.setTimeout(30000) // 30 seconds
 
@@ -12,13 +12,13 @@ describe('CurrencyDAO', function () {
   })
   test('listCurrencies should return object map of currencies', async () => {
     const currencies = await CurrencyDAO.listCurrencies(['GBPUSD', 'GBPBRL', 'HKDCNY'])
-    expect(currencies).toBeArrayOfSize(3).toSatisfyAll((c: any) => c.historicRates.length > 0)
-    expect(currencies.map((c: any) => c.base + c.quote)).toIncludeSameMembers(['GBPUSD', 'GBPBRL', 'HKDCNY'])
+    expect(currencies).toBeArrayOfSize(3).toSatisfyAll(c => c.historicRates.length > 0)
+    expect(currencies.map(c => c.base + c.quote)).toIncludeSameMembers(['GBPUSD', 'GBPBRL', 'HKDCNY'])
   })
   test('listSupportedCurrencies should return array of currenciess', async () => {
     const currencyPairs = await CurrencyDAO.listSupportedCurrencies()
     expect(currencyPairs).toBeArray().not.toBeEmpty()
-    expect(currencyPairs).toSatisfyAll((currency: any) => typeof currency === 'string' &&
+    expect(currencyPairs).toSatisfyAll(currency => typeof currency === 'string' &&
                                                             currency.length === 3 &&
                                                             currency === currency.toUpperCase())
   })

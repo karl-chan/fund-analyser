@@ -1,21 +1,21 @@
 import { Promise } from 'bluebird'
-import * as streamWrapper from './streamWrapper'
 import * as StreamTest from 'streamtest'
+import * as streamWrapper from './streamWrapper'
 
 describe('streamWraper', () => {
   const version = 'v2'
-  test('asReadableAsync', (done: any) => {
+  test('asReadableAsync', done => {
     const source = async (x: any) => [1, 2, 3, 4, 5]
     const readableStream = streamWrapper.asReadableAsync(source)
 
     readableStream
-      .pipe(StreamTest[version].toObjects((err: any, output: any) => {
+      .pipe(StreamTest[version].toObjects((err, output) => {
         expect(err).toBeNull()
         expect(output).toEqual([1, 2, 3, 4, 5])
         done()
       }))
   })
-  test('asWritableAsync', (done: any) => {
+  test('asWritableAsync', done => {
     const spy = jest.fn()
     const sink = async (x: any) => { spy(x) }
     const writableStream = streamWrapper.asWritableAsync(sink)
@@ -28,31 +28,31 @@ describe('streamWraper', () => {
       done()
     })
   })
-  test('asTransformAsync', (done: any) => {
+  test('asTransformAsync', done => {
     const divTwo = async (x: any) => x / 2
     const transformStream = streamWrapper.asTransformAsync(divTwo)
 
     StreamTest[version].fromObjects([1, 2, 3, 4, 5])
       .pipe(transformStream)
-      .pipe(StreamTest[version].toObjects((err: any, output: any) => {
+      .pipe(StreamTest[version].toObjects((err, output) => {
         expect(err).toBeNull()
         expect(output).toEqual([0.5, 1, 1.5, 2, 2.5])
         done()
       }))
   })
-  test('asFilterAsync', (done: any) => {
+  test('asFilterAsync', done => {
     const isEven = async (x: any) => x % 2 === 0
     const filterStream = streamWrapper.asFilterAsync(isEven)
 
     StreamTest[version].fromObjects([1, 2, 3, 4, 5])
       .pipe(filterStream)
-      .pipe(StreamTest[version].toObjects((err: any, output: any) => {
+      .pipe(StreamTest[version].toObjects((err, output) => {
         expect(err).toBeNull()
         expect(output).toEqual([2, 4])
         done()
       }))
   })
-  test('asParallelTransformAsync', (done: any) => {
+  test('asParallelTransformAsync', done => {
     const divTwoSlow = async (x: any) => new Promise((resolve, reject) => {
       setTimeout(() => resolve(x / 2), Math.random() * 100)
     })
@@ -60,7 +60,7 @@ describe('streamWraper', () => {
 
     StreamTest[version].fromObjects([1, 2, 3, 4, 5])
       .pipe(parallelTransformStream)
-      .pipe(StreamTest[version].toObjects((err: any, output: any) => {
+      .pipe(StreamTest[version].toObjects((err, output) => {
         expect(err).toBeNull()
         expect(output).toEqual([0.5, 1, 1.5, 2, 2.5])
         done()

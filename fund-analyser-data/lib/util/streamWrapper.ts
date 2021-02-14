@@ -1,9 +1,9 @@
+import * as _ from 'lodash'
+import ParallelTransform from 'parallel-transform'
+import * as stream from 'stream'
+import log from './log'
 import * as properties from './properties'
 
-import log from './log'
-import * as stream from 'stream'
-import ParallelTransform from 'parallel-transform'
-import * as _ from 'lodash'
 const maxParallelTransforms = properties.get('stream.max.parallel.transforms')
 
 export function asReadableAsync (asyncFn: any) {
@@ -123,7 +123,7 @@ export function asParallelTransformAsync (asyncFn: any) {
 }
 
 function cleanup (s: any) {
-  stream.finished(s, (err: any) => {
+  stream.finished(s, err => {
     if (err) {
       log.error(err.stack)
       process.exit(1) // must exit immediately otherwise extremely hard to debug

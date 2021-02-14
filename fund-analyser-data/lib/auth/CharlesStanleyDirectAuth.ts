@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio'
+import { CookieJar } from 'request'
 import rp from 'request-promise'
 import Http from '../util/http'
 import log from '../util/log'
@@ -6,22 +7,21 @@ import log from '../util/log'
 const http = new Http()
 
 export default class CharlesStanleyDirectAuth {
-    getAccountSummaryUrl: any;
-    getChangeInValuePerAccountUrl: any;
-    getMemorableWordUrl: any;
-    homeUrl: any;
-    logUserInUrl: any;
-    loginUrl: any;
-    validateMemorableWordUrl: any;
+    getAccountSummaryUrl: string;
+    getChangeInValuePerAccountUrl: string;
+    getMemorableWordUrl: string;
+    homeUrl: string;
+    logUserInUrl: string;
+    loginUrl: string;
+    validateMemorableWordUrl: string;
     constructor () {
-      this.homeUrl = 'https://www.charles-stanley-direct.co.uk/'
-      this.loginUrl = 'https://www.charles-stanley-direct.co.uk/Login/Login'
-      this.getMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/Login/GetMemorableWord'
-      this.validateMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/Login/ValidateMemorableWord'
-      this.logUserInUrl = 'https://www.charles-stanley-direct.co.uk/Login/LogUserIn'
       this.getAccountSummaryUrl = 'https://www.charles-stanley-direct.co.uk/accountSummary/GetAccountSummary'
-
       this.getChangeInValuePerAccountUrl = 'https://www.charles-stanley-direct.co.uk/AccountSummary/GetChangeInValuePerAccount'
+      this.getMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/Login/GetMemorableWord'
+      this.homeUrl = 'https://www.charles-stanley-direct.co.uk/'
+      this.logUserInUrl = 'https://www.charles-stanley-direct.co.uk/Login/LogUserIn'
+      this.loginUrl = 'https://www.charles-stanley-direct.co.uk/Login/Login'
+      this.validateMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/Login/ValidateMemorableWord'
     }
 
     async login (user: string, pass: string, memorableWord: string) {
@@ -48,17 +48,13 @@ export default class CharlesStanleyDirectAuth {
     }
 
     // cost is about 70ms per call
-    async isLoggedIn ({
-      jar
-    }: any) {
+    async isLoggedIn ({ jar }: {jar: CookieJar}) {
       if (!jar) throw new Error('Missing jar')
       const { statusCode } = await http.asyncGet(this.getChangeInValuePerAccountUrl, { jar, followRedirect: false })
       return statusCode === 200
     }
 
-    async _enterUserAndPass (user: string, pass: string, {
-      jar
-    }: any) {
+    async _enterUserAndPass (user: string, pass: string, { jar }: { jar: CookieJar }) {
       log.debug('Entering user and pass')
       const { body: b1 } = await http.asyncGet(this.homeUrl, { jar })
       const $1 = cheerio.load(b1)
@@ -82,10 +78,7 @@ export default class CharlesStanleyDirectAuth {
       return { csrfToken }
     }
 
-    async _checkMemorableWord (memorableWord: string, {
-      csrfToken,
-      jar
-    }: any) {
+    async _checkMemorableWord (memorableWord: string, { csrfToken, jar }: {csrfToken: string, jar: CookieJar}) {
       log.debug('Checking memorable word')
 
       const { body: b1 } = await http.asyncPost(this.getMemorableWordUrl, {
@@ -117,10 +110,7 @@ export default class CharlesStanleyDirectAuth {
       log.debug('Memorable word accepted')
     }
 
-    async _logUserIn ({
-      csrfToken,
-      jar
-    }: any) {
+    async _logUserIn ({ csrfToken, jar }: {csrfToken: string, jar: CookieJar}) {
       log.debug('Logging user in')
       try {
         await http.asyncPost(this.logUserInUrl, {
@@ -136,9 +126,7 @@ export default class CharlesStanleyDirectAuth {
       log.debug('Log user in completed')
     }
 
-    async _getMyAccount ({
-      jar
-    }: any) {
+    async _getMyAccount ({ jar }: { jar: CookieJar }) {
       log.debug('Getting user name from my account')
       const { body } = await http.asyncGet(this.getAccountSummaryUrl, { jar })
       const account = JSON.parse(body)

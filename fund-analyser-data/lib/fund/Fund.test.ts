@@ -1,9 +1,9 @@
 import Fund from './Fund'
 
 describe('Fund', function () {
-  let isin: any, sedol: any, name: any, type: any, shareClass: any, frequency: any, ocf: any, amc: any, entryCharge: any, exitCharge: any,
-    bidAskSpread: any, holdings: any, historicPrices: any, returns: any, asof: any, indicators: any, realTimeDetails: any
-  let fund: any
+  let isin: string, sedol: string, name: string, type: any, shareClass: any, frequency: string, ocf: number, amc: number, entryCharge: number, exitCharge: number,
+    bidAskSpread: number, holdings: Fund.Holding[], historicPrices: Fund.HistoricPrice[], returns: Fund.Returns, asof: Date, indicators: object, realTimeDetails: Fund.RealTimeDetails
+  let fund: Fund
 
   beforeEach(() => {
     isin = 'GB00B80QG615'
@@ -22,7 +22,7 @@ describe('Fund', function () {
     returns = { '5Y': 0.1767, '3Y': 0.226 }
     asof = new Date(2018, 8, 8)
     indicators = { stability: 1.96 }
-    realTimeDetails = { estChange: -0.00123 }
+    realTimeDetails = { estChange: -0.00123, estPrice: 3.198, stdev: 0.01, ci: [3.197, 3.199], holdings: [], lastUpdated: undefined }
 
     fund = new Fund(isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge,
       bidAskSpread, holdings, historicPrices, returns, asof, indicators, realTimeDetails)
@@ -38,7 +38,7 @@ describe('Fund', function () {
     const undefinedNameFund = new Fund(isin, sedol, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, [], [], {}, undefined, undefined, undefined)
     const nullNameFund = new Fund(isin, sedol, null, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, [], [], {}, undefined, undefined, undefined)
     const emptyNameFund = new Fund(isin, sedol, '', undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, [], [], {}, undefined, undefined, undefined)
-    expect([undefinedNameFund, nullNameFund, emptyNameFund]).toSatisfyAll((f: any) => !f.isValid())
+    expect([undefinedNameFund, nullNameFund, emptyNameFund]).toSatisfyAll(f => !f.isValid())
   })
 
   describe('Builder', () => {

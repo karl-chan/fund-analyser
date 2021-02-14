@@ -40,7 +40,7 @@ export default class FinancialTimes implements FundProvider {
       return Promise.map(csdFunds, csdFund => this.getFundFromIsin(csdFund))
     }
 
-    private async getFundFromIsin (csdFund: Fund): Promise<Fund> {
+    async getFundFromIsin (csdFund: Fund): Promise<Fund> {
       if (!csdFund) {
         // @ts-ignore
         return new Fund()
@@ -186,7 +186,7 @@ export default class FinancialTimes implements FundProvider {
       return entries.map(entry => new Currency.HistoricRate(entry.date, entry.price))
     }
 
-    async getHoldings (isin: string, fallbackFund: Fund) {
+    async getHoldings (isin: string, fallbackFund?: Fund) {
       const url = `https://markets.ft.com/data/funds/tearsheet/holdings?s=${isin}`
       const { body } = await http.asyncGet(url)
       const $ = cheerio.load(body)
@@ -287,7 +287,7 @@ export default class FinancialTimes implements FundProvider {
       return streamWrapper.asParallelTransformAsync((csdFund: Fund) => this.getFundFromIsin(csdFund))
     }
 
-    private async getSymbolFromName (name: string) {
+    async getSymbolFromName (name: string) {
       const dropShareClassSuffix = (name: string) => {
         const chunks = name.split(' ')
         if (chunks.length > 1 && _.last(chunks) === _.last(chunks).toUpperCase()) {

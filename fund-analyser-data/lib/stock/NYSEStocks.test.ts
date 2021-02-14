@@ -1,11 +1,10 @@
-
 import * as StreamTest from 'streamtest'
 import NYSEStocks from './NYSEStocks'
 
 jest.setTimeout(30000) // 30 seconds
 
 describe('NYSEStocks', () => {
-  let nyseStocks: any
+  let nyseStocks: NYSEStocks
   beforeEach(() => {
     nyseStocks = new NYSEStocks()
   })
@@ -22,10 +21,10 @@ describe('NYSEStocks', () => {
 
   describe('Stream methods', function () {
     const version = 'v2'
-    test('streamSymbols should return Readable stream outputting array of symbols', (done: any) => {
+    test('streamSymbols should return Readable stream outputting array of symbols', done => {
       const symbolStream = nyseStocks.streamSymbols()
       symbolStream
-        .pipe(StreamTest[version].toObjects((err: any, symbols: any) => {
+        .pipe(StreamTest[version].toObjects((err, symbols) => {
           expect(symbols).toIncludeAllMembers(['AAPL', 'GOOG'])
           done(err)
         }))

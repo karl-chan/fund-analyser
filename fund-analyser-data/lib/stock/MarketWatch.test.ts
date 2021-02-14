@@ -6,7 +6,7 @@ import Stock from './Stock'
 jest.setTimeout(30000) // 30 seconds
 
 describe('MarketWatch', () => {
-  let marketWatch: any
+  let marketWatch: MarketWatch
   beforeEach(() => {
     marketWatch = new MarketWatch()
   })
@@ -30,9 +30,9 @@ describe('MarketWatch', () => {
       ]
 
       jest.spyOn(marketWatch, 'getSummary')
-        .mockImplementation(async (symbol: any) => summary)
+        .mockImplementation(async () => summary)
       jest.spyOn(marketWatch, 'getHistoricPrices')
-        .mockImplementation(async (symbol: any) => historicPrices)
+        .mockImplementation(async () => historicPrices)
 
       const expected = Stock.builder(symbol)
         .name(summary.name)
@@ -48,12 +48,12 @@ describe('MarketWatch', () => {
     test('getStocksFromSymbols should return array of partial fund', async () => {
       const sedols = ['AAPL', 'GOOG']
       const stocks = [
-        Stock.builder('AAPL'),
-        Stock.builder('GOOG')
+        Stock.builder('AAPL').build(),
+        Stock.builder('GOOG').build()
       ]
 
       jest.spyOn(marketWatch, 'getStockFromSymbol')
-        .mockImplementation(async (sedol: any) => {
+        .mockImplementation(async sedol => {
           switch (sedol) {
             case 'AAPL':
               return stocks[0]
@@ -78,7 +78,7 @@ describe('MarketWatch', () => {
     test('getHistoricPrices should return historic prices object', async () => {
       const historicPrices = await marketWatch.getHistoricPrices('AAPL')
       expect(historicPrices).toBeArray().not.toBeEmpty()
-      expect(historicPrices).toSatisfyAll((hp: any) => {
+      expect(historicPrices).toSatisfyAll(hp => {
         return hp instanceof Stock.HistoricPrice &&
                         moment(hp.date).isValid() &&
                         hp.price !== 0 &&
@@ -89,14 +89,14 @@ describe('MarketWatch', () => {
 
   describe('Stream methods', function () {
     const version = 'v2'
-    test('streamStocksFromSymbols should return Transform stream outputting array of stocks', (done: any) => {
+    test('streamStocksFromSymbols should return Transform stream outputting array of stocks', done => {
       const symbol1 = 'AAPL'
       const symbol2 = 'GOOG'
       const stock1 = Stock.builder(symbol1).build()
       const stock2 = Stock.builder(symbol2).build()
 
       jest.spyOn(marketWatch, 'getStockFromSymbol')
-        .mockImplementation(async (symbol: any) => {
+        .mockImplementation(async (symbol: string) => {
           switch (symbol) {
             case symbol1:
               return stock1
@@ -108,7 +108,7 @@ describe('MarketWatch', () => {
       const symbolToFundStream = marketWatch.streamStocksFromSymbols()
       StreamTest[version].fromObjects([symbol1, symbol2])
         .pipe(symbolToFundStream)
-        .pipe(StreamTest[version].toObjects((err: any, funds: any) => {
+        .pipe(StreamTest[version].toObjects((err, funds) => {
           expect(funds).toEqual([stock1, stock2])
           done(err)
         }))

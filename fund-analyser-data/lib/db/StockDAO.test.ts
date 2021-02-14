@@ -7,7 +7,7 @@ import * as StockDAO from './StockDAO'
 jest.setTimeout(30000) // 30 seconds
 
 describe('StockDAO', function () {
-  let stock: any, doc: any
+  let stock: Stock, doc: object
   beforeAll(async () => {
     await db.init()
     await StockDAO.deleteStocks({ query: { symbol: /test/ } })
@@ -65,12 +65,12 @@ describe('StockDAO', function () {
     expect(sedols).toBeArrayOfSize(1)
     expect(sedols[0]).toContainAllKeys(['symbol']) // only 'symbol' and not other keys
   })
-  test('streamStocks', async (done: any) => {
+  test('streamStocks', async done => {
     const version = 'v2'
     await StockDAO.upsertStocks([stock])
 
     StockDAO.streamStocks({ query: { symbol: stock.symbol } })
-      .pipe(StreamTest[version].toObjects((err: any, actual: any) => {
+      .pipe(StreamTest[version].toObjects((err, actual) => {
         expect(actual).toBeArrayOfSize(1)
         expect(actual[0]).toEqual(stock)
         done(err)
@@ -105,9 +105,8 @@ describe('StockDAO', function () {
   })
   test('search should return relevant results', async () => {
     await StockDAO.upsertStocks([stock])
-    const stocks = await StockDAO.search('test', { sedol: 1, symbol: 1 }, 1)
+    const stocks = await StockDAO.search('test', { symbol: 1 }, 1)
     expect(stocks).toBeArrayOfSize(1)
-    expect(stocks[0].sedol).toBe(stock.sedol)
     expect(stocks[0].symbol).toBe(stock.symbol)
     expect(stocks[0].score).toBePositive()
   })

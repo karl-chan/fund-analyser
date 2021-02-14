@@ -19,7 +19,7 @@ export interface Balance {
     portfolio: number
     cash: number
     totalValue: number
-    holdings: Fund.Holding[][]
+    holdings: {ISIN: string, Sedol : string, Quantity: number}[]
 }
 
 export interface Order {
@@ -51,9 +51,41 @@ export interface Transaction {
           cash: number
 }
 
+interface SeriesEventDeposit {
+  type: 'deposit'
+  date: Date
+  value: number
+}
+
+interface SeriesEventFee {
+  type: 'fee'
+  date: Date
+  value: number
+}
+
+interface SeriesEventFund {
+  type: 'fund'
+  from: Date
+  to: Date
+  holdings: {
+ isin: string
+ name: string
+ sedol: string
+ weight: number
+  }[ ]
+}
+
+interface SeriesEventWithdrawal {
+  type: 'withdrawal'
+  date: Date
+  value: number
+}
+
+export type SeriesEvent = SeriesEventDeposit | SeriesEventFee | SeriesEventFund | SeriesEventWithdrawal
+
 export interface Statement {
-  series: any[]
-  events: any[]
+  series: Fund.HistoricPrice[]
+  events: SeriesEvent[]
   returns: object
 }
 export default class CharlesStanleyDirectAccount {
@@ -108,7 +140,7 @@ export default class CharlesStanleyDirectAccount {
           const [orderRef, side, sedol, name, quantity] =
                     $(summaryRow)
                       .children('td')
-                      .map((i: any, td: any) => $(td).text().trim())
+                      .map((i, td) => $(td).text().trim())
                       .get()
           const settlementDate = $(orderDetails).find('th:contains(\'Settlement Date\') + td').text().trim()
           const orderDate = $(orderDetails).find('th:contains(\'Order Date\') + td').text().trim()
@@ -156,8 +188,8 @@ export default class CharlesStanleyDirectAccount {
       const { body: b2 } = await http.asyncGet(`${this.statementUrl}/Search`, { jar: this.jar, qs })
       const $ = cheerio.load(b2)
       const rows = $('#vac-stmt-table > tbody > tr:not(.blue-row)').get().reverse().slice(1) // remove first row (* BALANCE B/F *)
-      return rows.map((row: any) => {
-        const [date, description, stockDescription, sedol, contractReference, price, debit, credit, settlementDate, balance] = $(row).children().map((i: any, el: any) => $(el).text().trim()).get()
+      return rows.map(row => {
+        const [date, description, stockDescription, sedol, contractReference, price, debit, credit, settlementDate, balance] = $(row).children().map((i, el) => $(el).text().trim()).get()
         return {
           date: moment.utc(date, 'DD MMM YYYY').toDate(),
           description,
@@ -186,12 +218,12 @@ export default class CharlesStanleyDirectAccount {
       const transactions = await this.getTransactions()
 
       // get historic price data
-      const sedols = _.uniq(transactions.map((transaction: any) => transaction.sedol).filter((x: any) => x))
+      const sedols = _.uniq(transactions.map(transaction => transaction.sedol).filter(x => x))
       const sedolToFund = _.keyBy(await FundDAO.listFunds({
         query: { sedol: { $in: sedols } }
-      }, true), (f: any) => f.sedol)
+      }, true), f => f.sedol)
 
-      const priceCorrection = (csdPrice: any, date: Date, sedol: string) => {
+      const priceCorrection = (csdPrice: number, date: Date, sedol: string) => {
         // For some reason price difference between charles stanley and financial times could be 100x
         const fund = sedolToFund[sedol]
         const ftPrice = fundUtils.closestRecordBeforeDate(date, fund.historicPrices).price
@@ -204,8 +236,8 @@ export default class CharlesStanleyDirectAccount {
         return ftPrice
       }
 
-      const series = []
-      const events = []
+      const series: Fund.HistoricPrice[] = []
+      const events: SeriesEvent[] = []
       const carryThroughHoldings: { [sedol: string]: number } = {} // {sedol: numShares}
 
       for (const [i, transaction] of transactions.entries()) {
@@ -358,11 +390,11 @@ export default class CharlesStanleyDirectAccount {
       return new url.URLSearchParams(h1.location.split('?')[1]).get('AccountCode')
     }
 
-    async _getHistoricPrices (sedols: any) {
+    async _getHistoricPrices (sedols: string[]) {
       const docs = await FundDAO.listFunds({
         query: { sedol: { $in: sedols } },
         projection: { sedol: 1, historicPrices: 1 }
       }, true)
-      return _.fromPairs(docs.map((doc: any) => [doc.sedol, doc.historicPrices]))
+      return _.fromPairs(docs.map(doc => [doc.sedol, doc.historicPrices]))
     }
 }

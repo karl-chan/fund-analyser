@@ -1,7 +1,7 @@
 import * as db from '../util/db'
 import log from '../util/log'
 
-export async function getSimilarFunds (isins: any) {
+export async function getSimilarFunds (isins: string[]) {
   const query = { isin: { $in: isins } }
   const projection = { _id: 0 }
   return db.getSimilarFunds().find(query, { projection }).toArray()

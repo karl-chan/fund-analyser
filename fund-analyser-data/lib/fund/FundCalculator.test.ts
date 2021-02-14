@@ -1,12 +1,10 @@
-import FundCalculator from './FundCalculator'
-import Fund from './Fund'
-
 import * as _ from 'lodash'
-
 import * as StreamTest from 'streamtest'
+import Fund from './Fund'
+import FundCalculator from './FundCalculator'
 
 describe('FundCalculator', function () {
-  let fundCalculator: any, fund: any
+  let fundCalculator: FundCalculator, fund: Fund
   const returns = {
     '1M': 0.02
   }
@@ -54,10 +52,11 @@ describe('FundCalculator', function () {
       .build()
 
     jest.spyOn(fundCalculator, 'enrichReturns')
-      .mockImplementation(async (f: any) => fundWithNewReturns)
+    // @ts-ignore
+      .mockImplementation(async () => fundWithNewReturns)
 
     jest.spyOn(fundCalculator, 'calcIndicators')
-      .mockImplementation(async (f: any) => {
+      .mockImplementation(async f => {
         expect(f).toEqual(fundWithNewReturns)
         return fundWithIndicators
       })
@@ -66,7 +65,7 @@ describe('FundCalculator', function () {
     expect(actual).toEqual(fundResult)
   })
 
-  test('stream should return a Transform stream that evaluates fund', (done: any) => {
+  test('stream should return a Transform stream that evaluates fund', done => {
     const newReturns = _.assign(returns, {
       '2W': 0.01,
       '1W': 0.005
@@ -79,7 +78,7 @@ describe('FundCalculator', function () {
     const version = 'v2'
 
     jest.spyOn(fundCalculator, 'evaluate')
-      .mockImplementation(async (f: any) => {
+      .mockImplementation(async f => {
         expect(f).toEqual(fund)
         return expected
       })
@@ -87,7 +86,7 @@ describe('FundCalculator', function () {
     const fundStream = StreamTest[version].fromObjects([fund])
     fundStream
       .pipe(fundCalculator.stream())
-      .pipe(StreamTest[version].toObjects((err: any, funds: any) => {
+      .pipe(StreamTest[version].toObjects((err, funds) => {
         expect(funds).toEqual([expected])
         done(err)
       }))

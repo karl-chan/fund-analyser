@@ -45,7 +45,7 @@ export default async function updateStocks () {
       log.info('Finished updating stocks')
       resolve()
     })
-    stream.on('error', (err: any) => {
+    stream.on('error', err => {
       log.error('Fatal error, aborting updateStocks: %s', err.stack)
       reject(err)
     })

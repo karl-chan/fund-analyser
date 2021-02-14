@@ -1,8 +1,8 @@
-import * as csv from './csv'
 import Fund from '../fund/Fund'
+import * as csv from './csv'
 
 describe('csv', () => {
-  let funds: any, headerFields: any, csvHeader: any, csvRow: any
+  let funds: Fund[], headerFields: any, csvHeader: any, csvRow: any
   beforeEach(() => {
     funds = [
       Fund.builder('test')

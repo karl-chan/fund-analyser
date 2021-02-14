@@ -22,10 +22,10 @@ describe('Trading212', () => {
 
   describe('Stream methods', function () {
     const version = 'v2'
-    test('streamSymbols should return Readable stream outputting array of symbols', (done: any) => {
+    test('streamSymbols should return Readable stream outputting array of symbols', done => {
       const symbolStream = trading212.streamSymbols()
       symbolStream
-        .pipe(StreamTest[version].toObjects((err: any, symbols: any) => {
+        .pipe(StreamTest[version].toObjects((err, symbols) => {
           expect(symbols).toIncludeAllMembers(['AAPL', 'GOOG'])
           done(err)
         }))

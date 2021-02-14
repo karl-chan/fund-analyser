@@ -34,8 +34,8 @@ class Currency {
 namespace Currency {
     export class HistoricRate {
         date: Date;
-        rate: any;
-        constructor (date: Date, rate: any) {
+        rate: number;
+        constructor (date: Date, rate: number) {
           this.date = date
           this.rate = rate
         }

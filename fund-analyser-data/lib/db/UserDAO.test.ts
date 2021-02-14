@@ -4,7 +4,7 @@ import UserDAO from './UserDAO'
 jest.setTimeout(30000) // 30 seconds
 
 describe('UserDAO', function () {
-  let user: any
+  let user: string
   beforeAll(async () => {
     await db.init()
   })
@@ -21,7 +21,7 @@ describe('UserDAO', function () {
     await UserDAO.createUserIfNotExists(user)
     const result = await UserDAO.listUsers()
     expect(result).toBeArray().not.toBeEmpty()
-    expect(result).toSatisfyAll((user: any) => user.user && user.meta)
+    expect(result).toSatisfyAll(entry => entry.user && entry.meta)
 
     await UserDAO.deleteUser(user)
   })

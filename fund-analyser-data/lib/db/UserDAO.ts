@@ -84,11 +84,11 @@ export default class UserDAO {
     return this.getProperty(user, CURRENCIES)
   }
 
-  static async addToCurrencies (user: string, currency: any) {
+  static async addToCurrencies (user: string, currency: string) {
     return this.addToProperty(user, CURRENCIES, currency)
   }
 
-  static async removeFromCurrencies (user: string, currency: any) {
+  static async removeFromCurrencies (user: string, currency: string) {
     return this.removeFromProperty(user, CURRENCIES, currency)
   }
 
@@ -129,12 +129,12 @@ export default class UserDAO {
     log.debug(`Deactivated all [${user}]'s ${SIMULATE_PARAMS}`)
   }
 
-  static async getProperty (user: string, property: any, fallbackValue: any[] = []) {
+  static async getProperty (user: string, property: string, fallbackValue: any[] = []) {
     const doc = await db.getUsers().findOne({ user }, { projection: { [`meta.${property}`]: 1 } })
     return doc ? doc.meta[property] : fallbackValue
   }
 
-  private static async addToProperty (user: string, property: any, value: any) {
+  private static async addToProperty (user: string, property: string, value: any) {
     const oldValues = await this.getProperty(user, property)
     if (oldValues.some((v: any) => _.isEqual(v, value))) {
       return false // no action required if already present
@@ -145,14 +145,14 @@ export default class UserDAO {
     return true
   }
 
-  static async removeFromProperty (user: string, property: any, value: any) {
+  static async removeFromProperty (user: string, property: string, value: any) {
     const res = await db.getUsers().findOneAndUpdate({ user }, { $pull: { [`meta.${property}`]: value } })
     log.debug(`Removed [${value}] from [${user}]'s ${property}`)
 
     return res.value.meta[property]
   }
 
-  static async clearProperty (user: string, property: any) {
+  static async clearProperty (user: string, property: string) {
     await db.getUsers().updateMany({ user }, { $set: { [`meta.${property}`]: [] } })
     log.debug(`Cleared [${user}]'s ${property}`)
   }

@@ -55,7 +55,7 @@ export async function upsertFunds (funds: Fund[]) {
   // count all funds
   const shardCounts = await Promise.map(db.getFunds(), fundDb => fundDb.countDocuments())
   // find matching ids in shards
-  const searchIds = funds.map((f: any) => f[idField]).filter((val: any) => val)
+  const searchIds = funds.map(f => f[idField]).filter(val => val)
   const findOptions = {
     query: { _id: { $in: searchIds } },
     projection: { _id: 1 }
@@ -65,7 +65,7 @@ export async function upsertFunds (funds: Fund[]) {
   // partition funds into shards
   const bucketedFunds = shardedIds.map(() => <Fund[]>[])
   for (const fund of funds) {
-    let shardIdx = shardedIds.findIndex((shard: any) => shard.has(fund[idField]))
+    let shardIdx = shardedIds.findIndex(shard => shard.has(fund[idField]))
     if (shardIdx === -1) {
       // assign to least occupied shard
       shardIdx = math.minIndex(shardCounts)
@@ -117,7 +117,7 @@ export function streamFunds (options: Options, toPlainObject = false) {
   const res = new stream.PassThrough({
     objectMode: true
   })
-  Promise.each(buildFindQuery(options), async (query) => {
+  Promise.each(buildFindQuery(options), async query => {
     const fundDbStream = query.stream({
       transform: toPlainObject ? _.toPlainObject : toFund
     })
@@ -146,7 +146,7 @@ export async function exportCsv (headerFields: any, options: Options) {
   return csv.convert(funds, headerFields)
 }
 
-export async function search (text: string, projection: any, limit: number) {
+export async function search (text: string, projection: object, limit: number) {
   const options = {
     query: { $text: { $search: text } },
     projection: { ...projection, score: { $meta: 'textScore' } },

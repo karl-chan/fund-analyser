@@ -57,7 +57,6 @@ class Stock {
 // eslint-disable-next-line no-redeclare
 namespace Stock {
   export class HistoricPrice {
-    close: any;
     date: Date;
     price: number;
     volume: number;

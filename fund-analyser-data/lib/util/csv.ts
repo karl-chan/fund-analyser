@@ -1,5 +1,6 @@
 import { Parser as CsvConverter } from 'json2csv'
 import * as _ from 'lodash'
+import Fund from '../fund/Fund'
 import * as properties from '../util/properties'
 import * as math from './math'
 
@@ -28,31 +29,31 @@ const fieldMapping = {
   },
   ocf: {
     label: 'OCF',
-    value: (row: any, field: any, data: any) => {
+    value: (row: any) => {
       return toPercentage(row.ocf)
     }
   },
   amc: {
     label: 'AMC',
-    value: (row: any, field: any, data: any) => {
+    value: (row: any) => {
       return toPercentage(row.amc)
     }
   },
   entryCharge: {
     label: 'Entry Charge',
-    value: (row: any, field: any, data: any) => {
+    value: (row: any) => {
       return toPercentage(row.entryCharge)
     }
   },
   exitCharge: {
     label: 'Exit Charge',
-    value: (row: any, field: any, data: any) => {
+    value: (row: any) => {
       return toPercentage(row.exitCharge)
     }
   },
   bidAskSpread: {
     label: 'Bid-Ask Spread',
-    value: (row: any, field: any, data: any) => {
+    value: (row: any) => {
       return toPercentage(row.bidAskSpread)
     }
   },
@@ -77,7 +78,7 @@ function formatFields (fields: any) {
   return _.map(fields, (f: any) => _.get(fieldMapping, f, f))
 }
 
-export function convert (funds: any, headerFields: any) {
+export function convert (funds: Fund[], headerFields: any) {
   const opts = {
     fields: formatFields(headerFields)
   }
@@ -94,7 +95,7 @@ function getReturnsMapping () {
   for (const period of lookbacks) {
     mapping[period] = {
       label: `returns.${period}`,
-      value: (row: any, field: any, data: any) => {
+      value: (row: any) => {
         return toPercentage(row.returns[period])
       }
     }

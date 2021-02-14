@@ -91,7 +91,7 @@ export async function calcIndicators (fund: Fund) {
   return indicators.calcFundIndicators(fund)
 }
 
-export function calcStats (funds: any, schema : object = Fund.schema) {
+export function calcStats (funds: Fund[], schema : object = Fund.schema) {
   if (!funds.length) {
     return undefined
   }
@@ -101,7 +101,7 @@ export function calcStats (funds: any, schema : object = Fund.schema) {
     ...Object.keys(funds[0].indicators || {}).map(name => `indicators.${name}.value`)
   ]
   const colToValues = _.fromPairs(columns.map(col => {
-    return [col, funds.map((f: any) => _.get(f, col))]
+    return [col, funds.map(f => _.get(f, col))]
   }))
 
   const min = lang.pairsToDeepObject(columns.map(col => [col, stat.min(colToValues[col])]))

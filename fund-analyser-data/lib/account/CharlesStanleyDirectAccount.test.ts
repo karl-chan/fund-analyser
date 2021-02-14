@@ -5,7 +5,7 @@ import CharlesStanleyDirectAuth from '../auth/CharlesStanleyDirectAuth'
 import { Sell } from '../trade/Action'
 import * as db from '../util/db'
 import * as properties from '../util/properties'
-import CharlesStanleyDirectAccount from './CharlesStanleyDirectAccount'
+import CharlesStanleyDirectAccount, { SeriesEvent } from './CharlesStanleyDirectAccount'
 
 jest.setTimeout(30000) // 30 seconds
 
@@ -36,7 +36,7 @@ describe('CharlesStanleyDirectAccount', () => {
   test('getTransactions should return account transactions', async () => {
     const transactions = await csdAccount.getTransactions()
     expect(transactions).toBeArray().not.toBeEmpty()
-    expect(transactions).toSatisfyAll((transaction: any) => {
+    expect(transactions).toSatisfyAll(transaction => {
       const { date, sedol, contractReference, price, debit, credit, settlementDate, cash } = transaction
       return date instanceof Date &&
              (sedol.length === 7 || !sedol) &&
@@ -52,13 +52,13 @@ describe('CharlesStanleyDirectAccount', () => {
     const statement = await csdAccount.getStatement()
     expect(statement).toBeObject()
     expect(statement.series).toBeArray().not.toBeEmpty()
-    expect(statement.events).toSatisfyAll((event: any) => {
+    expect(statement.events).toSatisfyAll((event : SeriesEvent) => {
       switch (event.type) {
         case 'fund': {
           const from = moment(event.from)
           const to = moment(event.to)
           return from.isValid() && to.isValid() && from.isSameOrBefore(to) &&
-                    event.holdings.every((h: any) => typeof h.sedol === 'string' && h.sedol && typeof h.weight === 'number')
+                    event.holdings.every(h => typeof h.sedol === 'string' && h.sedol && typeof h.weight === 'number')
         }
         case 'fee': // fallthrough
         case 'deposit': // fallthrough

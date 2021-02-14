@@ -61,7 +61,7 @@ export default class StockFactory {
       return stockStream
     }
 
-    streamStocksFromSymbols (symbols: any) {
+    streamStocksFromSymbols (symbols: string[]) {
       const symbolStream = streamWrapper.asReadableAsync(async () => symbols)
       const symbolToStockStream = this.stockProvider.streamStocksFromSymbols()
       const stockCalculationStream = this.stockCalculator.stream()
