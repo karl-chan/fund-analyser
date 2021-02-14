@@ -2,7 +2,6 @@ import BatchStream from 'batch-stream'
 import { Promise } from 'bluebird'
 import moment from 'moment-business-days'
 import * as StockDAO from '../../lib/db/StockDAO'
-import NYSEStocks from '../../lib/stock/NYSEStocks'
 import Stock from '../../lib/stock/Stock'
 import StockFactory from '../../lib/stock/StockFactory'
 import * as lang from '../../lib/util/lang'
@@ -17,7 +16,8 @@ export default async function updateStocks () {
   const today = moment().utc().startOf('day')
   const lastBusinessDay = today.isBusinessDay() ? today : today.prevBusinessDay()
 
-  const allSymbols = await new NYSEStocks().getSymbols()
+  const stockFactory = new StockFactory()
+  const allSymbols = await stockFactory.symbolProvider.getSymbols()
 
   const docs = await StockDAO.listStocks({ projection: { symbol: 1, asof: 1 } })
   const oldSymbols = docs.map((s: any) => s.symbol)
@@ -30,7 +30,7 @@ export default async function updateStocks () {
   const upsertSymbols = lang.setDifference(allSymbols, upToDateSymbols)
   log.info('Symbols to update: %s (%d)', JSON.stringify(upsertSymbols), upsertSymbols.length)
 
-  const stockStream = new StockFactory().streamStocksFromSymbols(upsertSymbols)
+  const stockStream = stockFactory.streamStocksFromSymbols(upsertSymbols)
   const stockValidFilter = streamWrapper.asFilterAsync(isStockValid)
   const upsertStockStream = streamWrapper.asWritableAsync(async (stocks: any) => {
     await StockDAO.upsertStocks(stocks)

@@ -1,10 +1,12 @@
 import { Promise } from 'bluebird'
+import * as _ from 'lodash'
 import { Readable, Transform } from 'stream'
 import Stock from '../stock/Stock'
 import * as streamWrapper from '../util/streamWrapper'
 import MarketWatch from './MarketWatch'
 import NYSEStocks from './NYSEStocks'
 import StockCalculator from './StockCalculator'
+import Trading212 from './Trading212'
 
 export interface StockProvider {
     getStocksFromSymbols(symbols: string[]): Promise<Stock[]>
@@ -16,12 +18,28 @@ export interface SymbolProvider {
   streamSymbols(): Readable
 }
 
+class CompoundSymbolProvider implements SymbolProvider {
+  private symbolProviders: SymbolProvider[]
+  constructor (...symbolProviders: SymbolProvider[]) {
+    this.symbolProviders = symbolProviders
+  }
+
+  async getSymbols () {
+    const allSymbols = await Promise.map(this.symbolProviders, (provider) => provider.getSymbols())
+    return _.uniq(_.flatten(allSymbols))
+  }
+
+  streamSymbols (): Readable {
+    return streamWrapper.asReadableAsync(() => this.getSymbols())
+  }
+}
+
 export default class StockFactory {
     stockCalculator: StockCalculator;
     stockProvider: StockProvider;
     symbolProvider: SymbolProvider;
     constructor () {
-      this.symbolProvider = new NYSEStocks()
+      this.symbolProvider = new CompoundSymbolProvider(new NYSEStocks(), new Trading212())
       this.stockProvider = new MarketWatch()
       this.stockCalculator = new StockCalculator()
     }
