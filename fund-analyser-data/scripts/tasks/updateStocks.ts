@@ -14,7 +14,6 @@ import * as streamWrapper from '../../lib/util/streamWrapper'
  */
 export default async function updateStocks () {
   const today = moment().utc().startOf('day')
-  const lastBusinessDay = today.isBusinessDay() ? today : today.prevBusinessDay()
 
   const stockFactory = new StockFactory()
   const allSymbols = await stockFactory.symbolProvider.getSymbols()
@@ -26,8 +25,7 @@ export default async function updateStocks () {
   await StockDAO.deleteStocks({ query: { symbol: { $in: deleteSymbols } } })
   log.info('Deleted old symbols: %s (%d)', JSON.stringify(deleteSymbols), deleteSymbols.length)
 
-  const upToDateSymbols = docs.filter((s: any) => lastBusinessDay.isSameOrBefore(s.asof)).map((s: any) => s.symbol)
-  const upsertSymbols = lang.setDifference(allSymbols, upToDateSymbols)
+  const upsertSymbols = today.isHoliday() ? [] : allSymbols
   log.info('Symbols to update: %s (%d)', JSON.stringify(upsertSymbols), upsertSymbols.length)
 
   const stockStream = stockFactory.streamStocksFromSymbols(upsertSymbols)
