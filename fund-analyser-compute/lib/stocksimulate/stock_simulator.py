@@ -65,11 +65,13 @@ class StockSimulator:
                     price = prices_df.loc[dt, symbol]
                     buy_budget = confidence * budget
                     bought_shares = math.floor(buy_budget / price)
-                    buy_amount = bought_shares * price
 
-                    curr_holdings[symbol] += bought_shares
-                    cash -= buy_amount
-                    history[symbol].append(StockAction(StockSide.BUY, dt, bought_shares))
+                    if bought_shares > 0:
+                        buy_amount = bought_shares * price
+
+                        curr_holdings[symbol] += bought_shares
+                        cash -= buy_amount
+                        history[symbol].append(StockAction(StockSide.BUY, dt, bought_shares))
 
             # valuation
             valuation = cash
