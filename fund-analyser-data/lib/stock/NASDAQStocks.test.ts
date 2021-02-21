@@ -83,7 +83,7 @@ describe('NASDAQStocks', () => {
     })
 
     test('getHistoricPrices should return historic prices object', async () => {
-      const historicPrices = await nasdaqStocks.getHistoricPrices('AAPL')
+      const historicPrices = await nasdaqStocks.getHistoricPrices('AEP')
       expect(historicPrices).toBeArray().not.toBeEmpty()
       expect(historicPrices).toSatisfyAll(hp => {
         return hp instanceof Stock.HistoricPrice &&

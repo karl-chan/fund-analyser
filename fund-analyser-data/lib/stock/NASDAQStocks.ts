@@ -77,8 +77,8 @@ export default class NASDAQStocks implements StockProvider {
       const { data } = await http.asyncGet(url, {
         params: {
           assetclass: 'stocks',
-          limit: this.maxLookbackYears * 365,
-          fromdate: moment.utc().subtract(5, 'years').format('YYYY-MM-DD'),
+          limit: 10000,
+          fromdate: moment.utc().subtract(this.maxLookbackYears, 'years').format('YYYY-MM-DD'),
           todate: moment.utc().format('YYYY-MM-DD')
         },
         responseType: 'json'
