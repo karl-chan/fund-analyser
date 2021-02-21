@@ -14,10 +14,10 @@ export async function getTestReport () {
   const doc = await db.getTestReport().findOne({}, { projection: { compressedHtml: 1 } })
   return doc &&
         brotliDecompress(doc.compressedHtml.buffer)
-          .then((buffer: any) => buffer.toString())
+          .then(buffer => buffer.toString())
 }
 
-export async function upsertTestReport (testReport: any) {
+export async function upsertTestReport (testReport: string) {
   const $ = cheerio.load(testReport)
   const summary = JSON.parse(JSON.parse($('#resData').text()))
   const passed = summary.numFailedTests === 0 && summary.numFailedTestSuites === 0

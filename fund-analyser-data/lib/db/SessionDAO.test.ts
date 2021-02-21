@@ -1,11 +1,11 @@
+import { Token } from '../../server/auth'
 import * as db from '../util/db'
 import SessionDAO from './SessionDAO'
-
 
 jest.setTimeout(30000) // 30 seconds
 
 describe('SessionDAO', () => {
-  let data: any, sessionId: string
+  let data: Token, sessionId: string
   beforeAll(async () => {
     await db.init()
   })
@@ -16,7 +16,11 @@ describe('SessionDAO', () => {
     data = {
       user: 'user',
       pass: 'pass',
-      memorableWord: 'memorableWord'
+      memorableWord: 'memorableWord',
+      name: 'User',
+      expiry: null,
+      location: null,
+      userAgent: null
     }
     sessionId = 'TEST'
   })

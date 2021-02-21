@@ -2,7 +2,6 @@ import BatchStream from 'batch-stream'
 import { Promise } from 'bluebird'
 import moment from 'moment-business-days'
 import * as StockDAO from '../../lib/db/StockDAO'
-import NYSEStocks from '../../lib/stock/NYSEStocks'
 import Stock from '../../lib/stock/Stock'
 import StockFactory from '../../lib/stock/StockFactory'
 import * as lang from '../../lib/util/lang'
@@ -15,9 +14,9 @@ import * as streamWrapper from '../../lib/util/streamWrapper'
  */
 export default async function updateStocks () {
   const today = moment().utc().startOf('day')
-  const lastBusinessDay = today.isBusinessDay() ? today : today.prevBusinessDay()
 
-  const allSymbols = await new NYSEStocks().getSymbols()
+  const stockFactory = new StockFactory()
+  const allSymbols = await stockFactory.symbolProvider.getSymbols()
 
   const docs = await StockDAO.listStocks({ projection: { symbol: 1, asof: 1 } })
   const oldSymbols = docs.map((s: any) => s.symbol)
@@ -26,11 +25,10 @@ export default async function updateStocks () {
   await StockDAO.deleteStocks({ query: { symbol: { $in: deleteSymbols } } })
   log.info('Deleted old symbols: %s (%d)', JSON.stringify(deleteSymbols), deleteSymbols.length)
 
-  const upToDateSymbols = docs.filter((s: any) => lastBusinessDay.isSameOrBefore(s.asof)).map((s: any) => s.symbol)
-  const upsertSymbols = lang.setDifference(allSymbols, upToDateSymbols)
+  const upsertSymbols = today.isHoliday() ? [] : allSymbols
   log.info('Symbols to update: %s (%d)', JSON.stringify(upsertSymbols), upsertSymbols.length)
 
-  const stockStream = new StockFactory().streamStocksFromSymbols(upsertSymbols)
+  const stockStream = stockFactory.streamStocksFromSymbols(upsertSymbols)
   const stockValidFilter = streamWrapper.asFilterAsync(isStockValid)
   const upsertStockStream = streamWrapper.asWritableAsync(async (stocks: any) => {
     await StockDAO.upsertStocks(stocks)
@@ -45,7 +43,7 @@ export default async function updateStocks () {
       log.info('Finished updating stocks')
       resolve()
     })
-    stream.on('error', (err: any) => {
+    stream.on('error', err => {
       log.error('Fatal error, aborting updateStocks: %s', err.stack)
       reject(err)
     })

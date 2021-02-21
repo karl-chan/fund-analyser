@@ -12,3 +12,4 @@ class StockAction(NamedTuple):
     side: StockSide
     dt: date
     shares: float
+    price: float

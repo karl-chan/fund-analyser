@@ -44,17 +44,17 @@ export async function upsertStocks (stocks: Stock[]) {
   // count all stocks
   const shardCounts = await Promise.map(db.getStocks(), stockDb => stockDb.countDocuments())
   // find matching ids in shards
-  const searchIds = stocks.map((f: any) => f[idField]).filter((val: any) => val)
+  const searchIds = stocks.map(s => s[idField]).filter(val => val)
   const findOptions = {
     query: { _id: { $in: searchIds } },
     projection: { _id: 1 }
   }
   const shardedDocs = await Promise.map(buildFindQuery(findOptions), query => query.toArray())
-  const shardedIds = shardedDocs.map((docs: any) => new Set(docs.map((doc: any) => doc._id)))
+  const shardedIds = shardedDocs.map(docs => new Set(docs.map(doc => doc._id)))
   // partition stocks into shards
   const bucketedStocks = shardedIds.map(() => <Stock[]>[])
   for (const stock of stocks) {
-    let shardIdx = shardedIds.findIndex((shard: any) => shard.has(stock[idField]))
+    let shardIdx = shardedIds.findIndex(shard => shard.has(stock[idField]))
     if (shardIdx === -1) {
       // assign to least occupied shard
       shardIdx = math.minIndex(shardCounts)
@@ -77,7 +77,7 @@ export async function upsertStocks (stocks: Stock[]) {
     log.error('Failed to upsert stocks: %j. Error: %s', stocks, err.stack)
     return
   }
-  log.info('Upserted stocks: %j', bucketedStocks.map((stocks: any, i: any) => `${JSON.stringify(stocks.map((f: any) => f[idField]))} in shard ${i}`).join('; '))
+  log.info('Upserted stocks: %j', bucketedStocks.map((stocks, i) => `${JSON.stringify(stocks.map(f => f[idField]))} in shard ${i}`).join('; '))
 }
 
 /**
@@ -107,7 +107,7 @@ export function streamStocks (options: Options, toPlainObject = false) {
       transform: toPlainObject ? _.toPlainObject : toStock
     })
     stockDbStream.pipe(res, { end: false })
-    return new Promise((resolve: any, reject: any) => {
+    return new Promise((resolve, reject) => {
       stockDbStream.on('end', resolve)
       stockDbStream.on('error', reject)
     })
@@ -126,7 +126,7 @@ export async function deleteStocks (options: Options) {
   }
 }
 
-export async function search (text: string, projection: any, limit: number) {
+export async function search (text: string, projection: object, limit: number) {
   const options = {
     query: { $text: { $search: text } },
     projection: { ...projection, score: { $meta: 'textScore' } },

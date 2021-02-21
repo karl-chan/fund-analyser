@@ -1,13 +1,12 @@
-import CharlesStanleyDirect from './CharlesStanleyDirect'
-import Fund from './Fund'
-
 import * as _ from 'lodash'
 import * as StreamTest from 'streamtest'
+import CharlesStanleyDirect from './CharlesStanleyDirect'
+import Fund from './Fund'
 
 jest.setTimeout(30000) // 30 seconds
 
 describe('CharlesStanleyDirect', () => {
-  let charlesStanleyDirect: any
+  let charlesStanleyDirect: CharlesStanleyDirect
   beforeEach(() => {
     charlesStanleyDirect = new CharlesStanleyDirect()
   })
@@ -20,25 +19,25 @@ describe('CharlesStanleyDirect', () => {
       const pageRange = [1, 2]
       const sedols = ['SEDOL01', 'SEDOL02']
       const partialFunds = [
-        Fund.builder('GB00000ISIN1').bidAskSpread(0.01),
-        Fund.builder('GB00000ISIN2').bidAskSpread(0.02)
+        Fund.builder('GB00000ISIN1').bidAskSpread(0.01).build(),
+        Fund.builder('GB00000ISIN2').bidAskSpread(0.02).build()
       ]
 
       jest.spyOn(charlesStanleyDirect, 'getNumPages')
         .mockImplementation(async () => 2)
       jest.spyOn(charlesStanleyDirect, 'getPageRange')
-        .mockImplementation(async (lastPage: any) => pageRange)
+        .mockImplementation(async () => pageRange)
       jest.spyOn(charlesStanleyDirect, 'getSedolsFromPage')
-        .mockImplementation(async (page: any) => {
+        .mockImplementation(async (page: number) => {
           switch (page) {
             case 1:
-              return sedols[0]
+              return [sedols[0]]
             case 2:
-              return sedols[1]
+              return [sedols[1]]
           }
         })
       jest.spyOn(charlesStanleyDirect, 'getFundFromSedol')
-        .mockImplementation(async (sedol: any) => {
+        .mockImplementation(async sedol => {
           switch (sedol) {
             case sedols[0]:
               return partialFunds[0]
@@ -61,7 +60,7 @@ describe('CharlesStanleyDirect', () => {
       const samplePage = 1
       const sedols = await charlesStanleyDirect.getSedolsFromPage(samplePage)
       expect(sedols).toBeArray()
-      expect(sedols).toSatisfyAll((sedol: any) => sedol.length === 7)
+      expect(sedols).toSatisfyAll(sedol => sedol.length === 7)
     })
 
     test('getFundFromSedol should return partial fund', async () => {
@@ -73,7 +72,7 @@ describe('CharlesStanleyDirect', () => {
       expect(partialFund).toHaveProperty('amc', expect.toBeWithin(0, 1))
       expect(partialFund).toHaveProperty('ocf', expect.toBeWithin(0, 1))
       expect(partialFund).toHaveProperty('holdings')
-      expect(partialFund.holdings).toBeArrayOfSize(10).toSatisfyAll((holding: any) => {
+      expect(partialFund.holdings).toBeArrayOfSize(10).toSatisfyAll(holding => {
         return typeof holding.name === 'string' && holding.name &&
                        typeof holding.weight === 'number' && holding.weight > 0
       })
@@ -89,7 +88,7 @@ describe('CharlesStanleyDirect', () => {
       const pages = [1, 2]
 
       jest.spyOn(charlesStanleyDirect, 'getSedolsFromPage')
-        .mockImplementation(async (page: any) => {
+        .mockImplementation(async page => {
           switch (page) {
             case 1:
               return ['SEDOL01', 'SEDOL02']
@@ -104,12 +103,12 @@ describe('CharlesStanleyDirect', () => {
     test('getFundsFromSedols should return array of partial fund', async () => {
       const sedols = ['SEDOL01', 'SEDOL02']
       const partialFunds = [
-        Fund.builder('GB00000ISIN1').bidAskSpread(0.01),
-        Fund.builder('GB00000ISIN2').bidAskSpread(0.02)
+        Fund.builder('GB00000ISIN1').bidAskSpread(0.01).build(),
+        Fund.builder('GB00000ISIN2').bidAskSpread(0.02).build()
       ]
 
       jest.spyOn(charlesStanleyDirect, 'getFundFromSedol')
-        .mockImplementation(async (sedol: any) => {
+        .mockImplementation(async sedol => {
           switch (sedol) {
             case 'SEDOL01':
               return partialFunds[0]
@@ -125,19 +124,19 @@ describe('CharlesStanleyDirect', () => {
 
   describe('Stream methods', () => {
     const version = 'v2'
-    test('streamFunds should return Readable stream outputting array of partial funds', (done: any) => {
+    test('streamFunds should return Readable stream outputting array of partial funds', done => {
       const pageRange = [1, 2]
       const partialFunds = [
-        Fund.builder('GB00000ISIN1').bidAskSpread(0.01),
-        Fund.builder('GB00000ISIN2').bidAskSpread(0.02)
+        Fund.builder('GB00000ISIN1').bidAskSpread(0.01).build(),
+        Fund.builder('GB00000ISIN2').bidAskSpread(0.02).build()
       ]
 
       jest.spyOn(charlesStanleyDirect, 'getNumPages')
         .mockImplementation(async () => 2)
       jest.spyOn(charlesStanleyDirect, 'getPageRange')
-        .mockImplementation(async (lastPage: any) => pageRange)
+        .mockImplementation(async () => pageRange)
       jest.spyOn(charlesStanleyDirect, 'getSedolsFromPage')
-        .mockImplementation(async (page: any) => {
+        .mockImplementation(async page => {
           switch (page) {
             case 1:
               return ['SEDOL01']
@@ -146,7 +145,7 @@ describe('CharlesStanleyDirect', () => {
           }
         })
       jest.spyOn(charlesStanleyDirect, 'getFundFromSedol')
-        .mockImplementation(async (sedol: any) => {
+        .mockImplementation(async sedol => {
           switch (sedol) {
             case 'SEDOL01':
               return partialFunds[0]
@@ -158,25 +157,25 @@ describe('CharlesStanleyDirect', () => {
 
       const isinStream = charlesStanleyDirect.streamFunds()
       isinStream
-        .pipe(StreamTest[version].toObjects((err: any, actual: any) => {
+        .pipe(StreamTest[version].toObjects((err, actual) => {
           expect(actual).toEqual(partialFunds)
           done(err)
         }))
     })
-    test('streamNumPages should return Readable stream with single element', (done: any) => {
+    test('streamNumPages should return Readable stream with single element', done => {
       jest.spyOn(charlesStanleyDirect, 'getNumPages')
         .mockImplementation(async () => 71)
 
       const numPagesStream = charlesStanleyDirect.streamNumPages()
-      numPagesStream.pipe(StreamTest[version].toObjects((err: any, objs: any) => {
+      numPagesStream.pipe(StreamTest[version].toObjects((err, objs) => {
         expect(objs).toEqual([71])
         done(err)
       }))
     })
-    test('streamPageRange should return Transform stream outputting array of consecutive ints', (done: any) => {
+    test('streamPageRange should return Transform stream outputting array of consecutive ints', done => {
       const lastPage = 71
       jest.spyOn(charlesStanleyDirect, 'getPageRange')
-        .mockImplementation(async (lastPage: any) => {
+        .mockImplementation(async lastPage => {
           expect(lastPage).toBe(71)
           return _.range(1, 72)
         })
@@ -184,15 +183,15 @@ describe('CharlesStanleyDirect', () => {
       const pageRangeStream = charlesStanleyDirect.streamPageRange()
       StreamTest[version].fromObjects([lastPage])
         .pipe(pageRangeStream)
-        .pipe(StreamTest[version].toObjects((err: any, pageRange: any) => {
+        .pipe(StreamTest[version].toObjects((err, pageRange) => {
           expect(pageRange).toEqual(_.range(1, 72))
           done(err)
         }))
     })
-    test('streamSedolsFromPages should return Transform stream outputting array of sedols', (done: any) => {
+    test('streamSedolsFromPages should return Transform stream outputting array of sedols', done => {
       const pages = [1, 2]
       jest.spyOn(charlesStanleyDirect, 'getSedolsFromPage')
-        .mockImplementation(async (page: any) => {
+        .mockImplementation(async page => {
           switch (page) {
             case 1:
               return ['SEDOL01', 'SEDOL02']
@@ -204,20 +203,20 @@ describe('CharlesStanleyDirect', () => {
       const pageToSedolStream = charlesStanleyDirect.streamSedolsFromPages()
       StreamTest[version].fromObjects(pages)
         .pipe(pageToSedolStream)
-        .pipe(StreamTest[version].toObjects((err: any, sedols: any) => {
+        .pipe(StreamTest[version].toObjects((err, sedols) => {
           expect(sedols).toEqual(['SEDOL01', 'SEDOL02', 'SEDOL03', 'SEDOL04'])
           done(err)
         }))
     })
-    test('streamFundsFromSedols should return Transform stream outputting array of partial funds', (done: any) => {
+    test('streamFundsFromSedols should return Transform stream outputting array of partial funds', done => {
       const sedols = ['SEDOL01', 'SEDOL02']
       const partialFunds = [
-        Fund.builder('GB00000ISIN1').bidAskSpread(0.01),
-        Fund.builder('GB00000ISIN2').bidAskSpread(0.02)
+        Fund.builder('GB00000ISIN1').bidAskSpread(0.01).build(),
+        Fund.builder('GB00000ISIN2').bidAskSpread(0.02).build()
       ]
 
       jest.spyOn(charlesStanleyDirect, 'getFundFromSedol')
-        .mockImplementation(async (sedol: any) => {
+        .mockImplementation(async sedol => {
           switch (sedol) {
             case 'SEDOL01':
               return partialFunds[0]
@@ -230,7 +229,7 @@ describe('CharlesStanleyDirect', () => {
       const sedolToIsinStream = charlesStanleyDirect.streamFundsFromSedols()
       StreamTest[version].fromObjects(sedols)
         .pipe(sedolToIsinStream)
-        .pipe(StreamTest[version].toObjects((err: any, isins: any) => {
+        .pipe(StreamTest[version].toObjects((err, isins) => {
           expect(isins).toEqual(partialFunds)
           done(err)
         }))

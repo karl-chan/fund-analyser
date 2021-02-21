@@ -1,14 +1,14 @@
 import moment from 'moment'
 import * as StreamTest from 'streamtest'
-import MarketWatch from './MarketWatch'
+import NASDAQStocks from './NASDAQStocks'
 import Stock from './Stock'
 
 jest.setTimeout(30000) // 30 seconds
 
-describe('MarketWatch', () => {
-  let marketWatch: MarketWatch
+describe('NASDAQStocks', () => {
+  let nasdaqStocks: NASDAQStocks
   beforeEach(() => {
-    marketWatch = new MarketWatch()
+    nasdaqStocks = new NASDAQStocks()
   })
   afterEach(() => {
     jest.restoreAllMocks()
@@ -23,25 +23,31 @@ describe('MarketWatch', () => {
           estPrice: 351.7,
           estChange: 0.0003,
           lastUpdated: new Date(2017, 0, 1)
-        }
+        },
+        marketCap: 2_251_600_345_800
       }
       const historicPrices = [
         new Stock.HistoricPrice(new Date(2017, 0, 1), 457.0, 100000.0)
       ]
+      const bidAskSpread = 0.01
 
-      jest.spyOn(marketWatch, 'getSummary')
+      jest.spyOn(nasdaqStocks, 'getSummary')
         .mockImplementation(async () => summary)
-      jest.spyOn(marketWatch, 'getHistoricPrices')
+      jest.spyOn(nasdaqStocks, 'getHistoricPrices')
         .mockImplementation(async () => historicPrices)
+      jest.spyOn(nasdaqStocks, 'getBidAskSpread')
+        .mockImplementation(async () => bidAskSpread)
 
       const expected = Stock.builder(symbol)
         .name(summary.name)
         .historicPrices(historicPrices)
         .asof(new Date(2017, 0, 1))
         .realTimeDetails(summary.realTimeDetails)
+        .marketCap(2_251_600_345_800)
+        .bidAskSpread(0.01)
         .build()
 
-      const actual = await marketWatch.getStockFromSymbol(symbol)
+      const actual = await nasdaqStocks.getStockFromSymbol(symbol)
       expect(actual).toMatchObject(expected)
     })
 
@@ -52,7 +58,7 @@ describe('MarketWatch', () => {
         Stock.builder('GOOG').build()
       ]
 
-      jest.spyOn(marketWatch, 'getStockFromSymbol')
+      jest.spyOn(nasdaqStocks, 'getStockFromSymbol')
         .mockImplementation(async sedol => {
           switch (sedol) {
             case 'AAPL':
@@ -62,21 +68,22 @@ describe('MarketWatch', () => {
               return stocks[1]
           }
         })
-      const actual = await marketWatch.getStocksFromSymbols(sedols)
+      const actual = await nasdaqStocks.getStocksFromSymbols(sedols)
       expect(actual).toEqual(stocks)
     })
 
     test('getSummary should return summary object', async () => {
-      const summary = await marketWatch.getSummary('AAPL')
+      const summary = await nasdaqStocks.getSummary('AAPL')
       expect(summary.name).toEqual('Apple Inc.')
       expect(summary.realTimeDetails).toMatchObject({
         estPrice: expect.toBeNumber(),
         estChange: expect.toBeNumber()
       })
+      expect(summary.marketCap).toBeNumber()
     })
 
     test('getHistoricPrices should return historic prices object', async () => {
-      const historicPrices = await marketWatch.getHistoricPrices('AAPL')
+      const historicPrices = await nasdaqStocks.getHistoricPrices('AAPL')
       expect(historicPrices).toBeArray().not.toBeEmpty()
       expect(historicPrices).toSatisfyAll(hp => {
         return hp instanceof Stock.HistoricPrice &&
@@ -84,6 +91,11 @@ describe('MarketWatch', () => {
                         hp.price !== 0 &&
                         typeof hp.volume === 'number' && !isNaN(hp.volume)
       })
+    })
+
+    test('getBidAskSpread should return bid-ask spread', async () => {
+      const bidAskSpread = await nasdaqStocks.getBidAskSpread('AAPL')
+      expect(bidAskSpread).toBePositive()
     })
   })
 
@@ -95,7 +107,7 @@ describe('MarketWatch', () => {
       const stock1 = Stock.builder(symbol1).build()
       const stock2 = Stock.builder(symbol2).build()
 
-      jest.spyOn(marketWatch, 'getStockFromSymbol')
+      jest.spyOn(nasdaqStocks, 'getStockFromSymbol')
         .mockImplementation(async (symbol: string) => {
           switch (symbol) {
             case symbol1:
@@ -105,7 +117,7 @@ describe('MarketWatch', () => {
           }
         })
 
-      const symbolToFundStream = marketWatch.streamStocksFromSymbols()
+      const symbolToFundStream = nasdaqStocks.streamStocksFromSymbols()
       StreamTest[version].fromObjects([symbol1, symbol2])
         .pipe(symbolToFundStream)
         .pipe(StreamTest[version].toObjects((err, funds) => {

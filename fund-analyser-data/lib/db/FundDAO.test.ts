@@ -7,7 +7,7 @@ import * as FundDAO from './FundDAO'
 jest.setTimeout(30000) // 30 seconds
 
 describe('FundDAO', function () {
-  let fund: any, doc: any
+  let fund: Fund, doc: object
   beforeAll(async () => {
     await db.init()
     await FundDAO.deleteFunds({ query: { isin: /test/ } })
@@ -86,12 +86,12 @@ describe('FundDAO', function () {
     expect(sedols).toBeArrayOfSize(1)
     expect(sedols[0]).toContainAllKeys(['sedol']) // only 'sedol' and not other keys
   })
-  test('streamFunds', async (done: any) => {
+  test('streamFunds', async done => {
     const version = 'v2'
     await FundDAO.upsertFunds([fund])
 
     FundDAO.streamFunds({ query: { isin: fund.isin } })
-      .pipe(StreamTest[version].toObjects((err: any, actual: any) => {
+      .pipe(StreamTest[version].toObjects((err, actual) => {
         expect(actual).toBeArrayOfSize(1)
         expect(actual[0]).toEqual(fund)
         done(err)

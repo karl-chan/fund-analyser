@@ -141,6 +141,8 @@ export default {
             }
           })
         },
+        { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 70 },
+        { headerName: 'Market Cap', field: 'marketCap', width: 70 },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ]
 
@@ -148,10 +150,12 @@ export default {
         extendedPeriods.map(period => `returns.${period}`)
           .concat(this.getIndicatorKeys()))
       const percentFields = new Set(
-        []
+        ['bidAskSpread']
           .concat(extendedPeriods.map(period => `returns.${period}`))
           .concat(this.getIndicatorKeys('percent')))
-      const numberFields = new Set(this.getIndicatorKeys('default'))
+      const numberFields = new Set(
+        ['marketCap']
+          .concat(this.getIndicatorKeys('default')))
       const dateFields = new Set(['asof'])
 
       const updateColDef = colDef => {
@@ -355,7 +359,8 @@ export default {
             case 'returns.2W':
             case 'returns.1W':
             case 'returns.3D':
-            case 'returns.1D': return this.percentFormatter(params, '')
+            case 'returns.1D':
+            case 'bidAskSpread': return this.percentFormatter(params, '')
             default: return params.value
           }
         },

@@ -17,8 +17,7 @@ export async function getLocationByIp (ip: any) {
   }
   const url = `http://ip-api.com/json/${ip}`
   try {
-    const { body } = await http.asyncGet(url)
-    const data = JSON.parse(body)
+    const { data } = await http.asyncGet(url, { responseType: 'json' })
     return {
       city: data.city,
       region: data.regionName,

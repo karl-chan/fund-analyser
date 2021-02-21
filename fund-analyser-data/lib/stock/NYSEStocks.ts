@@ -7,9 +7,9 @@ const http = new Http()
 export default class NYSEStocks implements SymbolProvider {
   async getSymbols () {
     const url = 'https://www.nyse.com/api/quotes/filter'
-    const data = await http.asyncPost(url, {
-      json: true,
-      body: {
+    const { data } = await http.asyncPost(url, {
+      responseType: 'json',
+      data: {
         instrumentType: 'COMMON_STOCK',
         pageNumber: 1,
         sortColumn: 'NORMALIZED_TICKER',
@@ -18,7 +18,7 @@ export default class NYSEStocks implements SymbolProvider {
         filterToken: ''
       }
     })
-    return data.body.map((o: any) => o.symbolTicker)
+    return data.map((o: any) => o.symbolTicker)
   }
 
   streamSymbols () {

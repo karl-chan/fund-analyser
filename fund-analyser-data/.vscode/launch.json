@@ -12,16 +12,21 @@
             "preLaunchTask": "tsc: build - tsconfig.json",
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
-            ]
+            ],
+            "outputCapture": "std"
         },
         {
             "type": "node",
             "request": "launch",
             "name": "pushNotifications",
-            "program": "${workspaceFolder}/scripts/main.js",
+            "program": "${workspaceFolder}/scripts/main.ts",
             "args": [
                 "-r",
                 "pushNotifications"
+            ],
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
             ],
             "outputCapture": "std"
         },
@@ -29,10 +34,14 @@
             "type": "node",
             "request": "launch",
             "name": "tradeFunds",
-            "program": "${workspaceFolder}/scripts/main.js",
+            "program": "${workspaceFolder}/scripts/main.ts",
             "args": [
                 "-r",
                 "tradeFunds"
+            ],
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
             ],
             "outputCapture": "std"
         },
@@ -40,10 +49,14 @@
             "type": "node",
             "request": "launch",
             "name": "updateCatalog",
-            "program": "${workspaceFolder}/scripts/main.js",
+            "program": "${workspaceFolder}/scripts/main.ts",
             "args": [
                 "-r",
                 "updateCatalog"
+            ],
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
             ],
             "outputCapture": "std"
         },
@@ -51,10 +64,14 @@
             "type": "node",
             "request": "launch",
             "name": "updateFunds",
-            "program": "${workspaceFolder}/scripts/main.js",
+            "program": "${workspaceFolder}/scripts/main.ts",
             "args": [
                 "-r",
                 "updateFunds"
+            ],
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
             ],
             "outputCapture": "std"
         },
@@ -62,10 +79,14 @@
             "type": "node",
             "request": "launch",
             "name": "updateStocks",
-            "program": "${workspaceFolder}/scripts/main.js",
+            "program": "${workspaceFolder}/scripts/main.ts",
             "args": [
                 "-r",
                 "updateStocks"
+            ],
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
             ],
             "outputCapture": "std"
         },
@@ -73,12 +94,16 @@
             "type": "node",
             "request": "launch",
             "name": "uploadTestReport",
-            "program": "${workspaceFolder}/scripts/main.js",
+            "program": "${workspaceFolder}/scripts/main.ts",
             "args": [
                 "-r",
                 "uploadTestReport",
                 "--",
                 "test-report.html"
+            ],
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
             ],
             "outputCapture": "std"
         },

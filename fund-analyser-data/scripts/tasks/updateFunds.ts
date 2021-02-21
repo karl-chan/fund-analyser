@@ -25,7 +25,7 @@ export default async function updateFunds () {
 
   const fundStream = new FundFactory().streamFundsFromSedols(sedols)
   const fundValidFilter = streamWrapper.asFilterAsync(isFundValid)
-  const upsertFundStream = streamWrapper.asWritableAsync(async (funds: any) => {
+  const upsertFundStream = streamWrapper.asWritableAsync(async (funds: Fund[]) => {
     await FundDAO.upsertFunds(funds)
   })
 
@@ -38,7 +38,7 @@ export default async function updateFunds () {
       log.info('Finished updating funds')
       resolve()
     })
-    stream.on('error', (err: any) => {
+    stream.on('error', err => {
       log.error('Fatal error, aborting updateFunds: %s', err.stack)
       reject(err)
     })

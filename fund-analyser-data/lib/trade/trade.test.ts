@@ -1,22 +1,24 @@
-import * as trade from './trade'
-import * as properties from '../util/properties'
 import moment from 'moment-business-days'
-import { PredictResponse } from '../simulate/simulate'
 import { Balance } from '../account/CharlesStanleyDirectAccount'
+import { PredictResponse } from '../simulate/simulate'
+import * as properties from '../util/properties'
 import { Buy, Sell } from './Action'
+import * as trade from './trade'
 
 describe('trade', () => {
   describe('decideActions', () => {
     describe('with existing holdings', () => {
       const fundHoldBusinessDays = properties.get('trade.fund.hold.business.days')
-      const today = moment().utc().startOf('day')
-      const thresholdDate = today.businessSubtract(fundHoldBusinessDays)
+      const today = moment().utc().startOf('day').toDate()
+      const thresholdDate = moment(today).businessSubtract(fundHoldBusinessDays).toDate()
       const balance = {
         cash: 0,
         holdings: [
           { ISIN: 'GB00B99C0657', Sedol: 'B99C065', Quantity: 100 },
           { ISIN: 'GB0006061963', Sedol: '0606196', Quantity: 50 }
-        ]
+        ],
+        portfolio: 0,
+        totalValue: 0
       }
       const transactions = [
         {
@@ -32,7 +34,7 @@ describe('trade', () => {
           cash: 0
         },
         {
-          date: thresholdDate.businessAdd(1), // later than threshold
+          date: moment(thresholdDate).businessAdd(1).toDate(), // later than threshold
           description: '356 BG AMC\'B\'ACC NAV Del 11.96 S Date 03/01/15',
           stockDescription: 'BAILLIE GIFFORD AMERICAN B NAV ACC',
           sedol: '0606196',

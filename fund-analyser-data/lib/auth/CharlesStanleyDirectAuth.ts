@@ -1,27 +1,27 @@
 import * as cheerio from 'cheerio'
-import rp from 'request-promise'
+import FormData from 'form-data'
+import { CookieJar } from 'tough-cookie'
 import Http from '../util/http'
 import log from '../util/log'
 
 const http = new Http()
 
 export default class CharlesStanleyDirectAuth {
-    getAccountSummaryUrl: any;
-    getChangeInValuePerAccountUrl: any;
-    getMemorableWordUrl: any;
-    homeUrl: any;
-    logUserInUrl: any;
-    loginUrl: any;
-    validateMemorableWordUrl: any;
+    getAccountSummaryUrl: string;
+    getChangeInValuePerAccountUrl: string;
+    getMemorableWordUrl: string;
+    homeUrl: string;
+    logUserInUrl: string;
+    loginUrl: string;
+    validateMemorableWordUrl: string;
     constructor () {
-      this.homeUrl = 'https://www.charles-stanley-direct.co.uk/'
-      this.loginUrl = 'https://www.charles-stanley-direct.co.uk/Login/Login'
-      this.getMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/Login/GetMemorableWord'
-      this.validateMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/Login/ValidateMemorableWord'
-      this.logUserInUrl = 'https://www.charles-stanley-direct.co.uk/Login/LogUserIn'
       this.getAccountSummaryUrl = 'https://www.charles-stanley-direct.co.uk/accountSummary/GetAccountSummary'
-
       this.getChangeInValuePerAccountUrl = 'https://www.charles-stanley-direct.co.uk/AccountSummary/GetChangeInValuePerAccount'
+      this.getMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/Login/GetMemorableWord'
+      this.homeUrl = 'https://www.charles-stanley-direct.co.uk/'
+      this.logUserInUrl = 'https://www.charles-stanley-direct.co.uk/Login/LogUserIn'
+      this.loginUrl = 'https://www.charles-stanley-direct.co.uk/Login/Login'
+      this.validateMemorableWordUrl = 'https://www.charles-stanley-direct.co.uk/Login/ValidateMemorableWord'
     }
 
     async login (user: string, pass: string, memorableWord: string) {
@@ -29,7 +29,7 @@ export default class CharlesStanleyDirectAuth {
       if (!pass) throw new Error('Missing password')
       if (!memorableWord) throw new Error('Missing memorable word')
 
-      const jar = rp.jar()
+      const jar = new CookieJar()
 
       // Step 1: User name and password
       const { csrfToken } = await this._enterUserAndPass(user, pass, { jar })
@@ -48,31 +48,32 @@ export default class CharlesStanleyDirectAuth {
     }
 
     // cost is about 70ms per call
-    async isLoggedIn ({
-      jar
-    }: any) {
+    async isLoggedIn ({ jar }: {jar: CookieJar}) {
       if (!jar) throw new Error('Missing jar')
-      const { statusCode } = await http.asyncGet(this.getChangeInValuePerAccountUrl, { jar, followRedirect: false })
-      return statusCode === 200
+      const { status } = await http.asyncGet(this.getChangeInValuePerAccountUrl, {
+        jar,
+        withCredentials: true,
+        maxRedirects: 0
+      })
+      return status === 200
     }
 
-    async _enterUserAndPass (user: string, pass: string, {
-      jar
-    }: any) {
+    async _enterUserAndPass (user: string, pass: string, { jar }: { jar: CookieJar }) {
       log.debug('Entering user and pass')
-      const { body: b1 } = await http.asyncGet(this.homeUrl, { jar })
+      const { data: b1 } = await http.asyncGet(this.homeUrl, { jar })
       const $1 = cheerio.load(b1)
       const csrfToken = $1('#__AjaxAntiForgeryForm > input[name="__RequestVerificationToken"]').val()
 
+      const form = new FormData()
+      form.append('Username', user)
+      form.append('Password', pass)
+      form.append('__RequestVerificationToken', csrfToken)
       try {
         await http.asyncPost(this.loginUrl,
           {
             jar,
-            form: {
-              Username: user,
-              Password: pass,
-              __RequestVerificationToken: csrfToken
-            }
+            withCredentials: true,
+            data: form
           }
         )
       } catch (err) {
@@ -82,33 +83,35 @@ export default class CharlesStanleyDirectAuth {
       return { csrfToken }
     }
 
-    async _checkMemorableWord (memorableWord: string, {
-      csrfToken,
-      jar
-    }: any) {
+    async _checkMemorableWord (memorableWord: string, { csrfToken, jar }: {csrfToken: string, jar: CookieJar}) {
       log.debug('Checking memorable word')
 
-      const { body: b1 } = await http.asyncPost(this.getMemorableWordUrl, {
+      const { data: b1 } = await http.asyncPost(this.getMemorableWordUrl, {
         jar,
+        withCredentials: true,
+        responseType: 'json',
         headers: {
           RequestVerificationToken: csrfToken,
           'X-Requested-With': 'XMLHttpRequest'
         }
       })
-      const { FirstCharacterPosition, SecondCharacterPosition, ThirdCharacterPosition } = JSON.parse(b1)
+      const { FirstCharacterPosition, SecondCharacterPosition, ThirdCharacterPosition } = b1
+
+      const form = new FormData()
+      form.append('firstCharacter', memorableWord.charAt(FirstCharacterPosition - 1))
+      form.append('secondCharacter', memorableWord.charAt(SecondCharacterPosition - 1))
+      form.append('thirdCharacter', memorableWord.charAt(ThirdCharacterPosition - 1))
+
       try {
         await http.asyncPost(this.validateMemorableWordUrl,
           {
             jar,
+            withCredentials: true,
             headers: {
               RequestVerificationToken: csrfToken,
               'X-Requested-With': 'XMLHttpRequest'
             },
-            form: {
-              firstCharacter: memorableWord.charAt(FirstCharacterPosition - 1),
-              secondCharacter: memorableWord.charAt(SecondCharacterPosition - 1),
-              thirdCharacter: memorableWord.charAt(ThirdCharacterPosition - 1)
-            }
+            data: form
           }
         )
       } catch (err) {
@@ -117,14 +120,12 @@ export default class CharlesStanleyDirectAuth {
       log.debug('Memorable word accepted')
     }
 
-    async _logUserIn ({
-      csrfToken,
-      jar
-    }: any) {
+    async _logUserIn ({ csrfToken, jar }: {csrfToken: string, jar: CookieJar}) {
       log.debug('Logging user in')
       try {
         await http.asyncPost(this.logUserInUrl, {
           jar,
+          withCredentials: true,
           headers: {
             RequestVerificationToken: csrfToken,
             'X-Requested-With': 'XMLHttpRequest'
@@ -136,13 +137,14 @@ export default class CharlesStanleyDirectAuth {
       log.debug('Log user in completed')
     }
 
-    async _getMyAccount ({
-      jar
-    }: any) {
+    async _getMyAccount ({ jar }: { jar: CookieJar }) {
       log.debug('Getting user name from my account')
-      const { body } = await http.asyncGet(this.getAccountSummaryUrl, { jar })
-      const account = JSON.parse(body)
-      const name = account.Accounts[0].AccountName
+      const { data } = await http.asyncGet(this.getAccountSummaryUrl, {
+        jar,
+        withCredentials: true,
+        responseType: 'json'
+      })
+      const name = data.Accounts[0].AccountName
       return { name }
     }
 }

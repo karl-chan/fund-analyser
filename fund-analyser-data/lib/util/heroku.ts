@@ -34,17 +34,17 @@ const clients = {
   }
 }
 
-export async function getLogs (category: any, lines?: any) {
+export async function getLogs (category: Category, lines?: any) {
   const url = await getLogplexUrl(category, false, lines)
-  const { body } = await http.asyncGet(url)
-  return body
+  const { data } = await http.asyncGet(url)
+  return data
 }
 
-export async function getLastActivity (category: any) {
+export async function getLastActivity (category: Category) {
   const logs = await getLogs(category)
   try {
     const lines = logs.split('\n')
-    const lastLine = _.findLast(lines, (line: any) => {
+    const lastLine = _.findLast(lines, line => {
       return !_.isEmpty(line) && moment(line.split(' ')[0]).isValid()
     })
     return moment(lastLine.split(' ')[0])
@@ -54,7 +54,7 @@ export async function getLastActivity (category: any) {
   }
 }
 
-export async function getLogplexUrl (category: any, stream = false, lines = 1500) {
+export async function getLogplexUrl (category: Category, stream = false, lines = 1500) {
   const { appName, herokuClient } = getClient(category)
   const res = await herokuClient.post(`/apps/${appName}/log-sessions`, {
     body: {
@@ -66,13 +66,14 @@ export async function getLogplexUrl (category: any, stream = false, lines = 1500
   return res.logplex_url
 }
 
-export async function streamLogs (category: any) {
+export async function streamLogs (category: Category) {
   const url = await getLogplexUrl(category, true)
-  const bufferToStringStream = streamWrapper.asTransformAsync((buf: any) => buf.toString('utf-8'))
-  return http.stream(url).pipe(bufferToStringStream)
+  const bufferToStringStream = streamWrapper.asTransformAsync(buf => buf.toString('utf-8'))
+  const stream = await http.stream(url)
+  return stream.pipe(bufferToStringStream)
 }
 
-export async function restart (category: any) {
+export async function restart (category: Category) {
   const { appName, herokuClient } = getClient(category)
   await herokuClient.delete(`/apps/${appName}/dynos/${category}`)
 }

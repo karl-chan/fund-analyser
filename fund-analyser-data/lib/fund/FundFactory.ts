@@ -44,7 +44,7 @@ export default class FundFactory {
       return fundStream
     }
 
-    streamFundsFromSedols (sedols: any) {
+    streamFundsFromSedols (sedols: string[]) {
       const sedolStream = streamWrapper.asReadableAsync(async () => sedols)
       const isinStream = this.isinProvider.streamFundsFromSedols()
       const isinToFundStream = this.fundProvider.streamFundsFromIsins()

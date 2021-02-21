@@ -1,36 +1,36 @@
+import Http, { HttpOptions } from '../lib/util/http'
 import * as properties from '../lib/util/properties'
-import Http from '../lib/util/http'
 const COMPUTE_HOST = properties.get('client.compute')
 const http = new Http({
   maxAttempts: properties.get('client.compute.max.attempts'),
   retryInterval: properties.get('client.compute.retry.interval')
 })
 
-export async function get (endpoint: any, params?: any) {
-  const options = { json: true }
+export async function get (endpoint: string, params?: object) {
+  const options: HttpOptions = { responseType: 'json' }
   if (params) {
-    (options as any).qs = params
+    options.params = params
   }
   if (endpoint.startsWith('/')) {
     endpoint = endpoint.substring(1)
   }
-  const { body } = await http.asyncGet(`${COMPUTE_HOST}/${endpoint}`, options)
-  return tryParseJSON(body)
+  const { data } = await http.asyncGet(`${COMPUTE_HOST}/${endpoint}`, options)
+  return tryParseJSON(data)
 }
 
-export async function post (endpoint: any, payload?: any) {
-  const options = { json: true }
+export async function post (endpoint: string, payload?: object) {
+  const options: HttpOptions = { responseType: 'json' }
   if (payload) {
-    (options as any).body = payload
+    options.data = payload
   }
   if (endpoint.startsWith('/')) {
     endpoint = endpoint.substring(1)
   }
-  const { body } = await http.asyncPost(`${COMPUTE_HOST}/${endpoint}`, options)
-  return tryParseJSON(body)
+  const { data } = await http.asyncPost(`${COMPUTE_HOST}/${endpoint}`, options)
+  return tryParseJSON(data)
 }
 
-function tryParseJSON (body: any) {
+function tryParseJSON (body: string) {
   try {
     return JSON.parse(body)
   } catch (ignored) {

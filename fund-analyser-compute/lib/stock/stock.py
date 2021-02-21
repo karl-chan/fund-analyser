@@ -49,6 +49,8 @@ class Stock(NamedTuple):
     asof: Optional[datetime] = None
     indicators: Optional[StockIndicators] = None
     realTimeDetails: Optional[StockRealTimeDetails] = None
+    bidAskSpread: Optional[float] = None
+    marketCap: Optional[float] = None
 
     @classmethod
     def from_dict(cls, d: Dict) -> Stock:

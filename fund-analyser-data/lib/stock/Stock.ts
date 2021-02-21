@@ -1,4 +1,4 @@
-import { isEmpty } from 'lodash';
+import { isEmpty } from 'lodash'
 
 class Stock {
   static schema = {
@@ -24,18 +24,22 @@ class Stock {
       estChange: 'number',
       estPrice: 'number',
       lastUpdated: 'Date'
-    }
-  };
+    },
+    bidAskSpread: 'number',
+    marketCap: 'number'
+  }
 
-  asof: Date;
-  historicPrices: Stock.HistoricPrice[];
-  indicators: object;
-  name: string;
-  realTimeDetails: Stock.RealTimeDetails;
-  returns: Stock.Returns;
-  symbol: string;
+  asof: Date
+  historicPrices: Stock.HistoricPrice[]
+  indicators: object
+  name: string
+  realTimeDetails: Stock.RealTimeDetails
+  returns: Stock.Returns
+  symbol: string
+  bidAskSpread: number
+  marketCap: number
 
-  constructor (symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails) {
+  constructor (symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, bidAskSpread: number, marketCap: number) {
     this.symbol = symbol
     this.name = name
     this.historicPrices = historicPrices
@@ -43,6 +47,8 @@ class Stock {
     this.asof = asof
     this.indicators = indicators
     this.realTimeDetails = realTimeDetails
+    this.bidAskSpread = bidAskSpread
+    this.marketCap = marketCap
   }
 
   static builder (symbol: string) {
@@ -57,10 +63,9 @@ class Stock {
 // eslint-disable-next-line no-redeclare
 namespace Stock {
   export class HistoricPrice {
-    close: any;
-    date: Date;
-    price: number;
-    volume: number;
+    date: Date
+    price: number
+    volume: number
     constructor (date: Date, price: number, volume: number) {
       this.date = date
       this.price = price
@@ -77,13 +82,15 @@ namespace Stock {
   }
 
   export class Builder {
-    _asof: Date;
-    _historicPrices: HistoricPrice[];
-    _indicators: object;
-    _name: string;
-    _realTimeDetails: RealTimeDetails;
-    _returns: Returns;
-    _symbol: string;
+    _asof: Date
+    _historicPrices: HistoricPrice[]
+    _indicators: object
+    _name: string
+    _realTimeDetails: RealTimeDetails
+    _returns: Returns
+    _symbol: string
+    _bidAskSpread: number
+    _marketCap: number
     constructor (symbol: string) {
       this._symbol = symbol
     }
@@ -123,8 +130,18 @@ namespace Stock {
       return this
     }
 
+    bidAskSpread (bidAskSpread: number) {
+      this._bidAskSpread = bidAskSpread
+      return this
+    }
+
+    marketCap (marketCap: number) {
+      this._marketCap = marketCap
+      return this
+    }
+
     build () {
-      return new Stock(this._symbol, this._name, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails)
+      return new Stock(this._symbol, this._name, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails, this._bidAskSpread, this._marketCap)
     }
   }
 
