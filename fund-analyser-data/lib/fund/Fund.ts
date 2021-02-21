@@ -1,15 +1,15 @@
-import { isEmpty } from 'lodash';
+import { isEmpty } from 'lodash'
 
 class Fund {
   static types = Object.freeze({
     OEIC: 'OEIC',
     UNIT: 'UNIT'
-  });
+  })
 
   static shareClasses = Object.freeze({
     INC: 'Inc',
     ACC: 'Acc'
-  });
+  })
 
   static schema = {
     isin: 'string',
@@ -48,25 +48,25 @@ class Fund {
       holdings: 'Array',
       lastUpdated: 'Date'
     }
-  };
+  }
 
-  amc: number;
-  asof: Date;
-  bidAskSpread: number;
-  entryCharge: number;
-  exitCharge: number;
-  frequency: string;
-  historicPrices: Fund.HistoricPrice[];
-  holdings: Fund.Holding[];
-  indicators: object;
-  isin: string;
-  name: string;
-  ocf: number;
-  realTimeDetails: Fund.RealTimeDetails;
-  returns: Fund.Returns;
-  sedol: string;
-  shareClass: any;
-  type: any;
+  amc: number
+  asof: Date
+  bidAskSpread: number
+  entryCharge: number
+  exitCharge: number
+  frequency: string
+  historicPrices: Fund.HistoricPrice[]
+  holdings: Fund.Holding[]
+  indicators: object
+  isin: string
+  name: string
+  ocf: number
+  realTimeDetails: Fund.RealTimeDetails
+  returns: Fund.Returns
+  sedol: string
+  shareClass: any
+  type: any
 
   constructor (isin: string, sedol: string, name: string, type: any, shareClass: any, frequency: string, ocf: number, amc: number, entryCharge: number, exitCharge: number, bidAskSpread: number, holdings: Fund.Holding[], historicPrices: Fund.HistoricPrice[], returns: Fund.Returns, asof: Date, indicators: object, realTimeDetails: Fund.RealTimeDetails) {
     this.isin = isin
@@ -100,9 +100,9 @@ class Fund {
 // eslint-disable-next-line no-redeclare
 namespace Fund {
   export class Holding {
-    name: string;
-    symbol: string;
-    weight: number;
+    name: string
+    symbol: string
+    weight: number
     constructor (name: string, symbol: string, weight: number) {
       this.name = name
       this.symbol = symbol
@@ -111,8 +111,8 @@ namespace Fund {
   }
 
   export class HistoricPrice {
-    date: Date;
-    price: number;
+    date: Date
+    price: number
     constructor (date: Date, price: number) {
       this.date = date
       this.price = price
@@ -131,23 +131,23 @@ namespace Fund {
   }
 
   export class Builder {
-    _amc: number;
-    _asof: Date;
-    _bidAskSpread: number;
-    _entryCharge: number;
-    _exitCharge: number;
-    _frequency: string;
-    _historicPrices: HistoricPrice[];
-    _holdings: Holding[];
-    _indicators: object;
-    _isin: string;
-    _name: string;
-    _ocf: number;
-    _realTimeDetails: RealTimeDetails;
-    _returns: Returns;
-    _sedol: string;
-    _shareClass: any;
-    _type: any;
+    _amc: number
+    _asof: Date
+    _bidAskSpread: number
+    _entryCharge: number
+    _exitCharge: number
+    _frequency: string
+    _historicPrices: HistoricPrice[]
+    _holdings: Holding[]
+    _indicators: object
+    _isin: string
+    _name: string
+    _ocf: number
+    _realTimeDetails: RealTimeDetails
+    _returns: Returns
+    _sedol: string
+    _shareClass: any
+    _type: any
     constructor (isin: string) {
       this._isin = isin
     }

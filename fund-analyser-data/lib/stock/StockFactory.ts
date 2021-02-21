@@ -3,7 +3,7 @@ import * as _ from 'lodash'
 import { Readable, Transform } from 'stream'
 import Stock from '../stock/Stock'
 import * as streamWrapper from '../util/streamWrapper'
-import MarketWatch from './MarketWatch'
+import NASDAQStocks from './NASDAQStocks'
 import NYSEStocks from './NYSEStocks'
 import StockCalculator from './StockCalculator'
 import Trading212 from './Trading212'
@@ -40,7 +40,7 @@ export default class StockFactory {
     symbolProvider: SymbolProvider;
     constructor () {
       this.symbolProvider = new CompoundSymbolProvider(new NYSEStocks(), new Trading212())
-      this.stockProvider = new MarketWatch()
+      this.stockProvider = new NASDAQStocks()
       this.stockCalculator = new StockCalculator()
     }
 
