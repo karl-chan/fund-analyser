@@ -40,8 +40,7 @@ export default class NASDAQStocks implements StockProvider {
   async getSummary (symbol: string) {
     try {
       const url = `https://api.nasdaq.com/api/quote/${symbol}/info?assetclass=stocks`
-      const { body } = await http.asyncGet(url)
-      const { data } = JSON.parse(body)
+      const { data } = await http.asyncGet(url, { responseType: 'json' })
       const name = data.companyName
       const estPrice = +data.primaryData.lastSalePrice.replace(/\$(.+)/, '$1')
       const estChange = +data.primaryData.percentageChange.replace(/(.+)%/, '$1') / 100
@@ -65,15 +64,15 @@ export default class NASDAQStocks implements StockProvider {
   async getHistoricPrices (symbol: string) {
     try {
       const url = `https://api.nasdaq.com/api/quote/${symbol}/historical`
-      const { body } = await http.asyncGet(url, {
-        qs: {
+      const { data } = await http.asyncGet(url, {
+        params: {
           assetclass: 'stocks',
           limit: this.maxLookbackYears * 365,
           fromdate: moment.utc().subtract(5, 'years').format('YYYY-MM-DD'),
           todate: moment.utc().format('YYYY-MM-DD')
-        }
+        },
+        responseType: 'json'
       })
-      const { data } = JSON.parse(body)
       const historicPrices: Stock.HistoricPrice[] =
         data.tradesTable.rows
           .reverse()
@@ -93,13 +92,13 @@ export default class NASDAQStocks implements StockProvider {
   async getBidAskSpread (symbol: string) {
     try {
       const url = `https://api.nasdaq.com/api/quote/${symbol}/realtime-trades`
-      const { body } = await http.asyncGet(url, {
-        qs: {
+      const { data } = await http.asyncGet(url, {
+        params: {
           fromtime: '09:30',
           limit: 10000
-        }
+        },
+        responseType: 'json'
       })
-      const { data } = JSON.parse(body)
       const tradedPrices: number[] = data.rows.map((row: any) => +row.nlsPrice.replace(/\$ (.+)/, '$1'))
       const movements = _.zip(tradedPrices, _.tail(tradedPrices)).map(([p1, p2]) => {
         const absDiff = Math.abs(p1 - p2)

@@ -1,7 +1,7 @@
 import { Promise } from 'bluebird'
 import { Context, Request } from 'koa'
 import moment from 'moment'
-import { CookieJar } from 'request'
+import { CookieJar } from 'tough-cookie'
 import { PushSubscription } from 'web-push'
 import CharlesStanleyDirectAuth from '../lib/auth/CharlesStanleyDirectAuth'
 import SessionDAO from '../lib/db/SessionDAO'
@@ -32,17 +32,12 @@ const LONG_EXPIRY = moment.duration(1, 'month')
 export const SESSION_CONFIG = {
   maxAge: LONG_EXPIRY.asMilliseconds(),
   store: {
-    async get (key: any, maxAge: any, {
-      rolling
-    }: any) {
+    async get (key: any) {
       const jar = jarCache[key]
       const data = await SessionDAO.findSession(key)
       return { ...data, jar }
     },
-    async set (key: any, sess: any, maxAge: any, {
-      rolling,
-      changed
-    }: any) {
+    async set (key: any, sess: any) {
       const { jar, ...data } = sess
       await SessionDAO.upsertSession(data, key)
       jarCache[key] = jar

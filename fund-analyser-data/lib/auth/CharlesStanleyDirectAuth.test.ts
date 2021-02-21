@@ -1,3 +1,4 @@
+import { CookieJar } from 'tough-cookie'
 import * as properties from '../util/properties'
 import CharlesStanleyDirectAuth from './CharlesStanleyDirectAuth'
 
@@ -15,7 +16,7 @@ describe('CharlesStanleyDirectAuth', () => {
   })
   test('login should be successful with valid user, pass and memorable word', async () => {
     const { jar, name } = await csdAuth.login(user, pass, memorableWord)
-    expect(jar).toBeTruthy()
+    expect(jar).toBeInstanceOf(CookieJar)
     expect(name).toBeString().not.toBeEmpty()
 
     const isLoggedIn = await csdAuth.isLoggedIn({ jar })

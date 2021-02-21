@@ -6,11 +6,13 @@ import * as properties from './properties'
 
 const maxParallelTransforms = properties.get('stream.max.parallel.transforms')
 
-export function asReadableAsync (asyncFn: any) {
+type AsyncFunction= (...args:any) => Promise<any>
+
+export function asReadableAsync (asyncFn: AsyncFunction) {
   let queue: any
   const readableStream = new stream.Readable({
     objectMode: true,
-    async read (size: any) {
+    async read () {
       if (queue === undefined) {
         // lazy initialise
         this.pause()
@@ -41,7 +43,7 @@ export function asReadableAsync (asyncFn: any) {
   return readableStream
 }
 
-export function asWritableAsync (asyncFn: any) {
+export function asWritableAsync (asyncFn: AsyncFunction) {
   const writableStream = new stream.Writable({
     objectMode: true,
     async write (chunk: any, encoding: any, callback: any) {
@@ -57,7 +59,7 @@ export function asWritableAsync (asyncFn: any) {
   return writableStream
 }
 
-export function asTransformAsync (asyncFn: any) {
+export function asTransformAsync (asyncFn: AsyncFunction) {
   const transformStream = new stream.Transform({
     allowHalfOpen: false,
     objectMode: true,
@@ -82,7 +84,7 @@ export function asTransformAsync (asyncFn: any) {
   return transformStream
 }
 
-export function asFilterAsync (asyncFn: any) {
+export function asFilterAsync (asyncFn: AsyncFunction) {
   const filterStream = new stream.Transform({
     allowHalfOpen: false,
     objectMode: true,
@@ -108,7 +110,7 @@ export function asFilterAsync (asyncFn: any) {
  * @param asyncFn
  * @returns {ParallelTransform}
  */
-export function asParallelTransformAsync (asyncFn: any) {
+export function asParallelTransformAsync (asyncFn: AsyncFunction) {
   const parallelTransformStream = new ParallelTransform(maxParallelTransforms, async (chunk: any, callback: any) => {
     let data
     try {

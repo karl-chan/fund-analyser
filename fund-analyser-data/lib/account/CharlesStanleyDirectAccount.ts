@@ -1,7 +1,8 @@
 import * as cheerio from 'cheerio'
+import FormData from 'form-data'
 import * as _ from 'lodash'
 import moment from 'moment'
-import { CookieJar } from 'request'
+import { CookieJar } from 'tough-cookie'
 import * as url from 'url'
 import * as FundDAO from '../db/FundDAO'
 import Fund from '../fund/Fund'
@@ -120,20 +121,28 @@ export default class CharlesStanleyDirectAccount {
     }
 
     async getBalance () : Promise<Balance> {
-      const { body } = await http.asyncGet(this.portfolioValuationUrl, { jar: this.jar })
-      const $ = cheerio.load(body)
+      const { data } = await http.asyncGet(this.portfolioValuationUrl,
+        {
+          jar: this.jar,
+          withCredentials: true
+        })
+      const $ = cheerio.load(data)
       const portfolio = lang.parseNumber($('#vacc-portfolio td > span').text())
       const cash = lang.parseNumber($('#vacc-cash td > span').text())
       const totalValue = lang.parseNumber($('#vacc-total td > span').text())
 
-      const matches = body.match(/CS\.portStreamingData = (.*);/)
+      const matches = data.match(/CS\.portStreamingData = (.*);/)
       const holdings = matches ? JSON.parse(matches[1]) : []
       return { portfolio, cash, totalValue, holdings }
     }
 
     async getOrders (): Promise<Order[]> {
-      const { body } = await http.asyncGet(this.orderListUrl, { jar: this.jar })
-      const $ = cheerio.load(body)
+      const { data } = await http.asyncGet(this.orderListUrl,
+        {
+          jar: this.jar,
+          withCredentials: true
+        })
+      const $ = cheerio.load(data)
       const rows = $('#ordl-results > tbody > tr').get()
       const orders = _.chunk(rows, 2)
         .map(([summaryRow, orderDetails]) => {
@@ -172,7 +181,7 @@ export default class CharlesStanleyDirectAccount {
     async getTransactions () :Promise<Transaction[]> {
       const today = moment.utc().startOf('day')
       const accountCode = await this.getAccountCode()
-      const qs = {
+      const params = {
         AccountCode: accountCode,
         capital: true,
         income: true,
@@ -185,7 +194,12 @@ export default class CharlesStanleyDirectAccount {
         DateToYear: today.year(),
         pageSize: 10000000
       }
-      const { body: b2 } = await http.asyncGet(`${this.statementUrl}/Search`, { jar: this.jar, qs })
+      const { data: b2 } = await http.asyncGet(`${this.statementUrl}/Search`,
+        {
+          jar: this.jar,
+          withCredentials: true,
+          params
+        })
       const $ = cheerio.load(b2)
       const rows = $('#vac-stmt-table > tbody > tr:not(.blue-row)').get().reverse().slice(1) // remove first row (* BALANCE B/F *)
       return rows.map(row => {
@@ -316,9 +330,10 @@ export default class CharlesStanleyDirectAccount {
       */
     async tradeFund (action: Action) {
       // Trade entry page
-      const { body: b1 } = await http.asyncGet(this.tradeInstrumentUrl, {
+      const { data: b1 } = await http.asyncGet(this.tradeInstrumentUrl, {
         jar: this.jar,
-        qs: {
+        withCredentials: true,
+        params: {
           id: action.sedol,
           Type: 'FUND',
           actionType: action instanceof Buy ? 'buy' : 'sell'
@@ -334,13 +349,20 @@ export default class CharlesStanleyDirectAccount {
       const entryRequestVerificationToken = entryForm.find('input[name="__RequestVerificationToken"]').attr('value')
 
       // Trade verify page
-      const { body: b2 } = await http.asyncPost(this.fundTradeEntryUrl, {
+      const form = new FormData()
+      form.append('__RequestVerificationToken', entryRequestVerificationToken)
+      form.append('FormModel.QuantitySpecified', 'value')
+      form.append('FormModel.TradeValue', (action instanceof Buy ? action.value : action.quantity).toString())
+      form.append('FormModel.IsKeyDocumentTicked', 'true')
+      form.append('FormModel.IsIllustrationOfChargesTicked', 'true')
+      form.append('FormModel.Password', this.pass)
+      const { data: b2 } = await http.asyncPost(this.fundTradeEntryUrl, {
         jar: this.jar,
-        followAllRedirects: true,
-        qs: {
+        withCredentials: true,
+        params: {
           TradeRequestId: entryTradeRequestId
         },
-        form: {
+        data: {
           __RequestVerificationToken: entryRequestVerificationToken,
           'FormModel.QuantitySpecified': 'value',
           'FormModel.TradeValue': action instanceof Buy ? action.value : action.quantity,
@@ -363,13 +385,13 @@ export default class CharlesStanleyDirectAccount {
       const verifyRequestVerificationToken = verifyForm.find('input[name="__RequestVerificationToken"]').attr('value')
 
       // Trade confirmation page
-      const { body: b3 } = await http.asyncPost(this.fundTradeVerifyPlaceOrderUrl, {
+      const { data: b3 } = await http.asyncPost(this.fundTradeVerifyPlaceOrderUrl, {
         jar: this.jar,
-        followAllRedirects: true,
-        qs: {
+        withCredentials: true,
+        params: {
           TradeRequestId: verifyTradeRequestId
         },
-        form: {
+        data: {
           __RequestVerificationToken: verifyRequestVerificationToken
         }
       })
@@ -383,7 +405,13 @@ export default class CharlesStanleyDirectAccount {
     }
 
     async getAccountCode () {
-      const { headers: h1 } = await http.asyncGet(this.statementUrl, { jar: this.jar, followRedirect: false })
+      const { headers: h1 } = await http.asyncGet(this.statementUrl,
+        {
+          jar: this.jar,
+          withCredentials: true,
+          maxRedirects: 0,
+          validateStatus: null
+        })
       if (!h1.location || !h1.location.includes('AccountCode')) {
         throw new Error('Failed to get account number in statement query')
       }

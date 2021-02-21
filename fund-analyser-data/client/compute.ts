@@ -1,4 +1,3 @@
-import rp from 'request-promise'
 import Http, { HttpOptions } from '../lib/util/http'
 import * as properties from '../lib/util/properties'
 const COMPUTE_HOST = properties.get('client.compute')
@@ -8,27 +7,27 @@ const http = new Http({
 })
 
 export async function get (endpoint: string, params?: object) {
-  const options: HttpOptions = { json: true }
+  const options: HttpOptions = { responseType: 'json' }
   if (params) {
-    options.qs = params
+    options.params = params
   }
   if (endpoint.startsWith('/')) {
     endpoint = endpoint.substring(1)
   }
-  const { body } = await http.asyncGet(`${COMPUTE_HOST}/${endpoint}`, options)
-  return tryParseJSON(body)
+  const { data } = await http.asyncGet(`${COMPUTE_HOST}/${endpoint}`, options)
+  return tryParseJSON(data)
 }
 
 export async function post (endpoint: string, payload?: object) {
-  const options: rp.RequestPromiseOptions = { json: true }
+  const options: HttpOptions = { responseType: 'json' }
   if (payload) {
-    options.body = payload
+    options.data = payload
   }
   if (endpoint.startsWith('/')) {
     endpoint = endpoint.substring(1)
   }
-  const { body } = await http.asyncPost(`${COMPUTE_HOST}/${endpoint}`, options)
-  return tryParseJSON(body)
+  const { data } = await http.asyncPost(`${COMPUTE_HOST}/${endpoint}`, options)
+  return tryParseJSON(data)
 }
 
 function tryParseJSON (body: string) {

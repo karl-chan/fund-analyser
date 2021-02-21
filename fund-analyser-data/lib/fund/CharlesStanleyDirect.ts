@@ -43,8 +43,8 @@ export default class CharlesStanleyDirect implements IsinProvider {
 
     async getNumPages () {
       const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?Category=Funds&Pagesize=${this.pageSize}`
-      const { body } = await http.asyncGet(url)
-      const $ = cheerio.load(body)
+      const { data } = await http.asyncGet(url)
+      const $ = cheerio.load(data)
       const lastPage = parseInt($('#search-results-top > p > em:last-child').text())
       log.debug('Total number of pages: %d', lastPage)
       return lastPage
@@ -52,8 +52,8 @@ export default class CharlesStanleyDirect implements IsinProvider {
 
     async getSedolsFromPage (page: number) {
       const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?sortdirection=ASC&SearchType=KeywordSearch&Category=Funds&SortColumn=TER&SortDirection=DESC&Pagesize=${this.pageSize}&Page=${page}`
-      const { body } = await http.asyncGet(url)
-      const $ = cheerio.load(body)
+      const { data } = await http.asyncGet(url)
+      const $ = cheerio.load(data)
       const sedols : string[] = $('#funds-table').find('tbody td:nth-child(3)').map((i, td) => $(td).text().trim()).get()
       log.debug('Sedols in page %d: %j', page, sedols)
       return sedols
@@ -70,14 +70,14 @@ export default class CharlesStanleyDirect implements IsinProvider {
      */
     async getFundFromSedol (sedol: string) {
       const url = `https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=${sedol}`
-      let body
+      let data
       try {
-        ({ body } = await http.asyncGet(url))
+        ({ data } = await http.asyncGet(url))
       } catch (err) {
         log.error('Failed to get sedol from Charles Stanley: %s', sedol)
         return undefined // return undefined so that it will continue all the way to FundDAO and get rejected
       }
-      const $ = cheerio.load(body)
+      const $ = cheerio.load(data)
       const isinRegex = /[A-Z0-9]{12}/
       let isin
       try {
@@ -101,7 +101,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
       let holdings = []
       try {
         const dataCompositionHoldingsRegex = /var dataCompositionHoldings = (.*)/
-        const dataCompositionHoldings = JSON.parse(body.match(dataCompositionHoldingsRegex)[1])
+        const dataCompositionHoldings = JSON.parse(data.match(dataCompositionHoldingsRegex)[1])
         holdings = dataCompositionHoldings.map((e: any) => {
           const name = e.tooltip.split('(')[0].trim()
           const symbol = null as string // charles stanley does not have symbol, need to fetch this from FT
@@ -159,8 +159,8 @@ export default class CharlesStanleyDirect implements IsinProvider {
      */
     async healthCheck () {
       const url = 'https://www.charles-stanley-direct.co.uk'
-      const { body } = await http.asyncGet(url)
-      const isDown = body.toLowerCase().includes('unavailable')
+      const { data } = await http.asyncGet(url)
+      const isDown = data.toLowerCase().includes('unavailable')
       return !isDown
     }
 }

@@ -8,8 +8,8 @@ const http = new Http()
 export default class Trading212 implements SymbolProvider {
   async getSymbols () {
     const url = 'https://www.trading212.com/en/Trade-Equities?tab=isa'
-    const { body } = await http.asyncGet(url)
-    const $ = cheerio.load(body)
+    const { data } = await http.asyncGet(url)
+    const $ = cheerio.load(data)
     const symbols = $('#all-equities > div[id^="equity-row-"]')
       .filter((i, div) => $(div).find('> div[data-label="Market name"]').text().trim() === 'NASDAQ')
       .map((i, div) => $(div).find('> div[data-label="Instrument"]').text().trim())

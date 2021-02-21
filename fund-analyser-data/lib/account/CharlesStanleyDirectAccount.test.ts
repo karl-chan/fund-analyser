@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
 import moment from 'moment'
-import { CookieJar } from 'request'
+import { CookieJar } from 'tough-cookie'
 import CharlesStanleyDirectAuth from '../auth/CharlesStanleyDirectAuth'
 import { Sell } from '../trade/Action'
 import * as db from '../util/db'
@@ -28,8 +28,8 @@ describe('CharlesStanleyDirectAccount', () => {
   })
   test('getBalance should return account balance', async () => {
     const { portfolio, cash, totalValue, holdings } = await csdAccount.getBalance()
-    expect(portfolio).not.toBeNegative()
-    expect(cash).toBeNumber()
+    expect(portfolio).not.toBeNegative().not.toBeNaN()
+    expect(cash).toBeNumber().not.toBeNaN()
     expect(totalValue).toBePositive()
     expect(holdings).toBeArray()
   })

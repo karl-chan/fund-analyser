@@ -38,8 +38,8 @@ export default class MarketWatch implements StockProvider {
     async getSummary (symbol: string) {
       try {
         const url = `https://www.marketwatch.com/investing/stock/${symbol}/charts`
-        const { body } = await http.asyncGet(url)
-        const $ = cheerio.load(body)
+        const { data } = await http.asyncGet(url)
+        const $ = cheerio.load(data)
         const name = $('.company__name').text()
         const estPrice = +$('.intraday__price > bg-quote').text()
         const estChange = parseFloat($('.change--percent--q').text().replace(/(.+)%$/, '$1')) / 100
@@ -60,8 +60,8 @@ export default class MarketWatch implements StockProvider {
     async getHistoricPrices (symbol: string) {
       try {
         const url = `https://www.marketwatch.com/investing/stock/${symbol}/charts`
-        const { body } = await http.asyncGet(url)
-        const $ = cheerio.load(body)
+        const { data } = await http.asyncGet(url)
+        const $ = cheerio.load(data)
         const market = $('.company__market').eq(1).text()
         const ticker = $('.company__ticker').eq(1).text()
         if (!market) {
@@ -71,16 +71,16 @@ export default class MarketWatch implements StockProvider {
           throw new Error(`Failed to retrieve ticker for ${symbol}`)
         }
         const url2 = 'https://api.wsj.net/api/dylan/quotes/v2/comp/quote'
-        const { body: body2 } = await http.asyncGet(url2, {
-          qs: {
+        const { data: res2 } = await http.asyncGet(url2, {
+          params: {
             id: symbol,
             maxInstrumentMatches: 1,
             ckey: 'cecc4267a0',
             EntitlementToken: 'cecc4267a0194af89ca343805a3e57af',
             accept: 'application%2Fjson'
-          }
+          },
+          responseType: 'json'
         })
-        const res2 = JSON.parse(body2)
         const exchange = res2.GetInstrumentResponse.InstrumentResponses[0].Matches[0].Instrument.Exchange
         const countryCode = exchange.CountryCode
         const isoCode = exchange.IsoCode
@@ -92,8 +92,8 @@ export default class MarketWatch implements StockProvider {
         }
         const key = `STOCK/${countryCode}/${isoCode}/${ticker}`
         const url3 = 'https://api-secure.wsj.net/api/michelangelo/timeseries/history'
-        const { body: body3 } = await http.asyncGet(url3, {
-          qs: {
+        const { data: res3 } = await http.asyncGet(url3, {
+          params: {
             json: JSON.stringify({
               Step: 'P1D',
               TimeFrame: `P${this.maxLookbackYears}Y`,
@@ -114,9 +114,9 @@ export default class MarketWatch implements StockProvider {
           },
           headers: {
             'Dylan2010.EntitlementToken': 'cecc4267a0194af89ca343805a3e57af'
-          }
+          },
+          responseType: 'json'
         })
-        const res3 = JSON.parse(body3)
         const dates: number[] = res3.TimeInfo.Ticks
         const ohlcs: [number, number, number, number][] = res3.Series.find((s: any) => s.SeriesId === 'ohlc').DataPoints
         const volumes: [number][] = res3.Series.find((s: any) => s.SeriesId === 'volume').DataPoints

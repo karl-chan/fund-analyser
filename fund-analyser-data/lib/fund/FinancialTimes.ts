@@ -87,8 +87,8 @@ export default class FinancialTimes implements FundProvider {
 
     async getSummary (isin: string) {
       const url = `https://markets.ft.com/data/funds/tearsheet/summary?s=${isin}`
-      const { body } = await http.asyncGet(url)
-      const $ = cheerio.load(body)
+      const { data } = await http.asyncGet(url)
+      const $ = cheerio.load(data)
       const name = $('.mod-tearsheet-overview__header__name--large').text()
       const leftTable = $('table.mod-ui-table.mod-ui-table--two-column.mod-profile-and-investment-app__table--profile')
       const type = leftTable.find('th:contains(\'Fund type\') + td').text()
@@ -114,8 +114,8 @@ export default class FinancialTimes implements FundProvider {
 
     async getPerformance (isin: string): Promise<{ [period: string]: number }> {
       const url = `https://markets.ft.com/data/funds/tearsheet/performance?s=${isin}`
-      const { body } = await http.asyncGet(url)
-      const $ = cheerio.load(body)
+      const { data } = await http.asyncGet(url)
+      const $ = cheerio.load(data)
       const returns = $(`body > div.o-grid-container.mod-container > div:nth-child(3) 
                 > section > div:nth-child(1) > div > div.mod-module__content 
                 > div.mod-ui-table--freeze-pane__container.mod-ui-table--colored 
@@ -140,8 +140,8 @@ export default class FinancialTimes implements FundProvider {
 
     async getHistoricPrices (isin: string): Promise<Fund.HistoricPrice[]> {
       const url = `https://markets.ft.com/data/funds/tearsheet/charts?s=${isin}`
-      const { body } = await http.asyncGet(url)
-      const $ = cheerio.load(body)
+      const { data } = await http.asyncGet(url)
+      const $ = cheerio.load(data)
       // In case of failure, simply return an empty array and continue
       let symbol
       try {
@@ -154,20 +154,20 @@ export default class FinancialTimes implements FundProvider {
         return []
       }
       const url2 = 'https://markets.ft.com/data/chartapi/series'
-      const { body: body2 } = await http.asyncPost(url2, {
+      const { data: series } = await http.asyncPost(url2, {
         headers: {
           'content-type': 'application/json'
         },
-        form: {
+        data: {
           days: this.lookback,
           dataPeriod: 'Day',
           returnDateType: 'ISO8601',
           elements: [{ Type: 'price', Symbol: symbol }]
-        }
+        },
+        responseType: 'json'
       })
       // In case of failure, simply return an empty array and continue
       try {
-        const series = JSON.parse(body2)
         const dates : number[] = series.Dates
         const prices : number[] = series.Elements[0].ComponentSeries.find((s: any) => s.Type === 'Close').Values
         const historicPrices = _.zipWith(dates, prices, (dateString, price) => {
@@ -188,8 +188,8 @@ export default class FinancialTimes implements FundProvider {
 
     async getHoldings (isin: string, fallbackFund?: Fund) {
       const url = `https://markets.ft.com/data/funds/tearsheet/holdings?s=${isin}`
-      const { body } = await http.asyncGet(url)
-      const $ = cheerio.load(body)
+      const { data } = await http.asyncGet(url)
+      const $ = cheerio.load(data)
       const table = $(`body > div.o-grid-container.mod-container > div:nth-child(3) > section 
                 > div:nth-child(3) > div > div > table`)
       const tbody = $('body').html('<tbody></tbody>').append(table.children().not('thead, tfoot'))
@@ -222,8 +222,8 @@ export default class FinancialTimes implements FundProvider {
     async getRealTimeDetails (fund: Fund) {
       const getTodaysChange = async (holdingTicker: string) => {
         const url = `https://markets.ft.com/data/equities/tearsheet/summary?s=${holdingTicker}`
-        const { body } = await http.asyncGet(url)
-        const $ = cheerio.load(body)
+        const { data } = await http.asyncGet(url)
+        const $ = cheerio.load(data)
         let currency, todaysChange
         const price = $('.mod-tearsheet-overview__quote > ul > li:nth-child(1) > span.mod-ui-data-list__label').text().trim()
         let groups = price.match(/Price \((.*)\)/)
@@ -267,8 +267,8 @@ export default class FinancialTimes implements FundProvider {
 
     async listCurrencies () {
       const url = 'https://markets.ft.com/data/currencies'
-      const { body } = await http.asyncGet(url)
-      const $ = cheerio.load(body)
+      const { data } = await http.asyncGet(url)
+      const $ = cheerio.load(data)
       const currencyOptions = $('form.mod-currency-selector__controls select:nth-of-type(1)').find('option')
       const currencies = _.sortedUniq(currencyOptions
         .map((i, option) => {
@@ -308,12 +308,11 @@ export default class FinancialTimes implements FundProvider {
       }
       const search = async (name:string) => {
         const url = 'https://markets.ft.com/data/searchapi/searchsecurities'
-        const qs = {
+        const params = {
           query: name
         }
-        const { body } = await http.asyncGet(url, { qs })
-        const { data } = JSON.parse(body)
-        const security = data.security.find((s:any) => s.name.toLowerCase().replace(/-/g, ' ').includes(name.toLowerCase().replace(/-/g, ' ')))
+        const { data } = await http.asyncGet(url, { params, responseType: 'json' })
+        const security = data.data.security.find((s:any) => s.name.toLowerCase().replace(/-/g, ' ').includes(name.toLowerCase().replace(/-/g, ' ')))
         return { symbol: security && security.symbol, name: security && security.name }
       }
       // replace charles stanley keywords with financial times before search

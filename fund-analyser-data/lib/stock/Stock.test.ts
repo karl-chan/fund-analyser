@@ -43,6 +43,8 @@ describe('Stock', function () {
         .asof(asof)
         .indicators(indicators)
         .realTimeDetails(realTimeDetails)
+        .bidAskSpread(bidAskSpread)
+        .marketCap(marketCap)
       const actual = builder.build()
       expect(actual).toBeInstanceOf(Stock)
       expect(actual).toEqual(stock)

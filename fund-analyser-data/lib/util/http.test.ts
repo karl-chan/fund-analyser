@@ -9,21 +9,21 @@ describe('Http', () => {
   })
   test('asyncGet with url only', async () => {
     const res = await http.asyncGet('http://www.duckduckgo.com')
-    expect(res).toHaveProperty('statusCode', 200)
-    expect(res.body).toBeString().not.toBeEmpty()
+    expect(res).toHaveProperty('status', 200)
+    expect(res.data).toBeString().not.toBeEmpty()
   })
   test('asyncGet with options', async () => {
-    const res = await http.asyncGet('http://www.duckduckgo.com', { qs: { q: 'hello' } })
-    expect(res).toHaveProperty('statusCode', 200)
-    expect(res.body).toBeString().toInclude('hello')
+    const res = await http.asyncGet('http://www.duckduckgo.com', { params: { q: 'hello' } })
+    expect(res).toHaveProperty('status', 200)
+    expect(res.data).toBeString().toInclude('hello')
   })
   test('asyncGet with concurrency', async () => {
     const rs = await Promise.all(new Array(20).fill('http://www.duckduckgo.com')
       .map(url => http.asyncGet(url)))
     expect(rs).toBeArrayOfSize(20)
     expect(rs).toSatisfyAll((res: any) => {
-      return res.statusCode === 200 &&
-                    typeof res.body === 'string' && res.body
+      return res.status === 200 &&
+                    typeof res.data === 'string' && res.data
     })
   })
 })
