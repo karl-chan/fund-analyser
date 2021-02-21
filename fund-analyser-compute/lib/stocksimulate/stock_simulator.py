@@ -27,6 +27,7 @@ class StockSimulator:
         self._exit_strategy = exit_strategy
         self._broker = broker
         self._initial_cash = initial_cash
+        self._avg_spread = 0
 
     def run(self,
             start_date: date = (date.today() - pd.DateOffset(years=5)).date(),
@@ -51,8 +52,9 @@ class StockSimulator:
                     bought_shares = curr_holdings[symbol]
                     if confidence > 0 and bought_shares > 0:
                         price = prices_df.loc[dt, symbol]
+                        sell_price = price * (1 - self._avg_spread / 2)
                         sell_shares = confidence * bought_shares
-                        sell_amount = sell_shares * price
+                        sell_amount = sell_shares * sell_price
 
                         curr_holdings[symbol] -= sell_shares
                         if curr_holdings[symbol] == 0:
@@ -60,7 +62,7 @@ class StockSimulator:
                         cash += sell_amount
 
                         sell_action = StockAction(
-                            side=StockSide.SELL, dt=dt, shares=sell_shares, price=price)
+                            side=StockSide.SELL, dt=dt, shares=sell_shares, price=sell_price)
 
                         day_actions.append(sell_action)
                         history[symbol].append(sell_action)
@@ -74,21 +76,22 @@ class StockSimulator:
                 budget = cash / len(buy_confidences)
                 for symbol, confidence in buy_confidences.items():
                     price = prices_df.loc[dt, symbol]
+                    buy_price = price * (1 + self._avg_spread / 2)
                     buy_budget = confidence * budget
 
                     if self._broker.fractional_shares():
-                        bought_shares = buy_budget / price
+                        bought_shares = buy_budget / buy_price
                     else:
-                        bought_shares = math.floor(buy_budget / price)
+                        bought_shares = math.floor(buy_budget / buy_price)
 
                     if bought_shares > 0:
-                        buy_amount = bought_shares * price
+                        buy_amount = bought_shares * buy_price
 
                         curr_holdings[symbol] += bought_shares
                         cash -= buy_amount
 
                         buy_action = StockAction(
-                            side=StockSide.BUY, dt=dt, shares=bought_shares, price=price)
+                            side=StockSide.BUY, dt=dt, shares=bought_shares, price=buy_price)
 
                         day_actions.append(buy_action)
                         history[symbol].append(buy_action)
