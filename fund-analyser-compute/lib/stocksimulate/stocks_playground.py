@@ -13,6 +13,7 @@ from overrides import overrides
 
 from lib.indicators.indicator_utils import bollinger_bands
 from lib.stock import stock_cache
+from lib.stocksimulate.broker.stock_broker import Trading212
 from lib.stocksimulate.stock_history import last_bought_date, TradeHistory
 from lib.stocksimulate.stock_simulator import StockSimulator
 from lib.stocksimulate.strategy.stock_strategy import Confidences, StockStrategy
@@ -561,7 +562,8 @@ if __name__ == "__main__":
     stock_simulator = StockSimulator(
         symbols=symbols,
         entry_strategy=WorstFallEntryStrategy(),  # BollingerLowEntryStrategy(),
-        exit_strategy=HoldingDaysExitStrategy()  # TrailingExitStrategy(),
+        exit_strategy=HoldingDaysExitStrategy(),  # TrailingExitStrategy(),
+        broker=Trading212()
     )
     account, history = stock_simulator.run(start_date=start_date)
     balance = account["value"]
