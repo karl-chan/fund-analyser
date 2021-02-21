@@ -29,11 +29,14 @@ describe('NASDAQStocks', () => {
       const historicPrices = [
         new Stock.HistoricPrice(new Date(2017, 0, 1), 457.0, 100000.0)
       ]
+      const bidAskSpread = 0.01
 
       jest.spyOn(nasdaqStocks, 'getSummary')
         .mockImplementation(async () => summary)
       jest.spyOn(nasdaqStocks, 'getHistoricPrices')
         .mockImplementation(async () => historicPrices)
+      jest.spyOn(nasdaqStocks, 'getBidAskSpread')
+        .mockImplementation(async () => bidAskSpread)
 
       const expected = Stock.builder(symbol)
         .name(summary.name)
@@ -41,6 +44,7 @@ describe('NASDAQStocks', () => {
         .asof(new Date(2017, 0, 1))
         .realTimeDetails(summary.realTimeDetails)
         .marketCap(2_251_600_345_800)
+        .bidAskSpread(0.01)
         .build()
 
       const actual = await nasdaqStocks.getStockFromSymbol(symbol)

@@ -9,13 +9,19 @@ import * as streamWrapper from '../util/streamWrapper'
 import Stock from './Stock'
 import { StockProvider } from './StockFactory'
 
-const http = new Http()
+const http = new Http({
+  maxAttempts: properties.get('stock.nasdaq.max.attempts'),
+  retryInterval: properties.get('stock.nasdaq.retry.interval'),
+  headers: {
+    'User-Agent': 'PostmanRuntime/7.26.8'
+  }
+})
 
 export default class NASDAQStocks implements StockProvider {
   maxLookbackYears: number
 
   constructor () {
-    this.maxLookbackYears = +properties.get('stock.max.lookback.years')
+    this.maxLookbackYears = properties.get('stock.max.lookback.years')
   }
 
   async getStockFromSymbol (symbol: string) {
@@ -30,6 +36,7 @@ export default class NASDAQStocks implements StockProvider {
       .asof(_.isEmpty(historicPrices) ? undefined : _.last(historicPrices).date)
       .realTimeDetails(summary.realTimeDetails)
       .bidAskSpread(bidAskSpread)
+      .marketCap(summary.marketCap)
       .build()
   }
 
@@ -40,11 +47,14 @@ export default class NASDAQStocks implements StockProvider {
   async getSummary (symbol: string) {
     try {
       const url = `https://api.nasdaq.com/api/quote/${symbol}/info?assetclass=stocks`
-      const { data } = await http.asyncGet(url, { responseType: 'json' })
-      const name = data.companyName
-      const estPrice = +data.primaryData.lastSalePrice.replace(/\$(.+)/, '$1')
-      const estChange = +data.primaryData.percentageChange.replace(/(.+)%/, '$1') / 100
-      const marketCap = +data.keyStats.MarketCap.value.replace(/,/g, '')
+      const { data } = await http.asyncGet(url,
+        {
+          responseType: 'json'
+        })
+      const name = data.data.companyName.replace(/(.+) Common Stock/, '$1')
+      const estPrice = +data.data.primaryData.lastSalePrice.replace(/\$(.+)/, '$1')
+      const estChange = +data.data.primaryData.percentageChange.replace(/(.+)%/, '$1') / 100
+      const marketCap = +data.data.keyStats.MarketCap.value.replace(/,/g, '')
 
       return {
         name,
@@ -74,12 +84,12 @@ export default class NASDAQStocks implements StockProvider {
         responseType: 'json'
       })
       const historicPrices: Stock.HistoricPrice[] =
-        data.tradesTable.rows
+        data.data.tradesTable.rows
           .reverse()
           .map((row: any) => {
             const date = moment.utc(row.date, 'MM/DD/YYYY').toDate()
-            const close = row.close.replace(/\$(.+)/, '$1')
-            const volume = row.volume.replace(/,/g, '')
+            const close = +row.close.replace(/\$(.+)/, '$1')
+            const volume = +row.volume.replace(/,/g, '')
             return new Stock.HistoricPrice(date, close, volume)
           })
       return historicPrices
@@ -99,7 +109,7 @@ export default class NASDAQStocks implements StockProvider {
         },
         responseType: 'json'
       })
-      const tradedPrices: number[] = data.rows.map((row: any) => +row.nlsPrice.replace(/\$ (.+)/, '$1'))
+      const tradedPrices: number[] = data.data.rows.map((row: any) => +row.nlsPrice.replace(/\$ (.+)/, '$1'))
       const movements = _.zip(tradedPrices, _.tail(tradedPrices)).map(([p1, p2]) => {
         const absDiff = Math.abs(p1 - p2)
         const midPrice = (p1 + p2) / 2
