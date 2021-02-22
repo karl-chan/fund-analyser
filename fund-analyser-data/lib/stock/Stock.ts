@@ -26,6 +26,7 @@ class Stock {
       lastUpdated: 'Date'
     },
     bidAskSpread: 'number',
+    longestTimeGap: 'number',
     marketCap: 'number'
   }
 
@@ -37,9 +38,10 @@ class Stock {
   returns: Stock.Returns
   symbol: string
   bidAskSpread: number
+  longestTimeGap: number
   marketCap: number
 
-  constructor (symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, bidAskSpread: number, marketCap: number) {
+  constructor (symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, bidAskSpread: number, longestTimeGap: number, marketCap: number) {
     this.symbol = symbol
     this.name = name
     this.historicPrices = historicPrices
@@ -48,6 +50,7 @@ class Stock {
     this.indicators = indicators
     this.realTimeDetails = realTimeDetails
     this.bidAskSpread = bidAskSpread
+    this.longestTimeGap = longestTimeGap
     this.marketCap = marketCap
   }
 
@@ -90,6 +93,7 @@ namespace Stock {
     _returns: Returns
     _symbol: string
     _bidAskSpread: number
+    _longestTimeGap: number
     _marketCap: number
     constructor (symbol: string) {
       this._symbol = symbol
@@ -135,13 +139,18 @@ namespace Stock {
       return this
     }
 
+    longestTimeGap (longestTimeGap: number) {
+      this._longestTimeGap = longestTimeGap
+      return this
+    }
+
     marketCap (marketCap: number) {
       this._marketCap = marketCap
       return this
     }
 
     build () {
-      return new Stock(this._symbol, this._name, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails, this._bidAskSpread, this._marketCap)
+      return new Stock(this._symbol, this._name, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails, this._bidAskSpread, this._longestTimeGap, this._marketCap)
     }
   }
 

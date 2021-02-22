@@ -1,6 +1,6 @@
 import { Promise } from 'bluebird'
 import * as _ from 'lodash'
-import moment from 'moment'
+import moment, { Moment } from 'moment'
 import Http from '../util/http'
 import log from '../util/log'
 import * as properties from '../util/properties'
@@ -33,17 +33,18 @@ export default class NASDAQStocks implements StockProvider {
   }
 
   async getStockFromSymbol (symbol: string) {
-    const [summary, historicPrices, bidAskSpread] = await Promise.all([
+    const [summary, historicPrices, latestTrades] = await Promise.all([
       this.getSummary(symbol),
       this.getHistoricPrices(symbol),
-      this.getBidAskSpread(symbol)
+      this.getLatestTrades(symbol)
     ])
     return Stock.builder(symbol)
       .name(summary.name)
       .historicPrices(historicPrices)
       .asof(_.isEmpty(historicPrices) ? undefined : _.last(historicPrices).date)
       .realTimeDetails(summary.realTimeDetails)
-      .bidAskSpread(bidAskSpread)
+      .bidAskSpread(latestTrades.bidAskSpread)
+      .longestTimeGap(latestTrades.longestTimeGap)
       .marketCap(summary.marketCap)
       .build()
   }
@@ -107,7 +108,7 @@ export default class NASDAQStocks implements StockProvider {
     }
   }
 
-  async getBidAskSpread (symbol: string) {
+  async getLatestTrades (symbol: string) {
     try {
       const url = `https://api.nasdaq.com/api/quote/${symbol}/realtime-trades`
       const { data } = await http.asyncGet(url, {
@@ -117,15 +118,21 @@ export default class NASDAQStocks implements StockProvider {
         },
         responseType: 'json'
       })
-      const tradedPrices: number[] = data.data.rows.map((row: any) => +row.nlsPrice.replace(/\$ (.+)/, '$1'))
-      const movements = _.zip(tradedPrices, _.tail(tradedPrices)).map(([p1, p2]) => {
+
+      const tradeTimes: Moment[] = data.data.rows.map((row: any) => moment.utc(row.nlsTime, 'HH:mm:ss'))
+      const tradeTimeGaps = _.zip(tradeTimes, _.tail(tradeTimes)).map(([t1, t2]) => t1.diff(t2, 'seconds'))
+      const longestTimeGap = _.max(tradeTimeGaps)
+
+      const tradePrices: number[] = data.data.rows.map((row: any) => +row.nlsPrice.replace(/\$ (.+)/, '$1'))
+      const tradePriceMovements = _.zip(tradePrices, _.tail(tradePrices)).map(([p1, p2]) => {
         const absDiff = Math.abs(p1 - p2)
         const midPrice = (p1 + p2) / 2
         const pctMovement = absDiff / midPrice
         return pctMovement
       })
-      const bidAskSpread = _.max(movements)
-      return bidAskSpread
+      const bidAskSpread = _.max(tradePriceMovements)
+
+      return { bidAskSpread, longestTimeGap }
     } catch (err) {
       log.warn('Failed to retrieve NASDAQStocks bid-ask spread for symbol: %s. Cause: %s', symbol, err.stack)
       return null

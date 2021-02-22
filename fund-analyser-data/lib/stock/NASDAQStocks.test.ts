@@ -29,14 +29,17 @@ describe('NASDAQStocks', () => {
       const historicPrices = [
         new Stock.HistoricPrice(new Date(2017, 0, 1), 457.0, 100000.0)
       ]
-      const bidAskSpread = 0.01
+      const latestTrades = {
+        bidAskSpread: 0.01,
+        longestTimeGap: 5
+      }
 
       jest.spyOn(nasdaqStocks, 'getSummary')
         .mockImplementation(async () => summary)
       jest.spyOn(nasdaqStocks, 'getHistoricPrices')
         .mockImplementation(async () => historicPrices)
-      jest.spyOn(nasdaqStocks, 'getBidAskSpread')
-        .mockImplementation(async () => bidAskSpread)
+      jest.spyOn(nasdaqStocks, 'getLatestTrades')
+        .mockImplementation(async () => latestTrades)
 
       const expected = Stock.builder(symbol)
         .name(summary.name)
@@ -45,6 +48,7 @@ describe('NASDAQStocks', () => {
         .realTimeDetails(summary.realTimeDetails)
         .marketCap(2_251_600_345_800)
         .bidAskSpread(0.01)
+        .longestTimeGap(5)
         .build()
 
       const actual = await nasdaqStocks.getStockFromSymbol(symbol)
@@ -93,9 +97,11 @@ describe('NASDAQStocks', () => {
       })
     })
 
-    test('getBidAskSpread should return bid-ask spread', async () => {
-      const bidAskSpread = await nasdaqStocks.getBidAskSpread('AAPL')
-      expect(bidAskSpread).toBePositive()
+    test('getLatestTrades should return bid-ask spread, longest time gap', async () => {
+      const latestTrades = await nasdaqStocks.getLatestTrades('AAPL')
+      expect(latestTrades.bidAskSpread).toBePositive()
+      // apple is highly liquid stock, expect a trade every few seconds
+      expect(latestTrades.longestTimeGap).toBeWithin(0, 10)
     })
   })
 

@@ -142,6 +142,7 @@ export default {
           })
         },
         { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 70 },
+        { headerName: 'Longest Time Gap', field: 'longestTimeGap', width: 70 },
         { headerName: 'Market Cap', field: 'marketCap', width: 70 },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ]
@@ -154,7 +155,7 @@ export default {
           .concat(extendedPeriods.map(period => `returns.${period}`))
           .concat(this.getIndicatorKeys('percent')))
       const numberFields = new Set(
-        ['marketCap']
+        ['marketCap', 'longestTimeGap']
           .concat(this.getIndicatorKeys('default')))
       const dateFields = new Set(['asof'])
 

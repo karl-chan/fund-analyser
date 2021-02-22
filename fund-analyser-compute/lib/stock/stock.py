@@ -50,6 +50,7 @@ class Stock(NamedTuple):
     indicators: Optional[StockIndicators] = None
     realTimeDetails: Optional[StockRealTimeDetails] = None
     bidAskSpread: Optional[float] = None
+    longestTimeGap: Optional[float] = None
     marketCap: Optional[float] = None
 
     @classmethod
