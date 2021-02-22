@@ -33,18 +33,16 @@ export default class NASDAQStocks implements StockProvider {
   }
 
   async getStockFromSymbol (symbol: string) {
-    const [summary, historicPrices, latestTrades] = await Promise.all([
+    const [summary, historicPrices, realTimeDetails] = await Promise.all([
       this.getSummary(symbol),
       this.getHistoricPrices(symbol),
-      this.getLatestTrades(symbol)
+      this.getRealTimeDetails(symbol)
     ])
     return Stock.builder(symbol)
       .name(summary.name)
       .historicPrices(historicPrices)
       .asof(_.isEmpty(historicPrices) ? undefined : _.last(historicPrices).date)
-      .realTimeDetails(summary.realTimeDetails)
-      .bidAskSpread(latestTrades.bidAskSpread)
-      .longestTimeGap(latestTrades.longestTimeGap)
+      .realTimeDetails(realTimeDetails)
       .marketCap(summary.marketCap)
       .build()
   }
@@ -57,21 +55,12 @@ export default class NASDAQStocks implements StockProvider {
     try {
       const url = `https://api.nasdaq.com/api/quote/${symbol}/info?assetclass=stocks`
       const { data } = await http.asyncGet(url,
-        {
-          responseType: 'json'
-        })
+        { responseType: 'json' })
       const name = data.data.companyName.replace(/(.+) Common Stock/, '$1')
-      const estPrice = +data.data.primaryData.lastSalePrice.replace(/\$(.+)/, '$1')
-      const estChange = +data.data.primaryData.percentageChange.replace(/(.+)%/, '$1') / 100
       const marketCap = +data.data.keyStats.MarketCap.value.replace(/,/g, '')
 
       return {
         name,
-        realTimeDetails: {
-          estPrice,
-          estChange,
-          lastUpdated: new Date()
-        },
         marketCap
       }
     } catch (err) {
@@ -108,22 +97,30 @@ export default class NASDAQStocks implements StockProvider {
     }
   }
 
-  async getLatestTrades (symbol: string) {
+  async getRealTimeDetails (symbol: string) {
     try {
-      const url = `https://api.nasdaq.com/api/quote/${symbol}/realtime-trades`
-      const { data } = await http.asyncGet(url, {
-        params: {
-          fromtime: '09:30',
-          limit: 10000
-        },
-        responseType: 'json'
-      })
+      const [{ data: res1 }, { data: res2 }] = await Promise.all([
+        http.asyncGet(
+          `https://api.nasdaq.com/api/quote/${symbol}/info?assetclass=stocks`,
+          { responseType: 'json' }),
+        http.asyncGet(
+          `https://api.nasdaq.com/api/quote/${symbol}/realtime-trades`,
+          {
+            params: {
+              fromtime: '09:30',
+              limit: 10000
+            },
+            responseType: 'json'
+          })])
 
-      const tradeTimes: Moment[] = data.data.rows.map((row: any) => moment.utc(row.nlsTime, 'HH:mm:ss'))
+      const estPrice = +res1.data.primaryData.lastSalePrice.replace(/\$(.+)/, '$1')
+      const estChange = +res1.data.primaryData.percentageChange.replace(/(.+)%/, '$1') / 100
+
+      const tradeTimes: Moment[] = res2.data.rows.map((row: any) => moment.utc(row.nlsTime, 'HH:mm:ss'))
       const tradeTimeGaps = _.zip(tradeTimes, _.tail(tradeTimes)).map(([t1, t2]) => t1.diff(t2, 'seconds'))
       const longestTimeGap = _.max(tradeTimeGaps)
 
-      const tradePrices: number[] = data.data.rows.map((row: any) => +row.nlsPrice.replace(/\$ (.+)/, '$1'))
+      const tradePrices: number[] = res2.data.rows.map((row: any) => +row.nlsPrice.replace(/\$ (.+)/, '$1'))
       const tradePriceMovements = _.zip(tradePrices, _.tail(tradePrices)).map(([p1, p2]) => {
         const absDiff = Math.abs(p1 - p2)
         const midPrice = (p1 + p2) / 2
@@ -132,7 +129,13 @@ export default class NASDAQStocks implements StockProvider {
       })
       const bidAskSpread = _.max(tradePriceMovements)
 
-      return { bidAskSpread, longestTimeGap }
+      return {
+        estPrice,
+        estChange,
+        bidAskSpread,
+        longestTimeGap,
+        lastUpdated: new Date()
+      }
     } catch (err) {
       log.warn('Failed to retrieve NASDAQStocks bid-ask spread for symbol: %s. Cause: %s', symbol, err.stack)
       return null

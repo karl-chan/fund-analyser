@@ -141,8 +141,14 @@ export default {
             }
           })
         },
-        { headerName: 'Bid-Ask Spread', field: 'bidAskSpread', width: 70 },
-        { headerName: 'Longest Time Gap', field: 'longestTimeGap', width: 70 },
+        {
+          headerName: 'Real-time details',
+          marryChildren: true,
+          children: [
+            { headerName: 'Bid-Ask Spread', field: 'realTimeDetails.bidAskSpread', width: 70 },
+            { headerName: 'Longest Time Gap', field: 'realTimeDetails.longestTimeGap', width: 70 }
+          ]
+        },
         { headerName: 'Market Cap', field: 'marketCap', width: 70 },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ]
@@ -151,11 +157,11 @@ export default {
         extendedPeriods.map(period => `returns.${period}`)
           .concat(this.getIndicatorKeys()))
       const percentFields = new Set(
-        ['bidAskSpread']
+        ['realTimeDetails.bidAskSpread']
           .concat(extendedPeriods.map(period => `returns.${period}`))
           .concat(this.getIndicatorKeys('percent')))
       const numberFields = new Set(
-        ['marketCap', 'longestTimeGap']
+        ['marketCap', 'realTimeDetails.longestTimeGap']
           .concat(this.getIndicatorKeys('default')))
       const dateFields = new Set(['asof'])
 
@@ -361,7 +367,7 @@ export default {
             case 'returns.1W':
             case 'returns.3D':
             case 'returns.1D':
-            case 'bidAskSpread': return this.percentFormatter(params, '')
+            case 'realTimeDetails.bidAskSpread': return this.percentFormatter(params, '')
             default: return params.value
           }
         },

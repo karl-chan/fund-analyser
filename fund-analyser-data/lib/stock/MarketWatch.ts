@@ -48,6 +48,8 @@ export default class MarketWatch implements StockProvider {
           realTimeDetails: {
             estPrice,
             estChange,
+            bidAskSpread: null,
+            longestTimeGap: null,
             lastUpdated: new Date()
           }
         }
