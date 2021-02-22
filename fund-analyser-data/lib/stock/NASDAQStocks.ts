@@ -9,6 +9,7 @@ import Stock from './Stock'
 import { StockProvider } from './StockFactory'
 
 const http = new Http({
+  maxParallelConnections: properties.get('stock.nasdaq.max.parallel.connections'),
   maxAttempts: properties.get('stock.nasdaq.max.attempts'),
   retryInterval: properties.get('stock.nasdaq.retry.interval'),
   headers: {
