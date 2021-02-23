@@ -117,11 +117,11 @@ export default class NASDAQStocks implements StockProvider {
       const estChange = +res1.data.primaryData.percentageChange.replace(/(.+)%/, '$1') / 100
 
       const tradeTimes: Moment[] = res2.data.rows.map((row: any) => moment.utc(row.nlsTime, 'HH:mm:ss'))
-      const tradeTimeGaps = _.zip(tradeTimes, _.tail(tradeTimes)).map(([t1, t2]) => t1.diff(t2, 'seconds'))
+      const tradeTimeGaps = _.zip(tradeTimes.slice(0, -1), _.tail(tradeTimes)).map(([t1, t2]) => t1.diff(t2, 'seconds'))
       const longestTimeGap = _.max(tradeTimeGaps)
 
       const tradePrices: number[] = res2.data.rows.map((row: any) => +row.nlsPrice.replace(/\$ (.+)/, '$1'))
-      const tradePriceMovements = _.zip(tradePrices, _.tail(tradePrices)).map(([p1, p2]) => {
+      const tradePriceMovements = _.zip(tradePrices.slice(0, -1), _.tail(tradePrices)).map(([p1, p2]) => {
         const absDiff = Math.abs(p1 - p2)
         const midPrice = (p1 + p2) / 2
         const pctMovement = absDiff / midPrice
