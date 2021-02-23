@@ -21,7 +21,7 @@
     "server.dev": "ts-node-dev --inspect -- server/server.ts",
     "lint": "eslint client lib scripts server --fix",
     "test": "jest --coverage",
-    "test.heroku": "NODE_OPTIONS=--max_old_space_size=512 jest --coverage --runInBand --testPathIgnorePatterns lib/account/** lib/auth/** server/**",
+    "test.heroku": "NODE_OPTIONS=--max_old_space_size=512 jest --coverage --runInBand --testPathIgnorePatterns lib/account/** lib/auth/** lib/stock/NASDAQStocks.test.ts server/**",
     "tsc": "tsc"
   },
   "author": "Karl Chan <https://github.com/karl-chan>",
