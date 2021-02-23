@@ -8,10 +8,17 @@ import * as streamWrapper from '../util/streamWrapper'
 import Stock from './Stock'
 import { StockProvider } from './StockFactory'
 
+const tor = require('tor-axios').torSetup({
+  ip: 'localhost',
+  port: 9150
+})
+
 const http = new Http({
   maxParallelConnections: properties.get('stock.nasdaq.max.parallel.connections'),
   maxAttempts: properties.get('stock.nasdaq.max.attempts'),
   retryInterval: properties.get('stock.nasdaq.retry.interval'),
+  httpAgent: tor.httpAgent(),
+  httpsAgent: tor.httpsAgent(),
   headers: {
     pragma: 'no-cache',
     'cache-control': 'no-cache',
