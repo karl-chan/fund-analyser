@@ -25,7 +25,7 @@ describe('StockDAO', function () {
       .indicators({
         stability: -3
       })
-      .realTimeDetails({ estChange: 0.01, estPrice: 457.0, lastUpdated: new Date(2017, 3, 23) })
+      .realTimeDetails({ estChange: 0.01, estPrice: 457.0, bidAskSpread: 0.01, longestTimeGap: 5, lastUpdated: new Date(2017, 3, 23) })
       .build()
     doc = {
       _id: 'test',
@@ -41,7 +41,7 @@ describe('StockDAO', function () {
       indicators: {
         stability: -3
       },
-      realTimeDetails: { estChange: 0.01, estPrice: 457.0, lastUpdated: new Date(2017, 3, 23) }
+      realTimeDetails: { estChange: 0.01, estPrice: 457.0, bidAskSpread: 0.01, longestTimeGap: 5, lastUpdated: new Date(2017, 3, 23) }
     }
   })
   test('fromStock should return plain object', function () {

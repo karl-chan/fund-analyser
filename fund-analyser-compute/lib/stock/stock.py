@@ -15,6 +15,8 @@ StockHistoricPrices = pd.DataFrame
 class StockRealTimeDetails(NamedTuple):
     estChange: Optional[float] = None
     estPrice: Optional[float] = None
+    bidAskSpread: Optional[float] = None
+    longestTimeGap: Optional[float] = None
     lastUpdated: Optional[datetime] = None
 
     @classmethod
@@ -49,7 +51,6 @@ class Stock(NamedTuple):
     asof: Optional[datetime] = None
     indicators: Optional[StockIndicators] = None
     realTimeDetails: Optional[StockRealTimeDetails] = None
-    bidAskSpread: Optional[float] = None
     marketCap: Optional[float] = None
 
     @classmethod

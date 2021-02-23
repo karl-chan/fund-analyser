@@ -1,7 +1,7 @@
 import Stock from './Stock'
 
 describe('Stock', function () {
-  let symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, bidAskSpread: number, marketCap: number
+  let symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, bidAskSpread: number, longestTimeGap: number, marketCap: number
   let stock: Stock
 
   beforeEach(() => {
@@ -14,11 +14,16 @@ describe('Stock', function () {
     returns = { '5Y': 0.1767, '3Y': 0.226 }
     asof = new Date(2018, 8, 8)
     indicators = { stability: 1.96 }
-    realTimeDetails = { estChange: -0.00123, estPrice: 3.198, lastUpdated: undefined }
-    bidAskSpread = 0.01
+    realTimeDetails = {
+      estChange: -0.00123,
+      estPrice: 3.198,
+      bidAskSpread: 0.01,
+      longestTimeGap: 5,
+      lastUpdated: undefined
+    }
     marketCap = 22_000_000_000
 
-    stock = new Stock(symbol, name, historicPrices, returns, asof, indicators, realTimeDetails, bidAskSpread, marketCap)
+    stock = new Stock(symbol, name, historicPrices, returns, asof, indicators, realTimeDetails, marketCap)
   })
   test('constructor should populate Stock with correct fields', () => {
     expect(stock).toMatchObject({ symbol, name, historicPrices, returns, asof, indicators, realTimeDetails })
@@ -28,9 +33,9 @@ describe('Stock', function () {
     expect(stock.isValid()).toBeTrue()
   })
   test('isValid should return false for stock without name', () => {
-    const undefinedNameStock = new Stock(symbol, undefined, [], {}, undefined, undefined, undefined, undefined, undefined)
-    const nullNameStock = new Stock(symbol, null, [], {}, undefined, undefined, undefined, undefined, undefined)
-    const emptyNameStock = new Stock(symbol, '', [], {}, undefined, undefined, undefined, undefined, undefined)
+    const undefinedNameStock = new Stock(symbol, undefined, [], {}, undefined, undefined, undefined, undefined)
+    const nullNameStock = new Stock(symbol, null, [], {}, undefined, undefined, undefined, undefined)
+    const emptyNameStock = new Stock(symbol, '', [], {}, undefined, undefined, undefined, undefined)
     expect([undefinedNameStock, nullNameStock, emptyNameStock]).toSatisfyAll(f => !f.isValid())
   })
 
@@ -43,7 +48,6 @@ describe('Stock', function () {
         .asof(asof)
         .indicators(indicators)
         .realTimeDetails(realTimeDetails)
-        .bidAskSpread(bidAskSpread)
         .marketCap(marketCap)
       const actual = builder.build()
       expect(actual).toBeInstanceOf(Stock)

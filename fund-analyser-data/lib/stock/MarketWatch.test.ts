@@ -22,6 +22,8 @@ describe('MarketWatch', () => {
         realTimeDetails: {
           estPrice: 351.7,
           estChange: 0.0003,
+          bidAskSpread: null as number,
+          longestTimeGap: null as number,
           lastUpdated: new Date(2017, 0, 1)
         }
       }

@@ -23,9 +23,10 @@ class Stock {
     realTimeDetails: {
       estChange: 'number',
       estPrice: 'number',
+      bidAskSpread: 'number',
+      longestTimeGap: 'number',
       lastUpdated: 'Date'
     },
-    bidAskSpread: 'number',
     marketCap: 'number'
   }
 
@@ -36,10 +37,9 @@ class Stock {
   realTimeDetails: Stock.RealTimeDetails
   returns: Stock.Returns
   symbol: string
-  bidAskSpread: number
   marketCap: number
 
-  constructor (symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, bidAskSpread: number, marketCap: number) {
+  constructor (symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, marketCap: number) {
     this.symbol = symbol
     this.name = name
     this.historicPrices = historicPrices
@@ -47,7 +47,6 @@ class Stock {
     this.asof = asof
     this.indicators = indicators
     this.realTimeDetails = realTimeDetails
-    this.bidAskSpread = bidAskSpread
     this.marketCap = marketCap
   }
 
@@ -76,8 +75,10 @@ namespace Stock {
   export type Returns = { [lookback: string]: number }
 
   export interface RealTimeDetails {
-    estChange: number,
-    estPrice: number,
+    estChange: number
+    estPrice: number
+    bidAskSpread: number
+    longestTimeGap: number
     lastUpdated: Date
   }
 
@@ -89,7 +90,6 @@ namespace Stock {
     _realTimeDetails: RealTimeDetails
     _returns: Returns
     _symbol: string
-    _bidAskSpread: number
     _marketCap: number
     constructor (symbol: string) {
       this._symbol = symbol
@@ -130,18 +130,13 @@ namespace Stock {
       return this
     }
 
-    bidAskSpread (bidAskSpread: number) {
-      this._bidAskSpread = bidAskSpread
-      return this
-    }
-
     marketCap (marketCap: number) {
       this._marketCap = marketCap
       return this
     }
 
     build () {
-      return new Stock(this._symbol, this._name, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails, this._bidAskSpread, this._marketCap)
+      return new Stock(this._symbol, this._name, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails, this._marketCap)
     }
   }
 
