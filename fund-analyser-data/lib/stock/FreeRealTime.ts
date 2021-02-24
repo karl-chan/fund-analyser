@@ -2,7 +2,7 @@
 import { Promise } from 'bluebird'
 import * as _ from 'lodash'
 import moment from 'moment'
-import puppeteer from 'puppeteer'
+import puppeteer, { Browser } from 'puppeteer'
 import Semaphore from 'semaphore-async-await'
 import Http from '../util/http'
 import log from '../util/log'
@@ -165,6 +165,7 @@ export default class FreeRealTime implements StockProvider {
   private async getToken (): Promise<Token> {
     // double checked locking
     if (!token || moment.utc().isAfter(token.expiry)) {
+      log.debug('Awaiting lock')
       await mutex.acquire()
       try {
         if (!token || moment.utc().isAfter(token.expiry)) {
@@ -178,21 +179,52 @@ export default class FreeRealTime implements StockProvider {
   }
 
   private async refreshToken (): Promise<Token> {
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'], headless: true })
-    const page = await browser.newPage()
+    let browser: Browser
+    let localStorage: any
 
-    await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Quote', { waitUntil: 'networkidle2' })
-    await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Time%26Sales', { waitUntil: 'networkidle2' })
-    await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Profile', { waitUntil: 'networkidle2' })
-    await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Historical', { waitUntil: 'networkidle2' })
+    try {
+      log.debug('Launching puppeteer')
+      const browser = await puppeteer.launch({
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--disable-gpu',
+          '--js-flags="--max-old-space-size=128"'
+        ],
+        headless: true
+      })
+      const page = await browser.newPage()
+      page.setDefaultNavigationTimeout(0)
+      log.debug('Opened new page')
 
-    const localStorage = await page.evaluate(() => Object.assign({}, window.localStorage))
+      await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Quote', { waitUntil: 'networkidle2' })
+      log.debug('Opened quote page')
+      await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Time%26Sales', { waitUntil: 'networkidle2' })
+      log.debug('Opened time&sales page')
+      await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Profile', { waitUntil: 'networkidle2' })
+      log.debug('Opened profile page')
+      await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Historical', { waitUntil: 'networkidle2' })
+      log.debug('Opened historical page')
+
+      await page.waitForTimeout(1000)
+
+      localStorage = await page.evaluate(() => Object.assign({}, window.localStorage))
+    } finally {
+      if (browser) {
+        await browser.close()
+      }
+      log.debug('Closed browser')
+    }
+
     const { value: quote, expires_at: quoteExpiry } = JSON.parse(localStorage.app_100804_DetailedQuoteTab)
     const { value: profile, expires_at: profileExpiry } = JSON.parse(localStorage.app_100804_CompanyProfile)
     const { value: historical, expires_at: historicalExpiry } = JSON.parse(localStorage.app_100804_PriceHistory)
     const { value: timeAndSales, expires_at: timeAndSalesExpiry } = JSON.parse(localStorage.app_100804_TradesHistorical)
-
-    await browser.close()
 
     const token = {
       quote,
