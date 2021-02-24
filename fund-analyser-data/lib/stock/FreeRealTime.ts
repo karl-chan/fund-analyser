@@ -158,7 +158,7 @@ export default class FreeRealTime implements StockProvider {
       }
     } catch (err) {
       log.warn('Failed to retrieve FreeRealTime bid-ask spread for symbol: %s. Cause: %s', symbol, err.stack)
-      return null
+      return undefined
     }
   }
 
@@ -194,7 +194,7 @@ export default class FreeRealTime implements StockProvider {
 
     await browser.close()
 
-    return {
+    const token = {
       quote,
       timeAndSales,
       profile,
@@ -208,6 +208,8 @@ export default class FreeRealTime implements StockProvider {
         ])
       ).toDate()
     }
+    log.info('Refreshed free real time token: %j', token)
+    return token
   }
 
   /**
