@@ -37,7 +37,7 @@ export default {
       if (this.isLogsCategory) {
         this.refresh()
       }
-    }, 15000) // 15 seconds
+    }, 30000) // 30 seconds
   },
   data () {
     return {

@@ -187,14 +187,7 @@ export default class FreeRealTime implements StockProvider {
       const browser = await puppeteer.launch({
         args: [
           '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process',
-          '--disable-gpu',
-          '--js-flags="--max-old-space-size=128"'
+          '--disable-setuid-sandbox'
         ],
         headless: true
       })
