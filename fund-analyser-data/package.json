@@ -21,7 +21,7 @@
     "server.dev": "ts-node-dev --inspect -- server/server.ts",
     "lint": "eslint client lib scripts server --fix",
     "test": "jest --coverage",
-    "test.heroku": "NODE_OPTIONS=--max_old_space_size=512 jest --coverage --runInBand --testPathIgnorePatterns lib/account/** lib/auth/** server/**",
+    "test.heroku": "NODE_OPTIONS=--max_old_space_size=512 jest --coverage --runInBand --testPathIgnorePatterns lib/account/** lib/auth/** lib/stock/NASDAQStocks.test.ts server/**",
     "tsc": "tsc"
   },
   "author": "Karl Chan <https://github.com/karl-chan>",
@@ -104,6 +104,7 @@
     "mongodb": "3.6.3",
     "parallel-transform": "1.2.0",
     "properties-reader": "2.2.0",
+    "puppeteer": "7.1.0",
     "semaphore-async-await": "1.5.1",
     "streamtest": "2.0.0",
     "tor-axios": "1.0.9",

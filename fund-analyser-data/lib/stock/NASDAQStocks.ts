@@ -145,7 +145,7 @@ export default class NASDAQStocks implements StockProvider {
       }
     } catch (err) {
       log.warn('Failed to retrieve NASDAQStocks bid-ask spread for symbol: %s. Cause: %s', symbol, err.stack)
-      return null
+      return undefined
     }
   }
 
