@@ -1,1 +1,1 @@
-worker: (NODE_OPTIONS=--max-old-space-size=512; npm run updateCurrencies && npm run updateStocks && npm run updateFunds)
+worker: node --optimize_for_size --max_old_space_size=460 dist/scripts/main.js -r updateCurrencies,updateStocks,updateFunds
