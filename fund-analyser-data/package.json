@@ -104,6 +104,7 @@
     "mongodb": "3.6.3",
     "parallel-transform": "1.2.0",
     "properties-reader": "2.2.0",
+    "puppeteer": "7.1.0",
     "semaphore-async-await": "1.5.1",
     "streamtest": "2.0.0",
     "tor-axios": "1.0.9",
