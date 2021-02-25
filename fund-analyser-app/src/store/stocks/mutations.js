@@ -17,10 +17,7 @@ export function removeAllStocks (state) {
 export function setRealTimeDetails (state, realTimeDetailsPairs) {
   for (const [symbol, realTimeDetails] of realTimeDetailsPairs) {
     if (symbol in state.loaded) {
-      state.loaded[symbol].realTimeDetails = {
-        ...state.loaded[symbol].realTimeDetails,
-        realTimeDetails
-      }
+      state.loaded[symbol].realTimeDetails = realTimeDetails
     }
   }
 }
