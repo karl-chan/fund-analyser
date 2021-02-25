@@ -14,7 +14,6 @@
     "updateCatalog": "ts-node scripts/main.ts -r updateCatalog",
     "updateCurrencies": "ts-node scripts/main.ts -r updateCurrencies",
     "updateFunds": "ts-node scripts/main.ts -r updateFunds",
-    "updateHolidays": "ts-node scripts/main.ts -r updateHolidays",
     "updateStocks": "ts-node scripts/main.ts -r updateStocks",
     "uploadTestReport": "ts-node scripts/main.ts -r uploadTestReport -- test-report.html",
     "server": "ts-node server/server.ts",

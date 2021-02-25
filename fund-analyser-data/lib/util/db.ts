@@ -57,10 +57,6 @@ export function getUsers () {
   return _db.collection('users')
 }
 
-export function getHolidays () {
-  return _db.collection('holidays')
-}
-
 export function getTestReport () {
   return _db.collection('testreport')
 }
