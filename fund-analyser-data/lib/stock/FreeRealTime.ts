@@ -192,7 +192,7 @@ export default class FreeRealTime implements StockProvider {
         headless: true
       })
       const page = await browser.newPage()
-      page.setDefaultNavigationTimeout(0)
+      page.setDefaultNavigationTimeout(2 * 60 * 1000) // 2 minutes
 
       await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Quote', { waitUntil: 'networkidle2' })
       log.info('Opened quote page')
