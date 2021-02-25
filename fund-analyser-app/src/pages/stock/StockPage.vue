@@ -21,7 +21,13 @@
 
       // middle section
       fund-info-bar(:fund="stock")
-      .row.q-col-gutter-x-sm.q-mt-xl
+      .row.q-gutter-lg
+        div Bid-ask spread:
+          .text-h6 {{ formatPercentage(stock.realTimeDetails.bidAskSpread) }}
+        div Longest time gap (seconds)
+          .text-h6 {{ stock.realTimeDetails.longestTimeGap }}
+
+      .row.q-col-gutter-x-sm.q-mt-lg
         .col-md-7
           fund-chart(:fund="stock")
         .col-md-5
@@ -96,6 +102,9 @@ export default {
     },
     toggleWatchlist (symbol) {
       this.isFavourite ? this.removeFromStockWatchlist(symbol) : this.addToStockWatchlist(symbol)
+    },
+    formatPercentage (num) {
+      return this.$utils.format.formatPercentage(num, true)
     }
   }
 }
