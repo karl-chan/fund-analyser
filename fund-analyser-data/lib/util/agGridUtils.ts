@@ -6,6 +6,8 @@ import * as stat from './stat'
 
 const lookbacks = properties.get('fund.lookbacks')
 
+export type ColourFunction = (field: string, funds: Fund[], ...args: any[]) => Fund[]
+
 /**
  * Applies ag-grid Server Side Model request params on the incoming list of funds
  * @see https://www.ag-grid.com/javascript-grid-server-side-model/
@@ -151,7 +153,9 @@ export function colourNegative (field: string, funds: Fund[]) {
   }: any) => -val / max)
 }
 
-function _colour (field: string, funds: Fund[], scoreFn: any, options?: any) {
+type ScoreFunction = ({ row, max, min, median, val }: { row: Fund, max: number, min: number, median: number, val: number }) => number
+
+function _colour (field: string, funds: Fund[], scoreFn: ScoreFunction, options?: any) {
   const max = _.get(options, 'clipUpper') || stat.max(funds.map((row: any) => _.get(row, field)))
   const min = _.get(options, 'clipLower') || stat.min(funds.map((row: any) => _.get(row, field)))
   const median = stat.median(funds.map((row: any) => _.get(row, field)))
