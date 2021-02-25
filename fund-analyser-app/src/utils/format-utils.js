@@ -1,5 +1,5 @@
-import { colors } from 'quasar'
 import moment from 'moment'
+import { colors } from 'quasar'
 
 const { lighten } = colors
 const [red, green] = ['#f44336', '#4caf50']
@@ -68,5 +68,9 @@ export default {
       return this.fallbackDisplay(fallbackValue)
     }
     return d.fromNow()
+  },
+
+  formatSeconds (seconds) {
+    return moment.duration(seconds, 'seconds').humanize({ ss: 1 })
   }
 }

@@ -115,7 +115,7 @@ export default {
     ...mapState('account', ['fundWatchlist']),
     ...mapState('funds', ['indicatorSchema']),
     pctUpToDate: function () {
-      return this.$utils.format.formatPercentage(this.numUpToDate / this.totalFunds, '0%')
+      return this.$utils.format.formatPercentage(this.numUpToDate / this.totalFunds, true, '0%')
     },
     columnDefs: function () {
       const colDefs = [
