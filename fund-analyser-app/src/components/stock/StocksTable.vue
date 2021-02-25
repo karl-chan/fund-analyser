@@ -154,7 +154,8 @@ export default {
       ]
 
       const colourFields = new Set(
-        extendedPeriods.map(period => `returns.${period}`)
+        ['realTimeDetails.bidAskSpread', 'realTimeDetails.longestTimeGap']
+          .concat(extendedPeriods.map(period => `returns.${period}`))
           .concat(this.getIndicatorKeys()))
       const percentFields = new Set(
         ['realTimeDetails.bidAskSpread']
