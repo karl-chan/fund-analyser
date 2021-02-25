@@ -140,13 +140,13 @@ export function enrichSummary (summary: Fund[]) {
   // add colours to returns
   if (summary.length) {
     const { colourAroundZero } = agGridUtils
-    const colourOptions: {[field: string]: ColourFunction[]} = {
+    const colourOptions: {[field: string]: ColourFunction<Fund>} = {
       // RHS is array of func args
-      'returns.$lookback': [colourAroundZero],
-      'returns.+1D': [colourAroundZero] // include +1D
+      'returns.$lookback': colourAroundZero(),
+      'returns.+1D': colourAroundZero() // include +1D
     }
     for (const name of Object.keys(summary[0].indicators || {})) {
-      colourOptions[`indicators.${name}.value`] = [colourAroundZero]
+      colourOptions[`indicators.${name}.value`] = colourAroundZero()
     }
     summary = agGridUtils.addColours(summary, colourOptions)
   }

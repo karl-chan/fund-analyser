@@ -99,7 +99,7 @@ export function enrichSummary (summary: any) {
   // add colours to retuns
   const { colourAroundZero } = agGridUtils
   const colourOptions = {
-    'returns.$lookback': [colourAroundZero]
+    'returns.$lookback': colourAroundZero()
   }
   summary = agGridUtils.addColours(summary, colourOptions)
   return summary

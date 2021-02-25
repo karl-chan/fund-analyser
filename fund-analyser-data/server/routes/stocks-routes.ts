@@ -75,8 +75,7 @@ router.post('/list', async (ctx: Context) => {
   const { asof, stats, totalStocks } = stockCache.getMetadata(params)
   let lastRow = totalStocks
   if (params && params.agGridRequest) {
-    // @ts-ignore
-    ({ funds: stocks, lastRow } = agGridUtils.applyRequest(stocks, params.agGridRequest))
+    ({ rows: stocks, lastRow } = agGridUtils.applyRequest(stocks, params.agGridRequest))
   }
   ctx.body = {
     stocks,
