@@ -183,7 +183,7 @@ export default class FreeRealTime implements StockProvider {
     let localStorage: any
 
     try {
-      log.debug('Launching puppeteer')
+      log.info('Launching puppeteer')
       const browser = await puppeteer.launch({
         args: [
           '--no-sandbox',
@@ -193,16 +193,15 @@ export default class FreeRealTime implements StockProvider {
       })
       const page = await browser.newPage()
       page.setDefaultNavigationTimeout(0)
-      log.debug('Opened new page')
 
       await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Quote', { waitUntil: 'networkidle2' })
-      log.debug('Opened quote page')
+      log.info('Opened quote page')
       await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Time%26Sales', { waitUntil: 'networkidle2' })
-      log.debug('Opened time&sales page')
+      log.info('Opened time&sales page')
       await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Profile', { waitUntil: 'networkidle2' })
-      log.debug('Opened profile page')
+      log.info('Opened profile page')
       await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Historical', { waitUntil: 'networkidle2' })
-      log.debug('Opened historical page')
+      log.info('Opened historical page')
 
       await page.waitForTimeout(1000)
 
@@ -211,7 +210,7 @@ export default class FreeRealTime implements StockProvider {
       if (browser) {
         await browser.close()
       }
-      log.debug('Closed browser')
+      log.info('Closed puppeteer')
     }
 
     const { value: quote, expires_at: quoteExpiry } = JSON.parse(localStorage.app_100804_DetailedQuoteTab)
