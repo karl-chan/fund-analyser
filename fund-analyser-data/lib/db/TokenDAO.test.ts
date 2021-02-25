@@ -13,6 +13,6 @@ describe('TokenDAO', function () {
 
   test('getFreeRealTimeToken', async function () {
     const token = await TokenDAO.getFreeRealTimeToken()
-    expect(token.expiry).toBeBefore(new Date())
+    expect(token.expiry).toBeAfter(new Date())
   })
 })
