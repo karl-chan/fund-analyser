@@ -61,6 +61,10 @@ export function getTestReport () {
   return _db.collection('testreport')
 }
 
+export function getToken () {
+  return _db.collection('token')
+}
+
 async function connectOrFail (uri: string, opts: MongoClientOptions): Promise<MongoClient> {
   return MongoClient.connect(uri, opts)
     .catch(err => {

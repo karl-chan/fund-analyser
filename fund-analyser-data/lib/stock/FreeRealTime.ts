@@ -4,6 +4,7 @@ import * as _ from 'lodash'
 import moment from 'moment'
 import puppeteer, { Browser } from 'puppeteer'
 import Semaphore from 'semaphore-async-await'
+import TokenDAO from '../db/TokenDAO'
 import Http from '../util/http'
 import log from '../util/log'
 import * as properties from '../util/properties'
@@ -11,12 +12,12 @@ import * as streamWrapper from '../util/streamWrapper'
 import Stock from './Stock'
 import { StockProvider } from './StockFactory'
 
-interface Token {
-    quote: string
-    timeAndSales: string
-    profile: string
-    historical: string
-    expiry: Date
+export interface Token {
+  quote: string;
+  timeAndSales: string;
+  profile: string;
+  historical: string;
+  expiry: Date;
 }
 
 const http = new Http({
@@ -25,14 +26,14 @@ const http = new Http({
   }
 })
 
-const mutex = new Semaphore(1)
-let token: Token
-
 export default class FreeRealTime implements StockProvider {
   maxLookbackYears: number
+  cachedToken: Token
+  mutex : Semaphore
 
   constructor () {
     this.maxLookbackYears = properties.get('stock.max.lookback.years')
+    this.mutex = new Semaphore(1)
   }
 
   async getStockFromSymbol (symbol: string) {
@@ -91,14 +92,14 @@ export default class FreeRealTime implements StockProvider {
         responseType: 'json'
       })
       const historicPrices: Stock.HistoricPrice[] =
-        data.results.history[0].eoddata
-          .reverse()
-          .map((row: any) => {
-            const date = moment.utc(row.date, 'YYYY-MM-DD').toDate()
-            const close = +row.close
-            const volume = +row.sharevolume
-            return new Stock.HistoricPrice(date, close, volume)
-          })
+          data.results.history[0].eoddata
+            .reverse()
+            .map((row: any) => {
+              const date = moment.utc(row.date, 'YYYY-MM-DD').toDate()
+              const close = +row.close
+              const volume = +row.sharevolume
+              return new Stock.HistoricPrice(date, close, volume)
+            })
       return historicPrices
     } catch (err) {
       log.warn('Failed to retrieve FreeRealTime historic prices for symbol: %s. Cause: %s', symbol, err.stack)
@@ -164,21 +165,22 @@ export default class FreeRealTime implements StockProvider {
 
   private async getToken (): Promise<Token> {
     // double checked locking
-    if (!token || moment.utc().isAfter(token.expiry)) {
+    if (!this.cachedToken || moment.utc().isAfter(this.cachedToken.expiry)) {
       log.debug('Awaiting lock')
-      await mutex.acquire()
+      await this.mutex.acquire()
       try {
-        if (!token || moment.utc().isAfter(token.expiry)) {
-          token = await this.refreshToken()
+        if (!this.cachedToken || moment.utc().isAfter(this.cachedToken.expiry)) {
+          this.cachedToken = await TokenDAO.getFreeRealTimeToken()
+          log.info('Got free real time token: %j', this.cachedToken)
         }
       } finally {
-        mutex.release()
+        this.mutex.release()
       }
     }
-    return token
+    return this.cachedToken
   }
 
-  private async refreshToken (): Promise<Token> {
+  async fetchToken (): Promise<Token> {
     let browser: Browser
     let localStorage: any
 
@@ -242,13 +244,13 @@ export default class FreeRealTime implements StockProvider {
         ])
       ).toDate()
     }
-    log.info('Refreshed free real time token: %j', token)
+    log.info('Fetched free real time token: %j', token)
     return token
   }
 
   /**
-   * Analogous stream methods below
-   */
+     * Analogous stream methods below
+     */
   streamStocksFromSymbols () {
     return streamWrapper.asParallelTransformAsync((symbol: string) => this.getStockFromSymbol(symbol))
   }

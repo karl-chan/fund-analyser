@@ -13,6 +13,7 @@ import updateCatalog from './tasks/updateCatalog'
 import updateCurrencies from './tasks/updateCurrencies'
 import updateFunds from './tasks/updateFunds'
 import updateStocks from './tasks/updateStocks'
+import updateTokens from './tasks/updateTokens'
 import uploadTestReport from './tasks/uploadTestReport'
 
 const TASKS: Record<string, any> = {
@@ -26,6 +27,7 @@ const TASKS: Record<string, any> = {
   updateCurrencies,
   updateFunds,
   updateStocks,
+  updateTokens,
   uploadTestReport
 }
 

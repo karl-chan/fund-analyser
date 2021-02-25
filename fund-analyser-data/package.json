@@ -15,6 +15,7 @@
     "updateCurrencies": "ts-node scripts/main.ts -r updateCurrencies",
     "updateFunds": "ts-node scripts/main.ts -r updateFunds",
     "updateStocks": "ts-node scripts/main.ts -r updateStocks",
+    "updateTokens": "ts-node scripts/main.ts -r updateTokens",
     "uploadTestReport": "ts-node scripts/main.ts -r uploadTestReport -- test-report.html",
     "server": "ts-node server/server.ts",
     "server.dev": "ts-node-dev --inspect -- server/server.ts",
