@@ -187,7 +187,16 @@ export default class FreeRealTime implements StockProvider {
       const browser = await puppeteer.launch({
         args: [
           '--no-sandbox',
-          '--disable-setuid-sandbox'
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--disable-gpu',
+          '--blink-settings=imagesEnabled=false',
+          '--proxy-server="direct://"',
+          '--proxy-bypass-list=*'
         ],
         headless: true
       })
@@ -210,6 +219,7 @@ export default class FreeRealTime implements StockProvider {
       if (browser) {
         await browser.close()
       }
+      browser = undefined
       log.info('Closed puppeteer')
     }
 
