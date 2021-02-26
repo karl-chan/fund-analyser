@@ -33,13 +33,14 @@ export function enrichSummary (summary: Stock[]) {
     const colourOptions: {[field: string]: ColourFunction<Stock>} = {
       // RHS is array of func args
       'returns.$lookback': colourAroundZero(),
-      'returns.+1D': colourAroundZero() // include +1D
+      'returns.+1D': colourAroundZero(), // include +1D
+      'realTimeDetails.bidAskSpread': colourAroundMedian({ desc: true }),
+      'realTimeDetails.longestTimeGap': colourAroundMedian({ desc: true }),
+      marketCap: colourAroundMedian()
     }
     for (const name of Object.keys(summary[0].indicators || {})) {
       colourOptions[`indicators.${name}.value`] = colourAroundZero()
     }
-    colourOptions['realTimeDetails.bidAskSpread'] = colourAroundMedian({ desc: true })
-    colourOptions['realTimeDetails.longestTimeGap'] = colourAroundMedian({ desc: true })
     summary = agGridUtils.addColours(summary, colourOptions)
   }
   return summary
