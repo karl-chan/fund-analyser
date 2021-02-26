@@ -1,5 +1,6 @@
 import moment from 'moment'
 import * as StreamTest from 'streamtest'
+import * as db from '../util/db'
 import FreeRealTime from './FreeRealTime'
 import Stock from './Stock'
 
@@ -7,6 +8,12 @@ jest.setTimeout(30000) // 30 seconds
 
 describe('FreeRealTime', () => {
   let freeRealTime: FreeRealTime
+  beforeAll(async () => {
+    await db.init()
+  })
+  afterAll(async () => {
+    await db.close()
+  })
   beforeEach(() => {
     freeRealTime = new FreeRealTime()
   })
@@ -75,7 +82,7 @@ describe('FreeRealTime', () => {
     test('getSummary should return summary object', async () => {
       const summary = await freeRealTime.getSummary('AAPL')
       expect(summary.name).toEqual('Apple Inc.')
-      expect(summary.marketCap).toBeNumber()
+      expect(summary.marketCap).toBePositive()
     })
 
     test('getHistoricPrices should return historic prices object', async () => {
