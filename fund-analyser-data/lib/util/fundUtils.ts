@@ -2,6 +2,7 @@ import * as _ from 'lodash'
 import moment from 'moment'
 import Fund from '../fund/Fund'
 import * as agGridUtils from './agGridUtils'
+import { ColourFunction } from './agGridUtils'
 import * as indicators from './indicators'
 import * as lang from './lang'
 import * as stat from './stat'
@@ -128,24 +129,24 @@ export function enrichRealTimeDetails (realTimeDetails: Fund.RealTimeDetails, fu
   return { ...realTimeDetails, ...enrichment }
 }
 
-export function enrichSummary (summary: any) {
+export function enrichSummary (summary: Fund[]) {
   // add +1D to returns
   summary
-    .filter((row: any) => row.returns)
-    .forEach((row: any) => {
+    .filter(row => row.returns)
+    .forEach(row => {
       row.returns['+1D'] = row.realTimeDetails ? row.realTimeDetails.estChange : NaN
     })
 
   // add colours to returns
   if (summary.length) {
     const { colourAroundZero } = agGridUtils
-    const colourOptions: {[field: string]: any[]} = {
+    const colourOptions: {[field: string]: ColourFunction<Fund>} = {
       // RHS is array of func args
-      'returns.$lookback': [colourAroundZero],
-      'returns.+1D': [colourAroundZero] // include +1D
+      'returns.$lookback': colourAroundZero(),
+      'returns.+1D': colourAroundZero() // include +1D
     }
     for (const name of Object.keys(summary[0].indicators || {})) {
-      colourOptions[`indicators.${name}.value`] = [colourAroundZero]
+      colourOptions[`indicators.${name}.value`] = colourAroundZero()
     }
     summary = agGridUtils.addColours(summary, colourOptions)
   }

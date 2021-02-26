@@ -1,47 +1,56 @@
 import * as _ from 'lodash'
 import moment from 'moment'
-import Fund from '../fund/Fund'
 import * as properties from './properties'
 import * as stat from './stat'
 
-const lookbacks = properties.get('fund.lookbacks')
+const lookbacks: string[] = properties.get('fund.lookbacks')
 
-/**
- * Applies ag-grid Server Side Model request params on the incoming list of funds
- * @see https://www.ag-grid.com/javascript-grid-server-side-model/
- * @param {*} funds
- * @param {IServerSideGetRowsRequest} agGridRequest
- */
-export function applyRequest (funds: Fund[], agGridRequest: any) {
-  funds = _applyFilter(funds, agGridRequest.filterModel)
-  funds = _applySort(funds, agGridRequest.sortModel)
+export type ColourFunction<T> = (field: string, rows: T[]) => T[]
 
-  // simple statistics
-  const lastRow = funds.length
-
-  funds = funds.slice(agGridRequest.startRow, agGridRequest.endRow)
-  return { funds, lastRow }
+interface ColourOptions {
+  clipUpper?: number,
+  clipLower?: number,
+  desc?: boolean
 }
 
-function _applySort (funds: Fund[], sortModel: any) {
+type ScoreFunction<T> = ({ row, max, min, median, val }: { row: T, max: number, min: number, median: number, val: number }) => number
+
+/**
+ * Applies ag-grid Server Side Model request params on the incoming list of rows
+ * @see https://www.ag-grid.com/javascript-grid-server-side-model/
+ * @param {*} rows
+ * @param {IServerSideGetRowsRequest} agGridRequest
+ */
+export function applyRequest<T> (rows: T[], agGridRequest: any) {
+  rows = _applyFilter(rows, agGridRequest.filterModel)
+  rows = _applySort(rows, agGridRequest.sortModel)
+
+  // simple statistics
+  const lastRow = rows.length
+
+  rows = rows.slice(agGridRequest.startRow, agGridRequest.endRow)
+  return { rows, lastRow }
+}
+
+function _applySort<T> (rows: T[], sortModel: any) {
   if (!sortModel.length) {
-    return funds
+    return rows
   }
 
   // Move NaN rows to bottom always
   const columnName = parseColId(sortModel[0].colId)
-  const [nanRows, validFunds] = _.partition(funds, (f: any) => {
+  const [nanRows, validRows] = _.partition(rows, f => {
     const cell = _.get(f, columnName)
     return !cell && cell !== 0
   })
   const cols = sortModel.map((sm: any) => parseColId(sm.colId))
   const orders = sortModel.map((sm: any) => sm.sort)
-  return _.orderBy(validFunds, cols, orders).concat(nanRows)
+  return _.orderBy(validRows, cols, orders).concat(nanRows)
 }
 
-function _applyFilter (funds: Fund[], filterModel: any) {
+function _applyFilter<T> (rows: T[], filterModel: any) {
   if (_.isEmpty(filterModel)) {
-    return funds
+    return rows
   }
 
   const parseValues = (fm: any) => {
@@ -49,29 +58,29 @@ function _applyFilter (funds: Fund[], filterModel: any) {
       case 'number':
         return [+fm.filter, +fm.filterTo]
       case 'date':
-        return [moment(fm.dateFrom), moment(fm.dateTo)]
+        return [moment(fm.dateFrom).unix(), moment(fm.dateTo).unix()]
       default:
         throw new Error(`Unsupported filter type: ${fm.filterType}`)
     }
   }
-  const buildPredicate = (fm: any, lowerValue: any, upperValue: any) => {
+  const buildPredicate = (fm: any, lowerValue: number, upperValue: number) => {
     switch (fm.type) {
       case 'equals':
-        return (x: any) => x === lowerValue
+        return (x: number) => x === lowerValue
       case 'notEqual':
-        return (x: any) => x !== lowerValue
+        return (x: number) => x !== lowerValue
       case 'lessThan':
-        return (x: any) => x < lowerValue
+        return (x: number) => x < lowerValue
       case 'lessThanOrEqual':
-        return (x: any) => x <= lowerValue
+        return (x: number) => x <= lowerValue
       case 'greaterThan':
-        return (x: any) => x > lowerValue
+        return (x: number) => x > lowerValue
       case 'greaterThanOrEqual':
-        return (x: any) => x >= lowerValue
+        return (x: number) => x >= lowerValue
       case 'inRange':
-        return (x: any) => _.min([lowerValue, upperValue]) <= x && x <= _.max([lowerValue, upperValue])
+        return (x: number) => _.min([lowerValue, upperValue]) <= x && x <= _.max([lowerValue, upperValue])
       default:
-        return (x: any) => x
+        return (x: number) => x
     }
   }
 
@@ -79,41 +88,42 @@ function _applyFilter (funds: Fund[], filterModel: any) {
     const columnName = parseColId(colId)
     const [lowerValue, upperValue] = parseValues(fm)
     const predicate = buildPredicate(fm, lowerValue, upperValue)
-    funds = funds.filter((f: any) => predicate(_.get(f, columnName)))
+    rows = rows.filter(f => predicate(_.get(f, columnName)))
   }
-  return funds
+  return rows
 }
 
 function parseColId (colId: any) {
   return colId.replace(/_\d+$/g, '')
 }
 
-export function addColours (iterables: any, colourOptions: any) {
+export function addColours<T> (rows: T[], colourOptions: {[field: string]: ColourFunction<T>}) {
   // expand template variables
-  const expandedOptions = Object.entries(colourOptions)
-    .flatMap(([k, v]) => {
-      if (k.includes('$lookback')) {
-        return lookbacks.map((lookback: any) => [k.replace(/\$lookback/g, lookback), v])
-      } else {
-        return [[k, v]]
+  const expandedOptions: {[field: string]: ColourFunction<T>} = {}
+  for (const [field, colourFunc] of Object.entries(colourOptions)) {
+    if (field.includes('$lookback')) {
+      for (const lookback of lookbacks) {
+        expandedOptions[field.replace(/\$lookback/g, lookback)] = colourFunc
       }
-    })
-
-  for (const [field, colourFuncArgs] of expandedOptions) {
-    const [colourFunc, ...args] = colourFuncArgs
-    iterables = colourFunc(field, iterables, ...args)
+    } else {
+      expandedOptions[field] = colourFunc
+    }
   }
-  return iterables
+
+  for (const [field, colourFunc] of Object.entries(expandedOptions)) {
+    rows = colourFunc(field, rows)
+  }
+  return rows
 }
 
 // scoring methods
 // (inf, 0, -inf) = (green, 0, red)
-export function colourAroundZero (field: string, funds: Fund[]) {
-  return _colour(field, funds, ({
+export function colourAroundZero<T extends object> ({ desc }: {desc?: boolean} = {}): ColourFunction<T> {
+  const scoreFunction: ScoreFunction<T> = ({
     val,
     max,
     min
-  }: any) => {
+  }) => {
     if (val > 0) {
       return val / max
     }
@@ -121,18 +131,18 @@ export function colourAroundZero (field: string, funds: Fund[]) {
       return -val / min
     }
     return 0
-  })
+  }
+  return colour(scoreFunction, { desc })
 }
 
 // (inf, clipUpper, median, clipLower, -inf) = (green, green, white, red, red)
-export function colourAroundMedian (field: string, funds: Fund[], clipUpper: number, clipLower: number) {
-  const options = { clipUpper, clipLower }
-  return _colour(field, funds, ({
+export function colourAroundMedian<T extends object> ({ desc, clipUpper, clipLower } : {desc?: boolean, clipUpper ?: number, clipLower?: number} = {}): ColourFunction <T> {
+  const scoreFunction: ScoreFunction <T> = ({
     val,
     max,
     min,
     median
-  }: any) => {
+  }) => {
     if (val > median) {
       return Math.min(1.5, (val - median) / (max - median))
     }
@@ -140,25 +150,27 @@ export function colourAroundMedian (field: string, funds: Fund[], clipUpper: num
       return Math.max(-1.5, (val - median) / (median - min))
     }
     return 0
-  }, options)
+  }
+  return colour(scoreFunction, { clipUpper, clipLower, desc })
 }
 
 // (inf, 0, -inf) = (white, white, red)
-export function colourNegative (field: string, funds: Fund[]) {
-  return _colour(field, funds, ({
-    val,
-    max
-  }: any) => -val / max)
+export function colourNegative <T extends object> () :ColourFunction <T> {
+  const scoreFunction: ScoreFunction <T> = ({ val, max }) => -val / max
+  return colour(scoreFunction)
 }
 
-function _colour (field: string, funds: Fund[], scoreFn: any, options?: any) {
-  const max = _.get(options, 'clipUpper') || stat.max(funds.map((row: any) => _.get(row, field)))
-  const min = _.get(options, 'clipLower') || stat.min(funds.map((row: any) => _.get(row, field)))
-  const median = stat.median(funds.map((row: any) => _.get(row, field)))
-  funds.forEach((row: any) => {
-    const val = _.get(row, field)
-    const score = scoreFn({ row, max, min, median, val })
-    _.set(row, `colours.${field}`, score)
-  })
-  return funds
+function colour<T extends object> (scoreFn: ScoreFunction<T>, options?: ColourOptions): ColourFunction<T> {
+  return (field: string, rows: T[]) => {
+    const max = _.get(options, 'clipUpper') || stat.max(rows.map(row => _.get(row, field)))
+    const min = _.get(options, 'clipLower') || stat.min(rows.map(row => _.get(row, field)))
+    const sign = options && options.desc ? -1 : 1
+    const median = stat.median(rows.map(row => _.get(row, field)))
+    rows.forEach(row => {
+      const val = _.get(row, field)
+      const score = sign * scoreFn({ row, max, min, median, val })
+      _.set(row, `colours.${field}`, score)
+    })
+    return rows
+  }
 }

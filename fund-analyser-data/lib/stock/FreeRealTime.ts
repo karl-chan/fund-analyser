@@ -4,6 +4,7 @@ import * as _ from 'lodash'
 import moment from 'moment'
 import puppeteer, { Browser } from 'puppeteer'
 import Semaphore from 'semaphore-async-await'
+import TokenDAO from '../db/TokenDAO'
 import Http from '../util/http'
 import log from '../util/log'
 import * as properties from '../util/properties'
@@ -11,12 +12,12 @@ import * as streamWrapper from '../util/streamWrapper'
 import Stock from './Stock'
 import { StockProvider } from './StockFactory'
 
-interface Token {
-    quote: string
-    timeAndSales: string
-    profile: string
-    historical: string
-    expiry: Date
+export interface Token {
+  quote: string;
+  timeAndSales: string;
+  profile: string;
+  historical: string;
+  expiry: Date;
 }
 
 const http = new Http({
@@ -25,14 +26,14 @@ const http = new Http({
   }
 })
 
-const mutex = new Semaphore(1)
-let token: Token
-
 export default class FreeRealTime implements StockProvider {
   maxLookbackYears: number
+  cachedToken: Token
+  mutex : Semaphore
 
   constructor () {
     this.maxLookbackYears = properties.get('stock.max.lookback.years')
+    this.mutex = new Semaphore(1)
   }
 
   async getStockFromSymbol (symbol: string) {
@@ -91,14 +92,14 @@ export default class FreeRealTime implements StockProvider {
         responseType: 'json'
       })
       const historicPrices: Stock.HistoricPrice[] =
-        data.results.history[0].eoddata
-          .reverse()
-          .map((row: any) => {
-            const date = moment.utc(row.date, 'YYYY-MM-DD').toDate()
-            const close = +row.close
-            const volume = +row.sharevolume
-            return new Stock.HistoricPrice(date, close, volume)
-          })
+          data.results.history[0].eoddata
+            .reverse()
+            .map((row: any) => {
+              const date = moment.utc(row.date, 'YYYY-MM-DD').toDate()
+              const close = +row.close
+              const volume = +row.sharevolume
+              return new Stock.HistoricPrice(date, close, volume)
+            })
       return historicPrices
     } catch (err) {
       log.warn('Failed to retrieve FreeRealTime historic prices for symbol: %s. Cause: %s', symbol, err.stack)
@@ -164,45 +165,54 @@ export default class FreeRealTime implements StockProvider {
 
   private async getToken (): Promise<Token> {
     // double checked locking
-    if (!token || moment.utc().isAfter(token.expiry)) {
+    if (!this.cachedToken || moment.utc().isAfter(this.cachedToken.expiry)) {
       log.debug('Awaiting lock')
-      await mutex.acquire()
+      await this.mutex.acquire()
       try {
-        if (!token || moment.utc().isAfter(token.expiry)) {
-          token = await this.refreshToken()
+        if (!this.cachedToken || moment.utc().isAfter(this.cachedToken.expiry)) {
+          this.cachedToken = await TokenDAO.getFreeRealTimeToken()
+          log.info('Got free real time token: %j', this.cachedToken)
         }
       } finally {
-        mutex.release()
+        this.mutex.release()
       }
     }
-    return token
+    return this.cachedToken
   }
 
-  private async refreshToken (): Promise<Token> {
+  async fetchToken (): Promise<Token> {
     let browser: Browser
     let localStorage: any
 
     try {
-      log.debug('Launching puppeteer')
+      log.info('Launching puppeteer')
       const browser = await puppeteer.launch({
         args: [
           '--no-sandbox',
-          '--disable-setuid-sandbox'
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--disable-gpu',
+          '--blink-settings=imagesEnabled=false',
+          '--proxy-server="direct://"',
+          '--proxy-bypass-list=*'
         ],
         headless: true
       })
       const page = await browser.newPage()
-      page.setDefaultNavigationTimeout(0)
-      log.debug('Opened new page')
+      page.setDefaultNavigationTimeout(2 * 60 * 1000) // 2 minutes
 
       await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Quote', { waitUntil: 'networkidle2' })
-      log.debug('Opened quote page')
+      log.info('Opened quote page')
       await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Time%26Sales', { waitUntil: 'networkidle2' })
-      log.debug('Opened time&sales page')
+      log.info('Opened time&sales page')
       await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Profile', { waitUntil: 'networkidle2' })
-      log.debug('Opened profile page')
+      log.info('Opened profile page')
       await page.goto('https://quotes.freerealtime.com/quotes/AAPL/Historical', { waitUntil: 'networkidle2' })
-      log.debug('Opened historical page')
+      log.info('Opened historical page')
 
       await page.waitForTimeout(1000)
 
@@ -211,7 +221,8 @@ export default class FreeRealTime implements StockProvider {
       if (browser) {
         await browser.close()
       }
-      log.debug('Closed browser')
+      browser = undefined
+      log.info('Closed puppeteer')
     }
 
     const { value: quote, expires_at: quoteExpiry } = JSON.parse(localStorage.app_100804_DetailedQuoteTab)
@@ -233,13 +244,13 @@ export default class FreeRealTime implements StockProvider {
         ])
       ).toDate()
     }
-    log.info('Refreshed free real time token: %j', token)
+    log.info('Fetched free real time token: %j', token)
     return token
   }
 
   /**
-   * Analogous stream methods below
-   */
+     * Analogous stream methods below
+     */
   streamStocksFromSymbols () {
     return streamWrapper.asParallelTransformAsync((symbol: string) => this.getStockFromSymbol(symbol))
   }

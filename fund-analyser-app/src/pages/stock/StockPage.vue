@@ -12,16 +12,19 @@
         div
           q-btn(icon="autorenew" label="Renew" @click="refreshStock" color="secondary" rounded glossy)
         div
-          q-btn(color="orange" icon="open_in_new" label="Open in FT" @click="openURL('https://markets.ft.com/data/equities/tearsheet/summary?s=' + stock.symbol)")
-        //- div
-        //-   q-btn(flat round color="amber" size="xl" :icon="favouriteIcon"
-        //-         @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false"
-        //-         @click="toggleWatchlist(stock.symbol)")
-        //-     q-tooltip {{ isFavourite? 'Remove from watch list' : 'Add to watch list' }}
+          q-btn(color="purple" icon="open_in_new" label="NASDAQ" @click="openURL(`https://www.nasdaq.com/market-activity/stocks/${stock.symbol}/real-time`)")
+        div
+          q-btn(color="blue" icon="open_in_new" label="Free Real Time" @click="openURL(`https://quotes.freerealtime.com/quotes/${stock.symbol}/Time%26Sales`)")
 
       // middle section
       fund-info-bar(:fund="stock")
-      .row.q-col-gutter-x-sm.q-mt-xl
+      .row.q-gutter-lg
+        div Bid-ask spread:
+          .text-h6 {{ $utils.format.formatPercentage(stock.realTimeDetails.bidAskSpread, true) }}
+        div Longest time gap (seconds):
+          .text-h6 {{ $utils.format.formatSeconds(stock.realTimeDetails.longestTimeGap) }}
+
+      .row.q-col-gutter-x-sm.q-mt-lg
         .col-md-7
           fund-chart(:fund="stock")
         .col-md-5

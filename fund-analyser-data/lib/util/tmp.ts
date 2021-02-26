@@ -5,6 +5,7 @@ import * as fs from 'fs-extra'
 import moment from 'moment'
 import * as os from 'os'
 import * as path from 'path'
+import log from './log'
 
 const APP_FOLDER = 'fund-analyser'
 const tmp = path.join(os.tmpdir(), APP_FOLDER)
@@ -15,6 +16,7 @@ const tmp = path.join(os.tmpdir(), APP_FOLDER)
  */
 export async function read (key: string) {
   const location = path.join(tmp, key)
+  log.debug(`Read tmp file at: ${location}`)
   const { expiry, object } = await fs.readJson(location)
   if (expiry < moment().unix()) {
     throw new Error(`Key already expired: ${key} at: ${expiry}`)

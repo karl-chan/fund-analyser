@@ -130,6 +130,14 @@ export default {
           }))
         },
         {
+          headerName: 'Real-time details',
+          marryChildren: true,
+          children: [
+            { headerName: 'Bid-Ask Spread', field: 'realTimeDetails.bidAskSpread', width: 70 },
+            { headerName: 'Longest Time Gap', field: 'realTimeDetails.longestTimeGap', width: 70 }
+          ]
+        },
+        {
           headerName: 'Indicators',
           marryChildren: true,
           children: Object.entries(this.indicatorSchema).map(([key, { name }]) => {
@@ -141,20 +149,13 @@ export default {
             }
           })
         },
-        {
-          headerName: 'Real-time details',
-          marryChildren: true,
-          children: [
-            { headerName: 'Bid-Ask Spread', field: 'realTimeDetails.bidAskSpread', width: 70 },
-            { headerName: 'Longest Time Gap', field: 'realTimeDetails.longestTimeGap', width: 70 }
-          ]
-        },
         { headerName: 'Market Cap', field: 'marketCap', width: 70 },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ]
 
       const colourFields = new Set(
-        extendedPeriods.map(period => `returns.${period}`)
+        ['realTimeDetails.bidAskSpread', 'realTimeDetails.longestTimeGap']
+          .concat(extendedPeriods.map(period => `returns.${period}`))
           .concat(this.getIndicatorKeys()))
       const percentFields = new Set(
         ['realTimeDetails.bidAskSpread']

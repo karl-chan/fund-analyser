@@ -57,12 +57,12 @@ export function getUsers () {
   return _db.collection('users')
 }
 
-export function getHolidays () {
-  return _db.collection('holidays')
-}
-
 export function getTestReport () {
   return _db.collection('testreport')
+}
+
+export function getToken () {
+  return _db.collection('token')
 }
 
 async function connectOrFail (uri: string, opts: MongoClientOptions): Promise<MongoClient> {

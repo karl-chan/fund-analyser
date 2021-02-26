@@ -3,7 +3,7 @@ import { Context } from 'koa'
 import Router from 'koa-router'
 import * as compute from '../../client/compute'
 import * as StockDAO from '../../lib/db/StockDAO'
-import MarketWatch from '../../lib/stock/MarketWatch'
+import FreeRealTime from '../../lib/stock/FreeRealTime'
 import * as agGridUtils from '../../lib/util/agGridUtils'
 import * as stockCache from '../cache/stockCache'
 const JSONStream = require('JSONStream')
@@ -13,7 +13,7 @@ const router = new Router({
   prefix: STOCKS_URL_PREFIX
 })
 
-const marketWatch = new MarketWatch()
+const freeRealTime = new FreeRealTime()
 
 router.get('/symbols/:symbols', async (ctx: Context) => {
   const symbols = ctx.params.symbols.split(',')
@@ -47,7 +47,7 @@ router.get('/real-time-details/:symbols', async (ctx: Context) => {
   }
   const stocks = await StockDAO.listStocks(options)
   const realTimeDetailsPairs = await Promise.map(stocks, async (s: any) => {
-    const { realTimeDetails } = await marketWatch.getSummary(s.symbol)
+    const realTimeDetails = await freeRealTime.getRealTimeDetails(s.symbol)
     return [s.symbol, realTimeDetails]
   })
   ctx.body = realTimeDetailsPairs
@@ -75,8 +75,7 @@ router.post('/list', async (ctx: Context) => {
   const { asof, stats, totalStocks } = stockCache.getMetadata(params)
   let lastRow = totalStocks
   if (params && params.agGridRequest) {
-    // @ts-ignore
-    ({ funds: stocks, lastRow } = agGridUtils.applyRequest(stocks, params.agGridRequest))
+    ({ rows: stocks, lastRow } = agGridUtils.applyRequest(stocks, params.agGridRequest))
   }
   ctx.body = {
     stocks,
