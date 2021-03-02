@@ -1,7 +1,7 @@
 
 import { Promise } from 'bluebird'
 import * as _ from 'lodash'
-import moment from 'moment'
+import moment from 'moment-business-days'
 import puppeteer, { Browser } from 'puppeteer'
 import Semaphore from 'semaphore-async-await'
 import TokenDAO from '../db/TokenDAO'
@@ -120,11 +120,21 @@ export default class FreeRealTime implements StockProvider {
             responseType: 'json'
           }),
         http.asyncGet(
-          'https://app.quotemedia.com/datatool/getRecentTradesBySymbol.json',
+          'https://app.quotemedia.com/datatool/getHistoricTradesBySymbol.json',
           {
             params: {
-              symbol: symbol,
+              symbol,
               limit: 1000,
+              startDateTime: moment()
+                .startOf('day')
+                .prevBusinessDay()
+                .set({ hour: 9, minute: 30 })
+                .format(moment.HTML5_FMT.DATETIME_LOCAL_MS),
+              endDateTime: moment()
+                .startOf('day')
+                .prevBusinessDay()
+                .set({ hour: 16, minute: 0 })
+                .format(moment.HTML5_FMT.DATETIME_LOCAL_MS),
               token: (await this.getToken()).timeAndSales
             },
             responseType: 'json'

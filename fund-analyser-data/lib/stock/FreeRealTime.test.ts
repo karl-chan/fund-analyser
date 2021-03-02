@@ -103,7 +103,7 @@ describe('FreeRealTime', () => {
         estChange: expect.toBeNumber(),
         bidAskSpread: expect.toBePositive(),
         // apple is highly liquid stock, expect a trade every few seconds
-        longestTimeGap: expect.toBeWithin(0, 60)
+        longestTimeGap: expect.toBeWithin(0, 10)
       })
     })
   })
