@@ -40,7 +40,7 @@
     "eslint-plugin-promise": "4.2.1",
     "eslint-plugin-standard": "4.0.1",
     "eslint-plugin-vue": "7.0.1",
-    "pug": "3.0.0",
+    "pug": "3.0.1",
     "pug-plain-loader": "1.0.0",
     "strip-ansi": "6.0.0",
     "workbox-webpack-plugin": "5.1.4"
