@@ -89,7 +89,7 @@ export default class FreeRealTime implements StockProvider {
 
       const quote = res1.results.quote[0]
       const name = quote.equityinfo.longname
-      const marketCap = quote.fundamental ? +quote.fundamental.marketcap : NaN
+      const marketCap = quote.fundamental?.marketcap
 
       const priceData = quote.pricedata
       const estPrice = +priceData.last
