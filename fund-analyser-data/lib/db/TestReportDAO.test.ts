@@ -1,5 +1,5 @@
-import * as TestReportDAO from './TestReportDAO'
 import * as db from '../util/db'
+import * as TestReportDAO from './TestReportDAO'
 
 jest.setTimeout(30000) // 30 seconds
 
@@ -10,9 +10,9 @@ describe('TestReportDAO', function () {
   afterAll(async () => {
     await db.close()
   })
-  test('isPassing should return boolean', async () => {
+  test('isPassing should return true', async () => {
     const isPassing = await TestReportDAO.isPassing()
-    expect(isPassing).toBeBoolean()
+    expect(isPassing).toBeTrue()
   })
 
   test('getTestReport should return null or html', async () => {

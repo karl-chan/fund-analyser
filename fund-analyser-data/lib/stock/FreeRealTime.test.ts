@@ -26,31 +26,29 @@ describe('FreeRealTime', () => {
       const symbol = 'AAPL'
       const summary = {
         name: 'APPLE',
-        marketCap: 2_251_600_345_800
+        marketCap: 2_251_600_345_800,
+        realTimeDetails: {
+          estPrice: 351.7,
+          estChange: 0.0003,
+          bidAskSpread: 0.01,
+          longestTimeGap: 5,
+          lastUpdated: new Date(2017, 0, 1)
+        }
       }
       const historicPrices = [
         new Stock.HistoricPrice(new Date(2017, 0, 1), 457.0, 100000.0)
       ]
-      const realTimeDetails = {
-        estPrice: 351.7,
-        estChange: 0.0003,
-        bidAskSpread: 0.01,
-        longestTimeGap: 5,
-        lastUpdated: new Date(2017, 0, 1)
-      }
 
       jest.spyOn(freeRealTime, 'getSummary')
         .mockImplementation(async () => summary)
       jest.spyOn(freeRealTime, 'getHistoricPrices')
         .mockImplementation(async () => historicPrices)
-      jest.spyOn(freeRealTime, 'getRealTimeDetails')
-        .mockImplementation(async () => realTimeDetails)
 
       const expected = Stock.builder(symbol)
         .name(summary.name)
         .historicPrices(historicPrices)
         .asof(new Date(2017, 0, 1))
-        .realTimeDetails(realTimeDetails)
+        .realTimeDetails(summary.realTimeDetails)
         .marketCap(2_251_600_345_800)
         .build()
 
@@ -83,6 +81,13 @@ describe('FreeRealTime', () => {
       const summary = await freeRealTime.getSummary('AAPL')
       expect(summary.name).toEqual('Apple Inc.')
       expect(summary.marketCap).toBePositive()
+      expect(summary.realTimeDetails).toMatchObject({
+        estPrice: expect.toBeNumber(),
+        estChange: expect.toBeNumber(),
+        bidAskSpread: expect.toBePositive(),
+        // apple is highly liquid stock, expect a trade every few seconds
+        longestTimeGap: expect.toBeWithin(0, 10)
+      })
     })
 
     test('getHistoricPrices should return historic prices object', async () => {
@@ -93,17 +98,6 @@ describe('FreeRealTime', () => {
                         moment(hp.date).isValid() &&
                         hp.price !== 0 &&
                         typeof hp.volume === 'number' && !isNaN(hp.volume)
-      })
-    })
-
-    test('getRealTimeDetails should return bid-ask spread, longest time gap', async () => {
-      const realTimeDetails = await freeRealTime.getRealTimeDetails('AAPL')
-      expect(realTimeDetails).toMatchObject({
-        estPrice: expect.toBeNumber(),
-        estChange: expect.toBeNumber(),
-        bidAskSpread: expect.toBePositive(),
-        // apple is highly liquid stock, expect a trade every few seconds
-        longestTimeGap: expect.toBeWithin(0, 60)
       })
     })
   })

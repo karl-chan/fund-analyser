@@ -1,7 +1,7 @@
 
 import { Promise } from 'bluebird'
 import * as _ from 'lodash'
-import moment from 'moment'
+import moment from 'moment-business-days'
 import puppeteer, { Browser } from 'puppeteer'
 import Semaphore from 'semaphore-async-await'
 import TokenDAO from '../db/TokenDAO'
@@ -37,16 +37,15 @@ export default class FreeRealTime implements StockProvider {
   }
 
   async getStockFromSymbol (symbol: string) {
-    const [summary, historicPrices, realTimeDetails] = await Promise.all([
+    const [summary, historicPrices] = await Promise.all([
       this.getSummary(symbol),
-      this.getHistoricPrices(symbol),
-      this.getRealTimeDetails(symbol)
+      this.getHistoricPrices(symbol)
     ])
     return Stock.builder(symbol)
       .name(summary.name)
       .historicPrices(historicPrices)
       .asof(_.isEmpty(historicPrices) ? undefined : _.last(historicPrices).date)
-      .realTimeDetails(realTimeDetails)
+      .realTimeDetails(summary.realTimeDetails)
       .marketCap(summary.marketCap)
       .build()
   }
@@ -57,21 +56,71 @@ export default class FreeRealTime implements StockProvider {
 
   async getSummary (symbol: string) {
     try {
-      const url = 'https://app.quotemedia.com/datatool/getProfiles.json'
-      const { data } = await http.asyncGet(url, {
-        params: {
-          symbols: symbol,
-          token: (await this.getToken()).profile
-        },
-        responseType: 'json'
-      })
-      const { profile, symbolinfo } = data.results.company[0]
-      const name = symbolinfo[0].equityinfo.longname
-      const marketCap = profile.details.marketcap
+      const [{ data: res1 }, { data: res2 }] = await Promise.all([
+        http.asyncGet(
+          'https://app.quotemedia.com/datatool/getEnhancedQuotes.json',
+          {
+            params: {
+              symbols: symbol,
+              token: (await this.getToken()).quote
+            },
+            responseType: 'json'
+          }),
+        http.asyncGet(
+          'https://app.quotemedia.com/datatool/getHistoricTradesBySymbol.json',
+          {
+            params: {
+              symbol,
+              limit: 1000,
+              startDateTime: moment()
+                .startOf('day')
+                .prevBusinessDay()
+                .set({ hour: 9, minute: 30 })
+                .format(moment.HTML5_FMT.DATETIME_LOCAL_MS),
+              endDateTime: moment()
+                .startOf('day')
+                .prevBusinessDay()
+                .set({ hour: 16, minute: 0 })
+                .format(moment.HTML5_FMT.DATETIME_LOCAL_MS),
+              token: (await this.getToken()).timeAndSales
+            },
+            responseType: 'json'
+          })])
+
+      const quote = res1.results.quote[0]
+      const name = quote.equityinfo.longname
+      const marketCap = quote.fundamental?.marketcap
+
+      const priceData = quote.pricedata
+      const estPrice = +priceData.last
+      const estChange = +priceData.changepercent / 100
+
+      const tradeRows = res2.results.trades.trade
+      const tradeTimeGaps: number[] = _.zip(tradeRows.slice(0, -1), _.tail(tradeRows))
+        .map(([row1, row2]: any) => moment(row1.datetime).diff(moment(row2.datetime), 'seconds'))
+      const longestTimeGap = _.max(tradeTimeGaps)
+
+      const tradePriceMovements: number[] = _.zip(tradeRows.slice(0, -1), _.tail(tradeRows))
+        .map(([row1, row2]: any) => {
+          const p1 = row1.price
+          const p2 = row2.price
+          const absDiff = Math.abs(p1 - p2)
+          const midPrice = (p1 + p2) / 2
+          const pctMovement = absDiff / midPrice
+          return pctMovement
+        })
+      const bidAskSpread = _.max(tradePriceMovements)
 
       return {
         name,
-        marketCap
+        marketCap,
+        realTimeDetails: {
+          estPrice,
+          estChange,
+          bidAskSpread,
+          longestTimeGap,
+          lastUpdated: new Date()
+        }
       }
     } catch (err) {
       log.warn('Failed to retrieve FreeRealTime summary for symbol: %s. Cause: %s', symbol, err.stack)
@@ -104,62 +153,6 @@ export default class FreeRealTime implements StockProvider {
     } catch (err) {
       log.warn('Failed to retrieve FreeRealTime historic prices for symbol: %s. Cause: %s', symbol, err.stack)
       return []
-    }
-  }
-
-  async getRealTimeDetails (symbol: string) {
-    try {
-      const [{ data: res1 }, { data: res2 }] = await Promise.all([
-        http.asyncGet(
-          'https://app.quotemedia.com/datatool/getEnhancedQuotes.json',
-          {
-            params: {
-              symbols: symbol,
-              token: (await this.getToken()).quote
-            },
-            responseType: 'json'
-          }),
-        http.asyncGet(
-          'https://app.quotemedia.com/datatool/getRecentTradesBySymbol.json',
-          {
-            params: {
-              symbol: symbol,
-              limit: 1000,
-              token: (await this.getToken()).timeAndSales
-            },
-            responseType: 'json'
-          })])
-
-      const priceData = res1.results.quote[0].pricedata
-      const estPrice = +priceData.last
-      const estChange = +priceData.changepercent / 100
-
-      const tradeRows = res2.results.trades.trade
-      const tradeTimeGaps: number[] = _.zip(tradeRows.slice(0, -1), _.tail(tradeRows))
-        .map(([row1, row2]: any) => moment(row1.datetime).diff(moment(row2.datetime), 'seconds'))
-      const longestTimeGap = _.max(tradeTimeGaps)
-
-      const tradePriceMovements: number[] = _.zip(tradeRows.slice(0, -1), _.tail(tradeRows))
-        .map(([row1, row2]: any) => {
-          const p1 = row1.price
-          const p2 = row2.price
-          const absDiff = Math.abs(p1 - p2)
-          const midPrice = (p1 + p2) / 2
-          const pctMovement = absDiff / midPrice
-          return pctMovement
-        })
-      const bidAskSpread = _.max(tradePriceMovements)
-
-      return {
-        estPrice,
-        estChange,
-        bidAskSpread,
-        longestTimeGap,
-        lastUpdated: new Date()
-      }
-    } catch (err) {
-      log.warn('Failed to retrieve FreeRealTime bid-ask spread for symbol: %s. Cause: %s', symbol, err.stack)
-      return undefined
     }
   }
 

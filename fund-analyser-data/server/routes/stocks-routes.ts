@@ -47,7 +47,7 @@ router.get('/real-time-details/:symbols', async (ctx: Context) => {
   }
   const stocks = await StockDAO.listStocks(options)
   const realTimeDetailsPairs = await Promise.map(stocks, async (s: any) => {
-    const realTimeDetails = await freeRealTime.getRealTimeDetails(s.symbol)
+    const { realTimeDetails } = await freeRealTime.getSummary(s.symbol)
     return [s.symbol, realTimeDetails]
   })
   ctx.body = realTimeDetailsPairs
