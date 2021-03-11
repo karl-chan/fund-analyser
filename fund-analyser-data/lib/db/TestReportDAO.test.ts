@@ -10,11 +10,6 @@ describe('TestReportDAO', function () {
   afterAll(async () => {
     await db.close()
   })
-  test('isPassing should return true', async () => {
-    const isPassing = await TestReportDAO.isPassing()
-    expect(isPassing).toBeTrue()
-  })
-
   test('getTestReport should return null or html', async () => {
     const testReport = await TestReportDAO.getTestReport()
     expect(testReport).toInclude('<html>')
