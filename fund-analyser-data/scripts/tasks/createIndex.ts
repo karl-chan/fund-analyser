@@ -42,7 +42,7 @@ async function createStocksIndex () {
     await Promise.map(db.getStocks(), (stockDb: any) => stockDb.createIndex({ [col]: 1 }, { background: true }))
   }
   // text index for searching
-  await Promise.map(db.getStocks(), (stockDb: any) => stockDb.createIndex({ symbol: 'text', name: 'text' }, { background: true, weights: { symbol: 1, name: 1 } }))
+  await Promise.map(db.getStocks(), (stockDb: any) => stockDb.createIndex({ symbol: 'text', name: 'text' }, { background: true, weights: { name: 10, symbol: 5 } }))
   log.info('Created stock indexes')
 }
 

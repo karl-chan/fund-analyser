@@ -22,12 +22,13 @@ import FundsSummary from 'components/fund/FundsSummary'
 import FundsTable from 'components/fund/FundsTable'
 import FundWatchList from 'components/fund/FundWatchList'
 import SimilarFunds from 'components/fund/SimilarFunds'
+import CompositeSearch from 'components/misc/CompositeSearch'
 import Healthcheck from 'components/misc/Healthcheck'
 import TipOfTheDay from 'components/misc/TipOfTheDay'
 import SimulateRequest from 'components/simulate/SimulateRequest'
+import SimulateResponse from 'components/simulate/SimulateResponse'
 import SimulateResponseFooter from 'components/simulate/SimulateResponseFooter'
 import SimulateResponseModal from 'components/simulate/SimulateResponseModal'
-import SimulateResponse from 'components/simulate/SimulateResponse'
 import StockSearch from 'components/stock/StockSearch'
 import StocksSummary from 'components/stock/StocksSummary'
 import StocksTable from 'components/stock/StocksTable'
@@ -72,6 +73,7 @@ export default ({ Vue }) => {
   Vue.component('simulate-response-footer', SimulateResponseFooter)
   Vue.component('simulate-response-modal', SimulateResponseModal)
 
+  Vue.component('composite-search', CompositeSearch)
   Vue.component('healthcheck', Healthcheck)
   Vue.component('tip-of-the-day', TipOfTheDay)
 
