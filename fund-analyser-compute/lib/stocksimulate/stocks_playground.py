@@ -90,14 +90,14 @@ class AbsRisingEntryStrategy(StockStrategy):
 class AboveMaxEntryStrategy(StockStrategy):
     @overrides
     def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
-        max_prices_df = prices_df.loc[:dt, :].max()
+        max_prices_df = prices_df.loc[:dt, :].max()  # type: ignore
         return prices_df.loc[dt, :].eq(max_prices_df).astype('int').to_dict()
 
 
 class BelowMaxExitStrategy(StockStrategy):
     @overrides
     def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
-        max_prices_df = prices_df.loc[:dt, :].max()
+        max_prices_df = prices_df.loc[:dt, :].max()  # type: ignore
         return prices_df.loc[dt, :].lt(max_prices_df).astype('int').to_dict()
 
 
