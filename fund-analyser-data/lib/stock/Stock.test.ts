@@ -34,9 +34,9 @@ describe('Stock', function () {
     expect(stock.isValid()).toBeTrue()
   })
   test('isValid should return false for stock without name', () => {
-    const undefinedNameStock = new Stock(symbol, undefined, [], {}, undefined, undefined, undefined, undefined)
-    const nullNameStock = new Stock(symbol, null, [], {}, undefined, undefined, undefined, undefined)
-    const emptyNameStock = new Stock(symbol, '', [], {}, undefined, undefined, undefined, undefined)
+    const undefinedNameStock = new Stock(symbol, undefined, [], {}, undefined, undefined, undefined, undefined, undefined)
+    const nullNameStock = new Stock(symbol, null, [], {}, undefined, undefined, undefined, undefined, undefined)
+    const emptyNameStock = new Stock(symbol, '', [], {}, undefined, undefined, undefined, undefined, undefined)
     expect([undefinedNameStock, nullNameStock, emptyNameStock]).toSatisfyAll(f => !f.isValid())
   })
 
