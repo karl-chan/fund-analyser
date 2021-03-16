@@ -10,6 +10,7 @@ from lib.stocksimulate.broker.stock_broker import StockBroker
 from lib.stocksimulate.stock_history import TradeHistory
 from lib.stocksimulate.stock_trade import StockAction, StockSide
 from lib.stocksimulate.strategy.stock_strategy import StockStrategy
+from lib.util.dates import BDAY
 
 
 class StockSimulator:
@@ -31,7 +32,7 @@ class StockSimulator:
 
     def run(self,
             start_date: date = (date.today() - pd.DateOffset(years=5)).date(),
-            end_date: date = date.today()) -> Tuple[pd.DataFrame, TradeHistory]:
+            end_date: date = date.today() - BDAY) -> Tuple[pd.DataFrame, TradeHistory]:
         cash = self._initial_cash
         curr_holdings: Dict[str, float] = defaultdict(float)
         history: TradeHistory = defaultdict(list)

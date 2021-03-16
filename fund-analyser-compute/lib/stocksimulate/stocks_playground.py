@@ -87,6 +87,20 @@ class AbsRisingEntryStrategy(StockStrategy):
         return pct_change.gt(0).astype('int').to_dict()
 
 
+class AboveMaxEntryStrategy(StockStrategy):
+    @overrides
+    def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
+        max_prices_df = prices_df.loc[:dt, :].max()
+        return prices_df.loc[dt, :].eq(max_prices_df).astype('int').to_dict()
+
+
+class BelowMaxExitStrategy(StockStrategy):
+    @overrides
+    def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
+        max_prices_df = prices_df.loc[:dt, :].max()
+        return prices_df.loc[dt, :].lt(max_prices_df).astype('int').to_dict()
+
+
 class AbsFallingExitStrategy(StockStrategy):
     @overrides
     def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
@@ -561,7 +575,7 @@ if __name__ == "__main__":
     start_date = datetime(2020, 1, 2)
     stock_simulator = StockSimulator(
         symbols=symbols,
-        entry_strategy=WorstFallEntryStrategy(),  # BollingerLowEntryStrategy(),
+        entry_strategy=WorstFallEntryStrategy(),  # AboveMaxEntryStrategy(),  # BollingerLowEntryStrategy(),
         exit_strategy=HoldingDaysExitStrategy(),  # TrailingExitStrategy(),
         broker=Trading212()
     )

@@ -31,6 +31,7 @@ export function toStock (entry: any) {
   builder = _.isNil(entry.indicators) ? builder : builder.indicators(entry.indicators)
   builder = _.isNil(entry.realTimeDetails) ? builder : builder.realTimeDetails(entry.realTimeDetails)
   builder = _.isNil(entry.marketCap) ? builder : builder.marketCap(entry.marketCap)
+  builder = _.isNil(entry.yld) ? builder : builder.yld(entry.yld)
   if (!_.isNil(entry.historicPrices)) {
     builder = builder.historicPrices(entry.historicPrices.map((e: any) => new Stock.HistoricPrice(e.date, e.price, e.volume)))
   }

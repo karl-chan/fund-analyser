@@ -8,7 +8,7 @@
           q-item-section
             q-item-label.text-weight-medium Fund Analyser
             q-item-label(caption).text-white Your mutual funds toolkit
-      fund-search.absolute-center(placeholder="Start typing a fund name" @input="onFundSelect")
+      composite-search.absolute-center(placeholder="Search fund / stock" @input="onSelection")
       q-btn.q-mr-lg(v-if="isLoggedIn" flat dense size="lg" icon="perm_device_information" @click="activeSessionsOpen = true")
         active-sessions(:open.sync="activeSessionsOpen")
         q-tooltip Active Sessions
@@ -48,9 +48,11 @@ export default {
         this.$utils.router.redirectToLogin()
       }
     },
-    onFundSelect (isin) {
+    onSelection ({ isin, symbol }) {
       if (isin) {
         this.$utils.router.redirectToFund(isin)
+      } else if (symbol) {
+        this.$utils.router.redirectToStock(symbol)
       }
     }
   }
