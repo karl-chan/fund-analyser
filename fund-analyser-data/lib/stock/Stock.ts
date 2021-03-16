@@ -27,7 +27,8 @@ class Stock {
       longestTimeGap: 'number',
       lastUpdated: 'Date'
     },
-    marketCap: 'number'
+    marketCap: 'number',
+    yld: 'number'
   }
 
   asof: Date
@@ -38,8 +39,9 @@ class Stock {
   returns: Stock.Returns
   symbol: string
   marketCap: number
+  yld: number
 
-  constructor (symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, marketCap: number) {
+  constructor (symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, marketCap: number, yld: number) {
     this.symbol = symbol
     this.name = name
     this.historicPrices = historicPrices
@@ -48,6 +50,7 @@ class Stock {
     this.indicators = indicators
     this.realTimeDetails = realTimeDetails
     this.marketCap = marketCap
+    this.yld = yld
   }
 
   static builder (symbol: string) {
@@ -91,6 +94,7 @@ namespace Stock {
     _returns: Returns
     _symbol: string
     _marketCap: number
+    _yld: number
     constructor (symbol: string) {
       this._symbol = symbol
     }
@@ -135,8 +139,13 @@ namespace Stock {
       return this
     }
 
+    yld (yld: number) {
+      this._yld = yld
+      return this
+    }
+
     build () {
-      return new Stock(this._symbol, this._name, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails, this._marketCap)
+      return new Stock(this._symbol, this._name, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails, this._marketCap, this._yld)
     }
   }
 

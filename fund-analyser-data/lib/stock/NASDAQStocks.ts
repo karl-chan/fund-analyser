@@ -51,6 +51,7 @@ export default class NASDAQStocks implements StockProvider {
       .asof(_.isEmpty(historicPrices) ? undefined : _.last(historicPrices).date)
       .realTimeDetails(realTimeDetails)
       .marketCap(summary.marketCap)
+      .yld(summary.yld)
       .build()
   }
 
@@ -60,15 +61,24 @@ export default class NASDAQStocks implements StockProvider {
 
   async getSummary (symbol: string) {
     try {
-      const url = `https://api.nasdaq.com/api/quote/${symbol}/info?assetclass=stocks`
-      const { data } = await http.asyncGet(url,
-        { responseType: 'json' })
-      const name = data.data.companyName.replace(/(.+) Common Stock/, '$1')
-      const marketCap = +data.data.keyStats.MarketCap.value.replace(/,/g, '')
+      const [{ data: res1 }, { data: res2 }] = await Promise.all([
+        http.asyncGet(
+          `https://api.nasdaq.com/api/quote/${symbol}/info?assetclass=stocks`,
+          { responseType: 'json' }),
+        http.asyncGet(
+          `https://api.nasdaq.com/api/quote/${symbol}/dividends?assetclass=stocks`,
+          { responseType: 'json' })
+      ])
+      const name = res1.data.companyName.replace(/(.+) Common Stock/, '$1')
+      const marketCap = +res1.data.keyStats.MarketCap.value.replace(/,/g, '')
+      const yld = res2.data.yield === 'N/A'
+        ? 0
+        : +res2.data.yield.replace(/(.+)%/, '$1') / 100
 
       return {
         name,
-        marketCap
+        marketCap,
+        yld
       }
     } catch (err) {
       log.warn('Failed to retrieve NASDAQStocks summary for symbol: %s. Cause: %s', symbol, err.stack)

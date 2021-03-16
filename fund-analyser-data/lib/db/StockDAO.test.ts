@@ -27,6 +27,7 @@ describe('StockDAO', function () {
       })
       .realTimeDetails({ estChange: 0.01, estPrice: 457.0, bidAskSpread: 0.01, longestTimeGap: 5, lastUpdated: new Date(2017, 3, 23) })
       .marketCap(1_000_000)
+      .yld(0.00661)
       .build()
     doc = {
       _id: 'test',
@@ -43,7 +44,8 @@ describe('StockDAO', function () {
         stability: -3
       },
       realTimeDetails: { estChange: 0.01, estPrice: 457.0, bidAskSpread: 0.01, longestTimeGap: 5, lastUpdated: new Date(2017, 3, 23) },
-      marketCap: 1_000_000
+      marketCap: 1_000_000,
+      yld: 0.00661
     }
   })
   test('fromStock should return plain object', function () {
