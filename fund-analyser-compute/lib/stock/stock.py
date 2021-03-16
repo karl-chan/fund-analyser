@@ -52,6 +52,7 @@ class Stock(NamedTuple):
     indicators: Optional[StockIndicators] = None
     realTimeDetails: Optional[StockRealTimeDetails] = None
     marketCap: Optional[float] = None
+    yld: Optional[float] = None
 
     @classmethod
     def from_dict(cls, d: Dict) -> Stock:

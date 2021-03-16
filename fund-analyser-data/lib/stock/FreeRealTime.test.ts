@@ -27,6 +27,7 @@ describe('FreeRealTime', () => {
       const summary = {
         name: 'APPLE',
         marketCap: 2_251_600_345_800,
+        yld: 0.00661,
         realTimeDetails: {
           estPrice: 351.7,
           estChange: 0.0003,
@@ -50,6 +51,7 @@ describe('FreeRealTime', () => {
         .asof(new Date(2017, 0, 1))
         .realTimeDetails(summary.realTimeDetails)
         .marketCap(2_251_600_345_800)
+        .yld(0.00661)
         .build()
 
       const actual = await freeRealTime.getStockFromSymbol(symbol)
@@ -81,6 +83,7 @@ describe('FreeRealTime', () => {
       const summary = await freeRealTime.getSummary('AAPL')
       expect(summary.name).toEqual('Apple Inc.')
       expect(summary.marketCap).toBePositive()
+      expect(summary.yld).toBeWithin(0, 1)
       expect(summary.realTimeDetails).toMatchObject({
         estPrice: expect.toBeNumber(),
         estChange: expect.toBeNumber(),

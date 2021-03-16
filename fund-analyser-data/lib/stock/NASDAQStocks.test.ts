@@ -19,7 +19,8 @@ describe('NASDAQStocks', () => {
       const symbol = 'AAPL'
       const summary = {
         name: 'APPLE',
-        marketCap: 2_251_600_345_800
+        marketCap: 2_251_600_345_800,
+        yld: 0.00661
       }
       const historicPrices = [
         new Stock.HistoricPrice(new Date(2017, 0, 1), 457.0, 100000.0)
@@ -45,6 +46,7 @@ describe('NASDAQStocks', () => {
         .asof(new Date(2017, 0, 1))
         .realTimeDetails(realTimeDetails)
         .marketCap(2_251_600_345_800)
+        .yld(0.00661)
         .build()
 
       const actual = await nasdaqStocks.getStockFromSymbol(symbol)
@@ -76,6 +78,7 @@ describe('NASDAQStocks', () => {
       const summary = await nasdaqStocks.getSummary('AAPL')
       expect(summary.name).toEqual('Apple Inc.')
       expect(summary.marketCap).toBeNumber()
+      expect(summary.yld).toBeWithin(0, 1)
     })
 
     test('getHistoricPrices should return historic prices object', async () => {

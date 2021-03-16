@@ -36,7 +36,8 @@ export function enrichSummary (summary: Stock[]) {
       'returns.+1D': colourAroundZero(), // include +1D
       'realTimeDetails.bidAskSpread': colourAroundMedian({ desc: true }),
       'realTimeDetails.longestTimeGap': colourAroundMedian({ desc: true }),
-      marketCap: colourAroundMedian()
+      marketCap: colourAroundMedian(),
+      yld: colourAroundMedian()
     }
     for (const name of Object.keys(summary[0].indicators || {})) {
       colourOptions[`indicators.${name}.value`] = colourAroundZero()

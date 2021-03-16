@@ -47,6 +47,7 @@ export default class FreeRealTime implements StockProvider {
       .asof(_.isEmpty(historicPrices) ? undefined : _.last(historicPrices).date)
       .realTimeDetails(summary.realTimeDetails)
       .marketCap(summary.marketCap)
+      .yld(summary.yld)
       .build()
   }
 
@@ -90,6 +91,7 @@ export default class FreeRealTime implements StockProvider {
       const quote = res1.results.quote[0]
       const name = quote.equityinfo.longname
       const marketCap = quote.fundamental?.marketcap
+      const yld = quote.fundamental?.dividend?.yield / 100
 
       const priceData = quote.pricedata
       const estPrice = +priceData.last
@@ -114,6 +116,7 @@ export default class FreeRealTime implements StockProvider {
       return {
         name,
         marketCap,
+        yld,
         realTimeDetails: {
           estPrice,
           estChange,

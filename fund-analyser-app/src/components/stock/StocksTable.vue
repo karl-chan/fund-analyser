@@ -150,15 +150,16 @@ export default {
           })
         },
         { headerName: 'Market Cap', field: 'marketCap', width: 70 },
+        { headerName: 'Dividend Yield', field: 'yld', width: 70 },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ]
 
       const colourFields = new Set(
-        ['realTimeDetails.bidAskSpread', 'realTimeDetails.longestTimeGap', 'marketCap']
+        ['realTimeDetails.bidAskSpread', 'realTimeDetails.longestTimeGap', 'marketCap', 'yld']
           .concat(extendedPeriods.map(period => `returns.${period}`))
           .concat(this.getIndicatorKeys()))
       const percentFields = new Set(
-        ['realTimeDetails.bidAskSpread']
+        ['yld', 'realTimeDetails.bidAskSpread']
           .concat(extendedPeriods.map(period => `returns.${period}`))
           .concat(this.getIndicatorKeys('percent')))
       const numberFields = new Set(
@@ -368,6 +369,7 @@ export default {
             case 'returns.1W':
             case 'returns.3D':
             case 'returns.1D':
+            case 'yld':
             case 'realTimeDetails.bidAskSpread': return this.percentFormatter(params, '')
             default: return params.value
           }
