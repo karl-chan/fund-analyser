@@ -18,5 +18,10 @@ if __name__ == "__main__":
             "LU0827884411",
         ]
     )
+
+    # simulator = Simulator(
+    #     strategy=MaxHistoricReturns()
+    # )
+
     results = simulator.run()
     Simulator.describe_and_plot(results)
