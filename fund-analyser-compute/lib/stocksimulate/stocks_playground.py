@@ -1,5 +1,3 @@
-# noinspection PyUnresolvedReferences
-import _tkinter
 import logging
 import sys
 from datetime import date, datetime
@@ -125,6 +123,8 @@ class HoldingDaysExitStrategy(StockStrategy):
 
 def _describe_and_plot(account: pd.DataFrame) -> None:
     # set display mode and suppress useless warnings
+    # noinspection PyUnresolvedReferences
+    import _tkinter
     matplotlib.use("Qt5Agg" if sys.platform == "darwin" else "TkAgg")
     logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
 

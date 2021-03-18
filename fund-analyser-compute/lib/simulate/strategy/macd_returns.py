@@ -38,11 +38,3 @@ class MacdReturns(Strategy):
         self._slow_ppo, self._slow_pposignal, self._slow_ppohist = ppo(data.prices_df, fast=20, slow=60)
         self._fast_ppo, self._fast_pposignal, self._fast_ppohist = ppo(data.prices_df, fast=3, slow=6)
         self._num_portfolio = data.num_portfolio
-
-
-if __name__ == "__main__":
-    simulator = Simulator(
-        strategy=MacdReturns(),
-    )
-    results = simulator.run()
-    Simulator.describe_and_plot(results)

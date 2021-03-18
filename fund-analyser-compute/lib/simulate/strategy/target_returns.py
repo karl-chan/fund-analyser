@@ -9,7 +9,6 @@ from overrides import overrides
 from lib.indicators.indicator_utils import price_channels
 from lib.simulate.simulator import Simulator
 from lib.simulate.strategy.strategy import Strategy
-from lib.simulate.tiebreaker.max_upside_tie_breaker import MaxUpsideTieBreaker
 
 
 class TargetReturns(Strategy):
@@ -33,12 +32,3 @@ class TargetReturns(Strategy):
         lower_channel, upper_channel = price_channels(data.prices_df, timeperiod=time_period_1m)
         upsides = (upper_channel - data.prices_df) / data.prices_df
         self.has_upside = upsides.ge(self._target_returns)
-
-
-if __name__ == "__main__":
-    simulator = Simulator(
-        strategy=TargetReturns(),
-        tie_breaker=MaxUpsideTieBreaker(),
-    )
-    results = simulator.run()
-    Simulator.describe_and_plot(results)

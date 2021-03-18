@@ -59,11 +59,3 @@ class PriceChannelReturns(Strategy):
         self._lower_channel, self._upper_channel = price_channels(data.prices_df, timeperiod=25)
         self._btw_channel = (self._lower_channel < data.prices_df) & (data.prices_df < self._upper_channel)
         self._daily_returns = data.prices_df.pct_change()
-
-
-if __name__ == "__main__":
-    simulator = Simulator(
-        strategy=PriceChannelReturns(),
-    )
-    results = simulator.run()
-    Simulator.describe_and_plot(results)

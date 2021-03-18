@@ -61,11 +61,3 @@ class FibonacciReturns(Strategy):
         # sr = support_resistance(smoothed_prices)
         self._rising = smoothed_prices.diff().gt(0)
         self._gap_prices_pct = (self._prev_resistance_prices - self._prev_support_prices) / self._prev_support_prices
-
-
-if __name__ == "__main__":
-    simulator = Simulator(
-        strategy=FibonacciReturns(),
-    )
-    results = simulator.run()
-    Simulator.describe_and_plot(results)

@@ -216,6 +216,8 @@ class Simulator:
         print(f"Min sharpe ratio: {min_sharpe_ratio.sharpe_ratio} Begin date: {min_sharpe_ratio.start_date}")
 
         # set display mode and suppress useless warnings
+        # noinspection PyUnresolvedReferences
+        import _tkinter
         matplotlib.use("Qt5Agg" if sys.platform == "darwin" else "TkAgg")
         logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
 
@@ -232,4 +234,5 @@ class Simulator:
         # account line series
         min_returns.account.loc[:, ["value"]].plot(title=f"Min returns series. Begin date: {min_returns.start_date}")
         max_returns.account.loc[:, ["value"]].plot(title=f"Max returns series. Begin date: {max_returns.start_date}")
+
         plt.show()

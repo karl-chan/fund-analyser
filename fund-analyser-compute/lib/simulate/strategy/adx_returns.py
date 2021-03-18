@@ -46,11 +46,3 @@ class AdxReturns(Strategy):
         diff_dis_sign = diff_dis.gt(0)
         diff_dis_grad = diff_dis.diff()
         self._diff_dis_grad_sign = diff_dis_grad.gt(0)
-
-
-if __name__ == "__main__":
-    simulator = Simulator(
-        strategy=AdxReturns()
-    )
-    results = simulator.run()
-    Simulator.describe_and_plot(results)
