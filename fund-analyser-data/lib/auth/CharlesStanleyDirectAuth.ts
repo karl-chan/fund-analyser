@@ -53,7 +53,8 @@ export default class CharlesStanleyDirectAuth {
       const { status } = await http.asyncGet(this.getChangeInValuePerAccountUrl, {
         jar,
         withCredentials: true,
-        maxRedirects: 0
+        maxRedirects: 0,
+        validateStatus: null
       })
       return status === 200
     }

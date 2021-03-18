@@ -34,4 +34,10 @@ describe('CharlesStanleyDirectAuth', () => {
         .toHaveProperty('message', 'Incorrect username or password')
     }
   })
+
+  test('isLoggedIn should return false when logged out', async () => {
+    const jar = new CookieJar()
+    const isLoggedIn = await csdAuth.isLoggedIn({ jar })
+    expect(isLoggedIn).toBeFalse()
+  })
 })
