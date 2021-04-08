@@ -61,7 +61,7 @@ class WorstFallEntryStrategy(StockStrategy):
     @overrides
     def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
         log_debug(f"HighestRisingEntryStrategy for date: {dt}")
-        return prices_df.pct_change(20).loc[dt, :].nsmallest(10).lt(0).astype('int').to_dict()
+        return prices_df.pct_change(10).loc[dt, :].nsmallest(10).lt(0).astype('int').to_dict()
 
 
 class HighestRiseEntryStrategy(StockStrategy):
@@ -572,7 +572,7 @@ if __name__ == "__main__":
     prices_df, volume_df = stock_cache.get_prices(symbols=None)
     symbols = intersection(prices_df.columns, trading212_symbols)
 
-    start_date = datetime(2020, 1, 2)
+    start_date = datetime(2017, 1, 2)
     stock_simulator = StockSimulator(
         symbols=symbols,
         entry_strategy=WorstFallEntryStrategy(),  # AboveMaxEntryStrategy(),  # BollingerLowEntryStrategy(),
