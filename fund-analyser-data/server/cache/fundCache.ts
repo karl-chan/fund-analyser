@@ -78,16 +78,7 @@ export function shutdown () {
 function buildQuickFilterCache (funds: Fund[]) {
   const cache: {[isin: string]: string} = {}
   funds.forEach(f => {
-    let str = ''
-    for (const v of Object.values(f)) {
-      switch (typeof v) {
-        case 'object':
-          str += JSON.stringify(v)
-          break
-        default:
-          str += v
-      }
-    }
+    const str = `${f.isin}|${f.name}`
     cache[f.isin] = str.toLowerCase()
   })
   return cache

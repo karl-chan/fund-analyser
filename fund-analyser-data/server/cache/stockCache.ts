@@ -79,16 +79,7 @@ export function shutdown () {
 function buildQuickFilterCache (stocks: Stock[]) {
   const cache: {[symbol:string]: string} = {}
   stocks.forEach(s => {
-    let str = ''
-    for (const v of Object.values(s)) {
-      switch (typeof v) {
-        case 'object':
-          str += JSON.stringify(v)
-          break
-        default:
-          str += v
-      }
-    }
+    const str = `${s.symbol}|${s.name}`
     cache[s.symbol] = str.toLowerCase()
   })
   return cache
