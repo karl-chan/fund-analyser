@@ -14,8 +14,11 @@ router.get('/supported', async (ctx: Context) => {
 })
 
 router.get('/get', async (ctx: Context) => {
-  const { pairs } = ctx.request.query
-  const currencies = pairs ? await CurrencyDAO.listCurrencies(pairs.trim().split(',')) : []
+  let { pairs } = ctx.request.query
+  if (typeof pairs === 'string') {
+    pairs = pairs.trim().split(',')
+  }
+  const currencies = pairs ? await CurrencyDAO.listCurrencies(pairs) : []
   ctx.body = currencies
 })
 
