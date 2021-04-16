@@ -3,7 +3,9 @@ import * as FundDAO from '../../lib/db/FundDAO'
 import Fund from '../../lib/fund/Fund'
 import * as fundUtils from '../../lib/util/fundUtils'
 import log from '../../lib/util/log'
+import * as tmp from '../../lib/util/tmp'
 const REFRESH_INTERVAL = moment.duration(15, 'minutes')
+const FILE_TMP_CACHE = 'fundCache'
 
 interface Metadata {
     asof: {
@@ -65,9 +67,18 @@ function getAsOfDate () {
   return today.isBusinessDay() ? today.toDate() : today.prevBusinessDay().toDate()
 }
 
-export async function start () {
+export async function start (clean: boolean) {
   log.info('Warming up fund cache.')
-  await refresh()
+  if (clean) {
+    await refresh()
+  } else {
+    try {
+      await loadFromFile()
+    } catch (ignored) {
+      await refresh()
+      await saveToFile()
+    }
+  }
   refreshTask = setInterval(refresh, REFRESH_INTERVAL.asMilliseconds())
 }
 
@@ -107,4 +118,19 @@ function checkRunning () {
 
 function isUpToDate (f: Fund, asofDate: Date) {
   return f.asof && f.asof.getTime() === asofDate.getTime()
+}
+
+async function loadFromFile () {
+  ({ fundCache, quickFilterCache, metadata } = await tmp.read(FILE_TMP_CACHE))
+  for (const row of fundCache) {
+    row.asof = new Date(row.asof)
+  }
+  metadata.asof.date = new Date(metadata.asof.date)
+  log.info('Fund cache loaded from file.')
+}
+
+async function saveToFile () {
+  const bundle = { fundCache, quickFilterCache, metadata }
+  await tmp.write(FILE_TMP_CACHE, bundle, REFRESH_INTERVAL.asSeconds())
+  log.info('Fund cache saved to file.')
 }

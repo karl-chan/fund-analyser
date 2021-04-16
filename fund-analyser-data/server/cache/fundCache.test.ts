@@ -16,9 +16,9 @@ describe('fundCache', () => {
     })
   })
 
-  describe('after cache is populated', () => {
+  describe.each([true, false])('after cache is populated from clean boot: %s', (clean: any) => {
     beforeAll(async () => {
-      await fundCache.start()
+      await fundCache.start(clean)
     })
     afterAll(async () => {
       fundCache.shutdown()

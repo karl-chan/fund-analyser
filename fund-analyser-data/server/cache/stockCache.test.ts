@@ -16,9 +16,9 @@ describe('stockCache', () => {
     })
   })
 
-  describe('after cache is populated', () => {
+  describe.each([true, false])('after cache is populated from clean boot: %s', (clean: any) => {
     beforeAll(async () => {
-      await stockCache.start()
+      await stockCache.start(clean)
     })
     afterAll(async () => {
       stockCache.shutdown()

@@ -93,10 +93,10 @@ const main = async () => {
 
     await Promise.all([
       fundCache
-        .start()
+        .start(env.isProduction())
         .then(() => log.info(`Started fund cache in [${timer.split()}].`)),
       stockCache
-        .start()
+        .start(env.isProduction())
         .then(() => log.info(`Started stock cache in [${timer.split()}].`))
     ])
   } catch (err) {

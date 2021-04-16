@@ -3,8 +3,10 @@ import * as StockDAO from '../../lib/db/StockDAO'
 import Stock from '../../lib/stock/Stock'
 import log from '../../lib/util/log'
 import * as stockUtils from '../../lib/util/stockUtils'
+import * as tmp from '../../lib/util/tmp'
 
 const REFRESH_INTERVAL = moment.duration(15, 'minutes')
+const FILE_TMP_CACHE = 'stockCache'
 
 interface Metadata {
     asof: {
@@ -66,9 +68,18 @@ function getAsOfDate () {
   return today.isBusinessDay() ? today.toDate() : today.prevBusinessDay().toDate()
 }
 
-export async function start () {
+export async function start (clean: boolean) {
   log.info('Warming up stock cache.')
-  await refresh()
+  if (clean) {
+    await refresh()
+  } else {
+    try {
+      await loadFromFile()
+    } catch (ignored) {
+      await refresh()
+      await saveToFile()
+    }
+  }
   refreshTask = setInterval(refresh, REFRESH_INTERVAL.asMilliseconds())
 }
 
@@ -108,4 +119,19 @@ function checkRunning () {
 
 function isUpToDate (s: any, asofDate: any) {
   return s.asof && s.asof.getTime() === asofDate.getTime()
+}
+
+async function loadFromFile () {
+  ({ stockCache, quickFilterCache, metadata } = await tmp.read(FILE_TMP_CACHE))
+  for (const row of stockCache) {
+    row.asof = new Date(row.asof)
+  }
+  metadata.asof.date = new Date(metadata.asof.date)
+  log.info('Stock cache loaded from file.')
+}
+
+async function saveToFile () {
+  const bundle = { stockCache, quickFilterCache, metadata }
+  await tmp.write(FILE_TMP_CACHE, bundle, REFRESH_INTERVAL.asSeconds())
+  log.info('Stock cache saved to file.')
 }
