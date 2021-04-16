@@ -240,19 +240,19 @@ export default {
         const isFavourite = this.fundWatchlist.includes(isin)
         const fundContextMenuItems = isFavourite
           ? [{
-            name: 'Remove from watch list',
-            icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
-            action: () => {
-              params.context.removeFromFundWatchlist(isin)
-            }
-          }]
+              name: 'Remove from watch list',
+              icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
+              action: () => {
+                params.context.removeFromFundWatchlist(isin)
+              }
+            }]
           : [{
-            name: 'Add to watch list',
-            icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
-            action: () => {
-              params.context.addToFundWatchlist(isin)
-            }
-          }]
+              name: 'Add to watch list',
+              icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
+              action: () => {
+                params.context.addToFundWatchlist(isin)
+              }
+            }]
         contextMenu = [...fundContextMenuItems, 'separator', ...contextMenu]
       }
       return contextMenu

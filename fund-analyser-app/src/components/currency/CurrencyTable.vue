@@ -144,21 +144,21 @@ export default {
         const symbol = `${base}${quote}`
         const currencyContextMenuItems = this.isFavourite(params)
           ? [{
-            name: 'Remove from favourites',
-            icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
-            action: async () => {
-              await params.context.removeFromFavouriteCurrencies(symbol)
-              params.api.redrawRows()
-            }
-          }]
+              name: 'Remove from favourites',
+              icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
+              action: async () => {
+                await params.context.removeFromFavouriteCurrencies(symbol)
+                params.api.redrawRows()
+              }
+            }]
           : [{
-            name: 'Add to favourites',
-            icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
-            action: async () => {
-              await params.context.addToFavouriteCurrencies(symbol)
-              params.api.redrawRows()
-            }
-          }]
+              name: 'Add to favourites',
+              icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
+              action: async () => {
+                await params.context.addToFavouriteCurrencies(symbol)
+                params.api.redrawRows()
+              }
+            }]
         contextMenu = [...currencyContextMenuItems, 'separator', ...contextMenu]
       }
       return contextMenu
