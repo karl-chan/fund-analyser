@@ -167,7 +167,7 @@ export default class FreeRealTime implements StockProvider {
       try {
         if (!this.cachedToken || moment.utc().isAfter(this.cachedToken.expiry)) {
           this.cachedToken = await TokenDAO.getFreeRealTimeToken()
-          log.info('Got free real time token: %j', this.cachedToken)
+          log.debug('Got free real time token: %j', this.cachedToken)
         }
       } finally {
         this.mutex.release()
