@@ -137,7 +137,10 @@ export default class FreeRealTime implements StockProvider {
       const { data } = await http.asyncGet(url, {
         params: {
           symbol: symbol,
-          start: moment.utc().subtract(this.maxLookbackYears, 'years').format('YYYY-MM-DD'),
+          start: moment.utc()
+            .subtract(this.maxLookbackYears, 'years')
+            .subtract(1, 'week') // add one more week of leeway for calculating 5Y returns
+            .format('YYYY-MM-DD'),
           end: moment.utc().format('YYYY-MM-DD'),
           token: (await this.getToken()).historical
         },
