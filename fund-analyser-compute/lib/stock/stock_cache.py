@@ -10,7 +10,7 @@ from lib.util.dates import BDAY
 from lib.util.disk import read_from_disk, write_to_disk
 from lib.util.logging_utils import log_debug, log_info, log_warning
 
-EXPIRY = BDAY
+EXPIRY = 2 * BDAY
 _PICKLE_STOCK_CACHE = "stock_cache.pickle"
 
 _stock_cache: Dict[str, Stock] = dict()

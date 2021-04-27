@@ -29,7 +29,6 @@ async function refresh () {
   log.info('Refreshing fund cache...')
   fundCache = await FundDAO.listFunds(options)
   refreshMetadata()
-  saveToFile() // don't await to speed up 500ms
   log.info('Fund cache refreshed.')
 }
 
@@ -68,17 +67,16 @@ function getAsOfDate () {
   return today.isBusinessDay() ? today.toDate() : today.prevBusinessDay().toDate()
 }
 
-export async function start (clean = false) {
+export async function start (clean: boolean) {
   log.info('Warming up fund cache.')
   if (clean) {
-    // clean boot
     await refresh()
   } else {
-    // try load from cache
     try {
       await loadFromFile()
-    } catch (err) {
+    } catch (ignored) {
       await refresh()
+      await saveToFile()
     }
   }
   refreshTask = setInterval(refresh, REFRESH_INTERVAL.asMilliseconds())
@@ -91,16 +89,7 @@ export function shutdown () {
 function buildQuickFilterCache (funds: Fund[]) {
   const cache: {[isin: string]: string} = {}
   funds.forEach(f => {
-    let str = ''
-    for (const v of Object.values(f)) {
-      switch (typeof v) {
-        case 'object':
-          str += JSON.stringify(v)
-          break
-        default:
-          str += v
-      }
-    }
+    const str = `${f.isin}|${f.name}`
     cache[f.isin] = str.toLowerCase()
   })
   return cache

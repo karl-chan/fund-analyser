@@ -31,7 +31,6 @@ async function refresh () {
   log.info('Refreshing stock cache...')
   stockCache = await StockDAO.listStocks(options)
   refreshMetadata()
-  saveToFile() // don't await to speed up 500ms
   log.info('Stock cache refreshed.')
 }
 
@@ -69,17 +68,16 @@ function getAsOfDate () {
   return today.isBusinessDay() ? today.toDate() : today.prevBusinessDay().toDate()
 }
 
-export async function start (clean = false) {
+export async function start (clean: boolean) {
   log.info('Warming up stock cache.')
   if (clean) {
-    // clean boot
     await refresh()
   } else {
-    // try load from cache
     try {
       await loadFromFile()
-    } catch (err) {
+    } catch (ignored) {
       await refresh()
+      await saveToFile()
     }
   }
   refreshTask = setInterval(refresh, REFRESH_INTERVAL.asMilliseconds())
@@ -92,16 +90,7 @@ export function shutdown () {
 function buildQuickFilterCache (stocks: Stock[]) {
   const cache: {[symbol:string]: string} = {}
   stocks.forEach(s => {
-    let str = ''
-    for (const v of Object.values(s)) {
-      switch (typeof v) {
-        case 'object':
-          str += JSON.stringify(v)
-          break
-        default:
-          str += v
-      }
-    }
+    const str = `${s.symbol}|${s.name}`
     cache[s.symbol] = str.toLowerCase()
   })
   return cache

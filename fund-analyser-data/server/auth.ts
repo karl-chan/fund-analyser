@@ -198,11 +198,13 @@ export async function findSessionsForUser (user: string) {
 }
 
 export function extractIpAddress (req: Request) {
-  const ip = req.headers['x-forwarded-for']
-  log.debug('X-forwarded-for: %s', ip)
-  if (ip) {
-    const list = ip.split(',')
-    return list[list.length - 1]
+  let ips = req.headers['x-forwarded-for']
+  if (typeof ips === 'string') {
+    ips = ips.split(',')
+  }
+  log.debug('X-forwarded-for: %s', ips)
+  if (ips) {
+    return ips[ips.length - 1]
   } else {
     return req.socket.remoteAddress
   }

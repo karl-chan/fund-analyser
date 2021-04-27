@@ -56,11 +56,3 @@ class UpsideRatioReturns(Strategy):
         self._has_upside_ratio = upside_ratio.ge(2)
         self._has_margin = margin.ge(0.05)  # 5%
         self._rising = smoothed_prices.diff(periods=1).gt(0)
-
-
-if __name__ == "__main__":
-    simulator = Simulator(
-        strategy=UpsideRatioReturns()
-    )
-    results = simulator.run()
-    Simulator.describe_and_plot(results)

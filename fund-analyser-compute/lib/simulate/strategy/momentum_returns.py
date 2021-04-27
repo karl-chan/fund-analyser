@@ -39,11 +39,3 @@ class MomentumReturns(Strategy):
         global_gradient = smoothed_prices.pct_change()
         global_convexity = global_gradient.diff()
         self._global_convexity_signs = global_convexity > 0
-
-
-if __name__ == "__main__":
-    simulator = Simulator(
-        strategy=MomentumReturns()
-    )
-    results = simulator.run()
-    Simulator.describe_and_plot(results)

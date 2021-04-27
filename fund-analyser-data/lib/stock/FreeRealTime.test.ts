@@ -132,4 +132,11 @@ describe('FreeRealTime', () => {
         }))
     })
   })
+
+  describe.skip('Headless methods', () => {
+    test('fetchToken should return unexpired token', async () => {
+      const token = await freeRealTime.fetchToken()
+      expect(moment(token.expiry).isAfter()).toBeTrue()
+    })
+  })
 })

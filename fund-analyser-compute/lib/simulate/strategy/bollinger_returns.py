@@ -38,24 +38,3 @@ class BollingerReturns(Strategy):
         upper_bands, middle_bands, lower_bands = bollinger_bands(data.prices_df, stdev=1)
         self._below_lower_band = data.prices_df < lower_bands
         self._rising = data.prices_df.pct_change().gt(0)
-
-
-if __name__ == "__main__":
-    simulator = Simulator(
-        strategy=BollingerReturns(),
-        isins=[
-            "GB00B1XFGM25",
-            "GB00B4TZHH95",
-            "GB00B8JYLC77",
-            # "GB00B39RMM81",
-            "GB00B80QG615",
-            "GB00B99C0657",
-            # "GB00BH57C751",
-            "GB0006061963",
-            # "IE00B4WL8048",
-            "IE00B90P3080",
-            "LU0827884411",
-        ]
-    )
-    results = simulator.run()
-    Simulator.describe_and_plot(results)

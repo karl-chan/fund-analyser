@@ -1,5 +1,3 @@
-# noinspection PyUnresolvedReferences
-import _tkinter
 import logging
 import sys
 from datetime import date, datetime
@@ -63,7 +61,7 @@ class WorstFallEntryStrategy(StockStrategy):
     @overrides
     def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
         log_debug(f"HighestRisingEntryStrategy for date: {dt}")
-        return prices_df.pct_change(20).loc[dt, :].nsmallest(10).lt(0).astype('int').to_dict()
+        return prices_df.pct_change(10).loc[dt, :].nsmallest(10).lt(0).astype('int').to_dict()
 
 
 class HighestRiseEntryStrategy(StockStrategy):
@@ -125,6 +123,8 @@ class HoldingDaysExitStrategy(StockStrategy):
 
 def _describe_and_plot(account: pd.DataFrame) -> None:
     # set display mode and suppress useless warnings
+    # noinspection PyUnresolvedReferences
+    import _tkinter
     matplotlib.use("Qt5Agg" if sys.platform == "darwin" else "TkAgg")
     logging.getLogger("matplotlib.font_manager").setLevel(logging.INFO)
 
@@ -572,7 +572,7 @@ if __name__ == "__main__":
     prices_df, volume_df = stock_cache.get_prices(symbols=None)
     symbols = intersection(prices_df.columns, trading212_symbols)
 
-    start_date = datetime(2020, 1, 2)
+    start_date = datetime(2017, 1, 2)
     stock_simulator = StockSimulator(
         symbols=symbols,
         entry_strategy=WorstFallEntryStrategy(),  # AboveMaxEntryStrategy(),  # BollingerLowEntryStrategy(),

@@ -14,8 +14,8 @@ export default {
       'background-color': float > 0
         ? lighten(green, 100 * (1 - float))
         : (float < 0
-          ? lighten(red, 100 * (1 + float))
-          : null),
+            ? lighten(red, 100 * (1 + float))
+            : null),
       color: 'black'
     }
   },
