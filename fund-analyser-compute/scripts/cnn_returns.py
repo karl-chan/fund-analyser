@@ -1,3 +1,4 @@
+# type: ignore
 import math
 import pdb
 from datetime import date

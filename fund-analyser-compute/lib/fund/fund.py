@@ -112,7 +112,7 @@ class Fund(NamedTuple):
         return Fund(**temp)
 
     @overrides
-    def __eq__(self, other: Fund) -> bool:
+    def __eq__(self, other: object) -> bool:
         res = True
         for k, v in self._asdict().items():
             res &= v == getattr(other, k)
