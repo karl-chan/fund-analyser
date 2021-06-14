@@ -64,7 +64,7 @@ class Stock(NamedTuple):
         return Stock(**temp)
 
     @overrides
-    def __eq__(self, other: Stock) -> bool:
+    def __eq__(self, other: object) -> bool:
         res = True
         for k, v in self._asdict().items():
             res &= v == getattr(other, k)
