@@ -69,16 +69,18 @@ describe('StockDAO', function () {
     expect(sedols).toBeArrayOfSize(1)
     expect(sedols[0]).toContainAllKeys(['symbol']) // only 'symbol' and not other keys
   })
-  test('streamStocks', async done => {
+  test('streamStocks', async () => {
     const version = 'v2'
     await StockDAO.upsertStocks([stock])
 
-    StockDAO.streamStocks({ query: { symbol: stock.symbol } })
-      .pipe(StreamTest[version].toObjects((err, actual) => {
-        expect(actual).toBeArrayOfSize(1)
-        expect(actual[0]).toEqual(stock)
-        done(err)
-      }))
+    const actual: Stock[] =
+      await new Promise((resolve, reject) =>
+        StockDAO.streamStocks({ query: { symbol: stock.symbol } })
+          .pipe(StreamTest[version].toObjects((err, actual: Stock[]) => {
+            err ? reject(err) : resolve(actual)
+          })))
+    expect(actual).toBeArrayOfSize(1)
+    expect(actual[0]).toEqual(stock)
   })
   test('upsertStocks', async () => {
     // insert stock

@@ -86,16 +86,18 @@ describe('FundDAO', function () {
     expect(sedols).toBeArrayOfSize(1)
     expect(sedols[0]).toContainAllKeys(['sedol']) // only 'sedol' and not other keys
   })
-  test('streamFunds', async done => {
+  test('streamFunds', async () => {
     const version = 'v2'
     await FundDAO.upsertFunds([fund])
 
-    FundDAO.streamFunds({ query: { isin: fund.isin } })
-      .pipe(StreamTest[version].toObjects((err, actual) => {
-        expect(actual).toBeArrayOfSize(1)
-        expect(actual[0]).toEqual(fund)
-        done(err)
-      }))
+    const actual: Fund[] =
+      await new Promise((resolve, reject) =>
+        FundDAO.streamFunds({ query: { isin: fund.isin } })
+          .pipe(StreamTest[version].toObjects((err, actual: Fund[]) => {
+            err ? reject(err) : resolve(actual)
+          })))
+    expect(actual).toBeArrayOfSize(1)
+    expect(actual[0]).toEqual(fund)
   })
   test('upsertFunds', async () => {
     // insert fund
