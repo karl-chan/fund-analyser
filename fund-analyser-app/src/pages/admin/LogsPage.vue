@@ -1,30 +1,30 @@
 <template lang="pug">
-  q-page(padding)
-    q-toolbar.bg-teal.q-pa-xs
-      // Selection tabs (web / worker)
-      q-tabs.bg-white(v-model="category")
-        q-tab.text-green-9(label="Web Logs" name="web" icon="public")
-        q-tab.text-purple(label="Worker Logs" name="worker" icon="settings")
-        q-tab.text-amber-9(label="Compute Logs" name="compute" icon="functions")
-        q-tab.text-blue-9(label="Test Report" name="test-report" icon="assignment_turned_in")
-      q-input(v-model="filter" filled dark label="Filter logs" color="teal-1"
-              style="margin-left: 150px;" clearable)
-        template(v-slot:prepend)
-         q-icon(name="filter_list")
-      q-btn(flat color="white" icon="sync" @click="restartDyno")
-        q-tooltip Restart dyno
-    // Logs display
-    .bg-accent.text-blue-grey-1(v-if="loading" style="height: 70vh")
-      q-spinner-dots.absolute-center(size="xl")
-    q-virtual-scroll.round-borders.bg-accent.text-blue-grey-1.shadow-4.q-pa-md(
-              v-if="isLogsCategory && !loading"
-              :items="filteredLogs"
-              style="height: 70vh;")
-      template(v-slot="{item, index}")
-        q-item(:key="index" dense)
-          code(v-html="item")
-    iframe(v-if="isTestReportCategory && !loading"
-           :srcdoc="testReport" style="height: 70vh; width: 100%")
+q-page(padding)
+  q-toolbar.bg-teal.q-pa-xs
+    // Selection tabs (web / worker)
+    q-tabs.bg-white(v-model="category")
+      q-tab.text-green-9(label="Web Logs" name="web" icon="public")
+      q-tab.text-purple(label="Worker Logs" name="worker" icon="settings")
+      q-tab.text-amber-9(label="Compute Logs" name="compute" icon="functions")
+      q-tab.text-blue-9(label="Test Report" name="test-report" icon="assignment_turned_in")
+    q-input(v-model="filter" filled dark label="Filter logs" color="teal-1"
+            style="margin-left: 150px;" clearable)
+      template(v-slot:prepend)
+       q-icon(name="filter_list")
+    q-btn(flat color="white" icon="sync" @click="restartDyno")
+      q-tooltip Restart dyno
+  // Logs display
+  .bg-accent.text-blue-grey-1(v-if="loading" style="height: 70vh")
+    q-spinner-dots.absolute-center(size="xl")
+  q-virtual-scroll.round-borders.bg-accent.text-blue-grey-1.shadow-4.q-pa-md(
+            v-if="isLogsCategory && !loading"
+            :items="filteredLogs"
+            style="height: 70vh;")
+    template(v-slot="{item, index}")
+      q-item(:key="index" dense)
+        code(v-html="item")
+  iframe(v-if="isTestReportCategory && !loading"
+         :srcdoc="testReport" style="height: 70vh; width: 100%")
 
 </template>
 
@@ -94,7 +94,7 @@ export default {
       }
     }
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.poller) {
       clearInterval(this.poller)
     }

@@ -1,4 +1,4 @@
-import router from './../router'
+import { routerInstance } from './../router'
 
 // opts = {newTab: boolean}
 export default {
@@ -34,9 +34,9 @@ export default {
 }
 const redirect = ({ name, params, query }, opts) => {
   if (opts && opts.newTab) {
-    const route = router.resolve({ name, params, query })
+    const route = routerInstance.resolve({ name, params, query })
     window.open(route.href, '_blank')
   } else {
-    router.push({ name, params, query })
+    routerInstance.push({ name, params, query })
   }
 }

@@ -1,7 +1,7 @@
 <template lang="pug">
-  .column
-    .shadow-5.container
-        highcharts(v-if="statement.series" constructor-type="stockChart" :options="chartOptions")
+.column
+  .shadow-5.container
+      highcharts(v-if="statement.series" constructor-type="stockChart" :options="chartOptions")
 </template>
 
 <script>
@@ -189,8 +189,9 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.container
-  padding 10px
-  border-radius 10px
+<style lang="scss" scoped>
+.container {
+  padding: 10px;
+  border-radius: 10px;
+}
 </style>

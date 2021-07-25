@@ -1,9 +1,9 @@
 <template lang="pug">
-  .row.items-center.q-gutter-xs(v-if="currency")
-    div(v-for="(periodReturn, period) in currency.returns" :key="period")
-      | {{period}}:
-      |
-      .text-weight-bold(:class="colour(periodReturn)") {{ formatPercentage(periodReturn) }}
+.row.items-center.q-gutter-xs(v-if="currency")
+  div(v-for="(periodReturn, period) in currency.returns" :key="period")
+    | {{period}}:
+    |
+    .text-weight-bold(:class="colour(periodReturn)") {{ formatPercentage(periodReturn) }}
 </template>
 
 <script>

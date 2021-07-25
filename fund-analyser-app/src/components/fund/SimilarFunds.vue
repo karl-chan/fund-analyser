@@ -1,16 +1,16 @@
 <template lang="pug">
-  q-table(title="Similar Funds" :data="rowData" :columns="columns"
-          dense row-key="isin" :hide-bottom="!!rowData.length"
-          no-data-label="No similar funds.")
-    template(v-slot:body="props")
-      q-tr(:props="props" :class="isCurrentFund(props)? 'highlight': undefined")
-        q-td(key="isin" :props="props")
-          | {{ props.row.isin }}
-          q-btn(v-if="!isCurrentFund(props)" icon="open_in_new" color="secondary"
-                flat dense @click="openFundPage(props.row.isin)")
-          span(v-else)  (Current)
-        q-td(key="afterFeesReturn" :props="props")
-          | {{ $utils.format.formatPercentage(props.row.afterFeesReturn, true) }}
+q-table(title="Similar Funds" :rows="rowData" :columns="columns"
+        dense row-key="isin" :hide-bottom="!!rowData.length"
+        no-data-label="No similar funds.")
+  template(v-slot:body="props")
+    q-tr(:props="props" :class="isCurrentFund(props)? 'highlight': undefined")
+      q-td(key="isin" :props="props")
+        | {{ props.row.isin }}
+        q-btn(v-if="!isCurrentFund(props)" icon="open_in_new" color="secondary"
+              flat dense @click="openFundPage(props.row.isin)")
+        span(v-else)  (Current)
+      q-td(key="afterFeesReturn" :props="props")
+        | {{ $utils.format.formatPercentage(props.row.afterFeesReturn, true) }}
 
 </template>
 
@@ -51,8 +51,9 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.highlight
-  background-color $pink
-  color white
+<style lang="scss" scoped>
+.highlight {
+  background-color: $pink;
+  color: #fff;
+}
 </style>

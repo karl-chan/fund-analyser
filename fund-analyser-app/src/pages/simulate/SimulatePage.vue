@@ -1,16 +1,16 @@
 <template lang="pug">
-  q-page(padding)
-    .row.q-gutter-x-md
-      .col
-        .text-h5 Simulator
-        simulate-request(:init-simulate-param="simulateParam" ref="simulateRequest"
-                         @response="onResponse")
-        template(v-if="response")
-          simulate-response-footer(:simulate-response="response.simulation.simulateResponse")
+q-page(padding)
+  .row.q-gutter-x-md
+    .col
+      .text-h5 Simulator
+      simulate-request(:init-simulate-param="simulateParam" ref="simulateRequest"
+                       @response="onResponse")
+      template(v-if="response")
+        simulate-response-footer(:simulate-response="response.simulation.simulateResponse")
 
-      .col
-        template(v-if="response")
-          simulate-response(:prediction="response.prediction" :simulation="response.simulation")
+    .col
+      template(v-if="response")
+        simulate-response(:prediction="response.prediction" :simulation="response.simulation")
 
 </template>
 

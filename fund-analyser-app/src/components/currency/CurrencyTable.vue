@@ -1,29 +1,29 @@
 <template lang="pug">
-  .column.q-gutter-y-xs
-    // transclude title on the left
-    .row.justify-between.items-end.q-gutter-x-md
-      q-input.shadow-2(v-model="filterText" label="Filter table"
-                       bg-color="grey-2" color="accent" filled clearable dense)
+.column.q-gutter-y-xs
+  // transclude title on the left
+  .row.justify-between.items-end.q-gutter-x-md
+    q-input.shadow-2(v-model="filterText" label="Filter table"
+                     bg-color="grey-2" color="accent" filled clearable dense)
 
-      // mini-toolbar (num up to date / refresh / csv export / statistics)
-      .row.items-center
-        div Total currencies: {{ currencies.length }}
-        q-btn-group.q-ml-md
-          q-btn(color="accent" icon="refresh" @click="refresh")
-            q-tooltip Refresh data
-          q-btn(color="accent" :icon="showStatMode <= 1 ? 'expand_more' : 'expand_less'" @click="toggleStatMode")
-            q-tooltip {{ showStatMode <= 1 ? 'Show' : 'Hide' }} statistics
+    // mini-toolbar (num up to date / refresh / csv export / statistics)
+    .row.items-center
+      div Total currencies: {{ currencies.length }}
+      q-btn-group.q-ml-md
+        q-btn(color="accent" icon="refresh" @click="refresh")
+          q-tooltip Refresh data
+        q-btn(color="accent" :icon="showStatMode <= 1 ? 'expand_more' : 'expand_less'" @click="toggleStatMode")
+          q-tooltip {{ showStatMode <= 1 ? 'Show' : 'Hide' }} statistics
 
-    .relative-position.q-mt-sm
-      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs"
-                  :rowData="displayedCurrencies"
-                  @grid-ready="onGridReady" :gridOptions="gridOptions"
-                  :getContextMenuItems="getContextMenuItems"
-                  :style="{height}" :domLayout="height ? 'normal': 'autoHeight'")
+  .relative-position.q-mt-sm
+    ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs"
+                :rowData="displayedCurrencies"
+                @grid-ready="onGridReady" :gridOptions="gridOptions"
+                :getContextMenuItems="getContextMenuItems"
+                :style="{height}" :domLayout="height ? 'normal': 'autoHeight'")
 
-      .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
-        // transclude empty view here
-        slot(name="empty-view")
+    .absolute-top-left.light-dimmed.fit(v-if="showEmptyView")
+      // transclude empty view here
+      slot(name="empty-view")
 
 </template>
 

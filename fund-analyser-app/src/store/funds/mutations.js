@@ -1,5 +1,4 @@
 import keyBy from 'lodash/keyBy'
-import Vue from 'vue'
 
 export function addFunds (state, funds) {
   const isinsToFunds = keyBy(funds, f => f.isin)
@@ -7,7 +6,7 @@ export function addFunds (state, funds) {
 }
 
 export function removeFund (state, isin) {
-  Vue.delete(state.loaded, isin)
+  delete state.loaded[isin]
 }
 
 export function removeAllFunds (state) {

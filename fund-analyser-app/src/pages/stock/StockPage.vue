@@ -1,39 +1,39 @@
 <template lang="pug">
-  q-page(padding)
-    template(v-if="loading")
-      .absolute-center.row.items-center.text-purple.q-gutter-x-lg
-        q-spinner-facebook(size="72px" color="purple")
-        .text-h3 Loading
+q-page(padding)
+  template(v-if="loading")
+    .absolute-center.row.items-center.text-purple.q-gutter-x-lg
+      q-spinner-facebook(size="72px" color="purple")
+      .text-h3 Loading
 
-    template(v-else-if="stock")
-      // header
-      .row.items-center.q-gutter-sm.q-mb-md
-        .text-h5 {{stock.name}}
-        div
-          q-btn(icon="autorenew" label="Renew" @click="refreshStock" color="secondary" rounded glossy)
-        div
-          q-btn(color="purple" icon="open_in_new" label="NASDAQ" @click="openURL(`https://www.nasdaq.com/market-activity/stocks/${stock.symbol}/real-time`)")
-        div
-          q-btn(color="blue" icon="open_in_new" label="Free Real Time" @click="openURL(`https://quotes.freerealtime.com/quotes/${stock.symbol}/Time%26Sales`)")
+  template(v-else-if="stock")
+    // header
+    .row.items-center.q-gutter-sm.q-mb-md
+      .text-h5 {{stock.name}}
+      div
+        q-btn(icon="autorenew" label="Renew" @click="refreshStock" color="secondary" rounded glossy)
+      div
+        q-btn(color="purple" icon="open_in_new" label="NASDAQ" @click="openURL(`https://www.nasdaq.com/market-activity/stocks/${stock.symbol}/real-time`)")
+      div
+        q-btn(color="blue" icon="open_in_new" label="Free Real Time" @click="openURL(`https://quotes.freerealtime.com/quotes/${stock.symbol}/Time%26Sales`)")
 
-      // middle section
-      fund-info-bar(:fund="stock")
-      .row.q-gutter-lg
-        div Bid-ask spread:
-          .text-h6 {{ $utils.format.formatPercentage(stock.realTimeDetails.bidAskSpread, true) }}
-        div Longest time gap (seconds):
-          .text-h6 {{ $utils.format.formatSeconds(stock.realTimeDetails.longestTimeGap) }}
+    // middle section
+    fund-info-bar(:fund="stock")
+    .row.q-gutter-lg
+      div Bid-ask spread:
+        .text-h6 {{ $utils.format.formatPercentage(stock.realTimeDetails.bidAskSpread, true) }}
+      div Longest time gap (seconds):
+        .text-h6 {{ $utils.format.formatSeconds(stock.realTimeDetails.longestTimeGap) }}
 
-      .row.q-col-gutter-x-sm.q-mt-lg
-        .col-md-7
-          fund-chart(:fund="stock")
-        .col-md-5
-          fund-indicators(:fund="stock")
+    .row.q-col-gutter-x-sm.q-mt-lg
+      .col-md-7
+        fund-chart(:fund="stock")
+      .col-md-5
+        fund-indicators(:fund="stock")
 
-    template(v-else)
-      .absolute-center.row.items-center.q-gutter-x-sm.text-red
-        q-icon(name="error" color="error" size="144px")
-        .text-h2 Sorry! Error loading stock
+  template(v-else)
+    .absolute-center.row.items-center.q-gutter-x-sm.text-red
+      q-icon(name="error" color="error" size="144px")
+      .text-h2 Sorry! Error loading stock
 </template>
 
 <script>

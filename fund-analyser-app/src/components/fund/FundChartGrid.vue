@@ -1,11 +1,11 @@
 <template lang="pug">
-  div
-    .row(v-if="funds" v-for="y in rows" :key="y")
-      .col(v-for="x in cols" :key="x")
-        fund-chart.chart(v-show="withinBounds(x, y)" :fund="getFundAt(x, y)"
-                   :class="{selected: isSelected(x, y)}"
-                   @click.native="selectFundAt(x, y)"
-                   @dblclick.native="openFundPage(x, y)")
+div
+  .row(v-if="funds" v-for="y in rows" :key="y")
+    .col(v-for="x in cols" :key="x")
+      fund-chart.chart(v-show="withinBounds(x, y)" :fund="getFundAt(x, y)"
+                 :class="{selected: isSelected(x, y)}"
+                 @click.native="selectFundAt(x, y)"
+                 @dblclick.native="openFundPage(x, y)")
 </template>
 
 <script>
@@ -58,9 +58,12 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.chart
-  cursor pointer
-  &:hover, &.selected
-    background-color gold
+<style lang="scss" scoped>
+.chart {
+  cursor: pointer;
+}
+.chart:hover,
+.chart.selected {
+  background-color: #ffd700;
+}
 </style>

@@ -3,6 +3,7 @@
 
 const fs = require('fs')
 const webpack = require('webpack')
+const zlib = require('zlib')
 
 module.exports = function (ctx) {
   return {
@@ -19,7 +20,6 @@ module.exports = function (ctx) {
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: [
-      'app.styl',
       '../../node_modules/ag-grid-community/dist/styles/ag-grid.css',
       '../../node_modules/ag-grid-community/dist/styles/ag-theme-balham.css'
     ],
@@ -40,7 +40,7 @@ module.exports = function (ctx) {
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
       iconSet: 'material-icons', // Quasar icon set
-      lang: 'en-us', // Quasar language pack
+      lang: 'en-US', // Quasar language pack
 
       // Possible values for "importStrategy":
       // * 'auto' - Auto-import needed Quasar components & directives
@@ -68,9 +68,22 @@ module.exports = function (ctx) {
       scopeHoisting: true,
       vueRouterMode: 'history', // available values: 'hash', 'history'
       showProgress: true,
-      gzip: true,
+      gzip: {
+        filename: '[path][base].br',
+        algorithm: 'brotliCompress',
+        test: /\.(js|css|html|svg)$/,
+        compressionOptions: {
+          params: {
+            [zlib.constants.BROTLI_PARAM_QUALITY]: 11
+          }
+        },
+        threshold: 10240,
+        minRatio: 0.8,
+        deleteOriginalAssets: false
+      },
       analyze: false,
       vueCompiler: true,
+      devtool: 'source-map',
       // Options below are automatically set depending on the env, set them if you want to override
       // extractCSS: false,
 

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import store from './../store'
+import { storeInstance } from './../store'
 
 const defaults = {
   baseURL: '/api'
@@ -8,7 +8,7 @@ const defaults = {
 // hacky way to evict user from single page application
 const handleUnauthorised = (err) => {
   if (err.response.status === 401) {
-    store.dispatch('auth/removeUser')
+    storeInstance.dispatch('auth/removeUser')
   }
   throw err
 }

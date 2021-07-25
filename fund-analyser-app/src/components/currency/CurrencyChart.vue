@@ -1,7 +1,7 @@
 <template lang="pug">
-  .shadow-5.container
-      highcharts(v-if="currency" constructor-type="stockChart" :options="chartOptions")
-      template(v-else) No chart available
+.shadow-5.container
+    highcharts(v-if="currency" constructor-type="stockChart" :options="chartOptions")
+    template(v-else) No chart available
 
 </template>
 
@@ -77,9 +77,9 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.container
-  padding 10px
-  border-radius 10px
-
+<style lang="scss" scoped>
+.container {
+  padding: 10px;
+  border-radius: 10px;
+}
 </style>

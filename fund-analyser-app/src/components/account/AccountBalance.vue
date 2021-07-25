@@ -1,19 +1,19 @@
 <template lang="pug">
-  .column.q-gutter-y-xs
-    .row.justify-between
-      .column
-        .row.q-gutter-lg
-          div Portfolio: £{{balance.portfolio}}
-          div Cash: £{{balance.cash}}
-          div Total Value: £{{balance.totalValue}}
-        div You have {{balance.holdings.length}} holdings:
-      slot(name="toolbar")
+.column.q-gutter-y-xs
+  .row.justify-between
+    .column
+      .row.q-gutter-lg
+        div Portfolio: £{{balance.portfolio}}
+        div Cash: £{{balance.cash}}
+        div Total Value: £{{balance.totalValue}}
+      div You have {{balance.holdings.length}} holdings:
+    slot(name="toolbar")
 
-    .relative-position
-      ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="holdings || []"
-                @grid-ready="onGridReady" @rowDoubleClicked="onRowDoubleClicked" :gridOptions="gridOptions")
-      .absolute-top-left.light-dimmed.fit(v-if="!holdings || !holdings.length")
-        q-chip.absolute-center.shadow-5(square detail icon="info" color="secondary") Nothing to show
+  .relative-position
+    ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="holdings || []"
+              @grid-ready="onGridReady" @rowDoubleClicked="onRowDoubleClicked" :gridOptions="gridOptions")
+    .absolute-top-left.light-dimmed.fit(v-if="!holdings || !holdings.length")
+      q-chip.absolute-center.shadow-5(square detail icon="info" color="secondary") Nothing to show
 
 </template>
 

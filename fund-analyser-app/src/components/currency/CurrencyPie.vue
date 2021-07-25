@@ -1,6 +1,6 @@
 <template lang="pug">
-  div.container.shadow-5(v-if="groupedHoldings.length")
-    highcharts(:options="chartOptions")
+div.container.shadow-5(v-if="groupedHoldings.length")
+  highcharts(:options="chartOptions")
 </template>
 
 <script>
@@ -81,7 +81,7 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 .container {
   padding: 10px;
   border-radius: 10px;

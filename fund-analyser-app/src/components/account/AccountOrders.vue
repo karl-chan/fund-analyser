@@ -1,6 +1,6 @@
 <template lang="pug">
-  ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="orders || []"
-            @grid-ready="onGridReady" :gridOptions="gridOptions")
+ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="orders || []"
+          @grid-ready="onGridReady" :gridOptions="gridOptions")
 </template>
 
 <script>

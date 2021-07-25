@@ -572,7 +572,7 @@ if __name__ == "__main__":
     prices_df, volume_df = stock_cache.get_prices(symbols=None)
     symbols = intersection(prices_df.columns, trading212_symbols)
 
-    start_date = datetime(2017, 1, 2)
+    start_date = datetime(2021, 1, 4)
     stock_simulator = StockSimulator(
         symbols=symbols,
         entry_strategy=WorstFallEntryStrategy(),  # AboveMaxEntryStrategy(),  # BollingerLowEntryStrategy(),
