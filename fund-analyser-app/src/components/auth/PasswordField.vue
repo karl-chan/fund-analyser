@@ -1,11 +1,11 @@
 <template lang="pug">
-  q-input(:type="reveal? 'text': 'password'"
-          :value="value" v-bind="$attrs" v-on="$listeners")
-    template(v-slot:prepend)
-      slot(name="prepend")
-    template(v-slot:append)
-      q-icon.cursor-pointer(:name="reveal? 'visibility_off': 'visibility'" @click="toggleReveal")
-    slot
+q-input(:type="reveal? 'text': 'password'"
+        :value="value" v-bind="$attrs" v-on="$listeners")
+  template(v-slot:prepend)
+    slot(name="prepend")
+  template(v-slot:append)
+    q-icon.cursor-pointer(:name="reveal? 'visibility_off': 'visibility'" @click="toggleReveal")
+  slot
 </template>
 
 <script>

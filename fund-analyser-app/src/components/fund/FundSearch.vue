@@ -1,16 +1,16 @@
 <template lang="pug">
-  q-select.shadow-2(v-model="selected" :label="placeholder" use-input
-                    :use-chips="useChips" :multiple="multiple"
-                    bg-color="grey-2" color="accent" filled clearable dense
-                    :options="options" @filter="search" @input="onSelect" @clear="onClear"
-                    :input-debounce="250")
-    template(v-slot:prepend)
-      q-icon(name="search")
-    template(v-slot:option="scope")
-      q-item(v-bind="scope.itemProps" v-on="scope.itemEvents")
-        q-item-section
-          q-item-label(v-html="scope.opt.label")
-          q-item-label(caption) {{ scope.opt.sublabel }}
+q-select.shadow-2(v-model="selected" :label="placeholder" use-input
+                  :use-chips="useChips" :multiple="multiple"
+                  bg-color="grey-2" color="accent" filled clearable dense
+                  :options="options" @filter="search" @input="onSelect" @clear="onClear"
+                  :input-debounce="250")
+  template(v-slot:prepend)
+    q-icon(name="search")
+  template(v-slot:option="scope")
+    q-item(v-bind="scope.itemProps")
+      q-item-section
+        q-item-label(v-html="scope.opt.label")
+        q-item-label(caption) {{ scope.opt.sublabel }}
 </template>
 
 <script>

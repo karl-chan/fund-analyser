@@ -1,32 +1,32 @@
 <template lang="pug">
-  q-page(padding)
-    .absolute-right
-      healthcheck
+q-page(padding)
+  .absolute-right
+    healthcheck
 
-    account-view(:user="user" :balance="balance" :orders="orders" :statement="statement")
+  account-view(:user="user" :balance="balance" :orders="orders" :statement="statement")
 
-    q-tabs.q-mt-md.bg-primary.text-white(v-model="tab" align="left")
-      q-tab(default label="Watchlist" name="watchlist")
-      q-tab(label="Funds" name="funds")
-      q-tab(label="Stocks" name="stocks")
-      q-tab(label="Currencies" name="currency")
+  q-tabs.q-mt-md.bg-primary.text-white(v-model="tab" align="left")
+    q-tab(default label="Watchlist" name="watchlist")
+    q-tab(label="Funds" name="funds")
+    q-tab(label="Stocks" name="stocks")
+    q-tab(label="Currencies" name="currency")
 
-    q-tab-panels(v-model="tab" keep-alive)
-      // Watchlist
-      q-tab-panel(name="watchlist")
-        fund-watch-list(:fundWatchlist="fundWatchlist")
+  q-tab-panels(v-model="tab" keep-alive)
+    // Watchlist
+    q-tab-panel(name="watchlist")
+      fund-watch-list(:fundWatchlist="fundWatchlist")
 
-      // Funds
-      q-tab-panel(name="funds")
-        funds-summary
+    // Funds
+    q-tab-panel(name="funds")
+      funds-summary
 
-      // Stocks
-      q-tab-panel(name="stocks")
-        stocks-summary
+    // Stocks
+    q-tab-panel(name="stocks")
+      stocks-summary
 
-      // Currencies
-      q-tab-panel(name="currency")
-        currency-dashboard
+    // Currencies
+    q-tab-panel(name="currency")
+      currency-dashboard
 </template>
 
 <script>

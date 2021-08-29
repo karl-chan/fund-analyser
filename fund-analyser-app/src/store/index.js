@@ -1,5 +1,4 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 import account from './account'
 import admin from './admin'
 import auth from './auth'
@@ -11,9 +10,7 @@ import realTimeDetailsPoller from './plugins/real-time-details-poller'
 import simulate from './simulate'
 import stocks from './stocks'
 
-Vue.use(Vuex)
-
-const store = new Vuex.Store({
+export const storeInstance = createStore({
   modules: {
     account,
     admin,
@@ -28,17 +25,19 @@ const store = new Vuex.Store({
     persist.plugin,
     realTimeDetailsPoller
   ],
-  strict: process.env.NODE_ENV !== 'production'
+  // enable strict mode (adds overhead!)
+  // for dev mode and --debug builds only
+  strict: process.env.DEBUGGING
 })
 
 const init = async () => {
   await Promise.all([
-    store.dispatch('auth/init'),
-    store.dispatch('account/init'),
-    store.dispatch('currency/init'),
-    store.dispatch('funds/init'),
-    store.dispatch('simulate/init'),
-    store.dispatch('stocks/init')
+    storeInstance.dispatch('auth/init'),
+    storeInstance.dispatch('account/init'),
+    storeInstance.dispatch('currency/init'),
+    storeInstance.dispatch('funds/init'),
+    storeInstance.dispatch('simulate/init'),
+    storeInstance.dispatch('stocks/init')
   ])
 }
 
@@ -47,4 +46,6 @@ init()
 // auto-reload when internet connectivity is back up
 window.addEventListener('online', init, false)
 
-export default store
+export default function (/* { ssrContext } */) {
+  return storeInstance
+}

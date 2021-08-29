@@ -10,7 +10,7 @@ export default [
       { path: 'auth/logout', name: 'logout', component: () => import('pages/auth/LogoutPage') },
       { path: 'logs', name: 'logs', component: () => import('pages/admin/LogsPage') },
       { path: 'simulate/:simulateParam?', name: 'simulate', component: () => import('pages/simulate/SimulatePage'), props: true },
-      { path: '*', name: 'home', component: () => import('pages/HomePage') }
+      { path: '', name: 'home', component: () => import('pages/HomePage') }
     ]
   }
 ]

@@ -1,14 +1,14 @@
 <template lang="pug">
-  .col
-    .row
-      account-returns-bar(:statement="simulateResponse.statement")
-    .row
-      q-chip(square :color="colourNumberChip(simulateResponse.returns)" text-color="white")
-        | Total returns: {{ formatPercentage(simulateResponse.returns) }}
-      q-chip(square color="red" text-color="white")
-        | Max drawdown: {{ formatPercentage(simulateResponse.maxDrawdown) }}
-      q-chip(square color="orange" text-color="white")
-        | Sharpe ratio: {{ formatNumber(simulateResponse.sharpeRatio) }}
+.col
+  .row
+    account-returns-bar(:statement="simulateResponse.statement")
+  .row
+    q-chip(square :color="colourNumberChip(simulateResponse.returns)" text-color="white")
+      | Total returns: {{ formatPercentage(simulateResponse.returns) }}
+    q-chip(square color="red" text-color="white")
+      | Max drawdown: {{ formatPercentage(simulateResponse.maxDrawdown) }}
+    q-chip(square color="orange" text-color="white")
+      | Sharpe ratio: {{ formatNumber(simulateResponse.sharpeRatio) }}
 </template>
 
 <script>

@@ -1,11 +1,11 @@
 <template lang="pug">
-  .col.q-gutter-y-sm
-    currency-pie(:holdings="holdings")
-    q-card(v-for="pair in currencyPairs" v-if="lookupCurrency(pair)" :key="pair")
-      q-card-section
-        currency-chart(:currency="lookupCurrency(pair)")
-      q-card-section
-        currency-returns(:currency="lookupCurrency(pair)")
+.col.q-gutter-y-sm
+  currency-pie(:holdings="holdings")
+  q-card(v-for="pair in currencyPairs" v-if="lookupCurrency(pair)" :key="pair")
+    q-card-section
+      currency-chart(:currency="lookupCurrency(pair)")
+    q-card-section
+      currency-returns(:currency="lookupCurrency(pair)")
 </template>
 
 <script>

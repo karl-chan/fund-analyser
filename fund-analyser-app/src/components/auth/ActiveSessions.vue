@@ -1,21 +1,21 @@
 <template lang="pug">
-  q-dialog(v-model="modalOpen" position="top" @show="onOpen")
-    q-card
-      q-card-section
-        .text-subtitle2 Active Sessions
-      q-list(v-for="session in activeSessions" :key="session.encryptedId")
-        q-item
-          q-item-section(avatar)
-            .circle-dot(v-if="session.current")
-            q-icon(v-else :name="getDeviceIcon(session)")
-            q-tooltip {{ getTooltipText(session) }}
-          q-item-section
-            q-item-label {{session.location.ip}}
-            q-item-label(caption) Location - {{extractLocation(session)}}
-          q-item-section(side)
-            q-item-label(caption) Expires {{$utils.format.formatFromNow(session.expiry)}}
-            q-chip.shadow-2(v-if="session.current" square color="secondary" text-color="white") Current
-            q-btn(v-else dense rounded icon="delete" @click="destroySession(session.encryptedId)")
+q-dialog(v-model="modalOpen" position="top" @show="onOpen")
+  q-card
+    q-card-section
+      .text-subtitle2 Active Sessions
+    q-list(v-for="session in activeSessions" :key="session.encryptedId")
+      q-item
+        q-item-section(avatar)
+          .circle-dot(v-if="session.current")
+          q-icon(v-else :name="getDeviceIcon(session)")
+          q-tooltip {{ getTooltipText(session) }}
+        q-item-section
+          q-item-label {{session.location.ip}}
+          q-item-label(caption) Location - {{extractLocation(session)}}
+        q-item-section(side)
+          q-item-label(caption) Expires {{$utils.format.formatFromNow(session.expiry)}}
+          q-chip.shadow-2(v-if="session.current" square color="secondary" text-color="white") Current
+          q-btn(v-else dense rounded icon="delete" @click="destroySession(session.encryptedId)")
 
 </template>
 
@@ -94,13 +94,13 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.circle-dot
-  height 10px
-  width 10px
-  margin-left 7px
-  background-color $green
-  border-radius 50%
-  display inline-block
-
+<style lang="scss" scoped>
+.circle-dot {
+  height: 10px;
+  width: 10px;
+  margin-left: 7px;
+  background-color: $green;
+  border-radius: 50%;
+  display: inline-block;
+}
 </style>

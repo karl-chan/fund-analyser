@@ -1,27 +1,27 @@
 <template lang="pug">
-  q-card
-    q-form.q-gutter-md(@submit="onSubmit")
-      q-card-section
-        q-select(v-model="form.strategy" :options="supportedStrategies" label="Strategy"
-                :rules="[requiredRule]")
-        fund-search(v-model="form.isins" placeholder="Select funds" :display-isin="true" multiple use-chips)
-        .row.q-gutter-x-md
-          .col
-            q-input(v-model="form.numPortfolio" type="number" label="Num portfolio"
-                    :rules="[positiveIntegerRule]")
-          .col
-            q-input(v-model="form.predictionDate" mask="date" label="Prediction date (Optional)" clearable
-                    :rules="[val => val? dateRule(val): true]")
-              template(v-slot:append)
-                q-icon.cursor-pointer(name="event")
-                  q-popup-proxy(ref="predictionDateProxy" transition-show="scale" transition-hide="scale")
-                    q-date(v-model="form.predictionDate" :options="beforeToday" @input="() => $refs.predictionDateProxy.hide()").
+q-card
+  q-form.q-gutter-md(@submit="onSubmit")
+    q-card-section
+      q-select(v-model="form.strategy" :options="supportedStrategies" label="Strategy"
+              :rules="[requiredRule]")
+      fund-search(v-model="form.isins" placeholder="Select funds" :display-isin="true" multiple use-chips)
+      .row.q-gutter-x-md
+        .col
+          q-input(v-model="form.numPortfolio" type="number" label="Num portfolio"
+                  :rules="[positiveIntegerRule]")
+        .col
+          q-input(v-model="form.predictionDate" mask="date" label="Prediction date (Optional)" clearable
+                  :rules="[val => val? dateRule(val): true]")
+            template(v-slot:append)
+              q-icon.cursor-pointer(name="event")
+                q-popup-proxy(ref="predictionDateProxy" transition-show="scale" transition-hide="scale")
+                  q-date(v-model="form.predictionDate" :options="beforeToday" @input="() => $refs.predictionDateProxy.hide()").
 
-      q-card-actions
-        q-btn(icon-right="send" color="secondary" label="Submit" type="submit"
-              :disable="!readyToSubmit || loading" :loading="loading")
-        q-btn(icon-right="star" color="amber" label="Save" @click="onSave"
-              :disable="!readyToSubmit || isAlreadySaved")
+    q-card-actions
+      q-btn(icon-right="send" color="secondary" label="Submit" type="submit"
+            :disable="!readyToSubmit || loading" :loading="loading")
+      q-btn(icon-right="star" color="amber" label="Save" @click="onSave"
+            :disable="!readyToSubmit || isAlreadySaved")
 
 </template>
 

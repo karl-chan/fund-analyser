@@ -1,30 +1,30 @@
 <template lang="pug">
-  q-page(padding)
-    q-dialog(:value="true" @ok="submit" @cancel="cancel")
-      q-card
-        q-card-section
-          .text-h6 Login
-        q-card-section Please enter your Charles Stanley Direct credentials
-        q-card-section.text-red(v-if="failureCount")
-          .text-weight-bold Failed to login. Attempt: {{failureCount}}.
-          div(v-if="exceedsFailureQuota") Account is locked by Charles Stanley Direct for 15 mins.
-        q-card-section
-          q-input(:value="form.email" @input="form.email = $event.toLowerCase().trim()" @keyup.enter="submit" @blur="$v.form.email.$touch" :error="$v.form.email.$error"
-                  label="Email Address" color="secondary")
-            template(v-slot:prepend)
-              q-icon(name="mail")
-          password-field(v-model.trim="form.pass" @keyup.enter="submit" @blur="$v.form.pass.$touch" :error="$v.form.pass.$error"
-                         label="Password" color="secondary")
-            template(v-slot:prepend)
-              q-icon(name="security")
-          password-field(v-model.trim="form.memorableWord" @keyup.enter="submit" @blur="$v.form.memorableWord.$touch" :error="$v.form.memorableWord.$error"
-                         label="Memorable word" color="secondary")
-            template(v-slot:prepend)
-              q-icon(name="fas fa-question")
-          q-checkbox(v-model="form.persist", label="Keep me logged in for a month")
-        q-card-actions
-          q-btn.login.btn(label="Login" :disable="!readyToSubmit" @click="submit")
-          q-btn(label="Cancel" @click="cancel" color="negative" outline)
+q-page(padding)
+  q-dialog(:value="true" @ok="submit" @cancel="cancel")
+    q-card
+      q-card-section
+        .text-h6 Login
+      q-card-section Please enter your Charles Stanley Direct credentials
+      q-card-section.text-red(v-if="failureCount")
+        .text-weight-bold Failed to login. Attempt: {{failureCount}}.
+        div(v-if="exceedsFailureQuota") Account is locked by Charles Stanley Direct for 15 mins.
+      q-card-section
+        q-input(:value="form.email" @input="form.email = $event.toLowerCase().trim()" @keyup.enter="submit" @blur="$v.form.email.$touch" :error="$v.form.email.$error"
+                label="Email Address" color="secondary")
+          template(v-slot:prepend)
+            q-icon(name="mail")
+        password-field(v-model.trim="form.pass" @keyup.enter="submit" @blur="$v.form.pass.$touch" :error="$v.form.pass.$error"
+                       label="Password" color="secondary")
+          template(v-slot:prepend)
+            q-icon(name="security")
+        password-field(v-model.trim="form.memorableWord" @keyup.enter="submit" @blur="$v.form.memorableWord.$touch" :error="$v.form.memorableWord.$error"
+                       label="Memorable word" color="secondary")
+          template(v-slot:prepend)
+            q-icon(name="fas fa-question")
+        q-checkbox(v-model="form.persist", label="Keep me logged in for a month")
+      q-card-actions
+        q-btn.login.btn(label="Login" :disable="!readyToSubmit" @click="submit")
+        q-btn(label="Cancel" @click="cancel" color="negative" outline)
 
 </template>
 
@@ -98,9 +98,11 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.login.btn
-  background goldenrod
-  color white
-
+<style lang="scss" scoped>
+.login {
+  &.btn {
+    background: #daa520;
+    color: #fff;
+  }
+}
 </style>

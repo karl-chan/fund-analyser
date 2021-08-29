@@ -1,14 +1,14 @@
 <template lang="pug">
-  transition(leave-active-class="animated fadeOutUp")
-    q-banner.bg-amber.text-white.q-pa-xs(v-if="visible" inline-actions)
-      template(v-slot:avatar)
-        q-icon(name="lightbulb_outline" size="md")
-      q-item
-        q-item-section
-          q-item-label.text-subtitle1 {{ randomTip }}
-          q-item-label(caption) Tip of the day
-      template(v-slot:action)
-        q-btn(flat icon="close" @click="closeTipOfTheDay")
+transition(leave-active-class="animated fadeOutUp")
+  q-banner.bg-amber.text-white.q-pa-xs(v-if="visible" inline-actions)
+    template(v-slot:avatar)
+      q-icon(name="lightbulb_outline" size="md")
+    q-item
+      q-item-section
+        q-item-label.text-subtitle1 {{ randomTip }}
+        q-item-label(caption) Tip of the day
+    template(v-slot:action)
+      q-btn(flat icon="close" @click="closeTipOfTheDay")
 </template>
 
 <script>
@@ -28,7 +28,7 @@ export default {
     this.swapTipOfTheDay()
     this.refreshJobId = setInterval(this.swapTipOfTheDay, this.refreshInterval)
   },
-  beforeDestroy () {
+  beforeUnmount () {
     clearInterval(this.refreshJobId)
   },
   computed: {

@@ -7,6 +7,6 @@ import number from '../utils/number-utils'
 import router from '../utils/router-utils'
 import timer from '../utils/timer-utils'
 
-export default ({ Vue }) => {
-  Vue.prototype.$utils = { account, currency, date, format, fund, number, router, timer }
+export default ({ app }) => {
+  app.config.globalProperties.$utils = { account, currency, date, format, fund, number, router, timer }
 }

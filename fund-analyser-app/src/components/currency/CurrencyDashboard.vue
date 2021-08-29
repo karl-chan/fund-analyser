@@ -1,16 +1,16 @@
 <template lang="pug">
-    .column.q-gutter-y-sm
-      .text-h5 Currency Dashboard
-      // currency table
-      currency-table(height="500px" :currencies="summary.currencies" :stats="summary.stats")
+.column.q-gutter-y-sm
+  .text-h5 Currency Dashboard
+  // currency table
+  currency-table(height="500px" :currencies="summary.currencies" :stats="summary.stats")
 
-      // grid of currencies
-      .row(v-for="y in rows" :key="y")
-        .col.relative-position(v-for="x in cols" :key="x")
-          div(v-show="withinBounds(x, y)")
-            currency-chart(:currency="getCurrencyAt(x, y)")
-            currency-returns(:currency="getCurrencyAt(x, y)")
-            q-btn.close-btn(round push icon="close" size="lg" color="secondary" @click="removeCurrency(x, y)")
+  // grid of currencies
+  .row(v-for="y in rows" :key="y")
+    .col.relative-position(v-for="x in cols" :key="x")
+      div(v-show="withinBounds(x, y)")
+        currency-chart(:currency="getCurrencyAt(x, y)")
+        currency-returns(:currency="getCurrencyAt(x, y)")
+        q-btn.close-btn(round push icon="close" size="lg" color="secondary" @click="removeCurrency(x, y)")
 </template>
 
 <script>
@@ -68,7 +68,7 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
+<style lang="scss" scoped>
 .close-btn {
   position: absolute;
   top: -20px;

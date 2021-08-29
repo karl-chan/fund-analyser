@@ -1,5 +1,4 @@
 import keyBy from 'lodash/keyBy'
-import Vue from 'vue'
 
 export function addStocks (state, stocks) {
   const symbolsToStocks = keyBy(stocks, s => s.symbol)
@@ -7,7 +6,7 @@ export function addStocks (state, stocks) {
 }
 
 export function removeStock (state, symbol) {
-  Vue.delete(state.loaded, symbol)
+  delete state.loaded[symbol]
 }
 
 export function removeAllStocks (state) {

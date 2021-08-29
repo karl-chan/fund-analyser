@@ -1,13 +1,13 @@
 <template lang="pug">
-  q-page(padding)
-    q-dialog(:value="true" persistent)
-      q-card
-        q-card-section
-          .text-h6 Logging out
-        q-card-section
-          .row.justify-center.items-center.q-gutter-x-sm
-            q-spinner-facebook(size="28px" color="secondary")
-            .text-subtitle1 Just a moment
+q-page(padding)
+  q-dialog(:value="true" persistent)
+    q-card
+      q-card-section
+        .text-h6 Logging out
+      q-card-section
+        .row.justify-center.items-center.q-gutter-x-sm
+          q-spinner-facebook(size="28px" color="secondary")
+          .text-subtitle1 Just a moment
 </template>
 
 <script>
