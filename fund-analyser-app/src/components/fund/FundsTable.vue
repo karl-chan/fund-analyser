@@ -108,7 +108,13 @@ export default {
   },
   components: {
     WarningComponent: {
-      template: '<q-icon v-if="params.value" :class="params.value > 1? \'text-red\': \'text-amber\'" name="warning" :title="\'This fund may not be up-to-date (lag=\' + params.value + \')\'"/>'
+      template: `
+      <span
+        v-if="params.value"
+        :class="[params.value > 1? 'text-red': 'text-amber']"
+        :title="'This fund may not be up-to-date (lag=' + params.value + ')'">
+        ⚠
+      </span>`
     }
   },
   computed: {
@@ -119,7 +125,7 @@ export default {
     },
     columnDefs: function () {
       const colDefs = [
-        { headerName: '', cellRendererFramework: 'WarningComponent', width: 30, valueGetter: this.numDaysOutdated, pinned: 'left' },
+        { headerName: '', cellRendererFramework: 'WarningComponent', width: 40, valueGetter: this.numDaysOutdated, pinned: 'left' },
         { headerName: 'ISIN', field: 'isin', width: 120, pinned: 'left' },
         { headerName: 'Name', field: 'name', width: 180, pinned: 'left', tooltipValueGetter: params => params.value },
         {
