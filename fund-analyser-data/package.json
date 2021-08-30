@@ -98,7 +98,7 @@
     "koa-router": "10.0.0",
     "koa-session": "6.2.0",
     "koa-sslify": "5.0.0",
-    "koa-static-cache": "git@github.com:karl-chan/static-cache.git",
+    "koa-static-cache": "github:karl-chan/static-cache",
     "lodash": "4.17.21",
     "moment": "2.29.1",
     "moment-business-days": "1.2.0",
