@@ -6,7 +6,7 @@ import helmet from 'koa-helmet'
 import logger from 'koa-logger'
 import session from 'koa-session'
 import sslify, { xForwardedProtoResolver } from 'koa-sslify'
-import serve from 'koa-static'
+import serve from 'koa-static-cache'
 import moment from 'moment'
 import * as path from 'path'
 import * as zlib from 'zlib'
@@ -63,8 +63,9 @@ app.use(cors())
 app.use(session(SESSION_CONFIG, app))
 app.use(bodyParser({ jsonLimit: '10mb' }))
 app.use(serve(path.resolve(getProjectRoot(), '../fund-analyser-app/dist/pwa'), {
-  maxage: 365 * 24 * 60 * 60,
-  brotli: true
+  maxAge: 365 * 24 * 60 * 60,
+  brotli: true,
+  usePrecompiledBrotli: true
 }))
 
 app.use(accountRoutes.routes())
