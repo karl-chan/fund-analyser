@@ -2,7 +2,7 @@
 q-select.shadow-2(v-model="selected" :label="placeholder" use-input
                   :use-chips="useChips" :multiple="multiple"
                   bg-color="grey-2" color="accent" filled clearable dense
-                  :options="options" @filter="search" @input="onSelect" @clear="onClear"
+                  :options="options" @filter="search" @update:model-value="onSelect" @clear="onClear"
                   :input-debounce="250")
   template(v-slot:prepend)
     q-icon(name="search")
