@@ -10,13 +10,14 @@
   q-table.q-mt-lg(:rows="rows" :columns="columns" :filter="filter" row-key="key"
                   card-class="table-container" dark dense :no-results-label="noMatchLabel"
                   :pagination.sync="pagination")
-    q-tr(slot="body" slot-scope="props" :props="props")
-      q-td(key="name" :props="props")
-        |  {{ props.row.name }}
-      q-td(key="value" :props="props")
-        | {{ props.row.value }}
-      q-td(key="metadata" :props="props")
-        pre {{ props.row.metadata }}
+    template(v-slot:body="props")
+      q-tr(:props="props")
+        q-td(key="name" :props="props")
+          |  {{ props.row.name }}
+        q-td(key="value" :props="props")
+          | {{ props.row.value }}
+        q-td(key="metadata" :props="props")
+          pre {{ props.row.metadata }}
 </template>
 
 <script>
