@@ -1,6 +1,6 @@
 <template lang="pug">
 q-page(padding)
-  q-dialog(:value="true" persistent)
+  q-dialog(:modelValue="true" persistent)
     q-card
       q-card-section
         .text-h6 Logging out

@@ -1,6 +1,6 @@
 <template lang="pug">
 q-page(padding)
-  q-dialog(:value="true" @ok="submit" @cancel="cancel")
+  q-dialog(:modelValue="true" @ok="submit" @cancel="cancel")
     q-card
       q-card-section
         .text-h6 Login
@@ -9,15 +9,15 @@ q-page(padding)
         .text-weight-bold Failed to login. Attempt: {{failureCount}}.
         div(v-if="exceedsFailureQuota") Account is locked by Charles Stanley Direct for 15 mins.
       q-card-section
-        q-input(:value="form.email" @input="form.email = $event.toLowerCase().trim()" @keyup.enter="submit" @blur="$v.form.email.$touch" :error="$v.form.email.$error"
+        q-input(:modelValue="form.email" @update:modelValue="form.email = $event.toLowerCase().trim()" @keyup.enter="submit" @blur="v$.form.email.$touch" :error="v$.form.email.$error"
                 label="Email Address" color="secondary")
           template(v-slot:prepend)
             q-icon(name="mail")
-        password-field(v-model.trim="form.pass" @keyup.enter="submit" @blur="$v.form.pass.$touch" :error="$v.form.pass.$error"
+        password-field(v-model.trim="form.pass" @keyup.enter="submit" @blur="v$.form.pass.$touch" :error="v$.form.pass.$error"
                        label="Password" color="secondary")
           template(v-slot:prepend)
             q-icon(name="security")
-        password-field(v-model.trim="form.memorableWord" @keyup.enter="submit" @blur="$v.form.memorableWord.$touch" :error="$v.form.memorableWord.$error"
+        password-field(v-model.trim="form.memorableWord" @keyup.enter="submit" @blur="v$.form.memorableWord.$touch" :error="v$.form.memorableWord.$error"
                        label="Memorable word" color="secondary")
           template(v-slot:prepend)
             q-icon(name="fas fa-question")
@@ -30,7 +30,8 @@ q-page(padding)
 
 <script>
 import { mapActions } from 'vuex'
-import { required, email, minLength } from 'vuelidate/lib/validators'
+import { required, email, minLength } from '@vuelidate/validators'
+import { useVuelidate } from '@vuelidate/core'
 export default {
   name: 'LoginPage',
   data () {
@@ -49,7 +50,7 @@ export default {
       return this.failureCount >= 3
     },
     readyToSubmit: function () {
-      return !this.$v.form.$invalid
+      return !this.v$.$invalid
     }
   },
   methods: {
@@ -81,6 +82,7 @@ export default {
     },
     ...mapActions('auth', ['login'])
   },
+  setup: () => ({ v$: useVuelidate() }),
   validations: {
     form: {
       email: {

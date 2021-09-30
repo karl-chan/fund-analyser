@@ -1,6 +1,6 @@
 <template lang="pug">
 q-input(:type="reveal? 'text': 'password'"
-        :value="value" v-bind="$attrs" v-on="$listeners")
+        :modelValue="value" v-bind="$attrs" v-on="$listeners")
   template(v-slot:prepend)
     slot(name="prepend")
   template(v-slot:append)
