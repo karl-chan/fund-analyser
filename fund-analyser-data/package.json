@@ -82,7 +82,7 @@
     "fs-extra": "10.0.0",
     "heroku-client": "3.1.0",
     "jest": "27.0.3",
-    "jest-chain": "1.1.5",
+    "jest-chain": "github:karl-chan/jest-chain",
     "jest-extended": "0.11.5",
     "jest-html-reporters": "2.1.6",
     "jsdom": "16.6.0",

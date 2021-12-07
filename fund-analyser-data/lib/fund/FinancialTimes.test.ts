@@ -164,7 +164,7 @@ describe('FinancialTimes', function () {
       ]
       const holdings = [
         new Fund.Holding('Apple', 'AAPL', 0.5),
-        new Fund.Holding('Alphabet', 'GOOG', 0.5)
+        new Fund.Holding('Microsoft', 'MSFT', 0.5)
       ]
       const fund = Fund.builder(isin)
         .historicPrices(historicPrices)

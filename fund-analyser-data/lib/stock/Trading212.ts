@@ -6,12 +6,12 @@ const http = new Http()
 
 export default class Trading212 implements SymbolProvider {
   async getSymbols () {
-    const url = 'https://www.trading212.com/en/Trade-Equities?tab=isa'
-    const { data } = await http.asyncGet(url)
-    const symbols = Array.from(
-      (data as string)
-        .matchAll(/data-label="Instrument">([^<]+)<\/div>(?:.*\n){6}.*NASDAQ/g))
-      .map(group => group[1])
+    const url = 'https://www.trading212.com/_next/data/GCDBRUACXTuoU2BcbGIr6/en/trading-instruments/isa.json'
+    const { data } = await http.asyncGet(url, { responseType: 'json' })
+    const symbols =
+      data.pageProps.instruments.items
+        .filter((item: any) => item.type === 'STOCK')
+        .map((item: any) => item.shortName)
     return symbols
   }
 
