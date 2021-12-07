@@ -311,9 +311,18 @@ export default class FinancialTimes implements FundProvider {
         const params = {
           query: name
         }
-        const { data } = await http.asyncGet(url, { params, responseType: 'json' })
-        const security = data.data.security.find((s:any) => s.name.toLowerCase().replace(/-/g, ' ').includes(name.toLowerCase().replace(/-/g, ' ')))
-        return { symbol: security && security.symbol, name: security && security.name }
+        const { data, status } = await http.asyncGet(url, {
+          params,
+          responseType: 'json',
+          maxRedirects: 0,
+          validateStatus: null
+        })
+        if (status === 200) {
+          const security = data.data.security.find((s:any) => s.name.toLowerCase().replace(/-/g, ' ').includes(name.toLowerCase().replace(/-/g, ' ')))
+          return { symbol: security && security.symbol, name: security && security.name }
+        } else {
+          return { symbol: undefined, name: undefined }
+        }
       }
       // replace charles stanley keywords with financial times before search
       const replacements = { HLDGS: 'Holdings' }
