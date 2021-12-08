@@ -60,7 +60,7 @@ describe('trade', () => {
         const prediction: PredictResponse = {
           date: undefined,
           funds: [
-            { isin: 'GB00B99C0657', sedol: 'B99C065', name: 'Legg Mason IF Japan Equity Fund Class X Accumulation (Hedged)' }
+            { isin: 'GB00B99C0657', sedol: 'B99C065', name: 'FTF Martin Currie Japan Equity Fund Class X Accumulation (Hedged)' }
           ]
         }
         const actions = trade.decideActions(prediction, balance, transactions)
@@ -72,7 +72,7 @@ describe('trade', () => {
         const prediction: PredictResponse = {
           date: undefined,
           funds: [
-            { isin: 'GB00B99C0657', sedol: 'B99C065', name: 'Legg Mason IF Japan Equity Fund Class X Accumulation (Hedged)' },
+            { isin: 'GB00B99C0657', sedol: 'B99C065', name: 'FTF Martin Currie Japan Equity Fund Class X Accumulation (Hedged)' },
             { isin: 'GB0006061963', sedol: '0606196', name: 'Baillie Gifford American Fund B Accumulation' }
           ]
         }
@@ -98,7 +98,7 @@ describe('trade', () => {
         const prediction: PredictResponse = {
           date: undefined,
           funds: [
-            { isin: 'GB00B99C0657', sedol: 'B99C065', name: 'Legg Mason IF Japan Equity Fund Class X Accumulation (Hedged)' },
+            { isin: 'GB00B99C0657', sedol: 'B99C065', name: 'FTF Martin Currie Japan Equity Fund Class X Accumulation (Hedged)' },
             { isin: 'GB0006061963', sedol: '0606196', name: 'Baillie Gifford American Fund B Accumulation' }
           ]
         }
@@ -110,7 +110,7 @@ describe('trade', () => {
         const prediction: PredictResponse = {
           date: undefined,
           funds: [
-            { isin: 'GB00B99C0657', sedol: 'B99C065', name: 'Legg Mason IF Japan Equity Fund Class X Accumulation (Hedged)' },
+            { isin: 'GB00B99C0657', sedol: 'B99C065', name: 'FTF Martin Currie Japan Equity Fund Class X Accumulation (Hedged)' },
             { isin: 'GB0006061963', sedol: '0606196', name: 'Baillie Gifford American Fund B Accumulation' }
           ]
         }
