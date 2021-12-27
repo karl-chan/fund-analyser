@@ -47,6 +47,10 @@ export default async function updateFunds () {
   // delete funds with no data
   await FundDAO.deleteFunds({ query: { name: { $eq: null } } })
   log.info('Deleted funds without names')
+
+  // delete outdated funds
+  const cutoffDate = today.subtract(1, 'month').toDate()
+  await FundDAO.deleteFunds({ query: { asof: { $lt: cutoffDate } } })
 }
 
 async function isFundValid (fund: Fund) {
