@@ -1,5 +1,5 @@
 import { Promise } from 'bluebird'
-import { Db, MongoClient, MongoClientOptions } from 'mongodb'
+import { Db, MongoClient } from 'mongodb'
 import log from './log'
 import * as properties from './properties'
 const uri: string = properties.get('db.mongo.uri.main')
@@ -11,11 +11,10 @@ let _fundClients: MongoClient[], _fundDbs: Db[]
 let _stockClients: MongoClient[], _stockDbs: Db[]
 
 export async function init () {
-  const opts = { useNewUrlParser: true, useUnifiedTopology: true };
   ([_client, _fundClients, _stockClients] = await Promise.all([
-    connectOrFail(uri, opts),
-    Promise.map(fundUris, fundUri => connectOrFail(fundUri, opts)),
-    Promise.map(stockUris, stockUri => connectOrFail(stockUri, opts))
+    connectOrFail(uri),
+    Promise.map(fundUris, fundUri => connectOrFail(fundUri)),
+    Promise.map(stockUris, stockUri => connectOrFail(stockUri))
   ]))
   _db = _client.db()
   _fundDbs = _fundClients.map(client => client.db())
@@ -65,8 +64,8 @@ export function getToken () {
   return _db.collection('token')
 }
 
-async function connectOrFail (uri: string, opts: MongoClientOptions): Promise<MongoClient> {
-  return MongoClient.connect(uri, opts)
+async function connectOrFail (uri: string): Promise<MongoClient> {
+  return MongoClient.connect(uri)
     .catch(err => {
       log.error(`Failed to connect to uri: ${uri}`)
       throw err

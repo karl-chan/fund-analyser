@@ -56,6 +56,7 @@ export async function upsertStocks (stocks: Stock[]) {
   // partition stocks into shards
   const bucketedStocks = shardedIds.map(() => <Stock[]>[])
   for (const stock of stocks) {
+    // @ts-ignore: _id is defined to be symbol string, not ObjectId.
     let shardIdx = shardedIds.findIndex(shard => shard.has(stock[idField]))
     if (shardIdx === -1) {
       // assign to least occupied shard
@@ -73,6 +74,7 @@ export async function upsertStocks (stocks: Stock[]) {
   const bucketedOperations = bucketedStocks.map(bucket => bucket.map(upsertOperation))
   try {
     await Promise.map(_.zip(db.getStocks(), bucketedOperations), ([stockDb, operations]) => {
+    // @ts-ignore: _id is defined to be symbol string, not ObjectId.
       return operations.length ? stockDb.bulkWrite(operations) : Promise.resolve(undefined)
     })
   } catch (err) {
@@ -154,5 +156,6 @@ const buildFindQuery = (options: Options) => {
     sort: options && options.sort,
     limit: options && options.limit
   }
+  // @ts-ignore: _id is defined to be symbol string, not ObjectId.
   return db.getStocks().map(stockDb => stockDb.find(query, findOptions))
 }
