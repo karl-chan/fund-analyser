@@ -34,7 +34,7 @@ module.exports = {
     ]
   ],
   setupFilesAfterEnv: [
-    'jest-extended',
+    'jest-extended/all',
     'jest-chain'
   ]
 }

@@ -1,6 +1,7 @@
 // Configuration for your app
 // https://quasar.dev/quasar-cli/quasar-conf-js
 
+const ESLintPlugin = require('eslint-webpack-plugin')
 const fs = require('fs')
 const webpack = require('webpack')
 const zlib = require('zlib')
@@ -88,21 +89,16 @@ module.exports = function (ctx) {
       // extractCSS: false,
 
       // https://quasar.dev/quasar-cli/cli-documentation/handling-webpack
+      chainWebpackWebserver (chain) {
+        chain.plugin('eslint-webpack-plugin')
+          .use(ESLintPlugin, [{ extensions: [ 'js' ] }])
+      },
       extendWebpack (cfg) {
-        cfg.module.rules.push({
-          enforce: 'pre',
-          test: /\.(js|vue)$/,
-          loader: 'eslint-loader',
-          exclude: /node_modules/,
-          options: {
-            formatter: require('eslint').CLIEngine.getFormatter('stylish')
-          }
-        })
         cfg.module.rules.push({
           test: /\.pug$/,
           loader: 'pug-plain-loader'
         })
-        cfg.plugins.push(new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/))
+        cfg.plugins.push(new webpack.IgnorePlugin({ resourceRegExp: /moment\/locale\// }))
       }
     },
 

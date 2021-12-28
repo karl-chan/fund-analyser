@@ -65,6 +65,7 @@ export async function upsertFunds (funds: Fund[]) {
   // partition funds into shards
   const bucketedFunds = shardedIds.map(() => <Fund[]>[])
   for (const fund of funds) {
+    // @ts-ignore: _id is defined to be sedol string, not ObjectId.
     let shardIdx = shardedIds.findIndex(shard => shard.has(fund[idField]))
     if (shardIdx === -1) {
       // assign to least occupied shard
@@ -82,6 +83,7 @@ export async function upsertFunds (funds: Fund[]) {
   const bucketedOperations = bucketedFunds.map(bucket => bucket.map(upsertOperation))
   try {
     await Promise.map(_.zip(db.getFunds(), bucketedOperations), async ([fundDb, operations]) => {
+    // @ts-ignore: _id is defined to be sedol string, not ObjectId.
       return operations.length ? fundDb.bulkWrite(operations) : Promise.resolve()
     })
   } catch (err) {
@@ -171,5 +173,6 @@ const buildFindQuery = (options: Options) => {
     sort: options && options.sort,
     limit: options && options.limit
   }
+  // @ts-ignore: _id is defined to be sedol string, not ObjectId.
   return db.getFunds().map(fundDb => fundDb.find(query, findOptions))
 }

@@ -59,14 +59,15 @@ export default class NASDAQStocks implements StockProvider {
           `https://api.nasdaq.com/api/quote/${symbol}/info?assetclass=stocks`,
           { responseType: 'json' }),
         http.asyncGet(
-          `https://api.nasdaq.com/api/quote/${symbol}/dividends?assetclass=stocks`,
-          { responseType: 'json' })
+          `https://api.nasdaq.com/api/quote/${symbol}/summary?assetclass=stocks`,
+          { responseType: 'json' }
+        )
       ])
       const name = res1.data.companyName.replace(/(.+) Common Stock/, '$1')
-      const marketCap = +res1.data.keyStats.MarketCap.value.replace(/,/g, '')
-      const yld = res2.data.yield === 'N/A'
+      const marketCap = +res2.data.summaryData.MarketCap.value.replace(/,/g, '')
+      const yld = res2.data.summaryData.Yield.value === 'N/A'
         ? 0
-        : +res2.data.yield.replace(/(.+)%/, '$1') / 100
+        : +res2.data.summaryData.Yield.value.replace(/(.+)%/, '$1') / 100
 
       return {
         name,

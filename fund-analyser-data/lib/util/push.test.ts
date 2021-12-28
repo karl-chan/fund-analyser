@@ -1,6 +1,7 @@
-import push from './push'
-import SessionDAO from '../db/SessionDAO'
+import { ObjectId } from 'mongodb'
 import * as webpush from 'web-push'
+import SessionDAO from '../db/SessionDAO'
+import push from './push'
 
 jest.mock('../db/SessionDAO')
 jest.mock('web-push')
@@ -21,6 +22,7 @@ describe('push', () => {
     }
     const sessions = [
       {
+        _id: new ObjectId(),
         token: { user: 'user' },
         pushSubscription,
         sessionId: 'fa28101a-4ad5-44ea-af7d-ed1dac08a7e0'

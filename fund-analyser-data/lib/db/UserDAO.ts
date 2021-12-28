@@ -1,4 +1,5 @@
 import * as _ from 'lodash'
+import { ModifyResult } from 'mongodb'
 import { SimulateParam } from '../simulate/simulate'
 import * as db from '../util/db'
 import log from '../util/log'
@@ -140,13 +141,15 @@ export default class UserDAO {
       return false // no action required if already present
     }
 
+    // @ts-ignore
     await db.getUsers().updateMany({ user }, { $push: { [`meta.${property}`]: value } })
     log.debug(`Added [${JSON.stringify(value)}] to [${user}]'s ${property}`)
     return true
   }
 
   static async removeFromProperty (user: string, property: string, value: any) {
-    const res = await db.getUsers().findOneAndUpdate({ user }, { $pull: { [`meta.${property}`]: value } })
+    // @ts-ignore
+    const res: ModifyResult = await db.getUsers().findOneAndUpdate({ user }, { $pull: { [`meta.${property}`]: value } })
     log.debug(`Removed [${value}] from [${user}]'s ${property}`)
 
     return res.value.meta[property]

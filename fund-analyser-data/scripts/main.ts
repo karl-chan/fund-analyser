@@ -1,4 +1,4 @@
-import commander from 'commander'
+import { Command } from 'commander'
 import * as _ from 'lodash'
 import * as db from '../lib/util/db'
 import log from '../lib/util/log'
@@ -33,12 +33,13 @@ const TASKS: Record<string, any> = {
 
 if (require.main === module) {
   const operations = _.keys(TASKS).join(',')
-  commander
-    .version('0.9.alpha')
-    .description('Specify tasks to run')
-    .option('-r, --run <tasks>', `specify one or more of the following tasks (comma-separated): ${operations}`,
-      (args: any) => args.split(','))
-    .parse(process.argv)
+  const commander =
+   new Command()
+     .version('0.9.alpha')
+     .description('Specify tasks to run')
+     .option('-r, --run <tasks>', `specify one or more of the following tasks (comma-separated): ${operations}`,
+       (args: any) => args.split(','))
+     .parse(process.argv)
 
   const options = commander.opts()
   const validInput = options.run && _.every(options.run, (task: any) => task in TASKS)

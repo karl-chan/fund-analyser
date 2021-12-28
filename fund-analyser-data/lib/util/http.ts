@@ -1,13 +1,11 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from 'axios'
-import axiosCookieJarSupport from 'axios-cookiejar-support'
+import { wrapper } from 'axios-cookiejar-support'
 import FormData from 'form-data'
 import * as _ from 'lodash'
 import Semaphore from 'semaphore-async-await'
 import log from './log'
 import * as properties from './properties'
 import retry from './retry'
-
-axiosCookieJarSupport(axios)
 
 const defaultMaxAttempts = properties.get('http.max.attempts')
 const defaultRetryInterval = properties.get('http.retry.interval')
@@ -27,14 +25,14 @@ export default class Http {
   private maxParallelConnections: number
   private retryInterval: number
   constructor (options?: HttpOptions) {
-    this.http = axios.create({
+    this.http = wrapper(axios.create({
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
         'Accept-Encoding': 'gzip'
       },
       ...options,
       timeout: _.get(options, 'timeout', defaultTimeout)
-    })
+    }))
     this.http.interceptors.request.use(config => {
       if (config.data instanceof FormData) {
         Object.assign(config.headers, config.data.getHeaders())
