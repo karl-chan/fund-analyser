@@ -64,6 +64,7 @@ app.use(session(SESSION_CONFIG, app))
 app.use(bodyParser({ jsonLimit: '10mb' }))
 app.use(serve(path.resolve(getProjectRoot(), '../fund-analyser-app/dist/pwa'), {
   maxAge: 365 * 24 * 60 * 60,
+  buffer: true,
   brotli: true,
   usePrecompiledBrotli: true
 }))
