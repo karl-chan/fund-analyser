@@ -25,7 +25,8 @@
                 @grid-ready="onGridReady" @rowDoubleClicked="onRowDoubleClicked" @rowClicked="onRowSelected"
                 :getContextMenuItems="getContextMenuItems" :gridOptions="gridOptions"
                 :style="{height}" :domLayout="height ? 'normal': 'autoHeight'"
-                :cacheBlockSize="window")
+                :cacheBlockSize="window"
+                serverSideStoreType="partial")
 
     .absolute-top-left.fit(v-if="showEmptyView")
       // transclude empty view here
