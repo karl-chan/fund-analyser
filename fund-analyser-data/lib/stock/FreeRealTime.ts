@@ -68,21 +68,11 @@ export default class FreeRealTime implements StockProvider {
             responseType: 'json'
           }),
         http.asyncGet(
-          'https://app.quotemedia.com/datatool/getHistoricTradesBySymbol.json',
+          'https://app.quotemedia.com/datatool/getRecentTradesBySymbol.json',
           {
             params: {
               symbol,
               limit: 1000,
-              startDateTime: moment()
-                .startOf('day')
-                .prevBusinessDay()
-                .set({ hour: 9, minute: 30 })
-                .format(moment.HTML5_FMT.DATETIME_LOCAL_MS),
-              endDateTime: moment()
-                .startOf('day')
-                .prevBusinessDay()
-                .set({ hour: 16, minute: 0 })
-                .format(moment.HTML5_FMT.DATETIME_LOCAL_MS),
               token: (await this.getToken()).timeAndSales
             },
             responseType: 'json'
