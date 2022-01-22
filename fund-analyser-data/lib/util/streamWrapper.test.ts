@@ -5,7 +5,7 @@ import * as streamWrapper from './streamWrapper'
 describe('streamWraper', () => {
   const version = 'v2'
   test('asReadableAsync', done => {
-    const source = async (x: any) => [1, 2, 3, 4, 5]
+    const source = async () => [1, 2, 3, 4, 5]
     const readableStream = streamWrapper.asReadableAsync(source)
 
     readableStream
@@ -53,7 +53,7 @@ describe('streamWraper', () => {
       }))
   })
   test('asParallelTransformAsync', done => {
-    const divTwoSlow = async (x: any) => new Promise((resolve, reject) => {
+    const divTwoSlow = async (x: any) => new Promise((resolve) => {
       setTimeout(() => resolve(x / 2), Math.random() * 100)
     })
     const parallelTransformStream = streamWrapper.asParallelTransformAsync(divTwoSlow)
