@@ -18,41 +18,41 @@ export interface IsinProvider {
 }
 
 export default class FundFactory {
-    fundCalculator: FundCalculator;
-    fundProvider: FundProvider;
-    isinProvider: IsinProvider;
-    constructor () {
-      this.isinProvider = new CharlesStanleyDirect()
-      this.fundProvider = new FinancialTimes()
-      this.fundCalculator = new FundCalculator()
-    }
+  fundCalculator: FundCalculator
+  fundProvider: FundProvider
+  isinProvider: IsinProvider
+  constructor () {
+    this.isinProvider = new CharlesStanleyDirect()
+    this.fundProvider = new FinancialTimes()
+    this.fundCalculator = new FundCalculator()
+  }
 
-    async getFunds () {
-      const isins = await this.isinProvider.getFunds()
-      const funds = await this.fundProvider.getFundsFromIsins(isins)
-      const enrichedFunds = await Promise.map(funds, fund => this.fundCalculator.evaluate(fund))
-      return enrichedFunds
-    }
+  async getFunds () {
+    const isins = await this.isinProvider.getFunds()
+    const funds = await this.fundProvider.getFundsFromIsins(isins)
+    const enrichedFunds = await Promise.map(funds, fund => this.fundCalculator.evaluate(fund))
+    return enrichedFunds
+  }
 
-    streamFunds () {
-      const isinStream = this.isinProvider.streamFunds()
-      const isinToFundStream = this.fundProvider.streamFundsFromIsins()
-      const fundCalculationStream = this.fundCalculator.stream()
-      const fundStream = isinStream
-        .pipe(isinToFundStream)
-        .pipe(fundCalculationStream)
-      return fundStream
-    }
+  streamFunds () {
+    const isinStream = this.isinProvider.streamFunds()
+    const isinToFundStream = this.fundProvider.streamFundsFromIsins()
+    const fundCalculationStream = this.fundCalculator.stream()
+    const fundStream = isinStream
+      .pipe(isinToFundStream)
+      .pipe(fundCalculationStream)
+    return fundStream
+  }
 
-    streamFundsFromSedols (sedols: string[]) {
-      const sedolStream = streamWrapper.asReadableAsync(async () => sedols)
-      const isinStream = this.isinProvider.streamFundsFromSedols()
-      const isinToFundStream = this.fundProvider.streamFundsFromIsins()
-      const fundCalculationStream = this.fundCalculator.stream()
-      const fundStream = sedolStream
-        .pipe(isinStream)
-        .pipe(isinToFundStream)
-        .pipe(fundCalculationStream)
-      return fundStream
-    }
+  streamFundsFromSedols (sedols: string[]) {
+    const sedolStream = streamWrapper.asReadableAsync(async () => sedols)
+    const isinStream = this.isinProvider.streamFundsFromSedols()
+    const isinToFundStream = this.fundProvider.streamFundsFromIsins()
+    const fundCalculationStream = this.fundCalculator.stream()
+    const fundStream = sedolStream
+      .pipe(isinStream)
+      .pipe(isinToFundStream)
+      .pipe(fundCalculationStream)
+    return fundStream
+  }
 }
