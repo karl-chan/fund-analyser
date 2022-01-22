@@ -35,39 +35,39 @@ class CompoundSymbolProvider implements SymbolProvider {
 }
 
 export default class StockFactory {
-    stockCalculator: StockCalculator;
-    stockProvider: StockProvider;
-    symbolProvider: SymbolProvider;
-    constructor () {
-      this.symbolProvider = new CompoundSymbolProvider(new NYSEStocks(), new Trading212())
-      this.stockProvider = new FreeRealTime()
-      this.stockCalculator = new StockCalculator()
-    }
+  stockCalculator: StockCalculator
+  stockProvider: StockProvider
+  symbolProvider: SymbolProvider
+  constructor () {
+    this.symbolProvider = new CompoundSymbolProvider(new NYSEStocks(), new Trading212())
+    this.stockProvider = new FreeRealTime()
+    this.stockCalculator = new StockCalculator()
+  }
 
-    async getStocks () {
-      const symbols = await this.symbolProvider.getSymbols()
-      const stocks = await this.stockProvider.getStocksFromSymbols(symbols)
-      const enrichedStocks = await Promise.map(stocks, stock => this.stockCalculator.evaluate(stock))
-      return enrichedStocks
-    }
+  async getStocks () {
+    const symbols = await this.symbolProvider.getSymbols()
+    const stocks = await this.stockProvider.getStocksFromSymbols(symbols)
+    const enrichedStocks = await Promise.map(stocks, stock => this.stockCalculator.evaluate(stock))
+    return enrichedStocks
+  }
 
-    streamStocks () {
-      const symbolStream = this.symbolProvider.streamSymbols()
-      const symbolToStockStream = this.stockProvider.streamStocksFromSymbols()
-      const stockCalculationStream = this.stockCalculator.stream()
-      const stockStream = symbolStream
-        .pipe(symbolToStockStream)
-        .pipe(stockCalculationStream)
-      return stockStream
-    }
+  streamStocks () {
+    const symbolStream = this.symbolProvider.streamSymbols()
+    const symbolToStockStream = this.stockProvider.streamStocksFromSymbols()
+    const stockCalculationStream = this.stockCalculator.stream()
+    const stockStream = symbolStream
+      .pipe(symbolToStockStream)
+      .pipe(stockCalculationStream)
+    return stockStream
+  }
 
-    streamStocksFromSymbols (symbols: string[]) {
-      const symbolStream = streamWrapper.asReadableAsync(async () => symbols)
-      const symbolToStockStream = this.stockProvider.streamStocksFromSymbols()
-      const stockCalculationStream = this.stockCalculator.stream()
-      const stockStream = symbolStream
-        .pipe(symbolToStockStream)
-        .pipe(stockCalculationStream)
-      return stockStream
-    }
+  streamStocksFromSymbols (symbols: string[]) {
+    const symbolStream = streamWrapper.asReadableAsync(async () => symbols)
+    const symbolToStockStream = this.stockProvider.streamStocksFromSymbols()
+    const stockCalculationStream = this.stockCalculator.stream()
+    const stockStream = symbolStream
+      .pipe(symbolToStockStream)
+      .pipe(stockCalculationStream)
+    return stockStream
+  }
 }

@@ -3,7 +3,6 @@ import * as heroku from '../../lib/util/heroku'
 import { Category } from '../../lib/util/heroku'
 import log from '../../lib/util/log'
 
-
 const idleThreshold = moment.duration(5, 'minutes')
 
 /**
