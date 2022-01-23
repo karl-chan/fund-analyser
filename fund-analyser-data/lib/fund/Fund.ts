@@ -51,43 +51,25 @@ class Fund {
     }
   }
 
-  amc: number
-  asof: Date
-  bidAskSpread: number
-  entryCharge: number
-  exitCharge: number
-  frequency: string
-  historicPrices: Fund.HistoricPrice[]
-  holdings: Fund.Holding[]
-  indicators: object
-  isin: string
-  name: string
-  ocf: number
-  realTimeDetails: Fund.RealTimeDetails
-  returns: Fund.Returns
-  sedol: string
-  shareClass: any
-  type: any
-
-  constructor (isin: string, sedol: string, name: string, type: any, shareClass: any, frequency: string, ocf: number, amc: number, entryCharge: number, exitCharge: number, bidAskSpread: number, holdings: Fund.Holding[], historicPrices: Fund.HistoricPrice[], returns: Fund.Returns, asof: Date, indicators: object, realTimeDetails: Fund.RealTimeDetails) {
-    this.isin = isin
-    this.sedol = sedol
-    this.name = name
-    this.type = type
-    this.shareClass = shareClass
-    this.frequency = frequency
-    this.ocf = ocf
-    this.amc = amc
-    this.entryCharge = entryCharge
-    this.exitCharge = exitCharge
-    this.bidAskSpread = bidAskSpread
-    this.holdings = holdings
-    this.historicPrices = historicPrices
-    this.returns = returns
-    this.asof = asof
-    this.indicators = indicators
-    this.realTimeDetails = realTimeDetails
-  }
+  constructor (
+    public readonly isin: string,
+    public readonly sedol: string,
+    public readonly name: string,
+    public readonly type: any,
+    public readonly shareClass: any,
+    public readonly frequency: string,
+    public readonly ocf: number,
+    public readonly amc: number,
+    public readonly entryCharge: number,
+    public readonly exitCharge: number,
+    public readonly bidAskSpread: number,
+    public readonly holdings: Fund.Holding[],
+    public readonly historicPrices: Fund.HistoricPrice[],
+    public readonly returns: Fund.Returns,
+    public readonly asof: Date,
+    public readonly indicators: object,
+    public readonly realTimeDetails: Fund.RealTimeDetails
+  ) {}
 
   static builder (isin: string) {
     return new Fund.Builder(isin)
@@ -96,28 +78,36 @@ class Fund {
   isValid () {
     return !isEmpty(this.name) && !isEmpty(this.historicPrices)
   }
+
+  toBuilder () {
+    return Fund.builder(this.isin)
+      .sedol(this.sedol)
+      .name(this.name)
+      .type(this.type)
+      .shareClass(this.shareClass)
+      .frequency(this.frequency)
+      .ocf(this.ocf)
+      .amc(this.amc)
+      .entryCharge(this.entryCharge)
+      .exitCharge(this.exitCharge)
+      .bidAskSpread(this.bidAskSpread)
+      .holdings(this.holdings)
+      .historicPrices(this.historicPrices)
+      .returns(this.returns)
+      .asof(this.asof)
+      .indicators(this.indicators)
+      .realTimeDetails(this.realTimeDetails)
+  }
 }
 
 // eslint-disable-next-line no-redeclare
 namespace Fund {
   export class Holding {
-    name: string
-    symbol: string
-    weight: number
-    constructor (name: string, symbol: string, weight: number) {
-      this.name = name
-      this.symbol = symbol
-      this.weight = weight
-    }
+    constructor (public readonly name: string, public readonly symbol: string, public readonly weight: number) { }
   }
 
   export class HistoricPrice {
-    date: Date
-    price: number
-    constructor (date: Date, price: number) {
-      this.date = date
-      this.price = price
-    }
+    constructor (public readonly date: Date, public readonly price: number) { }
   }
 
   export type Returns = { [lookback: string]: number }
@@ -127,7 +117,7 @@ namespace Fund {
     estPrice: number,
     stdev: number,
     ci: [number, number],
-    holdings: { name: string, symbol: string, currency: string, todaysChange: number, weight: number}[]
+    holdings: { name: string, symbol: string, currency: string, todaysChange: number, weight: number }[]
     lastUpdated: Date
   }
 

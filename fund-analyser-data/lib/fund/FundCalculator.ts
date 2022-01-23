@@ -23,12 +23,14 @@ export default class FundCalculator {
 
   enrichReturns (fund: Fund) {
     // calculate all lookbacks from scratch, FT is unreliable
-    fund.returns = fundUtils.enrichReturns(fund.returns, fund.historicPrices, this.lookbacks)
-    return fund
+    return fund.toBuilder()
+      .returns(fundUtils.enrichReturns(fund.returns, fund.historicPrices, this.lookbacks))
+      .build()
   }
 
   async calcIndicators (fund: Fund) {
-    fund.indicators = await fundUtils.calcIndicators(fund)
-    return fund
+    return fund.toBuilder()
+      .indicators(fundUtils.calcIndicators(fund))
+      .build()
   }
 }

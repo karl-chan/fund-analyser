@@ -107,11 +107,14 @@ describe('FundDAO', function () {
     expect(funds[0]).toEqual(fund)
 
     // modify fund and upsert again
-    fund.isin = 'test2'
+    fund = fund
+      .toBuilder()
+      .name('Modified name')
+      .build()
     await FundDAO.upsertFunds([fund])
     funds = await FundDAO.listFunds({ query: { isin: fund.isin } })
     expect(funds).toBeArrayOfSize(1)
-    expect(funds[0]).toHaveProperty('isin', 'test2')
+    expect(funds[0]).toHaveProperty('name', 'Modified name')
   })
   test('deleteFunds', async () => {
     await FundDAO.upsertFunds([fund])

@@ -122,9 +122,11 @@ function isUpToDate (f: Fund, asofDate: Date) {
 
 async function loadFromFile () {
   ({ fundCache, quickFilterCache, metadata } = await tmp.read(FILE_TMP_CACHE))
-  for (const row of fundCache) {
-    row.asof = new Date(row.asof)
-  }
+  fundCache = fundCache.map(row =>
+    row.toBuilder()
+      .asof(new Date(row.asof))
+      .build()
+  )
   metadata.asof.date = new Date(metadata.asof.date)
   log.info('Fund cache loaded from file.')
 }

@@ -23,8 +23,7 @@ export function fromStock (stock: Stock) {
 
 export function toStock (entry: any) {
   delete entry._id
-  let builder = Stock.builder(entry.isin)
-  builder = _.isNil(entry.symbol) ? builder : builder.symbol(entry.symbol)
+  let builder = Stock.builder(entry.symbol)
   builder = _.isNil(entry.name) ? builder : builder.name(entry.name)
   builder = _.isNil(entry.returns) ? builder : builder.returns(entry.returns)
   builder = _.isNil(entry.asof) ? builder : builder.asof(entry.asof)

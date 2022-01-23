@@ -18,29 +18,19 @@ class Currency {
     }
   }
 
-  base: string
-  historicRates: Currency.HistoricRate[]
-  quote: string
-  returns: {[lookback: string]: number}
-
-  constructor (base: string, quote: string, historicRates: Currency.HistoricRate[], returns:{[lookback: string]: number}) {
-    this.base = base
-    this.quote = quote
-    this.historicRates = historicRates
-    this.returns = returns
-  }
+  constructor (
+    public readonly base: string,
+    public readonly quote: string,
+    public readonly historicRates: Currency.HistoricRate[],
+    public readonly returns: { [lookback: string]: number }
+  ) { }
 }
 
 // eslint-disable-next-line no-redeclare
 namespace Currency {
-    export class HistoricRate {
-      date: Date
-      rate: number
-      constructor (date: Date, rate: number) {
-        this.date = date
-        this.rate = rate
-      }
-    }
+  export class HistoricRate {
+    constructor (public readonly date: Date, public readonly rate: number) { }
+  }
 }
 
 export default Currency

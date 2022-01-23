@@ -78,8 +78,8 @@ describe('FinancialTimes', function () {
         .historicPrices(historicPrices)
         .returns(performance)
         .asof(new Date(2017, 0, 1))
+        .realTimeDetails(expect.any(Object))
         .build()
-      expected.realTimeDetails = expect.any(Object)
 
       const actual = await financialTimes.getFundFromIsin(csdFund)
       expect(actual).toMatchObject(expected)

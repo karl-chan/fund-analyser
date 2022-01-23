@@ -18,7 +18,6 @@ describe('StockDAO', function () {
   })
   beforeEach(function () {
     stock = Stock.builder('test')
-      .symbol('test')
       .name('Test stock')
       .historicPrices([new Stock.HistoricPrice(new Date(2017, 3, 23), 457.0, 100000.0)])
       .returns({ '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2 })
@@ -90,11 +89,14 @@ describe('StockDAO', function () {
     expect(stocks[0]).toEqual(stock)
 
     // modify stock and upsert again
-    stock.symbol = 'test2'
+    stock = stock
+      .toBuilder()
+      .name('Modified name')
+      .build()
     await StockDAO.upsertStocks([stock])
     stocks = await StockDAO.listStocks({ query: { symbol: stock.symbol } })
     expect(stocks).toBeArrayOfSize(1)
-    expect(stocks[0]).toHaveProperty('symbol', 'test2')
+    expect(stocks[0]).toHaveProperty('name', 'Modified name')
   })
   test('deleteStocks', async () => {
     await StockDAO.upsertStocks([stock])
