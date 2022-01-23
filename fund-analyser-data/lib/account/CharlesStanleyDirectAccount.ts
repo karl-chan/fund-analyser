@@ -20,7 +20,7 @@ export interface Balance {
     portfolio: number
     cash: number
     totalValue: number
-    holdings: {ISIN: string, Sedol : string, Quantity: number}[]
+    holdings: {ISIN: string, Sedol : string, Quantity: number, MktPrice: number, MktValue: number}[]
 }
 
 export interface Order {
