@@ -16,12 +16,14 @@ export default class StockCalculator {
   }
 
   calcReturns (stock: Stock) {
-    stock.returns = stockUtils.calcReturns(stock.historicPrices)
-    return stock
+    return stock.toBuilder()
+      .returns(stockUtils.calcReturns(stock.historicPrices))
+      .build()
   }
 
   async calcIndicators (stock: Stock) {
-    stock.indicators = await stockUtils.calcIndicators(stock)
-    return stock
+    return stock.toBuilder()
+      .indicators(stockUtils.calcIndicators(stock))
+      .build()
   }
 }

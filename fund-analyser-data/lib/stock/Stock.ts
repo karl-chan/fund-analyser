@@ -32,27 +32,17 @@ class Stock {
     yld: 'number'
   }
 
-  asof: Date
-  historicPrices: Stock.HistoricPrice[]
-  indicators: object
-  name: string
-  realTimeDetails: Stock.RealTimeDetails
-  returns: Stock.Returns
-  symbol: string
-  marketCap: number
-  yld: number
-
-  constructor (symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, marketCap: number, yld: number) {
-    this.symbol = symbol
-    this.name = name
-    this.historicPrices = historicPrices
-    this.returns = returns
-    this.asof = asof
-    this.indicators = indicators
-    this.realTimeDetails = realTimeDetails
-    this.marketCap = marketCap
-    this.yld = yld
-  }
+  constructor (
+    public readonly symbol: string,
+    public readonly name: string,
+    public readonly historicPrices: Stock.HistoricPrice[],
+    public readonly returns: Stock.Returns,
+    public readonly asof: Date,
+    public readonly indicators: object,
+    public readonly realTimeDetails: Stock.RealTimeDetails,
+    public readonly marketCap: number,
+    public readonly yld: number
+  ) { }
 
   static builder (symbol: string) {
     return new Stock.Builder(symbol)
@@ -61,19 +51,24 @@ class Stock {
   isValid () {
     return !isEmpty(this.name) && !isEmpty(this.historicPrices)
   }
+
+  toBuilder () {
+    return Stock.builder(this.symbol)
+      .name(this.name)
+      .historicPrices(this.historicPrices)
+      .returns(this.returns)
+      .asof(this.asof)
+      .indicators(this.indicators)
+      .realTimeDetails(this.realTimeDetails)
+      .marketCap(this.marketCap)
+      .yld(this.yld)
+  }
 }
 
 // eslint-disable-next-line no-redeclare
 namespace Stock {
   export class HistoricPrice {
-    date: Date
-    price: number
-    volume: number
-    constructor (date: Date, price: number, volume: number) {
-      this.date = date
-      this.price = price
-      this.volume = volume
-    }
+    constructor (public readonly date: Date, public readonly price: number, public readonly volume: number) { }
   }
 
   export type Returns = { [lookback: string]: number }
@@ -98,11 +93,6 @@ namespace Stock {
     _yld: number
     constructor (symbol: string) {
       this._symbol = symbol
-    }
-
-    symbol (symbol: string) {
-      this._symbol = symbol
-      return this
     }
 
     name (name: string) {

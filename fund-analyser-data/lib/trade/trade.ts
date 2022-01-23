@@ -1,14 +1,12 @@
 import { Promise } from 'bluebird'
 import * as _ from 'lodash'
-import moment from 'moment-business-days'
-import CharlesStanleyDirectAccount, { Balance, Transaction } from '../account/CharlesStanleyDirectAccount'
-import Fund from '../fund/Fund'
+import CharlesStanleyDirectAccount, { Balance } from '../account/CharlesStanleyDirectAccount'
 import * as simulate from '../simulate/simulate'
-import { PredictResponse, SimulateParam } from '../simulate/simulate'
-import * as properties from '../util/properties'
+import { SimulateParam } from '../simulate/simulate'
+import * as math from '../util/math'
 import { Action, Buy, Sell } from './Action'
+import { AssetAllocation, Holding } from './AssetAllocation'
 
-const fundHoldBusinessDays = properties.get('trade.fund.hold.business.days')
 /**
  * Trades according to predictions today given by simulateParam.
  * @param {*} simulateParam the simulate param
@@ -16,62 +14,88 @@ const fundHoldBusinessDays = properties.get('trade.fund.hold.business.days')
  * @returns {Array<string>} List of order references for each executed order
  */
 export default async function trade (simulateParam: SimulateParam, { csdAccount }: {csdAccount: CharlesStanleyDirectAccount}) {
-  const [balance, transactions] = await Promise.all([csdAccount.getBalance(), csdAccount.getTransactions()])
+  const balance = await csdAccount.getBalance()
   const prediction = await simulate.predict(simulateParam)
-  const actions = decideActions(prediction, balance, transactions)
+
+  // Assume each prediction has equal weighting
+  const targetAllocation = new AssetAllocation(
+    prediction.funds.map(f => {
+      const weight = 1.0 / prediction.funds.length
+      return new Holding(f.isin, f.sedol, weight)
+    })
+  )
+  const actions = rebalance(balance, targetAllocation)
   const orderReferences = await execute(actions, { csdAccount })
   return orderReferences
 }
+
 /**
- * Returns list of actions based on current prediction and CSD balance.
- * @param {*} prediction
- * @param {*} balance
- * @param {*} transactions
- * @returns {List<Action>}
+ * Returns list of actions to rebalance from the given CSD balance to the target allocation.
+ * @param {Balance} balance
+ * @param {AssetAllocation} targetAllocation
+ * @returns {Action[]}
  */
-export function decideActions (prediction: PredictResponse, balance: Balance, transactions: Transaction[]) {
-  const { cash, holdings } = balance
-  const { funds } = prediction
+export function rebalance (balance: Balance, targetAllocation: AssetAllocation): Action[] {
+  const { cash, holdings, totalValue } = balance
+
+  const isinToExistingHolding = _.keyBy(holdings, h => h.ISIN)
+  const isinToTargetHolding = _.keyBy(targetAllocation.holdings, h => h.isin)
+
+  const actions = []
   if (holdings.length > 0) {
     // Existing holdings
-    const existingIsins = holdings.map(holding => holding.ISIN)
-    const predictIsins = funds.map((fund: Fund) => fund.isin)
-    if (_.isEqual(new Set(existingIsins), new Set(predictIsins))) {
-      // noop
-      return []
-    } else {
-      // sell existing holdings (if held at least for threshold period)
-      const today = moment().utc().startOf('day')
-      const thresholdDate = today.businessSubtract(fundHoldBusinessDays)
-      const latestTransactions = [...transactions].reverse()
-      return holdings
-        .filter(holding => {
-          const boughtDate = latestTransactions
-            .find(transaction => transaction.sedol === holding.Sedol && transaction.debit > 0)
-            .date
-          return thresholdDate.isSameOrAfter(boughtDate)
-        })
-        .map(holding => new Sell(holding.ISIN, holding.Sedol, holding.Quantity))
-    }
-  } else {
-    // No existing holdings
-    if (!funds.length || cash <= 0) {
-      // noop
-      return []
-    } else {
-      // buy predictions
-      const value = cash / funds.length
-      return funds.map((fund: Fund) => new Buy(fund.isin, fund.sedol, value))
-    }
+    const sellActions = holdings.flatMap(h => {
+      const targetWeight = isinToTargetHolding[h.ISIN]?.weight ?? 0
+      const targetValue = targetWeight * totalValue
+      const existingValue = h.MktValue
+      if (math.roughEquals(existingValue, targetValue)) {
+        // noop
+        return []
+      } else if (existingValue > targetValue) {
+        // sell excess
+        const excessValue = existingValue - targetValue
+        const excessQuantity = excessValue / h.MktPrice
+        return [new Sell(h.ISIN, h.Sedol, excessQuantity)]
+      } else {
+        // buy more, but will be handled later
+        return []
+      }
+    })
+    actions.push(...sellActions)
   }
+
+  // Buy new holdings
+  if (cash > 0) {
+    let remainingCash = cash
+    const buyActions: Buy[] = []
+
+    for (const [isin, targetHolding] of Object.entries(isinToTargetHolding)) {
+      if (remainingCash <= 0) {
+        // If there's insufficient cash, skip and try again the next day
+        break
+      }
+      const targetWeight = targetHolding.weight
+      const targetValue = totalValue * targetWeight
+      const existingValue = isinToExistingHolding[isin]?.MktValue ?? 0
+
+      if (targetValue > existingValue) {
+        const buyValue = Math.min(targetValue - existingValue, cash) // subject to available cash
+        buyActions.push(new Buy(isin, targetHolding.sedol, buyValue))
+        remainingCash -= buyValue
+      }
+    }
+    actions.push(...buyActions)
+  }
+  return actions
 }
+
 /**
  * Executes the list of actions on Charles Stanley.
  * @param {List<Action>} actions
  * @param {*} {csdAccount}
  * @returns {List<string>} list of order reference for each executed action.
  */
-async function execute (actions: Action[], { csdAccount }: any) {
+async function execute (actions: Action[], { csdAccount }: {csdAccount: CharlesStanleyDirectAccount}) {
   const orderReferences = await Promise.mapSeries(actions, async action => {
     return csdAccount.tradeFund(action)
   })

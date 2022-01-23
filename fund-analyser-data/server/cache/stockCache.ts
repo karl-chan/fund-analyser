@@ -123,9 +123,11 @@ function isUpToDate (s: any, asofDate: any) {
 
 async function loadFromFile () {
   ({ stockCache, quickFilterCache, metadata } = await tmp.read(FILE_TMP_CACHE))
-  for (const row of stockCache) {
-    row.asof = new Date(row.asof)
-  }
+  stockCache = stockCache.map(row =>
+    row.toBuilder()
+      .asof(new Date(row.asof))
+      .build()
+  )
   metadata.asof.date = new Date(metadata.asof.date)
   log.info('Stock cache loaded from file.')
 }
