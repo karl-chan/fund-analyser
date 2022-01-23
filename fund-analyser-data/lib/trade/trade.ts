@@ -71,7 +71,7 @@ export function decideActions (prediction: PredictResponse, balance: Balance, tr
  * @param {*} {csdAccount}
  * @returns {List<string>} list of order reference for each executed action.
  */
-async function execute (actions: Action[], { csdAccount }: any) {
+async function execute (actions: Action[], { csdAccount }: {csdAccount: CharlesStanleyDirectAccount}) {
   const orderReferences = await Promise.mapSeries(actions, async action => {
     return csdAccount.tradeFund(action)
   })
