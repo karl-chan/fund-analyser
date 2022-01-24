@@ -29,8 +29,9 @@ export default class FundCalculator {
   }
 
   async calcIndicators (fund: Fund) {
+    const indicators = await fundUtils.calcIndicators(fund)
     return fund.toBuilder()
-      .indicators(fundUtils.calcIndicators(fund))
+      .indicators(indicators)
       .build()
   }
 }
