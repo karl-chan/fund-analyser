@@ -22,8 +22,9 @@ export default class StockCalculator {
   }
 
   async calcIndicators (stock: Stock) {
+    const indicators = await stockUtils.calcIndicators(stock)
     return stock.toBuilder()
-      .indicators(stockUtils.calcIndicators(stock))
+      .indicators(indicators)
       .build()
   }
 }
