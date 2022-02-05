@@ -52,6 +52,10 @@ export default async function updateStocks () {
   // delete stocks with no data
   await StockDAO.deleteStocks({ query: { name: { $eq: null } } })
   log.info('Deleted stocks without names')
+
+  // delete outdated stocks
+  const cutoffDate = today.subtract(1, 'week').toDate()
+  await StockDAO.deleteStocks({ query: { asof: { $lt: cutoffDate } } })
 }
 
 async function isStockValid (stock: Stock) {
