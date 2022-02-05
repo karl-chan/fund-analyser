@@ -51,6 +51,7 @@ export default async function updateFunds () {
   // delete outdated funds
   const cutoffDate = today.subtract(1, 'month').toDate()
   await FundDAO.deleteFunds({ query: { asof: { $lt: cutoffDate } } })
+  log.info('Deleted outdated funds')
 }
 
 async function isFundValid (fund: Fund) {
