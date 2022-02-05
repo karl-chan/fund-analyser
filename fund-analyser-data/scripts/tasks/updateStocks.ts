@@ -56,6 +56,7 @@ export default async function updateStocks () {
   // delete outdated stocks
   const cutoffDate = today.subtract(1, 'week').toDate()
   await StockDAO.deleteStocks({ query: { asof: { $lt: cutoffDate } } })
+  log.info('Deleted outdated stocks')
 }
 
 async function isStockValid (stock: Stock) {
