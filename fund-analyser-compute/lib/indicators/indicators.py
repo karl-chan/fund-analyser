@@ -11,12 +11,13 @@ from lib.util import properties
 def get_all_indicators() -> List[Indicator]:
     from .ppo import PPO
     from .mdd import MDD
+    from .num_breakouts import NumBreakouts
     from .sharpe_ratio import SharpeRatio
     from .stability import Stability
     from .returns import MaxReturns, MinReturns
     from .rsi import RSI
     lookbacks = properties.get("fund.lookbacks")
-    return [MDD(), MDT(), PPO(), RSI(), SharpeRatio(), Stability()] \
+    return [MDD(), MDT(), NumBreakouts(), PPO(), RSI(), SharpeRatio(), Stability()] \
            + [MaxReturns(lookback) for lookback in lookbacks] \
            + [MinReturns(lookback) for lookback in lookbacks]
 

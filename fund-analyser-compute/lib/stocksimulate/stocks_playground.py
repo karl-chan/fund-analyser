@@ -81,7 +81,7 @@ class ContinuousRiseEntryStrategy(StockStrategy):
     @overrides
     def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
         log_debug(f"ContinuousRiseEntryStrategy for date: {dt}")
-        recent_df = prices_df.loc[:dt, :]
+        recent_df = prices_df.loc[:dt, :]  # type: ignore
         lookback = 60
         if len(recent_df) <= lookback:
             return {}
