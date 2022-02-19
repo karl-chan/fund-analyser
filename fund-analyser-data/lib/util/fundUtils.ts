@@ -148,6 +148,8 @@ export function enrichSummary (summary: Fund[]) {
     for (const name of Object.keys(summary[0].indicators || {})) {
       colourOptions[`indicators.${name}.value`] = colourAroundZero()
     }
+    // Override indicators
+    colourOptions['indicators.mdt.value'] = colourAroundZero({ desc: true })
     summary = agGridUtils.addColours(summary, colourOptions)
   }
   return summary
