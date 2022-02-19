@@ -61,7 +61,7 @@ class WorstFallEntryStrategy(StockStrategy):
     @overrides
     def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
         log_debug(f"HighestRisingEntryStrategy for date: {dt}")
-        return prices_df.pct_change(10).loc[dt, :].nsmallest(10).lt(0).astype('int').to_dict()
+        return prices_df.pct_change(1).loc[dt, :].nsmallest(10).lt(0).astype('int').to_dict()
 
 
 class HighestRiseEntryStrategy(StockStrategy):
@@ -75,6 +75,23 @@ class RisingEntryStrategy(StockStrategy):
     @overrides
     def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
         return prices_df.pct_change(5).gt(0.5).loc[dt, :].astype('int').to_dict()
+
+
+class ContinuousRiseEntryStrategy(StockStrategy):
+    @overrides
+    def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
+        log_debug(f"ContinuousRiseEntryStrategy for date: {dt}")
+        recent_df = prices_df.loc[:dt, :]  # type: ignore
+        lookback = 60
+        if len(recent_df) <= lookback:
+            return {}
+        else:
+            continuous_rise_df = recent_df.iloc[[-lookback, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1], :].diff().iloc[1:,
+                                 :].gt(
+                0).all()
+            continuous_rise_symbols = continuous_rise_df[continuous_rise_df].index
+            return prices_df.pct_change(lookback).loc[dt, continuous_rise_symbols].nlargest(10).gt(0).astype(
+                'int').to_dict()
 
 
 class AbsRisingEntryStrategy(StockStrategy):
@@ -104,7 +121,7 @@ class AbsFallingExitStrategy(StockStrategy):
     def should_execute(self, dt: date, prices_df: pd.DataFrame, history: TradeHistory) -> Confidences:
         window = prices_df.loc[dt - BDAY: dt, :]  # type: ignore
         pct_change = (window.iloc[-1] - window.iloc[0]) / window.iloc[0]
-        return pct_change.lt(0.03).astype('int').to_dict()
+        return pct_change.lt(0).astype('int').to_dict()
 
 
 class HoldingDaysExitStrategy(StockStrategy):
