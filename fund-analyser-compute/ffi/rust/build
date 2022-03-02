@@ -1,11 +1,10 @@
 #!/bin/bash
-FFI_DIR_MAC=$(dirname $0)
-FFI_DIR_LINUX='/home/ubuntu/Home/Projects/fund-analyser/fund-analyser-compute/ffi/rust'
 
-MATURIN_BUILD_CMD='maturin build --release --out=../../bin'
+# build for specific python versions only
+PYTHON_INTERPRETER=/usr/local/bin/python3.10
 
 # build for Mac OS
-cd $FFI_DIR_MAC && poetry run $MATURIN_BUILD_CMD
+maturin build --release --out=../../bin --interpreter=${PYTHON_INTERPRETER}
 
 # build for Linux
-multipass exec primary -- sh -c "export PATH=$PATH:/home/ubuntu/.cargo/bin && cd $FFI_DIR_LINUX && /home/ubuntu/.local/bin/$MATURIN_BUILD_CMD"
+docker run --rm -v $(pwd):/io konstin2/maturin build --compatibility=manylinux_2_24_x86_64 --interpreter=${PYTHON_INTERPRETER} && mv target/wheels/*.whl ../../bin

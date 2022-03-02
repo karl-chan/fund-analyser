@@ -5,9 +5,9 @@ authors = ["Karl Chan <karl-chan@bitbucket.org>"]
 edition = "2018"
 
 [dependencies]
-ndarray = { version = "0.13.1", features = ["rayon"] }
-numpy = "0.9.0"
-pyo3 = { version = "0.10.1", features = ["extension-module"] }
+ndarray = { version = "0.15.4", features = ["rayon"] }
+numpy = "0.16.0"
+pyo3 = { version = "0.16.0", features = ["extension-module"] }
 
 [lib]
 name = "rust_indicators"
