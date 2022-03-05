@@ -1,5 +1,3 @@
-use std::iter::FromIterator;
-
 use ndarray::parallel::prelude::*;
 use ndarray::prelude::*;
 use ndarray::{Array, Array1, Array2, ArrayView1, ArrayView2};
@@ -119,9 +117,11 @@ fn rust_indicators(_py: Python, m: &PyModule) -> PyResult<()> {
         arr.map(|e| e.map_or(f64::NAN, |v| v as f64))
     }
 
-    #[pyfn(m, "support_resistance_ilocs")]
+    #[pyfn(m)]
+    #[pyo3(name = "support_resistance_ilocs")]
     fn support_resistance_ilocs_py<'p>(py: Python<'p>, prices_df: &PyArray2<f64>) -> &'p PyTuple {
-        let (support_ilocs, resistance_ilocs) = support_resistance_ilocs(prices_df.as_array());
+        let prices_df = unsafe { prices_df.as_array() };
+        let (support_ilocs, resistance_ilocs) = support_resistance_ilocs(prices_df);
         PyTuple::new(
             py,
             &[
