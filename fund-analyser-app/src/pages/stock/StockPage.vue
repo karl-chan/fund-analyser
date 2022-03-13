@@ -25,8 +25,9 @@ q-page(padding)
         .text-h6 {{ $utils.format.formatSeconds(stock.realTimeDetails.longestTimeGap) }}
 
     .row.q-col-gutter-x-sm.q-mt-lg
-      .col-md-7
+      .col-md-7.q-gutter-y-md
         fund-chart(:fund="stock")
+        stock-fundamentals(:stock="stock")
       .col-md-5
         fund-indicators(:fund="stock")
 
