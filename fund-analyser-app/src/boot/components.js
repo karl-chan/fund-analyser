@@ -29,6 +29,7 @@ import SimulateRequest from 'components/simulate/SimulateRequest'
 import SimulateResponse from 'components/simulate/SimulateResponse'
 import SimulateResponseFooter from 'components/simulate/SimulateResponseFooter'
 import SimulateResponseModal from 'components/simulate/SimulateResponseModal'
+import StockFundamentals from 'components/stock/StockFundamentals'
 import StockSearch from 'components/stock/StockSearch'
 import StocksSummary from 'components/stock/StocksSummary'
 import StocksTable from 'components/stock/StocksTable'
@@ -59,6 +60,7 @@ export default ({ app }) => {
   app.component('similar-funds', SimilarFunds)
 
   app.component('stock-search', StockSearch)
+  app.component('stock-fundamentals', StockFundamentals)
   app.component('stocks-table', StocksTable)
   app.component('stocks-summary', StocksSummary)
 

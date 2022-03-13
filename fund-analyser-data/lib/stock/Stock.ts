@@ -28,8 +28,7 @@ class Stock {
       longestTimeGap: 'number',
       lastUpdated: 'Date'
     },
-    marketCap: 'number',
-    yld: 'number'
+    fundamentals: 'object'
   }
 
   constructor (
@@ -40,8 +39,7 @@ class Stock {
     public readonly asof: Date,
     public readonly indicators: object,
     public readonly realTimeDetails: Stock.RealTimeDetails,
-    public readonly marketCap: number,
-    public readonly yld: number
+    public readonly fundamentals: object
   ) { }
 
   static builder (symbol: string) {
@@ -60,8 +58,7 @@ class Stock {
       .asof(this.asof)
       .indicators(this.indicators)
       .realTimeDetails(this.realTimeDetails)
-      .marketCap(this.marketCap)
-      .yld(this.yld)
+      .fundamentals(this.fundamentals)
   }
 }
 
@@ -82,15 +79,14 @@ namespace Stock {
   }
 
   export class Builder {
-    _asof: Date
-    _historicPrices: HistoricPrice[]
-    _indicators: object
-    _name: string
-    _realTimeDetails: RealTimeDetails
-    _returns: Returns
     _symbol: string
-    _marketCap: number
-    _yld: number
+    _name: string
+    _historicPrices: HistoricPrice[]
+    _returns: Returns
+    _asof: Date
+    _indicators: object
+    _realTimeDetails: RealTimeDetails
+    _fundamentals: object
     constructor (symbol: string) {
       this._symbol = symbol
     }
@@ -125,18 +121,13 @@ namespace Stock {
       return this
     }
 
-    marketCap (marketCap: number) {
-      this._marketCap = marketCap
-      return this
-    }
-
-    yld (yld: number) {
-      this._yld = yld
+    fundamentals (fundamentals: object) {
+      this._fundamentals = fundamentals
       return this
     }
 
     build () {
-      return new Stock(this._symbol, this._name, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails, this._marketCap, this._yld)
+      return new Stock(this._symbol, this._name, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails, this._fundamentals)
     }
   }
 

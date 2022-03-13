@@ -1,7 +1,7 @@
 import Stock from './Stock'
 
 describe('Stock', function () {
-  let symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, marketCap: number, yld: number
+  let symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, fundamentals: object
   let stock: Stock
 
   beforeEach(() => {
@@ -21,10 +21,12 @@ describe('Stock', function () {
       longestTimeGap: 5,
       lastUpdated: undefined
     }
-    marketCap = 22_000_000_000
-    yld = 0.00661
+    fundamentals = {
+      marketCap: 22_000_000_000,
+      yld: 0.00661
+    }
 
-    stock = new Stock(symbol, name, historicPrices, returns, asof, indicators, realTimeDetails, marketCap, yld)
+    stock = new Stock(symbol, name, historicPrices, returns, asof, indicators, realTimeDetails, fundamentals)
   })
   test('constructor should populate Stock with correct fields', () => {
     expect(stock).toMatchObject({ symbol, name, historicPrices, returns, asof, indicators, realTimeDetails })
@@ -34,9 +36,9 @@ describe('Stock', function () {
     expect(stock.isValid()).toBeTrue()
   })
   test('isValid should return false for stock without name', () => {
-    const undefinedNameStock = new Stock(symbol, undefined, [], {}, undefined, undefined, undefined, undefined, undefined)
-    const nullNameStock = new Stock(symbol, null, [], {}, undefined, undefined, undefined, undefined, undefined)
-    const emptyNameStock = new Stock(symbol, '', [], {}, undefined, undefined, undefined, undefined, undefined)
+    const undefinedNameStock = new Stock(symbol, undefined, [], {}, undefined, undefined, undefined, undefined)
+    const nullNameStock = new Stock(symbol, null, [], {}, undefined, undefined, undefined, undefined)
+    const emptyNameStock = new Stock(symbol, '', [], {}, undefined, undefined, undefined, undefined)
     expect([undefinedNameStock, nullNameStock, emptyNameStock]).toSatisfyAll(f => !f.isValid())
   })
 
@@ -49,8 +51,7 @@ describe('Stock', function () {
         .asof(asof)
         .indicators(indicators)
         .realTimeDetails(realTimeDetails)
-        .marketCap(marketCap)
-        .yld(yld)
+        .fundamentals(fundamentals)
       const actual = builder.build()
       expect(actual).toBeInstanceOf(Stock)
       expect(actual).toEqual(stock)

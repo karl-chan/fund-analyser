@@ -156,21 +156,42 @@ export default {
             }
           })
         },
-        { headerName: 'Market Cap', field: 'marketCap', width: 70 },
-        { headerName: 'Dividend Yield', field: 'yld', width: 70 },
+        {
+          headerName: 'Fundamentals',
+          marryChildren: true,
+          children: [
+            { headerName: 'Market Cap', field: 'fundamentals.marketCap', width: 70 },
+            { headerName: 'Beta', field: 'fundamentals.beta', width: 70 },
+            { headerName: 'EPS', field: 'fundamentals.eps', width: 70 },
+            { headerName: 'PB Ratio', field: 'fundamentals.pbRatio', width: 70 },
+            { headerName: 'PE Ratio', field: 'fundamentals.peRatio', width: 70 },
+            { headerName: 'PS Ratio', field: 'fundamentals.psRatio', width: 70 },
+            { headerName: 'Dividend Yield', field: 'fundamentals.yld', width: 70 },
+          ]
+        },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ]
 
       const colourFields = new Set(
-        ['realTimeDetails.bidAskSpread', 'realTimeDetails.longestTimeGap', 'marketCap', 'yld']
+        [
+          'realTimeDetails.bidAskSpread',
+          'realTimeDetails.longestTimeGap',
+          'fundamentals.marketCap',
+          'fundamentals.beta',
+          'fundamentals.eps',
+          'fundamentals.pbRatio',
+          'fundamentals.peRatio',
+          'fundamentals.psRatio',
+          'fundamentals.yld'
+        ]
           .concat(extendedPeriods.map(period => `returns.${period}`))
           .concat(this.getIndicatorKeys()))
       const percentFields = new Set(
-        ['yld', 'realTimeDetails.bidAskSpread']
+        ['fundamentals.yld', 'realTimeDetails.bidAskSpread']
           .concat(extendedPeriods.map(period => `returns.${period}`))
           .concat(this.getIndicatorKeys('percent')))
       const numberFields = new Set(
-        ['marketCap', 'realTimeDetails.longestTimeGap']
+        ['fundamentals.marketCap', 'realTimeDetails.longestTimeGap']
           .concat(this.getIndicatorKeys('default')))
       const dateFields = new Set(['asof'])
 
@@ -376,7 +397,7 @@ export default {
             case 'returns.1W':
             case 'returns.3D':
             case 'returns.1D':
-            case 'yld':
+            case 'fundamentals.yld':
             case 'realTimeDetails.bidAskSpread': return this.percentFormatter(params, '')
             default: return params.value
           }

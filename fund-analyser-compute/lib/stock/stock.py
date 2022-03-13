@@ -43,7 +43,6 @@ class StockIndicator(NamedTuple):
 
 StockIndicators = Dict[str, StockIndicator]
 
-
 class Stock(NamedTuple):
     symbol: str
     name: Optional[str] = None
@@ -51,8 +50,7 @@ class Stock(NamedTuple):
     asof: Optional[datetime] = None
     indicators: Optional[StockIndicators] = None
     realTimeDetails: Optional[StockRealTimeDetails] = None
-    marketCap: Optional[float] = None
-    yld: Optional[float] = None
+    fundamentals: Dict[str, float] = dict()
 
     @classmethod
     def from_dict(cls, d: Dict) -> Stock:
