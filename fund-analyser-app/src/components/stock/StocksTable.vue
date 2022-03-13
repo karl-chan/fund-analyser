@@ -156,13 +156,24 @@ export default {
             }
           })
         },
-        { headerName: 'Market Cap', field: 'marketCap', width: 70 },
-        { headerName: 'Dividend Yield', field: 'yld', width: 70 },
+        {
+          headerName: '',
+          marryChildren: true,
+          children: [
+            { headerName: 'Market Cap', field: 'marketCap', width: 70 },
+            { headerName: 'Beta', field: 'beta', width: 70 },
+            { headerName: 'EPS', field: 'eps', width: 70 },
+            { headerName: 'PB Ratio', field: 'pbRatio', width: 70 },
+            { headerName: 'PE Ratio', field: 'peRatio', width: 70 },
+            { headerName: 'PS Ratio', field: 'psRatio', width: 70 },
+            { headerName: 'Dividend Yield', field: 'yld', width: 70 },
+          ]
+        },
         { headerName: 'As of date', field: 'asof', valueFormatter: this.dateFormatter, width: 100 }
       ]
 
       const colourFields = new Set(
-        ['realTimeDetails.bidAskSpread', 'realTimeDetails.longestTimeGap', 'marketCap', 'yld']
+        ['realTimeDetails.bidAskSpread', 'realTimeDetails.longestTimeGap', 'marketCap', 'beta', 'eps', 'pbRatio', 'peRatio', 'psRatio', 'yld']
           .concat(extendedPeriods.map(period => `returns.${period}`))
           .concat(this.getIndicatorKeys()))
       const percentFields = new Set(

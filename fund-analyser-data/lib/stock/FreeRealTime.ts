@@ -13,11 +13,12 @@ import Stock from './Stock'
 import { StockProvider } from './StockFactory'
 
 export interface Token {
-  quote: string;
-  timeAndSales: string;
-  profile: string;
-  historical: string;
-  expiry: Date;
+  quote: string
+  timeAndSales: string
+  profile: string
+  historical: string
+  miniFundamentals: string
+  expiry: Date
 }
 
 const http = new Http({
@@ -57,7 +58,7 @@ export default class FreeRealTime implements StockProvider {
 
   async getSummary (symbol: string) {
     try {
-      const [{ data: res1 }, { data: res2 }] = await Promise.all([
+      const [{ data: res1 }, { data: res2 }, { data: res3 }] = await Promise.all([
         http.asyncGet(
           'https://app.quotemedia.com/datatool/getEnhancedQuotes.json',
           {
@@ -76,11 +77,24 @@ export default class FreeRealTime implements StockProvider {
               token: (await this.getToken()).timeAndSales
             },
             responseType: 'json'
+          }),
+        http.asyncGet(
+          'https://app.quotemedia.com/datatool/getFundamentals.json',
+          {
+            params: {
+              symbols: symbol,
+              token: (await this.getToken()).miniFundamentals
+            },
+            responseType: 'json'
           })])
 
       const quote = res1.results.quote[0]
       const name = quote.equityinfo.longname
-      const marketCap = quote.fundamental?.marketcap
+      const marketCap = +quote.fundamental?.marketcap
+      const beta = +quote.fundamental?.beta
+      const eps = +quote.fundamental?.eps
+      const pbRatio = +quote.fundamental?.pbratio
+      const peRatio = +quote.fundamental?.peratio
       const yld = quote.fundamental?.dividend?.yield / 100
 
       const priceData = quote.pricedata
@@ -91,6 +105,9 @@ export default class FreeRealTime implements StockProvider {
       const tradeTimeGaps: number[] = _.zip(tradeRows.slice(0, -1), _.tail(tradeRows))
         .map(([row1, row2]: any) => moment(row1.datetime).diff(moment(row2.datetime), 'seconds'))
       const longestTimeGap = _.max(tradeTimeGaps)
+
+      const company = res3.results.company[0]
+      const psRatio = +company.fundamental?.pricetosales
 
       const tradePriceMovements: number[] = _.zip(tradeRows.slice(0, -1), _.tail(tradeRows))
         .map(([row1, row2]: any) => {
@@ -106,6 +123,11 @@ export default class FreeRealTime implements StockProvider {
       return {
         name,
         marketCap,
+        beta,
+        eps,
+        pbRatio,
+        peRatio,
+        psRatio,
         yld,
         realTimeDetails: {
           estPrice,
@@ -218,18 +240,27 @@ export default class FreeRealTime implements StockProvider {
     const { value: profile, expires_at: profileExpiry } = JSON.parse(localStorage.app_100804_CompanyProfile)
     const { value: historical, expires_at: historicalExpiry } = JSON.parse(localStorage.app_100804_PriceHistory)
     const { value: timeAndSales, expires_at: timeAndSalesExpiry } = JSON.parse(localStorage.app_100804_TradesHistorical)
+    const { value: miniFundamentals, expires_at: miniFundamentalsExpiry } = JSON.parse(localStorage.app_100804_MiniFundamentals)
+    const { value: miniQuotes, expires_at: miniQuotesExpiry } = JSON.parse(localStorage.app_100804_MiniQuotes)
+    const { value: fullNews, expires_at: fullNewsExpiry } = JSON.parse(localStorage.app_100804_FullNews)
 
     const token = {
       quote,
       timeAndSales,
       profile,
       historical,
+      miniFundamentals,
+      miniQuotes,
+      fullNews,
       expiry: moment.utc(
         _.min([
           quoteExpiry,
           profileExpiry,
           historicalExpiry,
-          timeAndSalesExpiry
+          timeAndSalesExpiry,
+          miniFundamentalsExpiry,
+          miniQuotesExpiry,
+          fullNewsExpiry
         ])
       ).toDate()
     }

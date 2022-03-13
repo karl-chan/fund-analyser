@@ -160,6 +160,7 @@ export function colourNegative <T extends object> () :ColourFunction <T> {
   return colour(scoreFunction)
 }
 
+// scoreFn should return number within range -1 (red) to 1 (green).
 function colour<T extends object> (scoreFn: ScoreFunction<T>, options?: ColourOptions): ColourFunction<T> {
   return (field: string, rows: T[]) => {
     const max = _.get(options, 'clipUpper') || stat.max(rows.map(row => _.get(row, field)))

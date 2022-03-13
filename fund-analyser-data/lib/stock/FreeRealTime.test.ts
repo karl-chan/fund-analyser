@@ -27,6 +27,11 @@ describe('FreeRealTime', () => {
       const summary = {
         name: 'APPLE',
         marketCap: 2_251_600_345_800,
+        beta: 1.1844589710235596,
+        eps: 6.03,
+        pbRatio: 35.086,
+        peRatio: 25.7,
+        psRatio: 7.091,
         yld: 0.00661,
         realTimeDetails: {
           estPrice: 351.7,
@@ -83,6 +88,11 @@ describe('FreeRealTime', () => {
       const summary = await freeRealTime.getSummary('AAPL')
       expect(summary.name).toEqual('Apple Inc.')
       expect(summary.marketCap).toBePositive()
+      expect(summary.beta).toBePositive()
+      expect(summary.eps).toBePositive()
+      expect(summary.pbRatio).toBePositive()
+      expect(summary.peRatio).toBePositive()
+      expect(summary.psRatio).toBePositive()
       expect(summary.yld).toBeWithin(0, 1)
       expect(summary.realTimeDetails).toMatchObject({
         estPrice: expect.toBeNumber(),
