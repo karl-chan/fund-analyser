@@ -47,8 +47,7 @@ export default class FreeRealTime implements StockProvider {
       .historicPrices(historicPrices)
       .asof(_.isEmpty(historicPrices) ? undefined : _.last(historicPrices).date)
       .realTimeDetails(summary.realTimeDetails)
-      .marketCap(summary.marketCap)
-      .yld(summary.yld)
+      .fundamentals(summary.fundamentals)
       .build()
   }
 
@@ -122,19 +121,21 @@ export default class FreeRealTime implements StockProvider {
 
       return {
         name,
-        marketCap,
-        beta,
-        eps,
-        pbRatio,
-        peRatio,
-        psRatio,
-        yld,
         realTimeDetails: {
           estPrice,
           estChange,
           bidAskSpread,
           longestTimeGap,
           lastUpdated: new Date()
+        },
+        fundamentals: {
+          marketCap,
+          beta,
+          eps,
+          pbRatio,
+          peRatio,
+          psRatio,
+          yld
         }
       }
     } catch (err) {

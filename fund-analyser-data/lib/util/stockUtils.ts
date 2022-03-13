@@ -35,15 +35,18 @@ export function enrichSummary (summary: Stock[]) {
       'returns.$lookback': colourAroundZero(),
       'returns.+1D': colourAroundZero(), // include +1D
       'realTimeDetails.bidAskSpread': colourAroundMedian({ desc: true }),
-      'realTimeDetails.longestTimeGap': colourAroundMedian({ desc: true }),
-      marketCap: colourAroundMedian(),
-      yld: colourAroundMedian()
+      'realTimeDetails.longestTimeGap': colourAroundMedian({ desc: true })
     }
+
     for (const name of Object.keys(summary[0].indicators || {})) {
       colourOptions[`indicators.${name}.value`] = colourAroundZero()
     }
     // Override indicators
     colourOptions['indicators.mdt.value'] = colourAroundZero({ desc: true })
+
+    for (const name of Object.keys(summary[0].fundamentals || {})) {
+      colourOptions[`fundamentals.${name}`] = colourAroundZero()
+    }
     summary = agGridUtils.addColours(summary, colourOptions)
   }
   return summary

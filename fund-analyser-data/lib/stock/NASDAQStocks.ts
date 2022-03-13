@@ -43,8 +43,7 @@ export default class NASDAQStocks implements StockProvider {
       .historicPrices(historicPrices)
       .asof(_.isEmpty(historicPrices) ? undefined : _.last(historicPrices).date)
       .realTimeDetails(realTimeDetails)
-      .marketCap(summary.marketCap)
-      .yld(summary.yld)
+      .fundamentals(summary.fundamentals)
       .build()
   }
 
@@ -71,8 +70,10 @@ export default class NASDAQStocks implements StockProvider {
 
       return {
         name,
-        marketCap,
-        yld
+        fundamentals: {
+          marketCap,
+          yld
+        }
       }
     } catch (err) {
       log.warn('Failed to retrieve NASDAQStocks summary for symbol: %s. Cause: %s', symbol, err.stack)
