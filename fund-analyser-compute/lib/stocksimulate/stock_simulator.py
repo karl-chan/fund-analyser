@@ -71,7 +71,7 @@ class StockSimulator:
 
             # check buy
             can_buy_symbols = self._symbols.difference(sold_symbols)
-            confidences = self._entry_strategy.should_execute(dt, prices_df.loc[:dt, can_buy_symbols], history)
+            confidences = self._entry_strategy.should_execute(dt, prices_df.loc[:dt, list(can_buy_symbols)], history)
             buy_confidences = {k: v for k, v in confidences.items() if v > 0}
             if len(buy_confidences) and cash > 0:
                 budget = cash / len(buy_confidences)
