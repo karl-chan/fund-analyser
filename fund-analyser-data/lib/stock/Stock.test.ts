@@ -1,7 +1,7 @@
 import Stock from './Stock'
 
 describe('Stock', function () {
-  let symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: object, realTimeDetails: Stock.RealTimeDetails, fundamentals: object
+  let symbol: string, name: string, historicPrices: Stock.HistoricPrice[], returns: Stock.Returns, asof: Date, indicators: Stock.Indicators, realTimeDetails: Stock.RealTimeDetails, fundamentals: object
   let stock: Stock
 
   beforeEach(() => {
@@ -13,7 +13,7 @@ describe('Stock', function () {
     ]
     returns = { '5Y': 0.1767, '3Y': 0.226 }
     asof = new Date(2018, 8, 8)
-    indicators = { stability: 1.96 }
+    indicators = { stability: { value: 1.96 } }
     realTimeDetails = {
       estChange: -0.00123,
       estPrice: 3.198,

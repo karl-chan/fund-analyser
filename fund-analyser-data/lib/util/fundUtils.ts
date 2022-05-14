@@ -7,7 +7,7 @@ import * as indicators from './indicators'
 import * as lang from './lang'
 import * as stat from './stat'
 
-export function closestRecord (lookback: any, historicPrices: {date: Date}[]) {
+export function closestRecord<HistoricPrice extends {date: Date}> (lookback: any, historicPrices: HistoricPrice[]): HistoricPrice | null {
   if (!historicPrices || !historicPrices.length) {
     return null
   }
@@ -30,7 +30,7 @@ export function closestRecord (lookback: any, historicPrices: {date: Date}[]) {
   return beginRecord
 }
 
-export function closestRecordBeforeDate (date: Date, historicPrices: Fund.HistoricPrice[]) {
+export function closestRecordBeforeDate (date: Date, historicPrices: Fund.HistoricPrice[]): Fund.HistoricPrice {
   let low = 0
   let high = historicPrices.length - 1
   // binary search
@@ -54,7 +54,7 @@ export function closestRecordBeforeDate (date: Date, historicPrices: Fund.Histor
 }
 
 // drop while gaps in series if there is a large gap (e.g. 1 year) in the middle
-export function dropWhileGaps (historicPrices: Fund.HistoricPrice[]) {
+export function dropWhileGaps (historicPrices: Fund.HistoricPrice[]): Fund.HistoricPrice[] {
   const multiplier = 30
   const sampleLastN = 5
   if (historicPrices.length < sampleLastN) {
@@ -68,7 +68,7 @@ export function dropWhileGaps (historicPrices: Fund.HistoricPrice[]) {
   return _.unzip(_.takeRightWhile(zippedHistoricPrices, ([hp1, hp2]) => hp2 === undefined || hp2.date.getTime() - hp1.date.getTime() < thresholdGap))[0]
 }
 
-export function enrichReturns (returns: Fund.Returns, historicPrices: Fund.HistoricPrice[], additionalLookbacks: any) {
+export function enrichReturns (returns: Fund.Returns, historicPrices: Fund.HistoricPrice[], additionalLookbacks: any): Fund.Returns {
   // Null safe check
   if (!_.isPlainObject(returns) || _.isEmpty(historicPrices) || _.isEmpty(additionalLookbacks)) {
     return returns
@@ -88,7 +88,7 @@ export function enrichReturns (returns: Fund.Returns, historicPrices: Fund.Histo
   return newReturns
 }
 
-export async function calcIndicators (fund: Fund) {
+export async function calcIndicators (fund: Fund): Promise<Fund.Indicators> {
   return indicators.calcFundIndicators(fund)
 }
 
@@ -113,7 +113,7 @@ export function calcStats (funds: Fund[]) {
   return { min, q1, median, q3, max }
 }
 
-export function enrichRealTimeDetails (realTimeDetails: Fund.RealTimeDetails, fund: Fund) {
+export function enrichRealTimeDetails (realTimeDetails: Fund.RealTimeDetails, fund: Fund): Fund.RealTimeDetails {
   // excluding nulls
   const holdingsX: [number, number][] = realTimeDetails.holdings
     .filter(h => h.todaysChange != null)
@@ -129,7 +129,7 @@ export function enrichRealTimeDetails (realTimeDetails: Fund.RealTimeDetails, fu
   return { ...realTimeDetails, ...enrichment }
 }
 
-export function enrichSummary (summary: Fund[]) {
+export function enrichSummary (summary: Fund[]): Fund[] {
   // add +1D to returns
   summary
     .filter(row => row.returns)

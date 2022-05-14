@@ -36,7 +36,7 @@ export default class FinancialTimes implements FundProvider {
     this.lookback = properties.get('fund.financialtimes.lookback.days')
   }
 
-  async getFundsFromIsins (csdFunds: Fund[]) {
+  async getFundsFromIsins (csdFunds: Fund[]): Promise<Fund[]> {
     return Promise.map(csdFunds, csdFund => this.getFundFromIsin(csdFund))
   }
 
@@ -181,12 +181,12 @@ export default class FinancialTimes implements FundProvider {
     }
   }
 
-  async getHistoricExchangeRates (base: string, quote: string) {
+  async getHistoricExchangeRates (base: string, quote: string):Promise<Currency.HistoricRate[]> {
     const entries = await this.getHistoricPrices(`${base}${quote}`)
     return entries.map(entry => new Currency.HistoricRate(entry.date, entry.price))
   }
 
-  async getHoldings (isin: string, fallbackFund?: Fund) {
+  async getHoldings (isin: string, fallbackFund?: Fund): Promise<Fund.Holding[]> {
     const url = `https://markets.ft.com/data/funds/tearsheet/holdings?s=${isin}`
     const { data } = await http.asyncGet(url)
     const $ = cheerio.load(data)
@@ -219,7 +219,7 @@ export default class FinancialTimes implements FundProvider {
 
   // Real time details
   // precondition: fund with holdings and historic prices
-  async getRealTimeDetails (fund: Fund) {
+  async getRealTimeDetails (fund: Fund): Promise<Fund.RealTimeDetails> {
     const getTodaysChange = async (holdingTicker: string) => {
       const url = `https://markets.ft.com/data/equities/tearsheet/summary?s=${holdingTicker}`
       const { data } = await http.asyncGet(url)
@@ -287,7 +287,7 @@ export default class FinancialTimes implements FundProvider {
     return streamWrapper.asParallelTransformAsync((csdFund: Fund) => this.getFundFromIsin(csdFund))
   }
 
-  async getSymbolFromName (name: string) {
+  async getSymbolFromName (name: string): Promise<{symbol: string, name: string}> {
     const dropShareClassSuffix = (name: string) => {
       const chunks = name.split(' ')
       if (chunks.length > 1 && _.last(chunks) === _.last(chunks).toUpperCase()) {
