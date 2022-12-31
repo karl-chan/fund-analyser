@@ -5,7 +5,7 @@ description = ""
 authors = ["Karl Chan"]
 
 [tool.poetry.dependencies]
-python = "3.10.2"
+python = "^3.10.2"
 ciso8601 = "*"
 falcon = "*"
 ffn = "*"
