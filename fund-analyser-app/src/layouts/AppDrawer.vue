@@ -37,7 +37,7 @@ q-drawer(v-model="drawerOpen" content-class="bg-grey-2" :width="250")
             img(src="charles-stanley-direct.jpg" width="120px")
           q-item-section
             q-item-label Charles Stanley Direct
-        q-item(clickable @click.native="openURL('http://financialtimes3.herokuapp.com/')")
+        q-item(clickable @click.native="openURL('https://tinyurl.com/freeft/')")
           q-item-section(avatar)
             q-avatar
               img(src="financial-times.jpg")
@@ -46,8 +46,8 @@ q-drawer(v-model="drawerOpen" content-class="bg-grey-2" :width="250")
 </template>
 
 <script>
-import { mapGetters, mapState, mapActions } from 'vuex'
 import { openURL } from 'quasar'
+import { mapActions, mapGetters, mapState } from 'vuex'
 export default {
   name: 'AppDrawer',
   computed: {
