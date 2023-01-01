@@ -46,7 +46,7 @@ export default {
           }
         },
         rangeSelector: {
-          selected: 4, // recent 1 year
+          selected: 6, // recent 5 year
           buttons: [{ type: 'month', count: 1, text: '1M' },
             { type: 'month', count: 3, text: '3M' },
             { type: 'month', count: 6, text: '6M' },
