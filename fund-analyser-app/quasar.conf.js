@@ -67,7 +67,7 @@ module.exports = function (ctx) {
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
       scopeHoisting: true,
-      vueRouterMode: 'history', // available values: 'hash', 'history'
+      vueRouterMode: 'hash', // available values: 'hash', 'history'
       showProgress: true,
       gzip: {
         filename: '[path][base].br',
@@ -91,7 +91,7 @@ module.exports = function (ctx) {
       // https://quasar.dev/quasar-cli/cli-documentation/handling-webpack
       chainWebpackWebserver (chain) {
         chain.plugin('eslint-webpack-plugin')
-          .use(ESLintPlugin, [{ extensions: [ 'js' ] }])
+          .use(ESLintPlugin, [{ extensions: ['js'] }])
       },
       extendWebpack (cfg) {
         cfg.module.rules.push({
