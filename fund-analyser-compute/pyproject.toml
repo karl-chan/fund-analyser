@@ -23,7 +23,7 @@ rust-indicators = [
     { path = "./bin/rust_indicators-0.1.0-cp310-cp310-macosx_10_7_x86_64.whl", markers = "sys_platform == 'darwin'" }
 ]
 TA-Lib = [
-    { version = "*", markers = "sys_platform == 'darwin'" },
+    { version = "*", markers = "sys_platform != 'win32'" },
     { path = "./bin/TA_Lib-0.4.24-cp310-cp310-win32.whl", markers = "sys_platform == 'win32'" }
 ]
 ujson = "*"
