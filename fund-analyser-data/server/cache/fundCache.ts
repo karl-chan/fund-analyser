@@ -1,9 +1,11 @@
+import * as _ from 'lodash'
 import moment from 'moment-business-days'
 import * as FundDAO from '../../lib/db/FundDAO'
 import Fund from '../../lib/fund/Fund'
 import * as fundUtils from '../../lib/util/fundUtils'
 import log from '../../lib/util/log'
 import * as tmp from '../../lib/util/tmp'
+
 const REFRESH_INTERVAL = moment.duration(15, 'minutes')
 const FILE_TMP_CACHE = 'fundCache'
 
@@ -63,8 +65,7 @@ export function getMetadata (options?: any) {
 }
 
 function getAsOfDate () {
-  const today = moment().utc().startOf('day')
-  return today.isBusinessDay() ? today.toDate() : today.prevBusinessDay().toDate()
+  return _.max(fundCache.map(row => row.asof))
 }
 
 export async function start (clean: boolean) {
