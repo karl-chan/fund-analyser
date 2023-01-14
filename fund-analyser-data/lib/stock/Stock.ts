@@ -37,7 +37,7 @@ class Stock {
     public readonly historicPrices: Stock.HistoricPrice[],
     public readonly returns: Stock.Returns,
     public readonly asof: Date,
-    public readonly indicators: object,
+    public readonly indicators: Stock.Indicators,
     public readonly realTimeDetails: Stock.RealTimeDetails,
     public readonly fundamentals: object
   ) { }
@@ -68,6 +68,15 @@ namespace Stock {
     constructor (public readonly date: Date, public readonly price: number, public readonly volume: number) { }
   }
 
+  export interface Indicators {
+    [key: string]: Indicator
+  }
+
+  export interface Indicator {
+      value: number,
+      metadata?: {[key: string]: string | number}
+  }
+
   export type Returns = { [lookback: string]: number }
 
   export interface RealTimeDetails {
@@ -84,7 +93,7 @@ namespace Stock {
     _historicPrices: HistoricPrice[]
     _returns: Returns
     _asof: Date
-    _indicators: object
+    _indicators: Stock.Indicators
     _realTimeDetails: RealTimeDetails
     _fundamentals: object
     constructor (symbol: string) {
@@ -111,7 +120,7 @@ namespace Stock {
       return this
     }
 
-    indicators (indicators: object) {
+    indicators (indicators: Stock.Indicators) {
       this._indicators = indicators
       return this
     }

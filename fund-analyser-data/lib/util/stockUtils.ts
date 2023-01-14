@@ -10,11 +10,11 @@ import * as stat from './stat'
 
 const lookbacks = properties.get('stock.lookbacks')
 
-export function calcReturns (historicPrices: Stock.HistoricPrice[]) {
+export function calcReturns (historicPrices: Stock.HistoricPrice[]): Stock.Returns {
   return fundUtils.enrichReturns({}, historicPrices, lookbacks)
 }
 
-export async function calcIndicators (stock: Stock) {
+export async function calcIndicators (stock: Stock) : Promise<Stock.Indicators> {
   return indicators.calcStockIndicators(stock)
 }
 
@@ -40,7 +40,7 @@ export function calcStats (stocks: Stock[]) {
   return { min, q1, median, q3, max }
 }
 
-export function enrichSummary (summary: Stock[]) {
+export function enrichSummary (summary: Stock[]): Stock[] {
   // add +1D to returns
   summary
     .filter(row => row.returns)

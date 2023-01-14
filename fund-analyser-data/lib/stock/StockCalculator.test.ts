@@ -20,7 +20,7 @@ describe('StockCalculator', function () {
     new Stock.HistoricPrice(new Date(2017, 3, 24), 469.0, 100000.0)
   ]
   const indicators = {
-    stability: -3
+    stability: { value: -3 }
   }
 
   beforeEach(function () {

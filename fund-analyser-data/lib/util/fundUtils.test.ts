@@ -1,6 +1,6 @@
+import Fund from '../fund/Fund'
 import * as fundUtils from './fundUtils'
 
-import Fund from '../fund/Fund'
 
 describe('fundUtils', () => {
   describe('closestRecord', () => {

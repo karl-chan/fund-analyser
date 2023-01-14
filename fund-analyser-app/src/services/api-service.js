@@ -2,7 +2,7 @@ import axios from 'axios'
 import { storeInstance } from './../store'
 
 const defaults = {
-  baseURL: '/api'
+  baseURL: 'api'
 }
 
 // hacky way to evict user from single page application

@@ -3,13 +3,13 @@ import * as lang from './lang'
 const jstat = require('jstat')
 
 // [w1, w2, ...] normalise such that w1' / w2' = w1 / w2 and w1' + w2' = 1
-export function normaliseWeights (weights: number[]) {
+export function normaliseWeights (weights: number[]): number[] {
   const s = _.sum(weights)
   return weights.map(w => w / s)
 }
 
 // [[w1, x1], [w2, x2], ...]
-export function weightedMean (arr: [number, number][]) {
+export function weightedMean (arr: [number, number][]): number {
   if (_.isEmpty(arr)) {
     return NaN
   }
@@ -20,7 +20,7 @@ export function weightedMean (arr: [number, number][]) {
 }
 
 // [[w1, x1], [w2, x2], ...]
-export function weightedVar (arr: [number, number][]) {
+export function weightedVar (arr: [number, number][]): number {
   if (_.isEmpty(arr)) {
     return NaN
   }
@@ -31,31 +31,31 @@ export function weightedVar (arr: [number, number][]) {
 }
 
 // [[w1, x1], [w2, x2], ...]
-export function weightedStd (arr: [number, number][]) {
+export function weightedStd (arr: [number, number][]): number {
   return _.isEmpty(arr) ? NaN : Math.sqrt(weightedVar(arr))
 }
 
-export function ci95 (mean: number, stdev: number) {
+export function ci95 (mean: number, stdev: number): [number, number] {
   const z = 1.96
   return [mean - z * stdev, mean + z * stdev]
 }
 
-export function min (arr: number[]) {
+export function min (arr: number[]): number {
   return jstat.min(arr.filter(lang.isOrdered))
 }
 
-export function max (arr: number[]) {
+export function max (arr: number[]): number {
   return jstat.max(arr.filter(lang.isOrdered))
 }
 
-export function median (arr: number[]) {
+export function median (arr: number[]): number {
   return jstat.median(arr.filter(lang.isOrdered))
 }
 
-export function q1 (arr: number[]) {
+export function q1 (arr: number[]): number {
   return jstat.percentile(arr.filter(lang.isOrdered), 0.25)
 }
 
-export function q3 (arr: number[]) {
+export function q3 (arr: number[]): number {
   return jstat.percentile(arr.filter(lang.isOrdered), 0.75)
 }

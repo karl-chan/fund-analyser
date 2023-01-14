@@ -240,6 +240,10 @@ export default class CharlesStanleyDirectAccount {
     const priceCorrection = (csdPrice: number, date: Date, sedol: string) => {
       // For some reason price difference between charles stanley and financial times could be 100x
       const fund = sedolToFund[sedol]
+      if (!fund) {
+        // The fund has been discontinued
+        return csdPrice
+      }
       const ftPrice = fundUtils.closestRecordBeforeDate(date, fund.historicPrices).price
       if (math.roughEquals(ftPrice, csdPrice * 100, 2)) {
         return csdPrice * 100
@@ -292,12 +296,18 @@ export default class CharlesStanleyDirectAccount {
         let totalHoldingsValue = 0
         for (const [sedol, numShares] of Object.entries(carryThroughHoldings)) {
           const fund = sedolToFund[sedol]
+          if (!fund) {
+            // The fund has been discontinued
+            sedolToValue[sedol] = NaN
+            totalHoldingsValue += NaN
+            continue
+          }
           sedolToValue[sedol] = numShares * fundUtils.closestRecordBeforeDate(date, fund.historicPrices).price
           totalHoldingsValue += sedolToValue[sedol]
         }
         const holdings = Object.entries(sedolToValue).map(([sedol, holdingValue]) => {
           const fund = sedolToFund[sedol]
-          return { sedol, name: fund.name, isin: fund.isin, weight: holdingValue / totalHoldingsValue }
+          return { sedol, name: fund?.name, isin: fund?.isin, weight: holdingValue / totalHoldingsValue }
         })
         events.push({ type: 'fund', from: date, to: nextDate.toDate(), holdings })
       }
@@ -311,6 +321,10 @@ export default class CharlesStanleyDirectAccount {
         const currDate = day.toDate()
         const holdingsValue = _.sumBy(Object.entries(carryThroughHoldings), ([sedol, numShares]) => {
           const fund = sedolToFund[sedol]
+          if (!fund) {
+            // The fund has been discontinued
+            return NaN
+          }
           const fundPrice = fundUtils.closestRecordBeforeDate(currDate, fund.historicPrices).price
           return numShares * fundPrice
         })

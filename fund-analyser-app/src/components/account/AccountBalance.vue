@@ -10,9 +10,9 @@
     slot(name="toolbar")
 
   .relative-position
-    ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="holdings || []"
+    ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs" :rowData="holdings"
               @grid-ready="onGridReady" @rowDoubleClicked="onRowDoubleClicked" :gridOptions="gridOptions")
-    .absolute-top-left.light-dimmed.fit(v-if="!holdings || !holdings.length")
+    .absolute-top-left.light-dimmed.fit(v-if="!holdings.length")
       q-chip.absolute-center.shadow-5(square detail icon="info" color="secondary") Nothing to show
 
 </template>
@@ -28,8 +28,6 @@ export default {
       columnDefs: [
         { headerName: 'ISIN', hide: true, field: 'ISIN', width: 100 },
         { headerName: 'Name', field: 'Description', width: 250 },
-        { headerName: '%+1D', field: 'realTimeEstPct', width: 80, valueFormatter: this.percentFormatter, cellClass: this.colourNumberBoldStyler },
-        { headerName: '+1D', field: 'realTimeEst', width: 80, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
         { headerName: '%1D', field: 'PricePercentChange', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberBoldStyler },
         { headerName: '1D', width: 80, valueGetter: this.dayChangeGetter, valueFormatter: this.numberFormatter, cellClass: this.colourNumberStyler },
         { headerName: '% Total Change', field: 'PercentChangeInValue', width: 80, valueFormatter: this.percentFormatterDiv100, cellClass: this.colourNumberBoldStyler },
@@ -66,17 +64,7 @@ export default {
   computed: {
     ...mapGetters('funds', ['lookupFund']),
     holdings: function () {
-      if (!this.balance || !this.balance.holdings) {
-        return []
-      }
-      return this.balance.holdings.map(h => {
-        const fund = this.lookupFund(h.ISIN)
-        if (fund) {
-          h.realTimeEstPct = fund.realTimeDetails.estChange
-          h.realTimeEst = h.MktValue * h.realTimeEstPct
-        }
-        return h
-      })
+      return this?.balance?.holdings ?? []
     }
   },
   methods: {

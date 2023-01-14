@@ -22,7 +22,7 @@ describe('StockDAO', function () {
       .historicPrices([new Stock.HistoricPrice(new Date(2017, 3, 23), 457.0, 100000.0)])
       .returns({ '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2 })
       .indicators({
-        stability: -3
+        stability: { value: -3 }
       })
       .realTimeDetails({ estChange: 0.01, estPrice: 457.0, bidAskSpread: 0.01, longestTimeGap: 5, lastUpdated: new Date(2017, 3, 23) })
       .fundamentals({
@@ -42,7 +42,7 @@ describe('StockDAO', function () {
       returns: { '5Y': 0.5, '3Y': -0.2, '1Y': 0.3, '6M': 0.4, '3M': 0, '1M': -0.2 },
       asof: undefined,
       indicators: {
-        stability: -3
+        stability: { value: -3 }
       },
       realTimeDetails: { estChange: 0.01, estPrice: 457.0, bidAskSpread: 0.01, longestTimeGap: 5, lastUpdated: new Date(2017, 3, 23) },
       fundamentals: {

@@ -1,3 +1,5 @@
+/connect*
 /push
 app.properties
 .DS_Store
+.oracle

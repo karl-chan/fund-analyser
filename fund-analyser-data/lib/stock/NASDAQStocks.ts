@@ -47,8 +47,8 @@ export default class NASDAQStocks implements StockProvider {
       .build()
   }
 
-  async getStocksFromSymbols (isins: string[]) {
-    return Promise.map(isins, isin => this.getStockFromSymbol(isin))
+  async getStocksFromSymbols (symbols: string[]) {
+    return Promise.map(symbols, symbol => this.getStockFromSymbol(symbol))
   }
 
   async getSummary (symbol: string) {

@@ -67,7 +67,7 @@ class Fund {
     public readonly historicPrices: Fund.HistoricPrice[],
     public readonly returns: Fund.Returns,
     public readonly asof: Date,
-    public readonly indicators: object,
+    public readonly indicators: Fund.Indicators,
     public readonly realTimeDetails: Fund.RealTimeDetails
   ) {}
 
@@ -110,6 +110,15 @@ namespace Fund {
     constructor (public readonly date: Date, public readonly price: number) { }
   }
 
+  export interface Indicators {
+    [key: string]: Indicator
+  }
+
+  export interface Indicator {
+      value: number,
+      metadata?: {[key: string]: string | number}
+  }
+
   export type Returns = { [lookback: string]: number }
 
   export interface RealTimeDetails {
@@ -130,7 +139,7 @@ namespace Fund {
     _frequency: string
     _historicPrices: HistoricPrice[]
     _holdings: Holding[]
-    _indicators: object
+    _indicators: Indicators
     _isin: string
     _name: string
     _ocf: number
@@ -213,7 +222,7 @@ namespace Fund {
       return this
     }
 
-    indicators (indicators: object) {
+    indicators (indicators: Fund.Indicators) {
       this._indicators = indicators
       return this
     }
