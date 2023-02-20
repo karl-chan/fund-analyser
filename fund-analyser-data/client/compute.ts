@@ -2,6 +2,7 @@ import Http, { HttpOptions } from '../lib/util/http'
 import * as properties from '../lib/util/properties'
 const COMPUTE_HOST = properties.get('client.compute')
 const http = new Http({
+  timeout: properties.get('client.compute.timeout'),
   maxAttempts: properties.get('client.compute.max.attempts'),
   retryInterval: properties.get('client.compute.retry.interval')
 })
