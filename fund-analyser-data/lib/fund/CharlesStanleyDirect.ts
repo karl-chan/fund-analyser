@@ -25,16 +25,16 @@ export default class CharlesStanleyDirect implements IsinProvider {
   async getFunds () {
     const numPages = await this.getNumPages()
     const pageRange = await this.getPageRange(numPages)
-    const sedols = await this.getSedolsFromPages(pageRange)
-    const funds = await this.getFundsFromSedols(sedols)
+    const investmentIds = await this.getInvestmentIdsFromPages(pageRange)
+    const funds = await this.getFundsFromInvestmentIds(investmentIds)
     return funds
   }
 
-  async getSedols () {
+  async getInvestmentIds () {
     const numPages = await this.getNumPages()
     const pageRange = await this.getPageRange(numPages)
-    const sedols = await this.getSedolsFromPages(pageRange)
-    return sedols
+    const investmentIds = await this.getInvestmentIdsFromPages(pageRange)
+    return investmentIds
   }
 
   async getPageRange (lastPage: number) {
@@ -50,31 +50,36 @@ export default class CharlesStanleyDirect implements IsinProvider {
     return lastPage
   }
 
-  async getSedolsFromPage (page: number) {
+  async getInvestmentIdsFromPage (page: number) {
     const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?sortdirection=ASC&SearchType=KeywordSearch&Category=Funds&SortColumn=TER&SortDirection=DESC&Pagesize=${this.pageSize}&Page=${page}`
     const { data } = await http.asyncGet(url)
     const $ = cheerio.load(data)
-    const sedols : string[] = $('#funds-table').find('tbody td:nth-child(3)').map((i, td) => $(td).text().trim()).get()
-    log.debug('Sedols in page %d: %j', page, sedols)
-    return sedols
+    const investmentIds : string[] = $('#funds-table')
+      .find('tbody td.action > div.action > a:first-child')
+      .map((i, a) => $(a)
+        .attr('href')
+        .match(/InvestmentId=(.*?)&/)[1])
+      .get()
+    log.debug('Investment ids in page %d: %j', page, investmentIds)
+    return investmentIds
   }
 
-  async getSedolsFromPages (pages: number[]) {
-    const sedols = await Promise.map(pages, (page) => this.getSedolsFromPage(page))
-    return _.flatten(sedols)
+  async getInvestmentIdsFromPages (pages: number[]) {
+    const investmentIds = await Promise.map(pages, (page) => this.getInvestmentIdsFromPage(page))
+    return _.flatten(investmentIds)
   }
 
   /**
      * ONLY PARTIAL FUND IS RETURNED!! (with isin and bid ask spread as % of price)
-     * @param sedol
+     * @param investmentId
      */
-  async getFundFromSedol (sedol: string) {
-    const url = `https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=${sedol}`
+  async getFundFromInvestmentId (investmentId: string) {
+    const url = `https://www.charles-stanley-direct.co.uk/ViewFund?InvestmentId=${investmentId}`
     let data
     try {
       ({ data } = await http.asyncGet(url))
     } catch (err) {
-      log.error('Failed to get sedol from Charles Stanley: %s', sedol)
+      log.error('Failed to get investment id from Charles Stanley: %s', investmentId)
       return undefined // return undefined so that it will continue all the way to FundDAO and get rejected
     }
     const $ = cheerio.load(data)
@@ -83,7 +88,7 @@ export default class CharlesStanleyDirect implements IsinProvider {
     try {
       isin = $('.para').text().match(isinRegex)[0]
     } catch (err) {
-      log.error('Invalid page for sedol on Charles Stanley: %s', sedol)
+      log.error('Invalid page for investment id on Charles Stanley: %s', investmentId)
       return undefined // return undefined so that it will continue all the way to FundDAO and get rejected
     }
     // bid ask
@@ -109,23 +114,22 @@ export default class CharlesStanleyDirect implements IsinProvider {
         return new Fund.Holding(name, symbol, weight)
       })
     } catch (err) {
-      log.error('Missing holdings for sedol on Charles Stanley: %s', sedol)
+      log.error('Missing holdings for investment id on Charles Stanley: %s', investmentId)
       return undefined // return undefined so that it will continue all the way to FundDAO and get rejected
     }
     const partialFund = Fund.builder(isin)
-      .sedol(sedol)
       .bidAskSpread(bidAskSpread)
       .entryCharge(entryCharge)
       .amc(amc)
       .ocf(ocf)
       .holdings(holdings)
       .build()
-    log.debug('Isin: %s found for sedol: %s - bid ask spread: %d, entry charge: %d, amc: %d, ocf: %d', isin, sedol, bidAskSpread, entryCharge, amc, ocf)
+    log.debug('Isin: %s found for investment id: %s - bid ask spread: %d, entry charge: %d, amc: %d, ocf: %d', isin, investmentId, bidAskSpread, entryCharge, amc, ocf)
     return partialFund
   }
 
-  async getFundsFromSedols (sedols: string[]) {
-    return Promise.map(sedols, (sedol) => this.getFundFromSedol(sedol))
+  async getFundsFromInvestmentIds (investmentIds: string[]) {
+    return Promise.map(investmentIds, (investmentId) => this.getFundFromInvestmentId(investmentId))
   }
 
   /**
@@ -134,8 +138,8 @@ export default class CharlesStanleyDirect implements IsinProvider {
   streamFunds () {
     return this.streamNumPages()
       .pipe(this.streamPageRange())
-      .pipe(this.streamSedolsFromPages())
-      .pipe(this.streamFundsFromSedols())
+      .pipe(this.streamInvestmentIdsFromPages())
+      .pipe(this.streamFundsFromInvestmentIds())
   }
 
   streamNumPages () {
@@ -146,12 +150,12 @@ export default class CharlesStanleyDirect implements IsinProvider {
     return streamWrapper.asTransformAsync((numPages: number) => this.getPageRange(numPages))
   }
 
-  streamSedolsFromPages () {
-    return streamWrapper.asTransformAsync((page: number) => this.getSedolsFromPage(page))
+  streamInvestmentIdsFromPages () {
+    return streamWrapper.asTransformAsync((page: number) => this.getInvestmentIdsFromPage(page))
   }
 
-  streamFundsFromSedols () {
-    return streamWrapper.asParallelTransformAsync((sedol: string) => this.getFundFromSedol(sedol))
+  streamFundsFromInvestmentIds () {
+    return streamWrapper.asParallelTransformAsync((investmentId: string) => this.getFundFromInvestmentId(investmentId))
   }
 
   /**
