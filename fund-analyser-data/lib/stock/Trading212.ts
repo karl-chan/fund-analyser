@@ -2,7 +2,12 @@ import Http from '../util/http'
 import * as streamWrapper from '../util/streamWrapper'
 import { SymbolProvider } from './StockFactory'
 
-const http = new Http()
+const http = new Http({
+  headers: {
+    Accept: '*/*',
+    Connection: 'keep-alive'
+  }
+})
 
 export default class Trading212 implements SymbolProvider {
   async getSymbols () {

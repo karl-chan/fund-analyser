@@ -15,7 +15,7 @@ export default async function updateCatalog () {
   const oldSedols = Object.keys(sedolToDoc)
   log.info('%d sedols found in database', oldSedols.length)
 
-  const csdSedols = await new CharlesStanleyDirect().getSedols()
+  const csdSedols = await new CharlesStanleyDirect().getInvestmentIds()
   // For some reason these are still available but no longer listed on CSD
   const pinnedSedols = ['B3K7SR4']
   log.info('Pinned sedols: %s', JSON.stringify(pinnedSedols))

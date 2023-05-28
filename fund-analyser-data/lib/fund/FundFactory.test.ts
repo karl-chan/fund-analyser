@@ -70,7 +70,7 @@ describe('FundFactory', function () {
     const fund2 = Fund.builder(isin2).build()
 
     const version = 'v2'
-    const sedolToIsinStream = streamWrapper.asTransformAsync(async (sedol: string) => {
+    const investmentIdToIsinStream = streamWrapper.asTransformAsync(async (sedol: string) => {
       switch (sedol) {
         case sedol1: return isin1
         case sedol2: return isin2
@@ -86,8 +86,8 @@ describe('FundFactory', function () {
     })
     const fundCalculationStream = streamWrapper.asTransformAsync(async (fund: Fund) => fund)
 
-    jest.spyOn(fundFactory.isinProvider, 'streamFundsFromSedols')
-      .mockReturnValue(sedolToIsinStream)
+    jest.spyOn(fundFactory.isinProvider, 'streamFundsFromInvestmentIds')
+      .mockReturnValue(investmentIdToIsinStream)
     jest.spyOn(fundFactory.fundProvider, 'streamFundsFromIsins')
       .mockReturnValue(isinToFundStream)
     jest.spyOn(fundFactory.fundCalculator, 'stream')

@@ -14,7 +14,7 @@ export interface FundProvider {
 export interface IsinProvider {
     getFunds(): Promise<Fund[]> // partially filled Fund
     streamFunds(): Readable
-    streamFundsFromSedols(): Transform
+    streamFundsFromInvestmentIds(): Transform
 }
 
 export default class FundFactory {
@@ -46,7 +46,7 @@ export default class FundFactory {
 
   streamFundsFromSedols (sedols: string[]) {
     const sedolStream = streamWrapper.asReadableAsync(async () => sedols)
-    const isinStream = this.isinProvider.streamFundsFromSedols()
+    const isinStream = this.isinProvider.streamFundsFromInvestmentIds()
     const isinToFundStream = this.fundProvider.streamFundsFromIsins()
     const fundCalculationStream = this.fundCalculator.stream()
     const fundStream = sedolStream
