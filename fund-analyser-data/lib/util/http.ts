@@ -17,6 +17,7 @@ export interface HttpOptions extends AxiosRequestConfig {
   maxAttempts?: number
   retryInterval?: number
   maxParallelConnections?: number
+  headers?: { [key: string]: string }
 }
 export default class Http {
   private counter: Semaphore
@@ -28,7 +29,8 @@ export default class Http {
     this.http = wrapper(axios.create({
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
-        'Accept-Encoding': 'gzip'
+        'Accept-Encoding': 'gzip',
+        ..._.get(options, 'headers', {})
       },
       ...options,
       timeout: _.get(options, 'timeout', defaultTimeout)
