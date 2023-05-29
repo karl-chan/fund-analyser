@@ -16,7 +16,7 @@ def stream_stocks(symbols: Optional[Iterable[str]] = None) -> Iterator[StockStre
         try:
             yield StockStreamEntry(
                 stock=Stock.from_dict(d),
-                historic_prices=pd_historic_prices_from_json(d["historicPrices"])
+                historic_prices=pd_historic_prices_from_json(d.get("historicPrices", []))
             )
         except Exception as e:
             log_error(f"Failed to convert {d} to stock! Cause: {repr(e)}")
