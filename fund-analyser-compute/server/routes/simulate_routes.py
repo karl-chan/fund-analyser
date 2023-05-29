@@ -89,7 +89,6 @@ class SimulateRoutes:
             "funds": [
                 {
                     "isin": fund.isin,
-                    "sedol": fund.sedol,
                     "name": fund.name
                 }
                 for fund in result.funds

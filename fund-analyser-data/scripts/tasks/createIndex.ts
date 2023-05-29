@@ -26,7 +26,7 @@ async function createFundsIndex () {
     await Promise.map(db.getFunds(), (fundDb: any) => fundDb.createIndex({ [col]: 1 }, { background: true }))
   }
   // text index for searching
-  await Promise.map(db.getFunds(), (fundDb: any) => fundDb.createIndex({ isin: 'text', sedol: 'text', name: 'text', 'holdings.name': 'text', 'holdings.symbol': 'text' }, { background: true, weights: { name: 10, isin: 5, sedol: 5, 'holdings.name': 1, 'holdings.symbol': 1 } }))
+  await Promise.map(db.getFunds(), (fundDb: any) => fundDb.createIndex({ isin: 'text', name: 'text', 'holdings.name': 'text', 'holdings.symbol': 'text' }, { background: true, weights: { name: 10, isin: 5, 'holdings.name': 1, 'holdings.symbol': 1 } }))
   log.info('Created fund indexes')
 }
 

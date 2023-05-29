@@ -1,13 +1,12 @@
 import Fund from './Fund'
 
 describe('Fund', function () {
-  let isin: string, sedol: string, name: string, type: any, shareClass: any, frequency: string, ocf: number, amc: number, entryCharge: number, exitCharge: number,
+  let isin: string, name: string, type: any, shareClass: any, frequency: string, ocf: number, amc: number, entryCharge: number, exitCharge: number,
     bidAskSpread: number, holdings: Fund.Holding[], historicPrices: Fund.HistoricPrice[], returns: Fund.Returns, asof: Date, indicators: Fund.Indicators, realTimeDetails: Fund.RealTimeDetails
   let fund: Fund
 
   beforeEach(() => {
     isin = 'GB00B80QG615'
-    sedol = 'B80QG61'
     name = 'HSBC American Index Fund Accumulation C'
     type = Fund.types.OEIC
     shareClass = Fund.shareClasses.ACC
@@ -24,27 +23,26 @@ describe('Fund', function () {
     indicators = { stability: { value: 1.96 } }
     realTimeDetails = { estChange: -0.00123, estPrice: 3.198, stdev: 0.01, ci: [3.197, 3.199], holdings: [], lastUpdated: undefined }
 
-    fund = new Fund(isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge,
+    fund = new Fund(isin, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge,
       bidAskSpread, holdings, historicPrices, returns, asof, indicators, realTimeDetails)
   })
   test('constructor should populate Fund with correct fields', () => {
-    expect(fund).toMatchObject({ isin, sedol, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge, bidAskSpread, holdings, historicPrices, returns, asof, indicators, realTimeDetails })
+    expect(fund).toMatchObject({ isin, name, type, shareClass, frequency, ocf, amc, entryCharge, exitCharge, bidAskSpread, holdings, historicPrices, returns, asof, indicators, realTimeDetails })
   })
 
   test('isValid should return true for fund with name', () => {
     expect(fund.isValid()).toBeTrue()
   })
   test('isValid should return false for fund without name', () => {
-    const undefinedNameFund = new Fund(isin, sedol, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, [], [], {}, undefined, undefined, undefined)
-    const nullNameFund = new Fund(isin, sedol, null, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, [], [], {}, undefined, undefined, undefined)
-    const emptyNameFund = new Fund(isin, sedol, '', undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, [], [], {}, undefined, undefined, undefined)
+    const undefinedNameFund = new Fund(isin, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, [], [], {}, undefined, undefined, undefined)
+    const nullNameFund = new Fund(isin, null, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, [], [], {}, undefined, undefined, undefined)
+    const emptyNameFund = new Fund(isin, '', undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, [], [], {}, undefined, undefined, undefined)
     expect([undefinedNameFund, nullNameFund, emptyNameFund]).toSatisfyAll(f => !f.isValid())
   })
 
   describe('Builder', () => {
     test('build should bulid Fund object', () => {
       const builder = Fund.builder(isin)
-        .sedol(sedol)
         .name(name)
         .type(type)
         .shareClass(shareClass)

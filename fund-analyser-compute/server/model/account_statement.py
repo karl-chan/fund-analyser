@@ -121,7 +121,6 @@ class AccountStatement(NamedTuple):
                         Holding(
                             isin=fund.isin,
                             name=fund.name,
-                            sedol=fund.sedol,
                             weight=1 / len(next_isins)
                         ) for fund in next_funds
                     ],

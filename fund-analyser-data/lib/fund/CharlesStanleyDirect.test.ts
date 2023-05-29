@@ -56,6 +56,23 @@ describe('CharlesStanleyDirect', () => {
       expect(numPages).toBeGreaterThan(80)
     })
 
+    test('getFundListFromPage should return investment ids and isins', async () => {
+      const samplePage = 1
+      const fundList = await charlesStanleyDirect.getFundListFromPage(samplePage)
+      const investmentIds = fundList.map(({ investmentId }) => investmentId)
+      const isins = fundList.map(({ isin }) => isin)
+
+      expect(investmentIds).toBeArray()
+      expect(investmentIds).toSatisfyAll(investmentId =>
+        investmentId.length === 14 ||
+        investmentId.length === 16 ||
+        investmentId.length === 18)
+      expect(investmentIds).toSatisfyAll(investmentId => investmentId.endsWith('%3D'))
+
+      expect(isins).toBeArray()
+      expect(isins).toSatisfyAll(isin => isin.length === 12)
+    })
+
     test('getInvestmentIdsFromPage should return array of investment ids', async () => {
       const samplePage = 1
       const investmentIds = await charlesStanleyDirect.getInvestmentIdsFromPage(samplePage)
@@ -67,7 +84,7 @@ describe('CharlesStanleyDirect', () => {
       expect(investmentIds).toSatisfyAll(investmentId => investmentId.endsWith('%3D'))
     })
 
-    test('getFundFromInvestmentId should return partial fund', async () => {
+    test('getFundFromInvestmentId should return partial fund with investment id parameter', async () => {
       const investmentId = 'cy81gyZgAx8%3D'
       const partialFund = await charlesStanleyDirect.getFundFromInvestmentId(investmentId)
       expect(partialFund).toHaveProperty('isin', 'GB00B39RMM81')

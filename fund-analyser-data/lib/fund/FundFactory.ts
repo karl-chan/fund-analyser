@@ -11,7 +11,7 @@ export interface FundProvider {
     streamFundsFromIsins(): Transform
 }
 
-export interface IsinProvider {
+export interface InvestmentIdProvider {
     getFunds(): Promise<Fund[]> // partially filled Fund
     streamFunds(): Readable
     streamFundsFromInvestmentIds(): Transform
@@ -20,22 +20,22 @@ export interface IsinProvider {
 export default class FundFactory {
   fundCalculator: FundCalculator
   fundProvider: FundProvider
-  isinProvider: IsinProvider
+  investmentIdProvider: InvestmentIdProvider
   constructor () {
-    this.isinProvider = new CharlesStanleyDirect()
+    this.investmentIdProvider = new CharlesStanleyDirect()
     this.fundProvider = new FinancialTimes()
     this.fundCalculator = new FundCalculator()
   }
 
   async getFunds () {
-    const isins = await this.isinProvider.getFunds()
+    const isins = await this.investmentIdProvider.getFunds()
     const funds = await this.fundProvider.getFundsFromIsins(isins)
     const enrichedFunds = await Promise.map(funds, fund => this.fundCalculator.evaluate(fund))
     return enrichedFunds
   }
 
   streamFunds () {
-    const isinStream = this.isinProvider.streamFunds()
+    const isinStream = this.investmentIdProvider.streamFunds()
     const isinToFundStream = this.fundProvider.streamFundsFromIsins()
     const fundCalculationStream = this.fundCalculator.stream()
     const fundStream = isinStream
@@ -44,13 +44,13 @@ export default class FundFactory {
     return fundStream
   }
 
-  streamFundsFromSedols (sedols: string[]) {
-    const sedolStream = streamWrapper.asReadableAsync(async () => sedols)
-    const isinStream = this.isinProvider.streamFundsFromInvestmentIds()
+  streamFundsFromInvestmentIds (investmentIds: string[]) {
+    const investmentIdStream = streamWrapper.asReadableAsync(async () => investmentIds)
+    const investmentIdToFundStream = this.investmentIdProvider.streamFundsFromInvestmentIds()
     const isinToFundStream = this.fundProvider.streamFundsFromIsins()
     const fundCalculationStream = this.fundCalculator.stream()
-    const fundStream = sedolStream
-      .pipe(isinStream)
+    const fundStream = investmentIdStream
+      .pipe(investmentIdToFundStream)
       .pipe(isinToFundStream)
       .pipe(fundCalculationStream)
     return fundStream

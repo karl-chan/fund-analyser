@@ -14,7 +14,6 @@ class Fund {
 
   static schema = {
     isin: 'string',
-    sedol: 'string',
     name: 'string',
     type: 'string',
     shareClass: 'string',
@@ -53,7 +52,6 @@ class Fund {
 
   constructor (
     public readonly isin: string,
-    public readonly sedol: string,
     public readonly name: string,
     public readonly type: any,
     public readonly shareClass: any,
@@ -81,7 +79,6 @@ class Fund {
 
   toBuilder () {
     return Fund.builder(this.isin)
-      .sedol(this.sedol)
       .name(this.name)
       .type(this.type)
       .shareClass(this.shareClass)
@@ -145,16 +142,10 @@ namespace Fund {
     _ocf: number
     _realTimeDetails: RealTimeDetails
     _returns: Returns
-    _sedol: string
     _shareClass: any
     _type: any
     constructor (isin: string) {
       this._isin = isin
-    }
-
-    sedol (sedol: string) {
-      this._sedol = sedol
-      return this
     }
 
     name (name: string) {
@@ -233,7 +224,7 @@ namespace Fund {
     }
 
     build () {
-      return new Fund(this._isin, this._sedol, this._name, this._type, this._shareClass, this._frequency,
+      return new Fund(this._isin, this._name, this._type, this._shareClass, this._frequency,
         this._ocf, this._amc, this._entryCharge, this._exitCharge, this._bidAskSpread,
         this._holdings, this._historicPrices, this._returns, this._asof, this._indicators, this._realTimeDetails)
     }

@@ -83,7 +83,6 @@ FundIndicators = Dict[str, FundIndicator]
 
 class Fund(NamedTuple):
     isin: str
-    sedol: Optional[str] = None
     name: Optional[str] = None
     type: Optional[FundType] = None
     shareClass: Optional[FundShareClass] = None
