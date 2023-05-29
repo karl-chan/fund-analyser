@@ -70,9 +70,9 @@ export default class FinancialTimes implements FundProvider {
     // @ts-ignore
     const fund = lang.assignIfDefined(new Fund(), csdFund, ftFund)
     if (!fund.isValid()) {
-      log.warn('No data found for isin: %j', csdFund)
+      log.warn('No data found for isin: %s', csdFund.isin)
     } else {
-      log.debug('Got fund from isin %s', csdFund)
+      log.debug('Got fund from isin %s', csdFund.isin)
       log.silly('Isin: %s. Fund: %j', csdFund, fund)
     }
     // try enrich with real time details
