@@ -80,7 +80,6 @@ def mock_fundcache_get(isins: Optional[Iterable[str]] = None) -> List[Fund]:
     funds = [
         Fund(
             isin="isin1",
-            sedol=None,
             name="Fund 1",
             type=None,
             shareClass=None,
@@ -98,7 +97,6 @@ def mock_fundcache_get(isins: Optional[Iterable[str]] = None) -> List[Fund]:
         ),
         Fund(
             isin="isin2",
-            sedol=None,
             name="Fund 2",
             type=None,
             shareClass=None,

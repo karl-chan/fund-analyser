@@ -68,15 +68,15 @@ describe('FreeRealTime', () => {
     })
 
     test('getStocksFromSymbols should return array of partial fund', async () => {
-      const sedols = ['AAPL', 'GOOG']
+      const symbols = ['AAPL', 'GOOG']
       const stocks = [
         Stock.builder('AAPL').build(),
         Stock.builder('GOOG').build()
       ]
 
       jest.spyOn(freeRealTime, 'getStockFromSymbol')
-        .mockImplementation(async sedol => {
-          switch (sedol) {
+        .mockImplementation(async symbol => {
+          switch (symbol) {
             case 'AAPL':
               return stocks[0]
 
@@ -84,7 +84,7 @@ describe('FreeRealTime', () => {
               return stocks[1]
           }
         })
-      const actual = await freeRealTime.getStocksFromSymbols(sedols)
+      const actual = await freeRealTime.getStocksFromSymbols(symbols)
       expect(actual).toEqual(stocks)
     })
 

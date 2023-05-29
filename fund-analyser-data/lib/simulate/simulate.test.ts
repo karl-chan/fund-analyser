@@ -47,8 +47,7 @@ describe('simulate', () => {
       date: '2019-12-31T00:00:00',
       funds: [{
         isin: 'GB00B99C0657',
-        name: 'FTF Martin Currie Japan Equity Fund Class X Accumulation (Hedged)',
-        sedol: 'B99C065'
+        name: 'FTF Martin Currie Japan Equity Fund Class X Accumulation (Hedged)'
       }]
     })
   })

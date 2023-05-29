@@ -7,7 +7,6 @@ from lib.fund.fund import Fund, FundHolding, FundIndicator, FundRealTimeDetails,
 def test_from_dict():
     dict = {
         "isin": "GB00B80QG615",
-        "sedol": "B80QG61",
         "name": "HSBC American Index Fund Accumulation C",
         "type": "OEIC",
         "shareClass": "Acc",
@@ -51,7 +50,6 @@ def test_from_dict():
     }
     expected = Fund(
         isin="GB00B80QG615",
-        sedol="B80QG61",
         name="HSBC American Index Fund Accumulation C",
         type=FundType.OEIC,
         shareClass=FundShareClass.ACC,

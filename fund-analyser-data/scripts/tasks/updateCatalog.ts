@@ -6,46 +6,42 @@ import * as lang from '../../lib/util/lang'
 import log from '../../lib/util/log'
 
 /**
- * Update the latest list of sedols
+ * Update the latest list of isins
  * @returns {Promise.<void>}
  */
 export default async function updateCatalog () {
-  const docs = await FundDAO.listFunds({ projection: { sedol: 1, asof: 1 } })
-  const sedolToDoc = _.keyBy(docs, 'sedol')
-  const oldSedols = Object.keys(sedolToDoc)
-  log.info('%d sedols found in database', oldSedols.length)
+  const docs = await FundDAO.listFunds({ projection: { isin: 1, asof: 1 } })
+  const isinToDoc = _.keyBy(docs, 'isin')
+  const oldIsins = Object.keys(isinToDoc)
+  log.info('%d isins found in database', oldIsins.length)
 
-  const csdSedols = await new CharlesStanleyDirect().getInvestmentIds()
-  // For some reason these are still available but no longer listed on CSD
-  const pinnedSedols = ['B3K7SR4']
-  log.info('Pinned sedols: %s', JSON.stringify(pinnedSedols))
-  const newSedols = [...new Set([...csdSedols, ...pinnedSedols])]
-  if (!newSedols || !newSedols.length) {
-    throw new Error('No sedols found')
+  const csdFundList = await new CharlesStanleyDirect().getFundList()
+  const newIsins = csdFundList.map(({ isin }) => isin)
+  if (!newIsins || !newIsins.length) {
+    throw new Error('No isins found')
   }
 
-  const toRemove = lang.setDifference(oldSedols, newSedols)
-  const toAdd = lang.setDifference(newSedols, oldSedols)
+  const toRemove = lang.setDifference(oldIsins, newIsins)
+  const toAdd = lang.setDifference(newIsins, oldIsins)
   log.info('To remove: %s', JSON.stringify(toRemove))
   log.info('To add: %s', JSON.stringify(toAdd))
 
-  // delete old sedols
+  // delete old isins
   if (toRemove.length > 50) {
     // in case csd fails
-    log.warn('Remove operation aborted, too many sedols!')
+    log.warn('Remove operation aborted, too many isins!')
   } else {
-    await FundDAO.deleteFunds({ query: { sedol: { $in: toRemove } } })
-    log.info('Deleted old sedols: %s', JSON.stringify(toRemove))
+    await FundDAO.deleteFunds({ query: { isins: { $in: toRemove } } })
+    log.info('Deleted old isins: %s', JSON.stringify(toRemove))
   }
 
-  // insert new sedols with time 1970
-  const funds = _.map(toAdd, (sedol: string) => {
-    const fund = Fund.builder(undefined)
-      .sedol(sedol)
+  // insert new isins with time 1970
+  const funds = _.map(toAdd, (isin: string) => {
+    const fund = Fund.builder(isin)
       .asof(new Date(0)) // unix time 0 (1970-01-01)
       .build()
     return fund
   })
   await FundDAO.upsertFunds(funds)
-  log.info('Inserted new sedols: %s', JSON.stringify(toAdd))
+  log.info('Inserted new isins: %s', JSON.stringify(toAdd))
 }

@@ -67,7 +67,7 @@ router.get('/real-time-details/:isins', async (ctx: Context) => {
 
 router.get('/search/:searchText', async (ctx: Context) => {
   const searchText = ctx.params.searchText
-  const projection = { _id: 0, isin: 1, sedol: 1, name: 1 }
+  const projection = { _id: 0, isin: 1, name: 1 }
   const limit = 25
   const searchResults = await FundDAO.search(searchText, projection, limit)
   ctx.body = searchResults

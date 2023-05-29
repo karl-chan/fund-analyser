@@ -18,7 +18,6 @@ describe('FundDAO', function () {
   })
   beforeEach(function () {
     fund = Fund.builder('test')
-      .sedol('SEDOL01')
       .name('Test fund')
       .type(Fund.types.UNIT)
       .shareClass(Fund.shareClasses.ACC)
@@ -36,9 +35,8 @@ describe('FundDAO', function () {
       .realTimeDetails({ estChange: 0.01, estPrice: 457.0, stdev: 1.0, ci: [456.0, 458.0], holdings: [], lastUpdated: new Date(2017, 3, 23) })
       .build()
     doc = {
-      _id: 'SEDOL01',
+      _id: 'test',
       isin: 'test',
-      sedol: 'SEDOL01',
       name: 'Test fund',
       type: Fund.types.UNIT,
       shareClass: Fund.shareClasses.ACC,
@@ -82,9 +80,9 @@ describe('FundDAO', function () {
     expect(funds).toBeArrayOfSize(1)
     expect(funds[0]).toEqual(fund)
 
-    const sedols = await FundDAO.listFunds({ query: { isin: fund.isin }, projection: { _id: 0, sedol: 1 } }, true)
-    expect(sedols).toBeArrayOfSize(1)
-    expect(sedols[0]).toContainAllKeys(['sedol']) // only 'sedol' and not other keys
+    const isins = await FundDAO.listFunds({ query: { isin: fund.isin }, projection: { _id: 0, isin: 1 } }, true)
+    expect(isins).toBeArrayOfSize(1)
+    expect(isins[0]).toContainAllKeys(['test']) // only 'test' and not other keys
   })
   test('streamFunds', async () => {
     const version = 'v2'
@@ -131,9 +129,8 @@ describe('FundDAO', function () {
   })
   test('search should return relevant results', async () => {
     await FundDAO.upsertFunds([fund])
-    const funds = await FundDAO.search('test', { sedol: 1, isin: 1 }, 1)
+    const funds = await FundDAO.search('test', { isin: 1 }, 1)
     expect(funds).toBeArrayOfSize(1)
-    expect(funds[0].sedol).toBe(fund.sedol)
     expect(funds[0].isin).toBe(fund.isin)
     expect(funds[0].score).toBePositive()
   })

@@ -7,7 +7,7 @@ import * as math from '../util/math'
 import * as properties from '../util/properties'
 import * as streamWrapper from '../util/streamWrapper'
 import Fund from './Fund'
-import { IsinProvider } from './FundFactory'
+import { InvestmentIdProvider } from './FundFactory'
 
 const http = new Http({
   maxParallelConnections: properties.get('fund.charlesstanleydirect.max.parallel.connections'),
@@ -16,7 +16,9 @@ const http = new Http({
   timeout: properties.get('fund.charlesstanleydirect.timeout')
 })
 
-export default class CharlesStanleyDirect implements IsinProvider {
+type FundList = { investmentId: string, isin: string }[]
+
+export default class CharlesStanleyDirect implements InvestmentIdProvider {
   pageSize: number
   constructor () {
     this.pageSize = properties.get('fund.charlesstanleydirect.page.size')
@@ -30,11 +32,11 @@ export default class CharlesStanleyDirect implements IsinProvider {
     return funds
   }
 
-  async getInvestmentIds () {
+  async getFundList () {
     const numPages = await this.getNumPages()
     const pageRange = await this.getPageRange(numPages)
-    const investmentIds = await this.getInvestmentIdsFromPages(pageRange)
-    return investmentIds
+    const fundList = await this.getFundListFromPages(pageRange)
+    return fundList
   }
 
   async getPageRange (lastPage: number) {
@@ -50,23 +52,36 @@ export default class CharlesStanleyDirect implements IsinProvider {
     return lastPage
   }
 
-  async getInvestmentIdsFromPage (page: number) {
+  async getFundListFromPage (page: number): Promise<FundList> {
     const url = `https://www.charles-stanley-direct.co.uk/InvestmentSearch/Search?sortdirection=ASC&SearchType=KeywordSearch&Category=Funds&SortColumn=TER&SortDirection=DESC&Pagesize=${this.pageSize}&Page=${page}`
     const { data } = await http.asyncGet(url)
     const $ = cheerio.load(data)
-    const investmentIds : string[] = $('#funds-table')
+    const fundList = $('#funds-table')
       .find('tbody td.action > div.action > a:first-child')
-      .map((i, a) => $(a)
-        .attr('href')
-        .match(/InvestmentId=(.*?)&/)[1])
+      .map((i, a) => {
+        const groups = $(a)
+          .attr('href')
+          .match(/InvestmentId=(.*?)&Isin=(.*?)&/)
+        return { investmentId: groups[1], isin: groups[2] }
+      })
       .get()
-    log.debug('Investment ids in page %d: %j', page, investmentIds)
-    return investmentIds
+    log.debug('Fund list from page %d: %j', page, fundList)
+    return fundList
+  }
+
+  async getFundListFromPages (pages: number[]): Promise<FundList> {
+    const fundLists = await Promise.map(pages, (page) => this.getFundListFromPage(page))
+    return _.flatten(fundLists)
+  }
+
+  async getInvestmentIdsFromPage (page: number) {
+    const fundList = await this.getFundListFromPage(page)
+    return fundList.map(({ investmentId }) => investmentId)
   }
 
   async getInvestmentIdsFromPages (pages: number[]) {
-    const investmentIds = await Promise.map(pages, (page) => this.getInvestmentIdsFromPage(page))
-    return _.flatten(investmentIds)
+    const fundLists = await Promise.map(pages, (page) => this.getInvestmentIdsFromPage(page))
+    return _.flatten(fundLists)
   }
 
   /**
@@ -133,8 +148,8 @@ export default class CharlesStanleyDirect implements IsinProvider {
   }
 
   /**
-     * Analogous stream methods below
-     */
+   * Analogous stream methods below
+   */
   streamFunds () {
     return this.streamNumPages()
       .pipe(this.streamPageRange())

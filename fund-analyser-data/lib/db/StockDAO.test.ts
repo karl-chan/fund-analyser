@@ -68,9 +68,9 @@ describe('StockDAO', function () {
     expect(stocks).toBeArrayOfSize(1)
     expect(stocks[0]).toEqual(stock)
 
-    const sedols = await StockDAO.listStocks({ query: { symbol: stock.symbol }, projection: { _id: 0, symbol: 1 } }, true)
-    expect(sedols).toBeArrayOfSize(1)
-    expect(sedols[0]).toContainAllKeys(['symbol']) // only 'symbol' and not other keys
+    const symbols = await StockDAO.listStocks({ query: { symbol: stock.symbol }, projection: { _id: 0, symbol: 1 } }, true)
+    expect(symbols).toBeArrayOfSize(1)
+    expect(symbols[0]).toContainAllKeys(['symbol']) // only 'symbol' and not other keys
   })
   test('streamStocks', async () => {
     const version = 'v2'

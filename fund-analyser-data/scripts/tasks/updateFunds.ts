@@ -1,7 +1,9 @@
 import BatchStream from 'batch-stream'
 import { Promise } from 'bluebird'
+import * as _ from 'lodash'
 import moment from 'moment-business-days'
 import * as FundDAO from '../../lib/db/FundDAO'
+import CharlesStanleyDirect from '../../lib/fund/CharlesStanleyDirect'
 import Fund from '../../lib/fund/Fund'
 import FundFactory from '../../lib/fund/FundFactory'
 import log from '../../lib/util/log'
@@ -17,13 +19,18 @@ export default async function updateFunds () {
 
   const fundsToUpdate = await FundDAO.listFunds({
     query: { $or: [{ asof: { $eq: null } }, { asof: { $lt: lastBusinessDay.toDate() } }] },
-    projection: { sedol: 1 },
+    projection: { isin: 1 },
     sort: { asof: 1 }
   })
-  const sedols = fundsToUpdate.map((f: any) => f.sedol).sort()
-  log.info('Sedols to update: %s (%d)', JSON.stringify(sedols), sedols.length)
+  const isins = fundsToUpdate.map((f: any) => f.isin).sort()
+  log.info('Isins to update: %s (%d)', JSON.stringify(isins), isins.length)
 
-  const fundStream = new FundFactory().streamFundsFromSedols(sedols)
+  const fundList = await new CharlesStanleyDirect().getFundList()
+  const isinToInvestmentIdLookup = _.fromPairs(fundList.map(({ investmentId, isin }) => [isin, investmentId]))
+  const investmentIds = isins.map(isin => isinToInvestmentIdLookup[isin]).filter(x => x)
+  log.info('Investment ids to update: %s (%d)', JSON.stringify(investmentIds), investmentIds.length)
+
+  const fundStream = new FundFactory().streamFundsFromInvestmentIds(investmentIds)
   const fundValidFilter = streamWrapper.asFilterAsync(isFundValid)
   const upsertFundStream = streamWrapper.asWritableAsync(async (funds: Fund[]) => {
     await FundDAO.upsertFunds(funds)

@@ -6,7 +6,7 @@ import * as csv from '../util/csv'
 import * as db from '../util/db'
 import log from '../util/log'
 import * as math from '../util/math'
-const idField = 'sedol'
+const idField = 'isin'
 
 export interface Options {
   query?: object
@@ -25,7 +25,6 @@ export function fromFund (fund: Fund) {
 export function toFund (entry: any) {
   delete entry._id
   let builder = Fund.builder(entry.isin)
-  builder = _.isNil(entry.sedol) ? builder : builder.sedol(entry.sedol)
   builder = _.isNil(entry.name) ? builder : builder.name(entry.name)
   builder = _.isNil(entry.type) ? builder : builder.type(entry.type)
   builder = _.isNil(entry.shareClass) ? builder : builder.shareClass(entry.shareClass)
@@ -65,7 +64,7 @@ export async function upsertFunds (funds: Fund[]) {
   // partition funds into shards
   const bucketedFunds = shardedIds.map(() => <Fund[]>[])
   for (const fund of funds) {
-    // @ts-ignore: _id is defined to be sedol string, not ObjectId.
+    // @ts-ignore: _id is defined to be isin string, not ObjectId.
     let shardIdx = shardedIds.findIndex(shard => shard.has(fund[idField]))
     if (shardIdx === -1) {
       // assign to least occupied shard
@@ -83,7 +82,7 @@ export async function upsertFunds (funds: Fund[]) {
   const bucketedOperations = bucketedFunds.map(bucket => bucket.map(upsertOperation))
   try {
     await Promise.map(_.zip(db.getFunds(), bucketedOperations), async ([fundDb, operations]) => {
-    // @ts-ignore: _id is defined to be sedol string, not ObjectId.
+    // @ts-ignore: _id is defined to be isin string, not ObjectId.
       return operations.length ? fundDb.bulkWrite(operations) : Promise.resolve()
     })
   } catch (err) {
@@ -173,6 +172,6 @@ const buildFindQuery = (options: Options) => {
     sort: options && options.sort,
     limit: options && options.limit
   }
-  // @ts-ignore: _id is defined to be sedol string, not ObjectId.
+  // @ts-ignore: _id is defined to be isin string, not ObjectId.
   return db.getFunds().map(fundDb => fundDb.find(query, findOptions))
 }

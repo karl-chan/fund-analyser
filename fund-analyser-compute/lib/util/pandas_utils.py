@@ -10,7 +10,7 @@ from lib.stock.stock import StockHistoricPrices
 
 def pd_historic_prices_from_json(historic_prices_json: List[Dict]) -> Union[FundHistoricPrices, StockHistoricPrices]:
     if not len(historic_prices_json):
-        return pd.Series()
+        return pd.Series(index=pd.DatetimeIndex([], name="date"), name="price")
     historic_prices = pd.DataFrame.from_records(historic_prices_json, index="date").squeeze(axis=1)
     historic_prices.index = pd.to_datetime(historic_prices.index).tz_convert(None)
     return historic_prices

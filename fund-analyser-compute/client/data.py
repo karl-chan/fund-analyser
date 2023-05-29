@@ -14,18 +14,18 @@ def _remove_leading_slash(endpoint: str) -> str:
 
 def get(endpoint: str, params: Optional[Dict[str, str]] = None) -> object:
     endpoint = f"{DATA_HOST}/{_remove_leading_slash(endpoint)}"
-    return requests.get(endpoint, params).json()
+    return requests.get(endpoint, params, verify=False).json()
 
 
 def post(endpoint: str, data: Optional[object] = None) -> object:
     endpoint = f"{DATA_HOST}/{_remove_leading_slash(endpoint)}"
-    return requests.post(endpoint, json=data)
+    return requests.post(endpoint, json=data, verify=False)
 
 
 def stream(endpoint: str, data: Optional[object] = None) -> Iterator[Dict]:
     endpoint = f"{DATA_HOST}/{_remove_leading_slash(endpoint)}"
     line_seps = {b",", b"[", b"]"}
-    lines = requests.post(endpoint, json=data, stream=True).iter_lines()
+    lines = requests.post(endpoint, json=data, stream=True, verify=False).iter_lines()
     return (ujson.loads(line)
             for line in lines
             if line not in line_seps)

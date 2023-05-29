@@ -48,15 +48,15 @@ describe('MarketWatch', () => {
     })
 
     test('getStocksFromSymbols should return array of partial fund', async () => {
-      const sedols = ['AAPL', 'GOOG']
+      const symbols = ['AAPL', 'GOOG']
       const stocks = [
         Stock.builder('AAPL').build(),
         Stock.builder('GOOG').build()
       ]
 
       jest.spyOn(marketWatch, 'getStockFromSymbol')
-        .mockImplementation(async sedol => {
-          switch (sedol) {
+        .mockImplementation(async symbol => {
+          switch (symbol) {
             case 'AAPL':
               return stocks[0]
 
@@ -64,7 +64,7 @@ describe('MarketWatch', () => {
               return stocks[1]
           }
         })
-      const actual = await marketWatch.getStocksFromSymbols(sedols)
+      const actual = await marketWatch.getStocksFromSymbols(symbols)
       expect(actual).toEqual(stocks)
     })
 
