@@ -4,11 +4,12 @@ import accountService from './../../services/account-service'
 
 export async function init ({ commit }) {
   try {
-    const { balance, orders, statement, fundWatchlist, currencies, simulateParams } = await accountService.get()
+    const { balance, orders, statement, fundWatchlist, stockWatchlist, currencies, simulateParams } = await accountService.get()
     commit('saveBalance', balance)
     commit('saveOrders', orders)
     commit('saveStatement', statement)
     commit('setFundWatchlist', fundWatchlist)
+    commit('setStockWatchlist', stockWatchlist)
     commit('setFavouriteCurrencies', currencies)
     commit('setFavouriteSimulateParams', simulateParams)
   } catch (ignored) {
@@ -93,6 +94,71 @@ export async function removeFromRecentlyViewedFunds ({ commit, state, getters },
 
 export async function clearRecentlyViewedFunds ({ commit }) {
   commit('setRecentlyViewedFunds', [])
+}
+
+
+export async function getStockWatchlist ({ commit }) {
+  try {
+    const { stockWatchlist } = await accountService.getStockWatchlist()
+    commit('setStockWatchlist', stockWatchlist)
+  } catch (ignored) {
+    // user not logged in
+  }
+}
+
+export async function addToStockWatchlist ({ commit, state }, isin) {
+  if (!state.stockWatchlist.includes(isin)) {
+    commit('setStockWatchlist', state.stockWatchlist.concat([isin]))
+  }
+  try {
+    await accountService.addToStockWatchlist(isin)
+  } catch (ignored) {
+    // user not logged in
+  }
+}
+
+export async function removeFromStockWatchlist ({ commit, dispatch, state }, isin) {
+  const confirm = await promptClearWatchlist(false)
+  if (!confirm) {
+    return
+  }
+  if (state.stockWatchlist.includes(isin)) {
+    commit('setStockWatchlist', state.stockWatchlist.filter(i => i !== isin))
+  }
+  try {
+    await accountService.removeFromStockWatchlist(isin)
+  } catch (ignored) {
+    // user not logged in
+  }
+}
+
+export async function clearStockWatchlist ({ commit, dispatch }) {
+  const confirm = await promptClearWatchlist(true)
+  if (!confirm) {
+    return
+  }
+  commit('setStockWatchlist', [])
+  try {
+    await accountService.clearStockWatchlist()
+  } catch (ignored) {
+    // user not logged in
+  }
+}
+
+export async function addToRecentlyViewedStocks ({ commit, state, getters }, { symbol, name }) {
+  if (!getters.recentlyViewedSymbols.includes(symbol)) {
+    commit('setRecentlyViewedStocks', state.recentlyViewedStocks.concat([{ symbol, name }]))
+  }
+}
+
+export async function removeFromRecentlyViewedStocks ({ commit, state, getters }, symbol) {
+  if (getters.recentlyViewedSymbols.includes(symbol)) {
+    commit('setRecentlyViewedStocks', state.recentlyViewedStocks.filter(e => e.symbol !== symbol))
+  }
+}
+
+export async function clearRecentlyViewedStocks ({ commit }) {
+  commit('setRecentlyViewedStocks', [])
 }
 
 export async function addToFavouriteCurrencies ({ commit, state }, symbol) {

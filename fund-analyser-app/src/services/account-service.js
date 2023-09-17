@@ -1,46 +1,58 @@
 import apiService from './api-service'
 
 export default {
-  get () {
+  get() {
     return apiService.get('/account')
   },
-  getBalance () {
+  getBalance() {
     return apiService.get('/account/balance')
   },
-  getOrders () {
+  getOrders() {
     return apiService.get('/account/orders')
   },
-  getStatement () {
+  getStatement() {
     return apiService.get('/account/statement')
   },
-  getFundWatchlist () {
+  getFundWatchlist() {
     return apiService.get('/account/fund-watchlist')
   },
-  addToFundWatchlist (isin) {
+  addToFundWatchlist(isin) {
     return apiService.post('/account/fund-watchlist/add', { isin })
   },
-  removeFromFundWatchlist (isin) {
+  removeFromFundWatchlist(isin) {
     return apiService.post('/account/fund-watchlist/remove', { isin })
   },
-  clearFundWatchlist () {
+  clearFundWatchlist() {
     return apiService.delete('/account/fund-watchlist')
   },
-  addToFavouriteCurrencies (currency) {
+  getStockWatchlist() {
+    return apiService.get('/account/stock-watchlist')
+  },
+  addToStockWatchlist(isin) {
+    return apiService.post('/account/stock-watchlist/add', { isin })
+  },
+  removeFromStockWatchlist(isin) {
+    return apiService.post('/account/stock-watchlist/remove', { isin })
+  },
+  clearStockWatchlist() {
+    return apiService.delete('/account/stock-watchlist')
+  },
+  addToFavouriteCurrencies(currency) {
     return apiService.post('/account/currency/add', { currency })
   },
-  removeFromFavouriteCurrencies (currency) {
+  removeFromFavouriteCurrencies(currency) {
     return apiService.post('/account/currency/remove', { currency })
   },
-  getFavouriteSimulateParams () {
+  getFavouriteSimulateParams() {
     return apiService.get('/account/simulate-params')
   },
-  addToFavouriteSimulateParams (simulateParam) {
+  addToFavouriteSimulateParams(simulateParam) {
     return apiService.post('/account/simulate-params/add', { simulateParam })
   },
-  removeFromFavouriteSimulateParams (simulateParam) {
+  removeFromFavouriteSimulateParams(simulateParam) {
     return apiService.post('/account/simulate-params/remove', { simulateParam })
   },
-  updateFavouriteSimulateParams (simulateParam, { active }) {
+  updateFavouriteSimulateParams(simulateParam, { active }) {
     return apiService.post('/account/simulate-params/update', { simulateParam, active })
   }
 }

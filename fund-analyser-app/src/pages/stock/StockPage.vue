@@ -15,6 +15,9 @@ q-page(padding)
         q-btn(color="purple" icon="open_in_new" label="NASDAQ" @click="openURL(`https://www.nasdaq.com/market-activity/stocks/${stock.symbol}/real-time`)")
       div
         q-btn(color="blue" icon="open_in_new" label="Free Real Time" @click="openURL(`https://quotes.freerealtime.com/quotes/${stock.symbol}/Time%26Sales`)")
+      div
+        q-btn(flat round color="amber" size="xl" :icon="favouriteIcon" @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false" @click="toggleWatchlist(stock.symbol)")
+          q-tooltip {{ isFavourite? 'Remove from watch list' : 'Add to watch list' }}
 
     // middle section
     fund-info-bar(:fund="stock")
@@ -44,7 +47,7 @@ import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'StockPage',
   props: ['symbol'],
-  beforeRouteEnter (to, from, next) {
+  beforeRouteEnter(to, from, next) {
     next(async vm => {
       vm.loading = true
       const stocks = await vm.lazyGets([to.params.symbol])
@@ -55,7 +58,7 @@ export default {
       })
     })
   },
-  async beforeRouteUpdate (to, from, next) {
+  async beforeRouteUpdate(to, from, next) {
     next()
     if (to.params.symbol !== from.params.symbol) {
       this.loading = true
@@ -67,20 +70,20 @@ export default {
       })
     }
   },
-  data () {
+  data() {
     return {
       loading: true,
       hoveringFavouriteIcon: false
     }
   },
   computed: {
-    ...mapGetters('account', ['inWatchlist']),
+    ...mapGetters('account', ['inStockWatchlist']),
     ...mapGetters('stocks', ['lookupStock']),
     stock: function () {
       return this.lookupStock(this.symbol)
     },
     isFavourite: function () {
-      return this.inWatchlist(this.symbol)
+      return this.inStockWatchlist(this.symbol)
     },
     favouriteIcon: function () {
       return this.isFavourite ^ this.hoveringFavouriteIcon ? 'star' : 'star_outline'
@@ -90,15 +93,15 @@ export default {
     openURL,
     ...mapActions('account', ['addToRecentlyViewedStocks', 'addToStockWatchlist', 'removeFromStockWatchlist']),
     ...mapActions('stocks', ['gets', 'lazyGets', 'updateRealTimeDetails']),
-    async refreshStock () {
+    async refreshStock() {
       this.loading = true
       await this.gets([this.symbol])
       this.loading = false
     },
-    onFavouriteIconHovering (isMouseEnter) {
+    onFavouriteIconHovering(isMouseEnter) {
       this.hoveringFavouriteIcon = isMouseEnter
     },
-    toggleWatchlist (symbol) {
+    toggleWatchlist(symbol) {
       this.isFavourite ? this.removeFromStockWatchlist(symbol) : this.addToStockWatchlist(symbol)
     }
   }

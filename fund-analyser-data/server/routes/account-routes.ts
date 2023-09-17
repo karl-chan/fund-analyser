@@ -17,15 +17,16 @@ router.use(auth.authorise)
 router.get('/', async (ctx: Context) => {
   const { jar, user, pass } = ctx
   const csdAccount = new CharlesStanleyDirectAccount(jar, pass)
-  const [balance, orders, statement, fundWatchlist, currencies, simulateParams] = await Promise.all([
+  const [balance, orders, statement, fundWatchlist, stockWatchlist, currencies, simulateParams] = await Promise.all([
     csdAccount.getBalance(),
     csdAccount.getOrders(),
     csdAccount.getStatement(),
     UserDAO.getFundWatchlist(user),
+    UserDAO.getStockWatchlist(user),
     UserDAO.getCurrencies(user),
     UserDAO.getSimulateParams(user)
   ])
-  ctx.body = { balance, orders, statement, fundWatchlist, currencies, simulateParams }
+  ctx.body = { balance, orders, statement, fundWatchlist, stockWatchlist, currencies, simulateParams }
 })
 
 router.get('/balance', async (ctx: Context) => {
@@ -72,6 +73,32 @@ router.post('/fund-watchlist/remove', async (ctx: Context) => {
 router.delete('/fund-watchlist', async (ctx: Context) => {
   const user = ctx.user
   await UserDAO.clearFundWatchlist(user)
+  ctx.status = 200
+})
+
+router.get('/stock-watchlist', async (ctx: Context) => {
+  const user = ctx.user
+  const stockWatchlist = await UserDAO.getStockWatchlist(user)
+  ctx.body = { stockWatchlist }
+})
+
+router.post('/stock-watchlist/add', async (ctx: Context) => {
+  const user = ctx.user
+  const { isin } = ctx.request.body
+  await UserDAO.addToStockWatchlist(user, isin)
+  ctx.status = 200
+})
+
+router.post('/stock-watchlist/remove', async (ctx: Context) => {
+  const user = ctx.user
+  const { isin } = ctx.request.body
+  const stockWatchlist = await UserDAO.removeFromStockWatchlist(user, isin)
+  ctx.body = { stockWatchlist }
+})
+
+router.delete('/stock-watchlist', async (ctx: Context) => {
+  const user = ctx.user
+  await UserDAO.clearStockWatchlist(user)
   ctx.status = 200
 })
 
