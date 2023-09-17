@@ -22,11 +22,11 @@
 
   .relative-position.q-mt-sm
     ag-grid-vue.ag-theme-balham.full-width(:columnDefs="columnDefs"
-                @grid-ready="onGridReady" @rowDoubleClicked="onRowDoubleClicked" @rowClicked="onRowSelected"
-                :getContextMenuItems="getContextMenuItems" :gridOptions="gridOptions"
-                :style="{height}" :domLayout="height ? 'normal': 'autoHeight'"
-                :cacheBlockSize="window"
-                serverSideStoreType="partial")
+      @grid-ready="onGridReady" @rowDoubleClicked="onRowDoubleClicked" @rowClicked="onRowSelected"
+      :getContextMenuItems="getContextMenuItems" :gridOptions="gridOptions"
+      :style="{height}" :domLayout="height ? 'normal': 'autoHeight'"
+      :cacheBlockSize="window"
+      serverSideStoreType="partial")
 
     .absolute-top-left.fit(v-if="showEmptyView")
       // transclude empty view here
@@ -35,8 +35,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import get from 'lodash/get'
+import { mapActions, mapState } from 'vuex'
 
 const periods = ['5Y', '3Y', '1Y', '6M', '3M', '1M', '2W', '1W', '3D', '1D']
 const extendedPeriods = periods.concat('+1D')
@@ -51,7 +51,7 @@ export default {
     highlightSymbol: String,
     showUpToDateOnly: { type: Boolean, default: false }
   },
-  data () {
+  data() {
     return {
       stocks: [],
       stats: {},
@@ -119,7 +119,7 @@ export default {
     }
   },
   computed: {
-    // ...mapState('account', ['stockWatchlist']),
+    ...mapState('account', ['stockWatchlist']),
     ...mapState('stocks', ['indicatorSchema']),
     pctUpToDate: function () {
       return this.$utils.format.formatPercentage(this.numUpToDate / this.totalStocks, '0%')
@@ -231,30 +231,30 @@ export default {
     }
   },
   methods: {
-    // ...mapActions('account', ['addToStockWatchlist', 'removeFromStockWatchlist']),
-    onGridReady (params) {
+    ...mapActions('account', ['addToStockWatchlist', 'removeFromStockWatchlist']),
+    onGridReady(params) {
       this.gridApi = params.api
       this.columnApi = params.columnApi
       this.initDataSource()
     },
-    onRowsChanged (metadata) {
+    onRowsChanged(metadata) {
       this.showEmptyView = !metadata.lastRow > 0
       this.stats = metadata.stats
       this.asofDate = metadata.asof.date
       this.numUpToDate = metadata.asof.numUpToDate
       this.totalStocks = metadata.totalStocks
     },
-    onRowSelected (params) {
+    onRowSelected(params) {
       this.$emit('row-selected', params)
     },
-    onRowDoubleClicked (params) {
+    onRowDoubleClicked(params) {
       const notApplicable = this.isRowPinned(params)
       if (notApplicable) {
         return
       }
       this.$utils.router.redirectToStock(params.data.symbol, { newTab: true })
     },
-    getContextMenuItems (params) {
+    getContextMenuItems(params) {
       let contextMenu = params.defaultItems
 
       const filterContextMenuItems = [
@@ -267,65 +267,65 @@ export default {
       ]
       contextMenu = [...filterContextMenuItems, 'separator', ...contextMenu]
 
-      // if (!this.isRowPinned(params)) {
-      // row is stock
-      // const symbol = params.node.data.symbol
-      // const isFavourite = this.stockWatchlist.includes(symbol)
-      // const stockContextMenuItems = isFavourite
-      //   ? [{
-      //     name: 'Remove from watch list',
-      //     icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
-      //     action: () => {
-      //       params.context.removeFromStockWatchlist(symbol)
-      //     }
-      //   }]
-      //   : [{
-      //     name: 'Add to watch list',
-      //     icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
-      //     action: () => {
-      //       params.context.addToStockWatchlist(symbol)
-      //     }
-      //   }]
-      // contextMenu = [...stockContextMenuItems, 'separator', ...contextMenu]
-      // }
+      if (!this.isRowPinned(params)) {
+        // row is stock
+        const symbol = params.node.data.symbol
+        const isFavourite = this.stockWatchlist.includes(symbol)
+        const stockContextMenuItems = isFavourite
+          ? [{
+            name: 'Remove from watch list',
+            icon: '<i class="q-icon material-icons text-accent" style="font-size:15px" aria-hidden="true">star_border</i>',
+            action: () => {
+              params.context.removeFromStockWatchlist(symbol)
+            }
+          }]
+          : [{
+            name: 'Add to watch list',
+            icon: '<i class="q-icon material-icons text-amber" style="font-size:15px" aria-hidden="true">star</i>',
+            action: () => {
+              params.context.addToStockWatchlist(symbol)
+            }
+          }]
+        contextMenu = [...stockContextMenuItems, 'separator', ...contextMenu]
+      }
       return contextMenu
     },
-    numberFormatter (params) {
+    numberFormatter(params) {
       return this.$utils.format.formatNumber(params.value)
     },
-    percentFormatter (params, fallbackValue) {
+    percentFormatter(params, fallbackValue) {
       return this.$utils.format.formatPercentage(params.value, true, fallbackValue)
     },
-    dateFormatter (params) {
+    dateFormatter(params) {
       return this.$utils.format.formatDateShort(params.value, true)
     },
-    jsonFormatter (params) {
+    jsonFormatter(params) {
       return JSON.stringify(params.value)
     },
-    indicatorMetadataFormatter (params, key) {
+    indicatorMetadataFormatter(params, key) {
       const metadata = get(params.data, `indicators.${key}.metadata`)
       return metadata ? JSON.stringify(metadata) : undefined
     },
-    colourNumberStyler (params) {
+    colourNumberStyler(params) {
       return this.$utils.format.colourNumber(params.value)
     },
-    colourCellStyler (params) {
+    colourCellStyler(params) {
       if (params.data.colours) {
         const score = get(params.data.colours, params.colDef.field)
         return this.$utils.format.colourNumberCell(score)
       }
       return undefined
     },
-    numberComparator (a, b) {
+    numberComparator(a, b) {
       return this.$utils.number.numberComparator(a, b)
     },
-    numDaysOutdated (params) {
+    numDaysOutdated(params) {
       return !this.isRowPinned(params) && this.$utils.date.diffBusinessDays(new Date(), params.data.asof)
     },
-    resetFilters () {
+    resetFilters() {
       this.gridApi.setFilterModel(null)
     },
-    togglePinnedRows () {
+    togglePinnedRows() {
       let pinnedRows = []
       if (this.stats) {
         const { min, q1, median, q3, max } = this.stats
@@ -350,10 +350,10 @@ export default {
       }
       setTimeout(() => this.gridApi.setPinnedTopRowData(pinnedRows), 0)
     },
-    isRowPinned (params) {
+    isRowPinned(params) {
       return params.node.rowPinned
     },
-    initDataSource () {
+    initDataSource() {
       const self = this
       this.gridApi.setServerSideDatasource({
         getRows: async params => {
@@ -378,11 +378,11 @@ export default {
         }
       })
     },
-    refresh () {
+    refresh() {
       this.resetFilters()
       this.initDataSource()
     },
-    exportCsv () {
+    exportCsv() {
       const params = {
         fileName: this.$utils.format.formatDateShort(new Date()),
         processCellCallback: params => {
@@ -406,10 +406,10 @@ export default {
       }
       this.gridApi.exportDataAsCsv(params)
     },
-    toggleStatMode () {
+    toggleStatMode() {
       this.showStatMode = (this.showStatMode + 1) % 3
     },
-    getIndicatorKeys (format) {
+    getIndicatorKeys(format) {
       let keys = Object.keys(this.indicatorSchema)
       if (format) {
         keys = keys.filter(key => this.indicatorSchema[key].format === format)

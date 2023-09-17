@@ -6,16 +6,13 @@ q-page(padding)
   account-view(:user="user" :balance="balance" :orders="orders" :statement="statement")
 
   q-tabs.q-mt-md.bg-primary.text-white(v-model="tab" align="left")
-    q-tab(default label="Watchlist" name="watchlist")
     q-tab(label="Funds" name="funds")
     q-tab(label="Stocks" name="stocks")
     q-tab(label="Currencies" name="currency")
+    q-tab(default label="Fund Watchlist" name="fund-watchlist")
+    q-tab(default label="Stock Watchlist" name="stock-watchlist")
 
   q-tab-panels(v-model="tab" keep-alive)
-    // Watchlist
-    q-tab-panel(name="watchlist")
-      fund-watch-list(:fundWatchlist="fundWatchlist")
-
     // Funds
     q-tab-panel(name="funds")
       funds-summary
@@ -27,20 +24,29 @@ q-page(padding)
     // Currencies
     q-tab-panel(name="currency")
       currency-dashboard
+
+    // Fund Watchlist
+    q-tab-panel(name="fund-watchlist")
+      fund-watch-list(:fundWatchlist="fundWatchlist")
+
+    // Stock Watchlist
+    q-tab-panel(name="stock-watchlist")
+      stock-watch-list(:stockWatchlist="stockWatchlist")
+
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
 import isEqual from 'lodash/isEqual'
+import { mapActions, mapState } from 'vuex'
 export default {
   name: 'HomePage',
-  data () {
+  data() {
     return {
-      tab: 'watchlist'
+      tab: 'stock-watchlist'
     }
   },
   computed: {
-    ...mapState('account', ['balance', 'orders', 'statement', 'fundWatchlist']),
+    ...mapState('account', ['balance', 'orders', 'statement', 'fundWatchlist', 'stockWatchlist']),
     ...mapState('auth', ['user']),
     ...mapState('funds', ['favouriteIsins'])
   },
@@ -50,14 +56,22 @@ export default {
   watch: {
     balance: {
       immediate: true,
-      handler (newBalance) {
+      handler(newBalance) {
         const isins = this.$utils.account.getIsins(newBalance)
         this.lazyGets(isins)
       }
     },
     fundWatchlist: {
       immediate: true,
-      handler (newWatchlist, oldWatchlist) {
+      handler(newWatchlist, oldWatchlist) {
+        if (newWatchlist && !isEqual(newWatchlist, oldWatchlist)) {
+          this.lazyGets(newWatchlist)
+        }
+      }
+    },
+    stockWatchlist: {
+      immediate: true,
+      handler(newWatchlist, oldWatchlist) {
         if (newWatchlist && !isEqual(newWatchlist, oldWatchlist)) {
           this.lazyGets(newWatchlist)
         }

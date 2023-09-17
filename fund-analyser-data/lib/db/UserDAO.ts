@@ -6,6 +6,7 @@ import log from '../util/log'
 
 // property keys
 const FUND_WATCHLIST = 'fundWatchlist'
+const STOCK_WATCHLIST = 'stockWatchlist'
 const CURRENCIES = 'currencies'
 const SIMULATE_PARAMS = 'simulateParams'
 
@@ -22,14 +23,14 @@ const SIMULATE_PARAMS = 'simulateParams'
  */
 
 interface Metadata {
-    fundWatchlist: string[]
-    currencies: string[]
-    simulateParams: SimulateParam[]
+  fundWatchlist: string[]
+  currencies: string[]
+  simulateParams: SimulateParam[]
 }
 
 interface Entry {
-    user: string,
-    meta: Metadata
+  user: string,
+  meta: Metadata
 }
 
 export default class UserDAO {
@@ -81,6 +82,22 @@ export default class UserDAO {
     return this.clearProperty(user, FUND_WATCHLIST)
   }
 
+  static async getStockWatchlist (user: string) {
+    return this.getProperty(user, STOCK_WATCHLIST)
+  }
+
+  static async addToStockWatchlist (user: string, isin: string) {
+    return this.addToProperty(user, STOCK_WATCHLIST, isin)
+  }
+
+  static async removeFromStockWatchlist (user: string, isin: string) {
+    return this.removeFromProperty(user, STOCK_WATCHLIST, isin)
+  }
+
+  static async clearStockWatchlist (user: string) {
+    return this.clearProperty(user, STOCK_WATCHLIST)
+  }
+
   static async getCurrencies (user: string) {
     return this.getProperty(user, CURRENCIES)
   }
@@ -93,7 +110,7 @@ export default class UserDAO {
     return this.removeFromProperty(user, CURRENCIES, currency)
   }
 
-  static async getSimulateParams (user: string) : Promise<SimulateParam[]> {
+  static async getSimulateParams (user: string): Promise<SimulateParam[]> {
     return this.getProperty(user, SIMULATE_PARAMS)
   }
 

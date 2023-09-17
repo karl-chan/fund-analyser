@@ -1,11 +1,10 @@
 <template lang="pug">
 .column.q-gutter-y-sm
   // table
-  funds-table(:isins="fundWatchlist" :highlightIsin="selectedIsin"
-              @row-selected="onRowSelected")
+  funds-table(:isins="fundWatchlist" :highlightIsin="selectedIsin" @row-selected="onRowSelected")
     template(v-slot:title="")
       .row.justify-between.items-center
-        .text-h5 Watch List
+        .text-h5 Fund Watchlist
         q-btn.q-ml-xl(outline color="red" @click="clearFundWatchlist") Remove all
     template(v-slot:empty-view="")
       q-tooltip
@@ -26,7 +25,7 @@ import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'FundWatchList',
   props: ['fundWatchlist'],
-  data () {
+  data() {
     return {
       selectedIsin: null
     }
@@ -40,10 +39,10 @@ export default {
   },
   methods: {
     ...mapActions('account', ['clearFundWatchlist']),
-    onRowSelected (params) {
+    onRowSelected(params) {
       this.selectedIsin = params.data.isin
     },
-    onChartSelected (fund) {
+    onChartSelected(fund) {
       this.selectedIsin = fund && fund.isin
     }
   }

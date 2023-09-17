@@ -16,9 +16,7 @@ q-page(padding)
       div
         q-btn(color="indigo-7" icon="open_in_new" label="Open in CSD" @click="openURL('https://www.charles-stanley-direct.co.uk/ViewFund?Sedol=' + fund.sedol)")
       div
-        q-btn(flat round color="amber" size="xl" :icon="favouriteIcon"
-              @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false"
-              @click="toggleWatchlist(fund.isin)")
+        q-btn(flat round color="amber" size="xl" :icon="favouriteIcon" @mouseenter.native="hoveringFavouriteIcon = true" @mouseleave.native="hoveringFavouriteIcon = false" @click="toggleWatchlist(fund.isin)")
           q-tooltip {{ isFavourite? 'Remove from watch list' : 'Add to watch list' }}
 
     // middle section
@@ -49,7 +47,7 @@ import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'FundPage',
   props: ['isin'],
-  beforeRouteEnter (to, from, next) {
+  beforeRouteEnter(to, from, next) {
     next(async vm => {
       vm.loading = true
       const funds = await vm.lazyGets([to.params.isin])
@@ -60,7 +58,7 @@ export default {
       })
     })
   },
-  async beforeRouteUpdate (to, from, next) {
+  async beforeRouteUpdate(to, from, next) {
     next()
     if (to.params.isin !== from.params.isin) {
       this.loading = true
@@ -72,20 +70,20 @@ export default {
       })
     }
   },
-  data () {
+  data() {
     return {
       loading: true,
       hoveringFavouriteIcon: false
     }
   },
   computed: {
-    ...mapGetters('account', ['inWatchlist']),
+    ...mapGetters('account', ['inFundWatchlist']),
     ...mapGetters('funds', ['lookupFund']),
     fund: function () {
       return this.lookupFund(this.isin)
     },
     isFavourite: function () {
-      return this.inWatchlist(this.isin)
+      return this.inFundWatchlist(this.isin)
     },
     favouriteIcon: function () {
       return this.isFavourite ^ this.hoveringFavouriteIcon ? 'star' : 'star_outline'
@@ -95,15 +93,15 @@ export default {
     openURL,
     ...mapActions('account', ['addToRecentlyViewedFunds', 'addToFundWatchlist', 'removeFromFundWatchlist']),
     ...mapActions('funds', ['gets', 'lazyGets', 'updateRealTimeDetails']),
-    async refreshFund () {
+    async refreshFund() {
       this.loading = true
       await this.gets([this.isin])
       this.loading = false
     },
-    onFavouriteIconHovering (isMouseEnter) {
+    onFavouriteIconHovering(isMouseEnter) {
       this.hoveringFavouriteIcon = isMouseEnter
     },
-    toggleWatchlist (isin) {
+    toggleWatchlist(isin) {
       this.isFavourite ? this.removeFromFundWatchlist(isin) : this.addToFundWatchlist(isin)
     }
   }

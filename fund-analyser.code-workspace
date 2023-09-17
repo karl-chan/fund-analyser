@@ -9,5 +9,11 @@
 		{
 			"path": "fund-analyser-compute"
 		}
-	]
+	],
+	"settings": {
+		"jest.disabledWorkspaceFolders": [
+			"fund-analyser-compute",
+			"fund-analyser-app"
+		]
+	}
 }

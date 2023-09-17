@@ -6,7 +6,6 @@ import * as streamWrapper from '../util/streamWrapper'
 import FreeRealTime from './FreeRealTime'
 import NYSEStocks from './NYSEStocks'
 import StockCalculator from './StockCalculator'
-import Trading212 from './Trading212'
 
 export interface StockProvider {
     getStocksFromSymbols(symbols: string[]): Promise<Stock[]>
@@ -39,7 +38,7 @@ export default class StockFactory {
   stockProvider: StockProvider
   symbolProvider: SymbolProvider
   constructor () {
-    this.symbolProvider = new CompoundSymbolProvider(new NYSEStocks(), new Trading212())
+    this.symbolProvider = new CompoundSymbolProvider(new NYSEStocks())
     this.stockProvider = new FreeRealTime()
     this.stockCalculator = new StockCalculator()
   }

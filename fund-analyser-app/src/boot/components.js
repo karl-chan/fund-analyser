@@ -29,10 +29,12 @@ import SimulateRequest from 'components/simulate/SimulateRequest'
 import SimulateResponse from 'components/simulate/SimulateResponse'
 import SimulateResponseFooter from 'components/simulate/SimulateResponseFooter'
 import SimulateResponseModal from 'components/simulate/SimulateResponseModal'
+import StockChartGrid from 'components/stock/StockChartGrid'
 import StockFundamentals from 'components/stock/StockFundamentals'
 import StockSearch from 'components/stock/StockSearch'
 import StocksSummary from 'components/stock/StocksSummary'
 import StocksTable from 'components/stock/StocksTable'
+import StockWatchList from 'components/stock/StockWatchList'
 import AppDrawer from 'layouts/AppDrawer'
 import AppHeader from 'layouts/AppHeader'
 
@@ -59,10 +61,12 @@ export default ({ app }) => {
   app.component('fund-watch-list', FundWatchList)
   app.component('similar-funds', SimilarFunds)
 
+  app.component('stock-chart-grid', StockChartGrid)
   app.component('stock-search', StockSearch)
   app.component('stock-fundamentals', StockFundamentals)
   app.component('stocks-table', StocksTable)
   app.component('stocks-summary', StocksSummary)
+  app.component('stock-watch-list', StockWatchList)
 
   app.component('currency-chart', CurrencyChart)
   app.component('currency-dashboard', CurrencyDashboard)

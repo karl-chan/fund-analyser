@@ -18,7 +18,6 @@ import { getProjectRoot } from '../lib/util/paths'
 import * as properties from '../lib/util/properties'
 import Stopwatch from '../lib/util/stopwatch'
 import { SESSION_CONFIG } from './auth'
-import * as fundCache from './cache/fundCache'
 import * as stockCache from './cache/stockCache'
 import accountRoutes from './routes/account-routes'
 import adminRoutes from './routes/admin-routes'
@@ -91,14 +90,9 @@ const main = async () => {
     await db.init()
     log.info(`Connected to MongoDB in [${timer.split()}].`)
 
-    await Promise.all([
-      fundCache
-        .start(env.isProduction())
-        .then(() => log.info(`Started fund cache in [${timer.split()}].`)),
-      stockCache
-        .start(env.isProduction())
-        .then(() => log.info(`Started stock cache in [${timer.split()}].`))
-    ])
+    stockCache
+      .start(env.isProduction())
+      .then(() => log.info(`Started stock cache in [${timer.split()}].`))
   } catch (err) {
     log.error(err.stack)
     process.exit(1)
