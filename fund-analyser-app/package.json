@@ -21,7 +21,7 @@
     "highcharts": "9.3.2",
     "highcharts-vue": "1.4.0",
     "lodash": "4.17.21",
-    "moment": "2.29.1",
+    "moment": "2.29.4",
     "moment-business-days": "1.2.0",
     "quasar": "2.4.2",
     "urlb64touint8array": "1.0.3",
